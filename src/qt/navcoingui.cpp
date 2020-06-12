@@ -60,6 +60,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -74,14 +75,14 @@
 #include <QNetworkRequest>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <QPushButton>
 #include <QSettings>
 #include <QShortcut>
+#include <QSizePolicy>
 #include <QStackedWidget>
 #include <QStatusBar>
-#include <QStyle>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QVBoxLayout>
@@ -89,15 +90,16 @@
 #include <QVariantMap>
 #include <QWidget>
 
-const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
-#if defined(Q_OS_MAC)
-        "macosx"
-#elif defined(Q_OS_WIN)
-        "windows"
-#else
-        "other"
-#endif
-        ;
+static const struct {
+    bool error;
+    const char *text;
+} notifs[] = {
+    { true, "The DAO needs you! Please don't forget to vote!" },
+    { false, "This wallet is currently syncing. Your balance may not be accurate until it has completed!" },
+    { false, "GENERIC WARNINGS USE THIS" }
+};
+
+static const unsigned notifs_count = sizeof(notifs)/sizeof(*notifs);
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
 
@@ -111,9 +113,13 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelBlocksIcon(0),
     labelStakingIcon(0),
     labelPrice(0),
+    timerPrice(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
+    balanceAvail(0),
+    balancePendi(0),
+    balanceImmat(0),
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
@@ -125,6 +131,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     repairWalletAction(0),
     importPrivateKeyAction(0),
     exportMasterPrivateKeyAction(0),
+    exportMnemonicAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -149,18 +156,15 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
-    fDontShowAgain(false),
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
     splitRewardAction(0),
-    lastDialogShown(0),
     platformStyle(platformStyle),
     updatePriceAction(0),
     fShowingVoting(0)
 {
-    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
-    //setFixedSize(QSize(840, 600));
+    GUIUtil::restoreWindowGeometry("nWindow", QSize(800, 600), this);
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
@@ -232,6 +236,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Create application menu bar
     createMenuBar();
 
+    // Create the header widgets
+    createHeaderWidgets();
+
     // Create the toolbars
     createToolBars();
 
@@ -245,53 +252,49 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     statusBar()->setSizeGripEnabled(false);
 
     // Status bar notification icons
-    QFrame *frameBlocks = new QFrame();
-    frameBlocks->setContentsMargins(0,0,0,0);
-    frameBlocks->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
-    frameBlocksLayout->setContentsMargins(3,0,3,0);
-    frameBlocksLayout->setSpacing(3);
     unitDisplayControl = new QComboBox();
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
+    unitDisplayControl->setFixedHeight(25 * scale());
     for(NavCoinUnits::Unit u: NavCoinUnits::availableUnits())
     {
         unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
     }
     connect(unitDisplayControl,SIGNAL(currentIndexChanged(int)),this,SLOT(comboBoxChanged(int)));
     labelEncryptionIcon = new QLabel();
+    labelEncryptionIcon->setProperty("class", "status-icon");
     labelStakingIcon = new QLabel();
+    labelStakingIcon->setProperty("class", "status-icon");
     labelPrice = new QLabel();
+    labelPrice->setProperty("class", "StatusPrice");
     labelConnectionsIcon = new QLabel();
+    labelConnectionsIcon->setProperty("class", "status-icon");
     labelBlocksIcon = new GUIUtil::ClickableLabel();
+    labelBlocksIcon->setProperty("class", "status-icon");
     if(enableWallet)
     {
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelStakingIcon);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelPrice);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(unitDisplayControl);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelEncryptionIcon);
+        walletFrame->statusLayout->addWidget(labelPrice);
+        walletFrame->statusLayout->addWidget(labelEncryptionIcon);
+        walletFrame->statusLayout->addWidget(labelStakingIcon);
     }
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelConnectionsIcon);
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelBlocksIcon);
-    frameBlocksLayout->addStretch();
+    walletFrame->statusLayout->addWidget(labelConnectionsIcon);
+    walletFrame->statusLayout->addWidget(labelBlocksIcon);
+    if(enableWallet)
+        walletFrame->statusLayout->addWidget(unitDisplayControl);
 
     updatePrice(); // First price update
 
+    // Get the passed override value or use default value
     int updateFiatPeriod = GetArg("-updatefiatperiod", PRICE_UPDATE_DELAY);
+
+    // Make sure the delay is a same value
     if (updateFiatPeriod >= PRICE_UPDATE_DELAY)
     {
-        QTimer *timerPrice = new QTimer(labelPrice);
+        timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
         timerPrice->start(updateFiatPeriod);
         info("Automatic price update set to " + std::to_string(updateFiatPeriod) + "ms");
-    }
-    else
+    } else // No auto update of prices
     {
         info("Automatic price update turned OFF");
     }
@@ -321,17 +324,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Override style sheet for progress bar for styles that have a segmented progress bar,
     // as they make the text unreadable (workaround for issue #1071)
     // See https://qt-project.org/doc/qt-4.8/gallery.html
-    QString curStyle = QApplication::style()->metaObject()->className();
-    if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
-    {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 0px solid grey; border-radius: 10px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 10px; margin: 0px; }");
-    }
-    QLabel *versionLabel = new QLabel();
-    versionLabel->setText(QString::fromStdString("v" + FormatVersion(CLIENT_VERSION)));
-    statusBar()->addWidget(versionLabel);
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
-    statusBar()->addPermanentWidget(frameBlocks);
 
     // Install event filter to be able to catch status tip events (QEvent::StatusTip)
     this->installEventFilter(this);
@@ -342,13 +336,21 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Subscribe to notifications from core
     subscribeToCoreSignals();
 
-    modalOverlay = new ModalOverlay(this->centralWidget());
+    modalOverlay = new ModalOverlay(platformStyle, this->centralWidget());
 #ifdef ENABLE_WALLET
     if(enableWallet) {
         connect(walletFrame, &WalletFrame::requestedSyncWarningInfo, this, &NavCoinGUI::showModalOverlay);
         connect(labelBlocksIcon, &GUIUtil::ClickableLabel::clicked, this, &NavCoinGUI::showModalOverlay);
         connect(progressBar, &GUIUtil::ClickableProgressBar::clicked, this, &NavCoinGUI::showModalOverlay);
     }
+
+    gotoOverviewPage();
+#endif
+
+    connect(walletFrame, SIGNAL(daoEntriesChanged(int)), this, SLOT(onDaoEntriesChanged(int)));
+
+#ifdef Q_OS_MAC
+    appNapInhibitor = new CAppNapInhibitor;
 #endif
 }
 
@@ -361,6 +363,7 @@ NavCoinGUI::~NavCoinGUI()
     if(trayIcon) // Hide tray icon, as deleting will let it linger until quit (on Ubuntu)
         trayIcon->hide();
 #ifdef Q_OS_MAC
+    delete appNapInhibitor;
     delete appMenuBar;
     MacDockIconHandler::cleanup();
 #endif
@@ -368,36 +371,41 @@ NavCoinGUI::~NavCoinGUI()
     delete rpcConsole;
 }
 
+float NavCoinGUI::scale()
+{
+    return GUIUtil::scale();
+}
+
 void NavCoinGUI::createActions()
 {
     QActionGroup *tabGroup = new QActionGroup(this);
 
-    overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/navcoin"), tr("&Overview"), this);
+    overviewAction = new QAction(platformStyle->Icon(":/icons/navcoin"), tr("&Overview"), this);
     overviewAction->setStatusTip(tr("Show general overview of wallet"));
     overviewAction->setToolTip(overviewAction->statusTip());
     overviewAction->setCheckable(true);
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    sendCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/send"), tr("&Send"), this);
+    sendCoinsAction = new QAction(platformStyle->Icon(":/icons/send"), tr("&Send"), this);
     sendCoinsAction->setStatusTip(tr("Send coins to a NavCoin address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
 
-    sendCoinsMenuAction = new QAction(platformStyle->TextColorIcon(":/icons/send"), sendCoinsAction->text(), this);
+    sendCoinsMenuAction = new QAction(platformStyle->IconAlt(":/icons/send"), sendCoinsAction->text(), this);
     sendCoinsMenuAction->setStatusTip(sendCoinsAction->statusTip());
     sendCoinsMenuAction->setToolTip(sendCoinsMenuAction->statusTip());
 
-    receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
+    receiveCoinsAction = new QAction(platformStyle->Icon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and navcoin: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(receiveCoinsAction);
 
-    receiveCoinsMenuAction = new QAction(platformStyle->TextColorIcon(":/icons/receiving_addresses"), receiveCoinsAction->text(), this);
+    receiveCoinsMenuAction = new QAction(platformStyle->IconAlt(":/icons/receiving_addresses"), receiveCoinsAction->text(), this);
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
@@ -407,7 +415,7 @@ void NavCoinGUI::createActions()
     splitRewardAction = new QAction(tr("Set up staking rewards"), this);
     splitRewardAction->setStatusTip(tr("Configure how to split the staking rewards"));
 
-    historyAction = new QAction(platformStyle->SingleColorIcon(":/icons/history"), tr("&Transactions"), this);
+    historyAction = new QAction(platformStyle->Icon(":/icons/transactions"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
@@ -438,53 +446,53 @@ void NavCoinGUI::createActions()
     connect(splitRewardAction, SIGNAL(triggered()), this, SLOT(splitRewards()));
 #endif // ENABLE_WALLET
 
-    quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
+    quitAction = new QAction(platformStyle->IconAlt(":/icons/quit"), tr("E&xit"), this);
     quitAction->setStatusTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&About %1").arg(tr(PACKAGE_NAME)), this);
+    aboutAction = new QAction(platformStyle->IconAlt(":/icons/about"), tr("&About %1").arg(tr(PACKAGE_NAME)), this);
     aboutAction->setStatusTip(tr("Show information about %1").arg(tr(PACKAGE_NAME)));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutAction->setEnabled(false);
-    infoAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("%1 &Knowledge Base").arg(tr(PACKAGE_NAME)), this);
+    infoAction = new QAction(platformStyle->IconAlt(":/icons/address-book"), tr("%1 &Knowledge Base").arg(tr(PACKAGE_NAME)), this);
     infoAction->setStatusTip(tr("Open the %1 Knowledge Base in your browser").arg(tr(PACKAGE_NAME)));
     infoAction->setMenuRole(QAction::NoRole);
     infoAction->setEnabled(false);
-    aboutQtAction = new QAction(platformStyle->TextColorIcon(":/icons/about_qt"), tr("About &Qt"), this);
+    aboutQtAction = new QAction(platformStyle->IconAlt(":/icons/about_qt"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
-    optionsAction = new QAction(platformStyle->TextColorIcon(":/icons/options"), tr("&Options..."), this);
+    optionsAction = new QAction(platformStyle->IconAlt(":/icons/options"), tr("&Options..."), this);
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
     cfundProposalsAction = new QAction(tr("Vote for Proposals"), this);
     cfundPaymentRequestsAction = new QAction(tr("Vote for Payment Requests"), this);
-    toggleHideAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&Show / Hide"), this);
+    toggleHideAction = new QAction(platformStyle->IconAlt(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
-    encryptWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
+    encryptWalletAction = new QAction(platformStyle->IconAlt(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
     unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking..."), this);
     unlockWalletAction->setToolTip(tr("Unlock wallet for Staking"));
-    backupWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
+    backupWalletAction = new QAction(platformStyle->IconAlt(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-    changePassphraseAction = new QAction(platformStyle->TextColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
+    changePassphraseAction = new QAction(platformStyle->IconAlt(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
 
-    signMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/edit"), tr("Sign &message..."), this);
+    signMessageAction = new QAction(platformStyle->IconAlt(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your NavCoin addresses to prove you own them"));
-    verifyMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/verify"), tr("&Verify message..."), this);
+    verifyMessageAction = new QAction(platformStyle->IconAlt(":/icons/verify"), tr("&Verify message..."), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified NavCoin addresses"));
 
-    openRPCConsoleAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Debug window"), this);
+    openRPCConsoleAction = new QAction(platformStyle->IconAlt(":/icons/debugwindow"), tr("&Debug window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open debugging and diagnostic console"));
     // initially disable the debug window menu item
     openRPCConsoleAction->setEnabled(false);
 
-    usedSendingAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("&Sending addresses..."), this);
+    usedSendingAddressesAction = new QAction(platformStyle->IconAlt(":/icons/address-book"), tr("&Sending addresses..."), this);
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
-    usedReceivingAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
+    usedReceivingAddressesAction = new QAction(platformStyle->IconAlt(":/icons/address-book"), tr("&Receiving addresses..."), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
     repairWalletAction = new QAction(tr("&Repair wallet"), this);
     repairWalletAction->setToolTip(tr("Repair wallet transactions"));
@@ -495,10 +503,13 @@ void NavCoinGUI::createActions()
     exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
     exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
 
-    openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
+    exportMnemonicAction = new QAction(tr("Show m&nemonic"), this);
+    exportMnemonicAction->setToolTip(tr("Show mnemonic"));
+
+    openAction = new QAction(platformStyle->IconAlt(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
-    showHelpMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/info"), tr("&Command-line options"), this);
+    showHelpMessageAction = new QAction(platformStyle->IconAlt(":/icons/info"), tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible NavCoin command-line options").arg(tr(PACKAGE_NAME)));
 
@@ -512,6 +523,10 @@ void NavCoinGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
+
+    // Get restart command-line parameters and handle restart
+    connect(rpcConsole, SIGNAL(handleRestart(QStringList)), this, SLOT(handleRestart(QStringList)));
+
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
 
@@ -529,6 +544,7 @@ void NavCoinGUI::createActions()
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
         connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
+        connect(exportMnemonicAction, SIGNAL(triggered()), walletFrame, SLOT(exportMnemonicAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -563,6 +579,7 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
         file->addAction(exportMasterPrivateKeyAction);
+        file->addAction(exportMnemonicAction);
     }
     file->addAction(quitAction);
 
@@ -592,93 +609,348 @@ void NavCoinGUI::createMenuBar()
     help->addAction(aboutQtAction);
 }
 
+void NavCoinGUI::createHeaderWidgets()
+{
+    // Notifications layout vertical
+    QVBoxLayout* notificationLayout = new QVBoxLayout();
+    notificationLayout->setContentsMargins(0, 0, 0, 0);
+    notificationLayout->setSpacing(0);
+    notificationLayout->setAlignment(Qt::AlignVCenter);
+
+    // Add a spacer to header to create a background
+    QWidget* headerSpacer = new QWidget();
+    headerSpacer->setObjectName("HeaderSpacer");
+    headerSpacer->setLayout(notificationLayout);
+
+    // Build each new notification
+    for (unsigned i = 0; i < notifs_count; ++i)
+    {
+        // Add notifications
+        notifications[i] = new QLabel();
+        notifications[i]->hide();
+        notifications[i]->setWordWrap(true);
+        notifications[i]->setText(tr(notifs[i].text));
+        if (notifs[i].error == true)
+            notifications[i]->setProperty("class", "alert alert-danger");
+        else
+            notifications[i]->setProperty("class", "alert alert-warning");
+
+        // Add to notification layout
+        notificationLayout->addWidget(notifications[i]);
+    }
+
+    QWidget* balanceContainer = new QWidget();
+    balanceContainer->setObjectName("balanceContainer");
+    QWidget* stakedContainer = new QWidget();
+    stakedContainer->setObjectName("stakedContainer");
+
+    QVBoxLayout* balanceLayout = new QVBoxLayout();
+    balanceLayout->setContentsMargins(0, 0, 20 * GUIUtil::scale(), 0);
+    balanceLayout->setSpacing(5 * GUIUtil::scale());
+    balanceContainer->setLayout(balanceLayout);
+
+    QVBoxLayout* stakedLayout = new QVBoxLayout();
+    stakedLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 0, 0);
+    stakedLayout->setSpacing(5 * GUIUtil::scale());
+    stakedContainer->setLayout(stakedLayout);
+
+    // Containers for the subbalance layouts
+    QWidget* balanceAvailContainer = new QWidget();
+    balanceAvailContainer->setObjectName("balanceAvailContainer");
+    QWidget* balancePendiContainer = new QWidget();
+    balancePendiContainer->setObjectName("balancePendiContainer");
+    QWidget* balanceImmatContainer = new QWidget();
+    balanceImmatContainer->setObjectName("balanceImmatContainer");
+
+    QWidget* stakedAvailContainer = new QWidget();
+    stakedAvailContainer->setObjectName("stakedAvailContainer");
+    QWidget* stakedPendiContainer = new QWidget();
+    stakedPendiContainer->setObjectName("stakedPendiContainer");
+    QWidget* stakedImmatContainer = new QWidget();
+    stakedImmatContainer->setObjectName("stakedImmatContainer");
+
+    // Layouts for the sub balance sections
+    QVBoxLayout* balanceAvailLayout = new QVBoxLayout();
+    balanceAvailLayout->setContentsMargins(0, 0, 0, 0);
+    balanceAvailLayout->setSpacing(0);
+    QVBoxLayout* balancePendiLayout = new QVBoxLayout();
+    balancePendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
+    balancePendiLayout->setSpacing(0);
+    QVBoxLayout* balanceImmatLayout = new QVBoxLayout();
+    balanceImmatLayout->setContentsMargins(0, 0, 0, 0);
+    balanceImmatLayout->setSpacing(0);
+
+    // Layouts for the sub staked sections
+    QVBoxLayout* stakedAvailLayout = new QVBoxLayout();
+    stakedAvailLayout->setContentsMargins(0, 0, 0, 0);
+    stakedAvailLayout->setSpacing(0);
+    QVBoxLayout* stakedPendiLayout = new QVBoxLayout();
+    stakedPendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
+    stakedPendiLayout->setSpacing(0);
+    QVBoxLayout* stakedImmatLayout = new QVBoxLayout();
+    stakedImmatLayout->setContentsMargins(0, 0, 0, 0);
+    stakedImmatLayout->setSpacing(0);
+
+    // Set the layouts for the containers
+    balanceAvailContainer->setLayout(balanceAvailLayout);
+    balancePendiContainer->setLayout(balancePendiLayout);
+    balanceImmatContainer->setLayout(balanceImmatLayout);
+    stakedAvailContainer->setLayout(stakedAvailLayout);
+    stakedPendiContainer->setLayout(stakedPendiLayout);
+    stakedImmatContainer->setLayout(stakedImmatLayout);
+
+    // Create our balance labels
+    balanceAvail = new QLabel();
+    balanceAvail->setObjectName("balanceAvail");
+    balanceAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balancePendi = new QLabel();
+    balancePendi->setObjectName("balancePendi");
+    balancePendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balanceImmat = new QLabel();
+    balanceImmat->setObjectName("balanceImmat");
+    balanceImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    // Create our staked labels
+    stakedAvail = new QLabel();
+    stakedAvail->setObjectName("stakedAvail");
+    stakedAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    stakedPendi = new QLabel();
+    stakedPendi->setObjectName("stakedPendi");
+    stakedPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    stakedImmat = new QLabel();
+    stakedImmat->setObjectName("stakedImmat");
+    stakedImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    // Labels above the actual values
+    QLabel* balanceAvailLabel = new QLabel();
+    balanceAvailLabel->setText(tr("Available"));
+    balanceAvailLabel->setObjectName("balanceAvailLabel");
+    QLabel* balancePendiLabel = new QLabel();
+    balancePendiLabel->setText(tr("Pending"));
+    balancePendiLabel->setObjectName("balancePendiLabel");
+    QLabel* balanceImmatLabel = new QLabel();
+    balanceImmatLabel->setText(tr("Immature"));
+    balanceImmatLabel->setObjectName("balanceImmatLabel");
+    QLabel* stakedAvailLabel = new QLabel();
+    stakedAvailLabel->setText(tr("Staked"));
+    stakedAvailLabel->setObjectName("stakedAvailLabel");
+    QLabel* stakedPendiLabel = new QLabel();
+    stakedPendiLabel->setText(tr("Last 24 Hours"));
+    stakedPendiLabel->setObjectName("stakedPendiLabel");
+    QLabel* stakedImmatLabel = new QLabel();
+    stakedImmatLabel->setText(tr("Last 7 Days"));
+    stakedImmatLabel->setObjectName("stakedImmatLabel");
+
+    // Add these to the correct container
+    balanceAvailLayout->addWidget(balanceAvailLabel);
+    balanceAvailLayout->addWidget(balanceAvail);
+    balancePendiLayout->addWidget(balancePendiLabel);
+    balancePendiLayout->addWidget(balancePendi);
+    balanceImmatLayout->addWidget(balanceImmatLabel);
+    balanceImmatLayout->addWidget(balanceImmat);
+    stakedAvailLayout->addWidget(stakedAvailLabel);
+    stakedAvailLayout->addWidget(stakedAvail);
+    stakedPendiLayout->addWidget(stakedPendiLabel);
+    stakedPendiLayout->addWidget(stakedPendi);
+    stakedImmatLayout->addWidget(stakedImmatLabel);
+    stakedImmatLayout->addWidget(stakedImmat);
+
+    // Sub layout
+    QHBoxLayout* balanceSubLayout = new QHBoxLayout();
+    balanceSubLayout->setContentsMargins(0, 0, 0, 0);
+    balanceSubLayout->setSpacing(0);
+    balanceSubLayout->addWidget(balancePendiContainer);
+    balanceSubLayout->addWidget(balanceImmatContainer);
+
+    // Sub layout
+    QHBoxLayout* stakedSubLayout = new QHBoxLayout();
+    stakedSubLayout->setContentsMargins(0, 0, 0, 0);
+    stakedSubLayout->setSpacing(0);
+    stakedSubLayout->addWidget(stakedPendiContainer);
+    stakedSubLayout->addWidget(stakedImmatContainer);
+
+    // Balance sub
+    QWidget* balanceSub = new QWidget();
+    balanceSub->setLayout(balanceSubLayout);
+
+    balanceLayout->addWidget(balanceAvailContainer);
+    balanceLayout->addWidget(balanceSub);
+
+    // Staked sub
+    QWidget* stakedSub = new QWidget();
+    stakedSub->setLayout(stakedSubLayout);
+
+    stakedLayout->addWidget(stakedAvailContainer);
+    stakedLayout->addWidget(stakedSub);
+
+    // The balance amd staked
+    walletFrame->balanceLayout->addWidget(balanceContainer);
+    walletFrame->balanceLayout->addWidget(stakedContainer);
+
+    // Add the header spacer and header bar
+    walletFrame->headerLayout->addWidget(headerSpacer);
+}
+
 void NavCoinGUI::createToolBars()
 {
-    if(walletFrame)
+    if(walletFrame == nullptr)
+        return;
+
+    // Sizes
+    QSize iconSize = QSize(35 * scale(), 35 * scale());
+    QSize logoIconSize = QSize(60 * scale(), 60 * scale());
+
+    // Create the logo icon
+    QIcon logoIcon = QIcon(":/icons/logo_n");
+
+    // Create the logo button
+    QToolButton* logoBtn = new QToolButton();
+    logoBtn->setIcon(logoIcon);
+    logoBtn->setIconSize(logoIconSize);
+    logoBtn->setProperty("class", "main-menu-btn");
+    logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    // Attach the logo button to the layout
+    walletFrame->menuLayout->addWidget(logoBtn);
+
+    // Buttons icon
+    QString btnNamesIcon[5] = {
+        "home",
+        "send",
+        "receive",
+        "transactions",
+        "dao"
+    };
+
+    // Buttons text
+    std::string btnNamesText[5] = {
+        "HOME",
+        "SEND",
+        "RECEIVE",
+        "HISTORY",
+        "DAO"
+    };
+
+    // Build each new button
+    for (unsigned i = 0; i < 5; ++i)
     {
-        // QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
-        // toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        // toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
-        // toolbar->setObjectName("tabs");
-        // toolbar->setStyleSheet(
-        // "QToolButton { color: #FFFFFF; font-weight:bold; margin: 0; padding: 0; background-color: #43b5eb; border: 0px; } "
-        // "QToolButton:hover { background-color: #71c7f0; border-bottom: 4px solid #43b5eb; border-left: none; } "
-        // "QToolButton:checked { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
-        // "QToolButton:pressed { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
-        // "#tabs { color: #ffffff; background-image: url(:/images/background) }");
+        // Create the icon
+        QIcon icon = platformStyle->Icon(":/icons/" + btnNamesIcon[i], COLOR_WHITE);
 
-        QPushButton* topMenuLogo = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenuLogo);
-        topMenuLogo->setFixedSize(187,94);
-        topMenuLogo->setObjectName("navLogo");
-        topMenuLogo->setStyleSheet(
-           "#navLogo { background: url(:/icons/menu_logo) bottom center #eee; border: 0; }");
+        // Update the disabled icon pixmap to use the same as QIcon::Normal
+        icon.addPixmap(icon.pixmap(iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
 
-        topMenu1 = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenu1);
-        topMenu1->setFixedSize(139,94);
-        topMenu1->setObjectName("topMenu1");
-        connect(topMenu1, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
-        topMenu1->setStyleSheet(
-           "#topMenu1 { background: url(:/icons/menu_home_ns) bottom center #eee; border: 0; }"
-           "#topMenu1:hover { background: url(:/icons/menu_home_hover) bottom center #ddd; border: 0; }");
+        // Create the menu button
+        menuBtns[i] = new QToolButton();
+        menuBtns[i]->setText(tr(btnNamesText[i].c_str()));
+        menuBtns[i]->setIcon(icon);
+        menuBtns[i]->setIconSize(iconSize);
+        menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+        menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        menuBtns[i]->setProperty("class", "main-menu-btn");
 
-        topMenu2 = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenu2);
-        topMenu2->setFixedSize(144,94);
-        topMenu2->setObjectName("topMenu2");
-        connect(topMenu2, SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
-        topMenu2->setStyleSheet(
-                    "#topMenu2 { background: url(:/icons/menu_send_ns) bottom center #eee; border: 0; }"
-                    "#topMenu2:hover { background: url(:/icons/menu_send_hover) bottom center #ddd; border: 0; }");
+        // Attach to the layout and assign click events
+        walletFrame->menuLayout->addWidget(menuBtns[i]);
 
-        topMenu3 = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenu3);
-        topMenu3->setFixedSize(156,94);
-        topMenu3->setObjectName("topMenu3");
-        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
-        topMenu3->move(469,0);
-        topMenu3->setStyleSheet(
-                    "#topMenu3 { background: url(:/icons/menu_receive_ns) bottom center #eee; border: 0; }"
-                    "#topMenu3:hover { background: url(:/icons/menu_receive_hover) bottom center #ddd; border: 0; }");
+        // Create a bubble layout
+        QVBoxLayout* bubbleLayout = new QVBoxLayout(menuBtns[i]);
+        bubbleLayout->setContentsMargins(0, 10 * scale(), 10 * scale(), 0);
+        bubbleLayout->setSpacing(0);
+        bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignTop); // Move it to the top right
 
-        topMenu4 = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenu4);
-        topMenu4->setFixedSize(215,94);
-        topMenu4->setObjectName("topMenu4");
-        connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
-        topMenu4->setStyleSheet(
-                    "#topMenu4 { background: url(:/icons/menu_transaction_ns) bottom center #eee; border: 0; }"
-                    "#topMenu4:hover { background: url(:/icons/menu_transaction_hover) bottom center #ddd; border: 0; }");
-        topMenu5 = new QPushButton();
-        walletFrame->menuLayout->addWidget(topMenu5);
-        topMenu5->setFixedSize(215,94);
-        topMenu5->setObjectName("topMenu5");
-        connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
-        topMenu5->setStyleSheet(
-                    "#topMenu5 { background: url(:/icons/menu_community_fund_ns) bottom center #eee; border: 0; }"
-                    "#topMenu5:hover { background: url(:/icons/menu_community_fund_hover) bottom center #ddd; border: 0; }");
-        QWidget *topMenu = new QWidget();
-        topMenu->setObjectName("topMenu");
-        topMenu->setStyleSheet(
-                    "#topMenu { border-image: url(:/icons/background_top)  0 0 0 0 stretch stretch; border: 0px; border-image-repeat: stretch; }");
-        walletFrame->menuLayout->addWidget(topMenu);
-
-        // ImageButton* navLogo2 = new ImageButton();
-        // navLogo2->setFixedSize(64,64);
-        // navLogo2->setObjectName("navLogo");
-        // navLogo2->setPixmap(pixmap);
-        //
-        // toolbar->setMovable(false);
-        // toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        // toolbar->addWidget(navLogo);
-        // toolbar->addWidget(navLogo2);
-        // toolbar->addAction(overviewAction);
-        // toolbar->addAction(sendCoinsAction);
-        // toolbar->addAction(receiveCoinsAction);
-        // toolbar->addAction(historyAction);
-        // overviewAction->setChecked(true);
+        // Create the bubble and place in the bubble layout
+        menuBubbles[i] = new QLabel();
+        menuBubbles[i]->hide();
+        menuBubbles[i]->setText("1");
+        menuBubbles[i]->setProperty("class", "main-menu-bubble");
+        bubbleLayout->addWidget(menuBubbles[i]);
     }
+
+    /* This is to make the sidebar background consistent */
+    QWidget *padding = new QWidget();
+    padding->setProperty("class", "main-menu-btn");
+    walletFrame->menuLayout->addWidget(padding);
+
+    // Add the versionLabel
+    QToolButton* versionLabel = new QToolButton();
+    versionLabel->setText(QString::fromStdString(FormatVersion(CLIENT_VERSION)));
+    versionLabel->setProperty("class", "main-menu-btn");
+    versionLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    walletFrame->menuLayout->addWidget(versionLabel);
+
+    // Link OverviewPage to main menu logo
+    connect(logoBtn, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+
+    // Menu Button actions
+    connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+    connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
+    connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
+    connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+    connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
+
+    // Open about when versionLabel is clicked
+    connect(versionLabel, SIGNAL(clicked()), this, SLOT(aboutClicked()));
+}
+
+void NavCoinGUI::showOutOfSyncWarning(bool fShow)
+{
+    showHideNotification(fShow, 1);
+}
+
+void NavCoinGUI::showHideNotification(bool show, int index)
+{
+    notifications[index]->setVisible(show);
+}
+
+void NavCoinGUI::setActiveMenu(int index)
+{
+    for (int i = 0; i < 5; ++i)
+    {
+        menuBtns[i]->setDisabled(i == index);
+    }
+}
+
+void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat)
+{
+    if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
+        return;
+
+    int unit = clientModel->getOptionsModel()->getDisplayUnit();
+
+    balanceAvail->setText(NavCoinUnits::prettyWithUnit(unit, avail, false, NavCoinUnits::separatorAlways));
+    balancePendi->setText(NavCoinUnits::prettyWithUnit(unit, pendi, false, NavCoinUnits::separatorAlways));
+    balanceImmat->setText(NavCoinUnits::prettyWithUnit(unit, immat, false, NavCoinUnits::separatorAlways));
+}
+
+void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmount &week)
+{
+    if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
+        return;
+
+    int unit = clientModel->getOptionsModel()->getDisplayUnit();
+
+    stakedAvail->setText(NavCoinUnits::prettyWithUnit(unit, all, false, NavCoinUnits::separatorAlways));
+    stakedPendi->setText(NavCoinUnits::prettyWithUnit(unit, today, false, NavCoinUnits::separatorAlways));
+    stakedImmat->setText(NavCoinUnits::prettyWithUnit(unit, week, false, NavCoinUnits::separatorAlways));
+}
+
+void NavCoinGUI::onDaoEntriesChanged(int count)
+{
+    // Update the bubble
+    setMenuBubble(4, count);
+
+    // New daos? SHOW notification
+    showHideNotification(count > 0, 0);
+}
+
+void NavCoinGUI::setMenuBubble(int index, int drak)
+{
+    menuBubbles[index]->setText(QString::number(drak));
+
+    if (drak > 0)
+        menuBubbles[index]->show();
+    else
+        menuBubbles[index]->hide();
 }
 
 void NavCoinGUI::setClientModel(ClientModel *clientModel)
@@ -686,6 +958,10 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
     this->clientModel = clientModel;
     if(clientModel)
     {
+        // Show warnings
+        connect(clientModel, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
+        updateAlerts(clientModel->getStatusBarWarnings());
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
@@ -775,6 +1051,15 @@ void NavCoinGUI::repairWallet()
     WriteConfigFile("repairwallet","1");
 
     QApplication::quit();
+}
+
+void NavCoinGUI::updateAlerts(const QString &warnings)
+{
+    // Show or hide the warning
+    notifications[2]->setVisible(!warnings.isEmpty());
+
+    // Set the message
+    notifications[2]->setText(tr(qPrintable(warnings)));
 }
 
 #endif // ENABLE_WALLET
@@ -936,120 +1221,42 @@ void NavCoinGUI::openClicked()
 
 void NavCoinGUI::gotoOverviewPage()
 {
+    setActiveMenu(0);
     overviewAction->setChecked(true);
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_s)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu5:hover { border-image: url(:/icons/menu_community_fund_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
 void NavCoinGUI::gotoHistoryPage()
 {
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu5:hover { border-image: url(:/icons/menu_community_fund_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    setActiveMenu(3);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
 void NavCoinGUI::gotoCommunityFundPage()
 {
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    setActiveMenu(4);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoCommunityFundPage();
 }
 
 void NavCoinGUI::gotoReceiveCoinsPage()
 {
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_s)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu5:hover { border-image: url(:/icons/menu_community_fund_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
 void NavCoinGUI::gotoRequestPaymentPage()
 {
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_s)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu5:hover { border-image: url(:/icons/menu_community_fund_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
 }
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
-    topMenu1->setStyleSheet(
-       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu2->setStyleSheet(
-                "#topMenu2 { border-image: url(:/icons/menu_send_s)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu3->setStyleSheet(
-                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu4->setStyleSheet(
-                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-    topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_community_fund_ns)  0 0 0 0 stretch stretch; border: 0px; }"
-                "#topMenu5:hover { border-image: url(:/icons/menu_community_fund_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    setActiveMenu(1);
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
@@ -1070,27 +1277,34 @@ void NavCoinGUI::setNumConnections(int count)
     QString icon;
     switch(count)
     {
-    case 0: icon = ":/icons/connect_0"; break;
-    case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
-    case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
-    case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
-    default: icon = ":/icons/connect_4"; break;
+        case 0: icon = ":/icons/connect_0"; break;
+        case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
+        case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
+        case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
+        default: icon = ":/icons/connect_4"; break;
     }
-    labelConnectionsIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    labelConnectionsIcon->setPixmap(platformStyle->IconAlt(icon).pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to NavCoin network", "", count));
-    if(walletFrame){
-        walletFrame->setStatusTitleConnections(tr("%n active connections.","",count));
-        if(count > 0)
-            walletFrame->showStatusTitleConnections();
-        else
-            walletFrame->hideStatusTitleConnections();
-    }
+}
+
+void NavCoinGUI::updateHeadersSyncProgressLabel()
+{
+    int64_t headersTipTime = clientModel->getHeaderTipTime();
+    int headersTipHeight = clientModel->getHeaderTipHeight();
+    int estHeadersLeft = (GetTime() - headersTipTime) / Params().GetConsensus().nPowTargetSpacing;
+    if (estHeadersLeft > HEADER_HEIGHT_DELTA_SYNC)
+        progressBarLabel->setText(tr("Syncing Headers (%1%)...").arg(QString::number(100.0 / (headersTipHeight+estHeadersLeft)*headersTipHeight, 'f', 1)));
 }
 
 bool showingVotingDialog = false;
 
 void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
 {
+#ifdef Q_OS_MAC
+    // Disabling macOS App Nap on initial sync, disk and reindex operations.
+    IsInitialBlockDownload() ? appNapInhibitor->disableAppNap() : appNapInhibitor->enableAppNap();
+#endif
+
     if (modalOverlay)
     {
         if (header)
@@ -1102,39 +1316,35 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     if(!clientModel)
         return;
 
-    // Prevent orphan statusbar messages (e.g. hover Quit in main menu, wait until chain-sync starts -> garbelled text)
+    // Prevent orphan statusbar messages (e.g. hover Quit in main menu, wait until chain-sync starts -> garbled text)
     statusBar()->clearMessage();
 
     // Acquire current block source
     enum BlockSource blockSource = clientModel->getBlockSource();
     switch (blockSource) {
-        case BLOCK_SOURCE_NETWORK:
+        case BlockSource::NETWORK:
             if (header) {
+                updateHeadersSyncProgressLabel();
                 return;
             }
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("Synchronizing with network..."));
+            progressBarLabel->setText(tr("Synchronizing with network..."));
+            updateHeadersSyncProgressLabel();
             break;
-        case BLOCK_SOURCE_DISK:
+        case BlockSource::DISK:
             if (header) {
-                if(walletFrame)
-                    walletFrame->setStatusTitle(tr("Indexing blocks on disk..."));
+                progressBarLabel->setText(tr("Indexing blocks on disk..."));
             } else {
-                if(walletFrame)
-                    walletFrame->setStatusTitle(tr("Processing blocks on disk..."));
+                progressBarLabel->setText(tr("Processing blocks on disk..."));
             }
             break;
-        case BLOCK_SOURCE_REINDEX:
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("Reindexing blocks on disk..."));
+        case BlockSource::REINDEX:
+            progressBarLabel->setText(tr("Reindexing blocks on disk..."));
             break;
-        case BLOCK_SOURCE_NONE:
+        case BlockSource::NONE:
             if (header) {
                 return;
             }
-            // Case: not Importing, not Reindexing and no network connection
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("No block source available..."));
+            progressBarLabel->setText(tr("Connecting to peers..."));
             break;
     }
 
@@ -1144,85 +1354,44 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     qint64 secs = blockDate.secsTo(currentDate);
 
     tooltip = tr("Processed %n block(s) of transaction history.", "", count);
-    if(walletFrame){
-        walletFrame->setStatusTitleBlocks(tr("Last block: %n","",count));
-        if(count > 0)
-            walletFrame->showStatusTitleBlocks();
-        else
-            walletFrame->hideStatusTitleBlocks();
-
-    }
 
     // Set icon state: spinning if catching up, tick otherwise
-    if(secs < 90*60)
-    {
+    if (secs < MAX_BLOCK_TIME_GAP) {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelBlocksIcon->setPixmap(platformStyle->IconAlt(":/icons/synced").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
         {
-            walletFrame->showOutOfSyncWarning(false);
+            showOutOfSyncWarning(false);
             modalOverlay->showHide(true, true);
         }
 #endif // ENABLE_WALLET
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-        if(walletFrame)
-            walletFrame->setStatusTitle(tr("Connected to NavCoin network."));
     }
     else
     {
-        // Represent time from last generated block in human readable text
-        QString timeBehindText;
-        const int HOUR_IN_SECONDS = 60*60;
-        const int DAY_IN_SECONDS = 24*60*60;
-        const int WEEK_IN_SECONDS = 7*24*60*60;
-        const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
+        QString timeBehindText = GUIUtil::formatNiceTimeOffset(secs);
 
-        if(walletFrame)
-            walletFrame->setStatusTitle(tr("Connecting to NavCoin network..."));
-
-        if(secs < 2*DAY_IN_SECONDS)
-        {
-            timeBehindText = tr("%n hour(s)","",secs/HOUR_IN_SECONDS);
-        }
-        else if(secs < 2*WEEK_IN_SECONDS)
-        {
-            timeBehindText = tr("%n day(s)","",secs/DAY_IN_SECONDS);
-        }
-        else if(secs < YEAR_IN_SECONDS)
-        {
-            timeBehindText = tr("%n week(s)","",secs/WEEK_IN_SECONDS);
-        }
-        else
-        {
-            qint64 years = secs / YEAR_IN_SECONDS;
-            qint64 remainder = secs % YEAR_IN_SECONDS;
-            timeBehindText = tr("%1 and %2").arg(tr("%n year(s)", "", years)).arg(tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
-        }
-
-        progressBarLabel->setVisible(false);
+        progressBarLabel->setVisible(true);
         progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
         progressBar->setMaximum(1000000000);
         progressBar->setValue(nVerificationProgress * 1000000000.0 + 0.5);
         progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        if(count != prevBlocks)
-        {
-            labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(QString(
-                ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-            spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
-        }
+        labelBlocksIcon->setPixmap(platformStyle->IconAlt(QString(
+            ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
+            .pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         prevBlocks = count;
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
         {
-            walletFrame->showOutOfSyncWarning(true);
+            showOutOfSyncWarning(true);
             modalOverlay->showHide();
         }
 #endif // ENABLE_WALLET
@@ -1452,13 +1621,11 @@ void NavCoinGUI::setEncryptionStatus(int status)
 {
     if(fWalletUnlockStakingOnly)
     {
-        labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false);
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
     }
     else
     {
@@ -1470,30 +1637,24 @@ void NavCoinGUI::setEncryptionStatus(int status)
         changePassphraseAction->setEnabled(false);
         encryptWalletAction->setEnabled(true);
         unlockWalletAction->setVisible(false);
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->show();
-        labelEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
-        labelEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
         unlockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        if(walletFrame)
-            walletFrame->showLockStaking(true);
         break;
     }
     }
@@ -1595,11 +1756,25 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
     return ret;
 }
 
+void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
+{
+    // Call our instance method
+    gui->setBalance(total, avail, immat);
+}
+
+void SetStaked(NavCoinGUI *gui, const CAmount& all, const CAmount& today, const CAmount &week)
+{
+    // Call our instance method
+    gui->setStaked(all, today, week);
+}
+
 void NavCoinGUI::subscribeToCoreSignals()
 {
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
+    uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
 void NavCoinGUI::unsubscribeFromCoreSignals()
@@ -1607,6 +1782,15 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
+    uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
+}
+
+/** Get restart command-line parameters and request restart */
+void NavCoinGUI::handleRestart(QStringList args)
+{
+    if (!ShutdownRequested())
+        Q_EMIT requestedRestart(args);
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
@@ -1664,15 +1848,27 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
+    // Check for shutdown
+    if (ShutdownRequested()) {
+        // Kill the timer and return
+        timerPrice->stop();
+        timerPrice->deleteLater();
+
+        // Can't update pricing
+        info("Can't update prices, shutdown requested.");
+
+        // Done
+        return;
+    }
+
     info("Updating prices");
 
     std::thread pThread{[this]{
         try {
             CURL *curl;
-            CURLcode curlCode;
             std::string response;
             std::string url(
-                    "https://min-api.cryptocompare.com/data/price?fsym=NAV&tsyms="
+                    "https://api.coingecko.com/api/v3/simple/price?ids=nav-coin&vs_currencies="
                     "BTC,"
                     "EUR,"
                     "USD,"
@@ -1720,53 +1916,53 @@ void NavCoinGUI::updatePrice()
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, priceUdateWriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curlCode = curl_easy_perform(curl);
+            curl_easy_perform(curl);
             curl_easy_cleanup(curl);
 
             // Parse json
             // NOTE: Had to use boost json as Q5's json support would not work with
             //       the json data that I was getting from the API, IDK why ¯\_(ツ)_/¯
-            boost::property_tree::ptree json;
+            boost::property_tree::ptree _json;
             std::istringstream jsonStream(response);
-            boost::property_tree::read_json(jsonStream, json);
+            boost::property_tree::read_json(jsonStream, _json);
+            boost::property_tree::ptree json = _json.get_child("nav-coin");
 
             // Get an instance of settings
             QSettings settings;
-
             // Save the values
-            settings.setValue("btcFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BTC"))) * 100000000);
-            settings.setValue("eurFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("EUR"))) * 100000000);
-            settings.setValue("usdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("USD"))) * 100000000);
-            settings.setValue("arsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ARS"))) * 100000000);
-            settings.setValue("audFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("AUD"))) * 100000000);
-            settings.setValue("brlFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BRL"))) * 100000000);
-            settings.setValue("cadFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CAD"))) * 100000000);
-            settings.setValue("chfFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CHF"))) * 100000000);
-            settings.setValue("clpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CLP"))) * 100000000);
-            settings.setValue("czkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CZK"))) * 100000000);
-            settings.setValue("dkkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("DKK"))) * 100000000);
-            settings.setValue("gbpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("GBP"))) * 100000000);
-            settings.setValue("hkdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HKD"))) * 100000000);
-            settings.setValue("hufFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HUF"))) * 100000000);
-            settings.setValue("idrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("IDR"))) * 100000000);
-            settings.setValue("ilsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ILS"))) * 100000000);
-            settings.setValue("inrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("INR"))) * 100000000);
-            settings.setValue("jpyFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("JPY"))) * 100000000);
-            settings.setValue("krwFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("KRW"))) * 100000000);
-            settings.setValue("mxnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MXN"))) * 100000000);
-            settings.setValue("myrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MYR"))) * 100000000);
-            settings.setValue("nokFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NOK"))) * 100000000);
-            settings.setValue("nzdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NZD"))) * 100000000);
-            settings.setValue("phpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PHP"))) * 100000000);
-            settings.setValue("pkrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PKR"))) * 100000000);
-            settings.setValue("plnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PLN"))) * 100000000);
-            settings.setValue("rubFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("RUB"))) * 100000000);
-            settings.setValue("sekFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SEK"))) * 100000000);
-            settings.setValue("sgdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SGD"))) * 100000000);
-            settings.setValue("thbFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("THB"))) * 100000000);
-            settings.setValue("tryFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TRY"))) * 100000000);
-            settings.setValue("twdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TWD"))) * 100000000);
-            settings.setValue("zarFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ZAR"))) * 100000000);
+            settings.setValue("btcFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("btc"))) * 100000000);
+            settings.setValue("eurFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("eur"))) * 100000000);
+            settings.setValue("usdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("usd"))) * 100000000);
+            settings.setValue("arsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ars"))) * 100000000);
+            settings.setValue("audFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("aud"))) * 100000000);
+            settings.setValue("brlFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("brl"))) * 100000000);
+            settings.setValue("cadFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("cad"))) * 100000000);
+            settings.setValue("chfFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("chf"))) * 100000000);
+            settings.setValue("clpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("clp"))) * 100000000);
+            settings.setValue("czkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("czk"))) * 100000000);
+            settings.setValue("dkkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("dkk"))) * 100000000);
+            settings.setValue("gbpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("gbp"))) * 100000000);
+            settings.setValue("hkdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("hkd"))) * 100000000);
+            settings.setValue("hufFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("huf"))) * 100000000);
+            settings.setValue("idrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("idr"))) * 100000000);
+            settings.setValue("ilsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ils"))) * 100000000);
+            settings.setValue("inrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("inr"))) * 100000000);
+            settings.setValue("jpyFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("jpy"))) * 100000000);
+            settings.setValue("krwFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("krw"))) * 100000000);
+            settings.setValue("mxnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("mxn"))) * 100000000);
+            settings.setValue("myrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("myr"))) * 100000000);
+            settings.setValue("nokFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("nok"))) * 100000000);
+            settings.setValue("nzdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("nzd"))) * 100000000);
+            settings.setValue("phpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("php"))) * 100000000);
+            settings.setValue("pkrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("pkr"))) * 100000000);
+            settings.setValue("plnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("pln"))) * 100000000);
+            settings.setValue("rubFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("rub"))) * 100000000);
+            settings.setValue("sekFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("sek"))) * 100000000);
+            settings.setValue("sgdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("sgd"))) * 100000000);
+            settings.setValue("thbFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("thb"))) * 100000000);
+            settings.setValue("tryFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("try"))) * 100000000);
+            settings.setValue("twdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("twd"))) * 100000000);
+            settings.setValue("zarFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("zar"))) * 100000000);
 
             if(clientModel)
                 clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
@@ -1801,146 +1997,62 @@ void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
 
-    if(walletFrame){
+    if(!walletFrame)
+        return;
 
-        if (!GetStaking())
-        {
-            walletFrame->setStakingStatus(tr("Staking is turned off."));
-            walletFrame->showLockStaking(false);
-        }
-        else if (nLastCoinStakeSearchInterval && nWeight)
-        {
-            bool fFoundProposal = false;
-            bool fFoundPaymentRequest = false;
-            {
-                LOCK(cs_main);
-
-                CProposalMap mapProposals;
-
-                if(pcoinsTip->GetAllProposals(mapProposals))
-                {
-                    for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
-                    {
-                        CFund::CProposal proposal;
-                        if (!pcoinsTip->GetProposal(it_->first, proposal))
-                            continue;
-                        if (proposal.GetLastState() != CFund::NIL)
-                            continue;
-                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-                        if (it == vAddedProposalVotes.end()) {
-                            fFoundProposal = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            {
-                CPaymentRequestMap mapPaymentRequests;
-
-                if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-                {
-                    for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-                    {
-                        CFund::CPaymentRequest prequest;
-
-                        if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                            continue;
-
-                        if (prequest.GetLastState() != CFund::NIL)
-                            continue;
-                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                        if (it == vAddedPaymentRequestVotes.end()) {
-                            fFoundPaymentRequest = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if ((fFoundPaymentRequest || fFoundProposal) && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
-                QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
-                QMessageBox msgbox(this);
-                msgbox.setWindowTitle("Community Fund Update");
-                QString sWhat = fFoundProposal && fFoundPaymentRequest ? tr("Proposals and Payment Requests") : (fFoundProposal ? tr("Proposals") : tr("Payment Requests"));
-                msgbox.setText(tr("There are new %1 in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the Community Fund tab!").arg(sWhat));
-                msgbox.setIcon(QMessageBox::Icon::Information);
-                msgbox.setCheckBox(cb);
-                QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
-                pButtonClose->setVisible(false);
-                this->lastDialogShown = GetTimeNow();
-
-                msgbox.exec();
-
-                if(cb->isChecked()) {
-                    this->fDontShowAgain = true;
-                } else {
-                    this->fDontShowAgain = false;
-                }
-
-                if (msgbox.clickedButton()==pButtonOpen) {
-                    gotoCommunityFundPage();
-                }
-                if (msgbox.clickedButton()==pButtonInfo) {
-                    QString link = QString("https://navcoin.org/en/community-fund/");
-                    QDesktopServices::openUrl(QUrl(link));
-                }
-            }
-
-            uint64_t nWeight = this->nWeight;
-            uint64_t nNetworkWeight = GetPoSKernelPS();
-            int nBestHeight = pindexBestHeader->nHeight;
-
-            unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
-
-            QString text;
-            if (nEstimateTime > 60)
-            {
-                if (nEstimateTime < 60*60)
-                {
-                    text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
-                }
-                else if (nEstimateTime < 24*60*60)
-                {
-                    text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
-                }
-                else
-                {
-                    text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
-                }
-            }
-
-            nWeight /= COIN;
-            nNetworkWeight /= COIN;
-
-    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            walletFrame->setStakingStatus(text!=""&&GetBoolArg("showexpectedstaketime",false)?text:tr("You are staking"));
-        }
-        else
-        {
-
-    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_off" : ":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            if (pwalletMain && pwalletMain->IsLocked())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is locked"));
-            else if (vNodes.empty())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is offline"));
-            else if (IsInitialBlockDownload())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is syncing"));
-            else if (!nWeight)
-                walletFrame->setStakingStatus(tr("Not staking because you don't have mature coins"));
-            else
-                walletFrame->setStakingStatus(tr("Not staking, please wait"));
-        }
-
-//        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
-//        int nItemCounted = GetsStakeSubTotal(aRange);
-//        if(ARRAYLEN(aRange) > 32){
-//            walletFrame->setStakingStats(FormatMoney(aRange[30].Total).c_str(),FormatMoney(aRange[31].Total).c_str(),FormatMoney(aRange[32].Total).c_str());
-//        }
+    if (!GetStaking())
+    {
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
     }
+    else if (nLastCoinStakeSearchInterval && nWeight)
+    {
+        uint64_t nWeight = this->nWeight;
+        uint64_t nNetworkWeight = GetPoSKernelPS();
+        int nBestHeight = pindexBestHeader->nHeight;
 
+        unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
+
+        QString text = tr("You are staking");
+
+        if (nEstimateTime > 60 && GetBoolArg("showexpectedstaketime", false))
+        {
+            if (nEstimateTime < 60*60)
+            {
+                text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
+            }
+            else if (nEstimateTime < 24*60*60)
+            {
+                text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
+            }
+            else
+            {
+                text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
+            }
+        }
+
+        nWeight /= COIN;
+        nNetworkWeight /= COIN;
+
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setToolTip(text);
+    }
+    else
+    {
+        QString text = tr("Not staking, please wait");
+
+        if (pwalletMain && pwalletMain->IsLocked())
+            text = tr("Not staking because wallet is locked");
+        else if (vNodes.empty())
+            text = tr("Not staking because wallet is offline");
+        else if (IsInitialBlockDownload())
+            text = tr("Not staking because wallet is syncing");
+        else if (!nWeight)
+            text = tr("Not staking because you don't have mature coins");
+
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setToolTip(text);
+    }
 }
 
 #endif

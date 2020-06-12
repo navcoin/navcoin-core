@@ -87,6 +87,10 @@ public:
     {
         return (exp_addrType == "coldstaking");
     }
+    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &id) const
+    {
+        return (exp_addrType == "coldstaking_v2");
+    }
     bool operator()(const CScriptID &id) const
     {
         return (exp_addrType == "script");

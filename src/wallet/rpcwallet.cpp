@@ -6,11 +6,10 @@
 #include <amount.h>
 #include <base58.h>
 #include <chain.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <core_io.h>
 #include <init.h>
 #include <main.h>
-#include <wallet/navtech.h>
 #include <net.h>
 #include <netbase.h>
 #include <policy/rbf.h>
@@ -36,7 +35,6 @@ using namespace std;
 int64_t nWalletUnlockTime;
 int64_t nWalletFirstStakeTime = -1;
 static CCriticalSection cs_nWalletUnlockTime;
-Navtech navtech;
 
 std::string HelpRequiringPassphrase()
 {
@@ -90,7 +88,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.pushKV("walletconflicts", conflicts);
     entry.pushKV("time", wtx.GetTxTime());
     entry.pushKV("timereceived", (int64_t)wtx.nTimeReceived);
-    entry.pushKV("anon-destination", wtx.strDZeel);
+    entry.pushKV("strdzeel", wtx.strDZeel);
     // Add opt-in RBF status
     std::string rbfStatus = "no";
     if (confirms <= 0) {
@@ -195,13 +193,14 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
 UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 {
 
-    if (fHelp || params.size() != 2)
+    if (fHelp || params.size() < 2)
         throw runtime_error(
-            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
-            "Returns a coldstaking address based on two address inputs\n"
+            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
+            "Returns a coldstaking address based on the address inputs\n"
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
             "2. \"spendingaddress\" (string, required) The navcoin spending address.\n\n"
+            "3. \"voting\"          (string, optional) The navcoin voting address.\n\n"
             "\nExamples:\n"
             + HelpExampleCli("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"") +
             "\nAs a json rpc call\n"
@@ -211,6 +210,10 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
     if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
+
+    if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && params.size() == 3)
+        throw runtime_error(
+            "Cold Staking v2 is not active yet.");
 
     if (params[0].get_str() == params[1].get_str())
         throw runtime_error(
@@ -229,6 +232,18 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
 
     spendingAddress.GetKeyID(spendingKeyID);
+
+    if (params.size() == 3)
+    {
+        CNavCoinAddress votingAddress(params[2].get_str());
+        CKeyID votingKeyID;
+        if (!votingAddress.IsValid() || !votingAddress.GetKeyID(votingKeyID))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Voting address is not a valid NavCoin address");
+
+        votingAddress.GetKeyID(votingKeyID);
+
+        return CNavCoinAddress(stakingKeyID, spendingKeyID, votingKeyID).ToString();
+    }
 
     return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
 }
@@ -426,7 +441,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false, bool fDoNotSend = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool donate = false, bool fDoNotSend = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -443,7 +458,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CScript scriptPubKey = GetScriptForDestination(address);
 
     if(donate)
-      CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+      SetScriptForCommunityFundContribution(scriptPubKey);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -451,9 +466,9 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, strDZeel)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -469,7 +484,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(
-            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" \"anon-destination\" subtractfeefromamount )\n"
+            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" \"strdzeel\" subtractfeefromamount )\n"
             "\nSend an amount to a given address.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -480,7 +495,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
-            "5. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "5. \"strdzeel\"  (string, optional) Attached string metadata \n"
             "6. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
             "                             The recipient will receive less navcoins than you enter in the amount field.\n"
             "\nResult:\n"
@@ -488,7 +503,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             + HelpExampleCli("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleCli("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
-            + HelpExampleCli("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
+            + HelpExampleCli("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" \"\" true")
             + HelpExampleRpc("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
         );
 
@@ -503,16 +518,17 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
         std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        }
         else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        }
         else
         {
-
           address_str = addresses.front();
-
         }
-
     }
 
     CNavCoinAddress address(address_str);
@@ -534,7 +550,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     std::string strDZeel;
 
     if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
-        strDZeel = params[4].get_str();
+        wtx.strDZeel = params[4].get_str();
 
     bool fSubtractFeeFromAmount = false;
     if (params.size() > 5)
@@ -542,9 +558,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    wtx.strDZeel = strDZeel;
-
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx);
 
     return wtx.GetHash().GetHex();
 }
@@ -576,18 +590,22 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
     if (fHelp || params.size() < 4)
         throw runtime_error(
             "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
-            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
+            "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-            "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
-            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
+            "1. \"navcoinaddress\"       (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
+            "2. \"amount\"               (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
-            "4. \"desc\"               (string, required) Short description of the proposal.\n"
+            "4. \"desc\"                 (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "6. dump_raw               (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "7. \"owneraddress\"         (string, optional) The owner of the proposal who will sign the payment requests. Default: the payment address\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -599,13 +617,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!Params().GetConsensus().fDaoClientActivated)
         throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : Params().GetConsensus().nProposalMinimalFee;
-    if (nAmount <= 0 || nAmount < Params().GetConsensus().nProposalMinimalFee)
+    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 6 ? params[5].getBool() : false;
@@ -613,11 +629,16 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
 
-    string Address = params[0].get_str();
+    string paymentAddress = params[0].get_str();
+    string ownerAddress = params.size() == 7 ? params[6].get_str() : paymentAddress;
 
-    CNavCoinAddress destaddress(Address);
-    if (!destaddress.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+    CNavCoinAddress paddress(paymentAddress);
+    if (!paddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for payment");
+
+    CNavCoinAddress oaddress(ownerAddress);
+    if (!oaddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for the owner");
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
@@ -628,12 +649,21 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CProposal::BASE_VERSION;
+
+    if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CProposal::REDUCED_QUORUM_VERSION;
+
+    if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
     strDZeel.pushKV("n",nReqAmount);
-    strDZeel.pushKV("a",Address);
+    strDZeel.pushKV("a",ownerAddress);
+    if (ownerAddress != paymentAddress)
+        strDZeel.pushKV("p",paymentAddress);
     strDZeel.pushKV("d",nDeadline);
     strDZeel.pushKV("s",sDesc);
-    strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -642,7 +672,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -653,7 +684,332 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         return ret;
     }
     else
-        return EncodeHexTx(wtx);
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
+UniValue getconsensusparameters(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "getconsensusparameters (extended)\n"
+                "\nArguments:\n"
+                "1. extended       (bool, optional, default false) Show a more detailed output.\n"
+                "\nReturns a list containing the current values of the consensus parameters which can be voted in the DAO.\n"
+
+        );
+
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
+
+    UniValue ret(UniValue::VARR);
+    for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
+    {
+        Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
+        int type = (int)Consensus::vConsensusParamsType[id];
+        std::string sDesc = Consensus::sConsensusParamsDesc[id];
+        if (params.size() > 0)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("id", (uint64_t)i);
+            entry.pushKV("desc", sDesc);
+            entry.pushKV("type", type);
+            entry.pushKV("value", GetConsensusParameter(id, view));
+            ret.push_back(entry);
+        }
+        else
+        {
+            ret.push_back(GetConsensusParameter(id, view));
+        }
+    }
+    return ret;
+}
+
+UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
+
+    if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
+        throw runtime_error(
+            "proposeconsensuschange parameter value ( fee dump_raw )\n"
+            "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(nMinFee) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. parameter        (numeric, required) The parameter id as specified in the output of the getconsensusparameters rpc command.\n"
+            "2. value            (numeric, optional) The proposed value.\n"
+            "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("proposeconsensuschange", "1 10")
+        );
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+
+    // Amount
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : nMinFee;
+    if (nAmount <= 0 || nAmount < nMinFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = params[0].get_int64();
+    int64_t nMax = 1;
+
+    int64_t nValue = params[1].get_int64();
+
+    if (nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+    {
+        nValue--;
+    }
+
+    std::string sAnswer = std::to_string(nValue);
+
+    if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong parameter id");
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;
+
+    UniValue answers(UniValue::VARR);
+    answers.push_back(sAnswer);
+
+    std::string sQuestion = "Consensus change for: " + Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)nMin];
+
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
+UniValue createconsultation(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw runtime_error(
+            "createconsultation \"question\" ( min max range fee dump_raw )\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"question\"       (string, required) The question of the new consultation.\n"
+            "2. min              (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
+            "3. max              (numeric, optional) The maximum amount of answers a block can vote for.\n"
+            "4. range            (bool, optional) The consultation answers are exclusively in the range min-max.\n"
+            "5. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "6. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createconsultation", "\"Who should be the CEO of NavCoin? /s\" 1 1")
+            + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 true")
+        );
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    bool fRange = params.size() >= 4 && params[3].isBool() ? params[3].getBool() : false;
+
+    // Amount
+    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == (fRange ? 6 : 5) ? params[(fRange ? 5 : 4)].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = fRange ? params[1].get_int64() : 0;
+    int64_t nMax = params.size() > 1 ? (fRange ? params[2].get_int64() : params[1].get_int64()) : 1;
+
+    if (!fRange && (nMax < 1 ||nMax > 16))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
+    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)VoteFlags::VOTE_ABSTAIN && nMax > nMin))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong range");
+
+    string sQuestion = params[0].get_str();
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION;
+
+    if (fRange)
+    {
+        nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
+        nVersion &= ~CConsultation::MORE_ANSWERS_VERSION;
+    }
+
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
+UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw runtime_error(
+            "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"question\"            (string, required) The question of the new consultation.\n"
+            "2.  \"[answers]\"          (array of strings, required) An array of strings with the proposed answers.\n"
+            "3. maxanswers            (numeric, optional) The maximum amount of answers a block can vote for at the same time.\n"
+            "4. admitsanswerproposals (bool, optional) Stakers are allowed to propose new answers.\n"
+            "5. fee                   (numeric, optional) Contribution to the fund used as fee.\n"
+            "6. dump_raw              (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of NavCoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
+        );
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    bool fRange = false;
+    UniValue answers = params[1].get_array();
+    CAmount nMinFee = answers.size() * GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view);
+    CAmount nAmount = params.size() >= 5 ? AmountFromValue(params[4]) : nMinFee;
+
+    // Amount
+    if (nAmount <= 0 || nAmount < nMinFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() >= 6 ? params[5].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = 0;
+    int64_t nMax = params.size() >= 3 ? params[2].get_int64() : 1;
+
+    if (nMax > 16)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
+
+    bool fAdmitsAnswers = params.size() >= 4 ? params[3].get_bool() : true;
+    string sQuestion = params[0].get_str();
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION;
+
+    if (fAdmitsAnswers)
+        nVersion |= CConsultation::MORE_ANSWERS_VERSION;
+    else if (answers.size() == 1)
+        throw JSONRPCError(RPC_TYPE_ERROR, "You must add at least 2 answers if no other answers can be proposed");
+
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
 }
 
 std::string random_string( size_t length )
@@ -679,7 +1035,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 3)
         throw runtime_error(
-            "createpaymentrequest \"hash\" \"amount\" \"id\" ( dump_raw )\n"
+            "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -699,16 +1055,16 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CFund::CProposal proposal;
-    CCoinsViewCache view(pcoinsTip);
+    CProposal proposal;
+    CStateViewCache view(pcoinsTip);
 
     if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
-    if(proposal.GetLastState() != CFund::ACCEPTED)
+    if(proposal.GetLastState() != DAOFlags::ACCEPTED)
         throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
-    CNavCoinAddress address(proposal.Address);
+    CNavCoinAddress address(proposal.GetOwnerAddress());
 
     if(!address.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");
@@ -726,7 +1082,12 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
 
-    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+    // Amount
+    CAmount nAmount = params.size() == 4 ? AmountFromValue(params[3]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view);
+    if (nAmount < 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 5 ? params[4].getBool() : false;
 
     std::string sRandom = random_string(16);
 
@@ -744,20 +1105,29 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true))
+    CStateViewCache coins(pcoinsTip);
+
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(coins, true))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
 
     UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CPaymentRequest::BASE_VERSION;
+
+    if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::REDUCED_QUORUM_VERSION;
+
+    if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("s",Signature);
     strDZeel.pushKV("r",sRandom);
     strDZeel.pushKV("i",id);
-    strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -765,7 +1135,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -776,8 +1146,116 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
         return ret;
     }
     else
-        return EncodeHexTx(wtx);
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
 }
+
+UniValue proposeanswer(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw runtime_error(
+            "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
+            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"hash\"         (string, required) The hash of the already existing consultation.\n"
+            "2. \"answer\"       (string, required) The proposed answer.\n"
+            "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"        (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Vitalik Buterin\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Satoshi Nakamoto\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Charlie Lee\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
+        );
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    CConsultation consultation;
+
+    if(!view.GetConsultation(uint256S(params[0].get_str()), consultation))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid consultation.");
+
+    if(!consultation.CanHaveNewAnswers())
+        throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
+
+    std::string sAnswer = "";
+    if (consultation.IsAboutConsensusParameter())
+    {
+        int64_t nValue = params[1].get_int64();
+
+        if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        {
+            nValue--;
+        }
+
+        sAnswer = std::to_string(nValue);
+    }
+    else
+    {
+        sAnswer = params[1].get_str();
+    }
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    strDZeel.pushKV("h",params[0].get_str());
+    strDZeel.pushKV("a",sAnswer);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::ANSWER_VERSION;
+
+    if(wtx.strDZeel.length() > 255)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+        CConsultationAnswer answer;
+
+        TxToConsultationAnswer(wtx.strDZeel, wtx.GetHash(), uint256(), answer);
+
+        ret.pushKV("hash", answer.hash.ToString());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
 
 UniValue donatefund(const UniValue& params, bool fHelp)
 {
@@ -817,189 +1295,10 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true);
 
     return wtx.GetHash().GetHex();
 }
-
-UniValue anonsend(const UniValue& params, bool fHelp)
-{
-    if (!EnsureWalletIsAvailable(fHelp))
-        return NullUniValue;
-
-    if (fHelp || params.size() < 2 || params.size() > 5)
-        throw runtime_error(
-            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" )\n"
-            "\nSend an amount to a given address anonymously.\n"
-            + HelpRequiringPassphrase() +
-            "\nArguments:\n"
-            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
-            "2. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
-            "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
-            "                             This is not part of the transaction, just kept in your wallet.\n"
-            "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
-            "                             to which you're sending the transaction. This is not part of the \n"
-            "                             transaction, just kept in your wallet.\n"
-            "\nResult:\n"
-            "\"transactionid\"  (string) The transaction id.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\"")
-            + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
-        );
-
-    // Amount
-    CAmount nAmount = AmountFromValue(params[1]);
-    if (nAmount <= 0)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
-
-    unsigned int nTransactions = (rand() % nEntropy) + 2;
-
-    string address_str = params[0].get_str();
-    utils::DNSResolver *DNS = nullptr;
-
-    if(DNS->check_address_syntax(params[0].get_str().c_str()))
-    {
-        bool dnssec_valid; bool dnssec_available;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
-
-        if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
-        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
-        else
-        {
-
-          address_str = addresses.front();
-
-        }
-
-    }
-
-    CNavCoinAddress address(address_str);
-    if (!address.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
-
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount / (nTransactions * 2), nTransactions);
-    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
-
-    if(serverNavAddresses.size() != nTransactions)
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
-
-    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-    {
-        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-        if (!serverNavAddress.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
-    }
-
-    // Wallet comments
-    CWalletTx wtx;
-    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
-        wtx.mapValue["comment"] = params[2].get_str();
-    if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
-        wtx.mapValue["to"]      = params[3].get_str();
-
-    std::string strDZeel;
-
-    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
-        strDZeel = params[4].get_str();
-
-    bool fSubtractFeeFromAmount = true;
-
-    EnsureWalletIsUnlocked();
-
-    CAmount nAmountAlreadyProcessed = 0;
-    CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
-    UniValue pubKey = find_value(navtechData, "public_key");
-    double nId = rand() % pindexBestHeader->GetMedianTimePast();
-
-    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-    {
-        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-        CAmount nAmountRound = 0;
-        CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
-        if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
-        {
-            nAmountRound = nAmountNotProcessed;
-            i = serverNavAddresses.size();
-        }
-        else
-        {
-            nAmountRound = std::max(nAmountToSubstract,nMinAmount);
-        }
-
-        nAmountAlreadyProcessed += nAmountRound;
-
-        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
-        wtx.strDZeel = encryptedAddress;
-        SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
-    }
-
-    return wtx.GetHash().GetHex();
-}
-
-UniValue getanondestination(const UniValue& params, bool fHelp)
-{
-    if (!EnsureWalletIsAvailable(fHelp))
-        return NullUniValue;
-
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getanondestination \"navcoinaddress\"\n"
-            "\nGet the the encrypted anon destination and address to send to.\n"
-            + HelpRequiringPassphrase() +
-            "\nArguments:\n"
-            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
-            "\nResult:\n"
-            "\"anondestination\"  (string) The encrypted information to attach to the transaction.\n"
-            "\"anonaddress\"  (string) The nav coin address to send the anon transaction to.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getanondestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
-        );
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    string address_str = params[0].get_str();
-    utils::DNSResolver *DNS = nullptr;
-
-    if(DNS->check_address_syntax(params[0].get_str().c_str()))
-    {
-        bool dnssec_valid; bool dnssec_available;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
-
-        if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
-        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
-        else
-        {
-
-          address_str = addresses.front();
-
-        }
-
-    }
-
-    CNavCoinAddress address(address_str);
-    if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
-
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str());
-
-    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
-    if (!serverNavAddress.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
-
-    return navtechData;
-}
-
 
 UniValue listaddressgroupings(const UniValue& params, bool fHelp)
 {
@@ -1511,7 +1810,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, ""};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount};
         vecSend.push_back(recipient);
     }
 
@@ -1595,6 +1894,8 @@ public:
     bool operator()(const CNoDestination &dest) const { return false; }
 
     bool operator()(const pair<CKeyID, CKeyID> &dest) const { return false; }
+
+    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &dest) const { return false; }
 
     bool operator()(const CKeyID &keyID) {
         CPubKey pubkey;
@@ -1915,7 +2216,8 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
 
         entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false);
+                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()) &&
+                                           !CNavCoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
         entry.pushKV("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
             entry.pushKV("label", account);
@@ -2686,7 +2988,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet. The keypool has been flushed and a new HD seed was generated (if you are using HD). You need to make a new backup.";
+    return _("wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet.");
 }
 
 UniValue lockunspent(const UniValue& params, bool fHelp)
@@ -3205,7 +3507,7 @@ CAmount GetTxStakeAmount(const CWalletTx* tx)
     if ((tx->fCreditCached || tx->fColdStakingCreditCached) && (tx->fDebitCached || tx->fColdStakingDebitCached))
         return tx->nCreditCached + tx->nColdStakingCreditCached - tx->nDebitCached - tx->nColdStakingDebitCached;
     // Check for cold staking
-    else if (tx->vout[1].scriptPubKey.IsColdStaking())
+    else if (tx->vout[1].scriptPubKey.IsColdStaking() || tx->vout[1].scriptPubKey.IsColdStakingv2())
         return tx->GetCredit(pwalletMain->IsMine(tx->vout[1])) - tx->GetDebit(pwalletMain->IsMine(tx->vout[1]));
 
     return tx->GetCredit(ISMINE_SPENDABLE) + tx->GetCredit(ISMINE_STAKABLE) - tx->GetDebit(ISMINE_SPENDABLE) - tx->GetDebit(ISMINE_STAKABLE);
@@ -3475,49 +3777,306 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
                 "{\n"
                 "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
                 "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"abs\":   List of proposals this wallet is casting an 'abstain' vote for.\n"
                 "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
                 "}\n"
         );
 
     LOCK(cs_main);
 
+    CStateViewCache coins(pcoinsTip);
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue absvotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
     CProposalMap mapProposals;
-    CCoinsViewCache view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
         {
-            CFund::CProposal proposal;
+            CProposal proposal;
 
             if (!view.GetProposal(it_->first, proposal))
                 continue;
 
-            if (proposal.GetLastState() != CFund::NIL)
+            if (proposal.GetLastState() != DAOFlags::NIL)
                 continue;
-            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+
+            auto it = mapAddedVotes.find(proposal.hash);
+
             UniValue p(UniValue::VOBJ);
             proposal.ToJson(p, view);
-            if (it != vAddedProposalVotes.end()) {
-                if (it->second)
+            if (it != mapAddedVotes.end()) {
+                if (it->second == 1)
                     yesvotes.push_back(p);
-                else
+                else if (it->second == -1)
+                    absvotes.push_back(p);
+                else if (it->second == 0)
                     novotes.push_back(p);
-            } else {
+            } else
                 nullvotes.push_back(p);
-            }
+
         }
     }
 
     ret.pushKV("yes",yesvotes);
     ret.pushKV("no",novotes);
+    ret.pushKV("abs",absvotes);
     ret.pushKV("null",nullvotes);
+
+    return ret;
+}
+
+UniValue support(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1)
+        throw runtime_error(
+            "support \"hash\" ( add )\n"
+            "\nShows support for the consultation or consultation answer identified by \"hash\".\n"
+            "\nArguments:\n"
+            "1. \"hash\"          (string, required) The hash\n"
+            "2. \"add\"           (bool, optional) Set to false to remove support (Default: true)\n"
+        );
+
+    LOCK(cs_main);
+
+    bool fRemove = params.size() > 1 ? !params[1].getBool() : false;
+
+    string strHash = params[0].get_str();
+    uint256 hash = uint256S(strHash);
+    bool duplicate = false;
+
+    CStateViewCache coins(pcoinsTip);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    if (!((coins.GetConsultation(hash, consultation) && consultation.CanBeSupported()) || (coins.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(coins))))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find a valid entry with hash ")+strHash);
+    }
+
+    if (fRemove)
+    {
+        bool ret = RemoveSupport(strHash);
+        if (!ret)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is not on the list: ")+strHash);
+        }
+        else
+        {
+            return NullUniValue;
+        }
+    }
+    else
+    {
+        bool ret = Support(hash, duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already on the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find ")+strHash);
+
+}
+
+UniValue consultationvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+
+    if (fHelp || params.size() < 2 ||
+        (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
+        throw runtime_error(
+            "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
+            "\nArguments:\n"
+            "1. \"hash\"          (string, required) The consultation/answer hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'value' to vote for a range,\n"
+            "                      'abs' to abstain, 'remove' to remove a vote from the list\n"
+            "3. \"value\"         (integer, required) For consultations where the answer is a range,\n"
+            "                      this sets the value to vote for\n"
+        );
+
+    LOCK(cs_main);
+
+    string strHash = params[0].get_str();
+    uint256 hash = uint256S(strHash);
+    bool duplicate = false;
+
+    CStateViewCache coins(pcoinsTip);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    int64_t nVote;
+
+    bool fConsultation = coins.HaveConsultation(hash);
+    bool fConsultationAnswer = coins.HaveConsultationAnswer(hash);
+
+    if (!fConsultation && !fConsultationAnswer)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find ")+hash.ToString());
+
+    if (fConsultation)
+    {
+        if (!coins.GetConsultation(hash, consultation))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read consultation ")+hash.ToString());
+
+        if (!consultation.CanBeVoted() && strCommand != "abs")
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The consultation can not be voted."));
+
+        if (strCommand == "yes")
+            throw JSONRPCError(RPC_INVALID_PARAMS, string("This consultation does not admit a yes vote."));
+        else if (strCommand != "remove" && strCommand != "abs")
+        {
+            nVote = params[2].get_int64();
+            if (!consultation.IsValidVote(nVote))
+                throw JSONRPCError(RPC_INVALID_PARAMS, string("The vote is out of range"));
+        }
+    }
+    else if (fConsultationAnswer)
+    {
+        if (!coins.GetConsultationAnswer(hash, answer))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read answer ")+hash.ToString());
+
+        if (!coins.GetConsultation(answer.parent, consultation))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read parent consultation ")+answer.parent.ToString());
+
+        if (!answer.CanBeVoted(coins))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The answer can not be voted."));
+
+        if (strCommand == "value")
+            throw JSONRPCError(RPC_INVALID_PARAMS, string("This consultation's answer is not a value range."));
+    }
+
+    if (strCommand == "yes" || strCommand == "abs")
+    {
+        if (strCommand == "yes")
+            nVote = 1;
+
+        if (strCommand == "abs")
+            nVote = -1;
+
+        bool ret = Vote(hash,nVote,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+    else if (strCommand == "value")
+    {
+        bool ret = VoteValue(hash,nVote,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+    else if(strCommand == "remove")
+    {
+        bool ret = fConsultation ? RemoveVoteValue(strHash) : RemoveVote(strHash);
+        if (ret)
+        {
+            return NullUniValue;
+        }
+        else
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is not in the list: ")+strHash);
+        }
+    }
+    return NullUniValue;
+}
+
+UniValue supportlist(const UniValue& params, bool fHelp)
+{
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "supportlist\n"
+
+                "\nReturns a list containing the wallet's current support status for all active consultations.\n"
+
+        );
+
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    for (auto& it: mapSupported)
+    {
+        bool fConsultation = coins.HaveConsultation(it.first) && coins.GetConsultation(it.first, consultation) && consultation.CanBeSupported();
+        bool fConsultationAnswer = coins.HaveConsultationAnswer(it.first) && coins.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(coins);
+
+        if (fConsultation || fConsultationAnswer)
+        {
+            ret.push_back(it.first.ToString());
+        }
+    }
+
+    return ret;
+}
+
+UniValue consultationvotelist(const UniValue& params, bool fHelp)
+{
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "consultationvotelist\n"
+
+                "\nReturns a list containing the wallet's current voting status for all active consultations.\n"
+
+        );
+
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    for (auto& it: mapAddedVotes)
+    {
+        bool fConsultation = coins.HaveConsultation(it.first) && coins.GetConsultation(it.first, consultation) && consultation.CanBeVoted();
+        bool fConsultationAnswer = coins.HaveConsultationAnswer(it.first) && coins.GetConsultationAnswer(it.first, answer) && answer.CanBeVoted(coins);
+
+        if (fConsultation)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstain" : to_string(it.second));
+            ret.push_back(entry);
+        }
+        else if (fConsultationAnswer)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstain" : (it.second == 1 ? "yes" : "unknown") );
+            ret.push_back(entry);
+        }
+    }
 
     return ret;
 }
@@ -3529,14 +4088,14 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+        (strCommand != "yes" && strCommand != "no"  && strCommand != "abs" && strCommand != "remove"))
         throw runtime_error(
-            "proposalvote \"proposal_hash\" \"yes|no|remove\"\n"
+            "proposalvote \"proposal_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"proposal_hash\" (string, required) The proposal hash\n"
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
-            "                      'remove' to remove a proposal from the list\n"
+            "                      'abs' to abstain, 'remove' to remove a proposal from the list\n"
         );
 
     LOCK(cs_main);
@@ -3544,29 +4103,25 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
-    CFund::CProposal proposal;
-    CCoinsViewCache view(pcoinsTip);
+    CStateViewCache coins(pcoinsTip);
+    CProposal proposal;
 
-    if (!view.GetProposal(uint256S(strHash), proposal))
+    if (!coins.GetProposal(uint256S(strHash), proposal))
     {
-        return NullUniValue;
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
     }
 
-    if (strCommand == "yes")
+    if (strCommand == "yes" || strCommand == "no" || strCommand == "abs")
     {
-        bool ret = CFund::VoteProposal(proposal,true,duplicate);
-        if (duplicate)
-        {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-        }
-        else if (ret)
-        {
-            return NullUniValue;
-        }
-    }
-    else if (strCommand == "no")
-    {
-        bool ret = CFund::VoteProposal(proposal,false,duplicate);
+        int vote = 0;
+
+        if (strCommand == "yes")
+            vote = 1;
+
+        if (strCommand == "abs")
+            vote = -1;
+
+        bool ret = Vote(proposal.hash,vote,duplicate);
         if (duplicate)
         {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
@@ -3578,7 +4133,7 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     }
     else if(strCommand == "remove")
     {
-        bool ret = CFund::RemoveVoteProposal(strHash);
+        bool ret = RemoveVote(strHash);
         if (ret)
         {
             return NullUniValue;
@@ -3590,6 +4145,58 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
+}
+
+UniValue getstakervote(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getstakervote <stakerscript>\n"
+                "\nReturns a list of all the votes stored for a staker script.\n"
+                "\nResult:\n"
+                "[\n"
+                "     {\n"
+                "          \"height\":   height of the vote,\n"
+                "          \"hash\":     hash of the item,\n"
+                "          \"val\":      value of the vote\n"
+                "     }\n"
+                "]\n"
+                );
+
+    std::string data = params[0].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_MISC_ERROR, "the script is not expressed in hexadecimal");
+
+    LOCK(cs_main);
+
+    std::vector<unsigned char> stakerScript = ParseHex(data);
+    CStateViewCache view(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CVoteList pVoteList;
+
+    if (!view.GetCachedVoter(stakerScript, pVoteList))
+    {
+         return ret;
+    }
+
+    std::map<int, std::map<uint256, int64_t>>* list= pVoteList.GetFullList();
+
+    for (auto& it: *list)
+    {
+        for (auto& it2: it.second)
+        {
+            int64_t val = it2.second;
+
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("height", it.first);
+            entry.pushKV("hash", it2.first.ToString());
+            entry.pushKV("val", val);
+            ret.push_back(entry);
+        }
+    }
+
+    return ret;
 }
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
@@ -3604,6 +4211,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
                 "{\n"
                 "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
                 "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"abs\":   List of proposals this wallet is casting an 'abstain' vote for.\n"
                 "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
                 "}\n"
         );
@@ -3611,39 +4219,45 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue absvotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
     CPaymentRequestMap mapPaymentRequests;
-    CCoinsViewCache view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     if(view.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CFund::CPaymentRequest prequest;
+            CPaymentRequest prequest;
 
             if (!view.GetPaymentRequest(it_->first, prequest))
                 continue;
 
-            if (prequest.GetLastState() != CFund::NIL)
+            if (prequest.GetLastState() != DAOFlags::NIL)
                 continue;
-            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+
+            auto it = mapAddedVotes.find(prequest.hash);
+
             UniValue p(UniValue::VOBJ);
-            prequest.ToJson(p, false);
-            if (it != vAddedPaymentRequestVotes.end()) {
-                if (it->second)
+            prequest.ToJson(p, view);
+
+            if (it != mapAddedVotes.end())
+            {
+                if (it->second == 1)
                     yesvotes.push_back(p);
-                else
+                else if (it->second == -1)
+                    absvotes.push_back(p);
+                else if (it->second == 0)
                     novotes.push_back(p);
-            } else {
+            } else
                 nullvotes.push_back(p);
-            }
         }
     }
 
     ret.pushKV("yes",yesvotes);
     ret.pushKV("no",novotes);
+    ret.pushKV("abs",absvotes);
     ret.pushKV("null",nullvotes);
 
     return ret;
@@ -3656,14 +4270,14 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+        (strCommand != "yes" && strCommand != "no" && strCommand != "abs" && strCommand != "remove"))
         throw runtime_error(
-            "paymentrequestvote \"request_hash\" \"yes|no|remove\"\n"
+            "paymentrequestvote \"request_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds/removes a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"request_hash\" (string, required) The payment request hash\n"
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
-            "                      'remove' to remove a proposal from the list\n"
+            "                      'abs' to abstain, 'remove' to remove a proposal from the list\n"
         );
 
     LOCK(cs_main);
@@ -3671,35 +4285,34 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
-    CFund::CPaymentRequest prequest;
-    CCoinsViewCache view(pcoinsTip);
+    CPaymentRequest prequest;
+    CStateViewCache view(pcoinsTip);
 
     if (!view.GetPaymentRequest(uint256S(strHash), prequest))
     {
-        return NullUniValue;
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request: ")+strHash);
     }
 
-    if (strCommand == "yes")
+    if (strCommand == "yes" || strCommand == "no" || strCommand == "abs")
     {
-      bool ret = CFund::VotePaymentRequest(prequest,true,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
-    }
-    else if (strCommand == "no")
-    {
-      bool ret = CFund::VotePaymentRequest(prequest,false,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        int vote = 0;
+
+        if (strCommand == "yes")
+            vote = 1;
+
+        if (strCommand == "abs")
+            vote = -1;
+
+        bool ret = Vote(prequest.hash,vote,duplicate);
+        if (duplicate) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
+        } else if (ret) {
+            return NullUniValue;
+        }
     }
     else if(strCommand == "remove")
     {
-      bool ret = CFund::RemoveVotePaymentRequest(strHash);
+      bool ret = RemoveVote(strHash);
       if (ret) {
         return NullUniValue;
       } else {
@@ -3760,13 +4373,14 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     }
 
     CProposalMap mapProposals;
+    CStateViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            CFund::CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
+            CProposal proposal;
+            if (!view.GetProposal(it->first, proposal))
                 continue;
 
             flags fLastState = proposal.GetLastState();
@@ -3775,7 +4389,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
             if (showMine)
             {
-                CTxDestination address(CNavCoinAddress(proposal.Address).Get());
+                CTxDestination address(CNavCoinAddress(proposal.GetOwnerAddress()).Get());
                 isminefilter mine = IsMine(*pwalletMain, address);
                 if(mine & ISMINE_SPENDABLE)
                     fIsMine = true;
@@ -3784,13 +4398,13 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
             if(showAll
                     || (showMine && fIsMine)
-                    || (showPending  && (fLastState == CFund::NIL || fLastState == CFund::PENDING_VOTING_PREQ
-                                         || fLastState == CFund::PENDING_FUNDS))
-                    || (showAccepted && (fLastState == CFund::ACCEPTED))
-                    || (showRejected && (fLastState == CFund::REJECTED))
-                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
+                    || (showPending  && (fLastState == DAOFlags::NIL || fLastState == DAOFlags::PENDING_VOTING_PREQ
+                                         || fLastState == DAOFlags::PENDING_FUNDS))
+                    || (showAccepted && (fLastState == DAOFlags::ACCEPTED))
+                    || (showRejected && (fLastState == DAOFlags::REJECTED))
+                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime(), view))) {
                 UniValue o(UniValue::VOBJ);
-                proposal.ToJson(o, *pcoinsTip);
+                proposal.ToJson(o, view);
                 ret.push_back(o);
             }
         }
@@ -3859,14 +4473,26 @@ static const CRPCCommand commands[] =
     { "communityfund",      "donatefund",               &donatefund,               false },
     { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
     { "communityfund",      "createproposal",           &createproposal,           false },
+    { "dao",                "createconsultation",       &createconsultation,       false },
+    { "dao",                "createconsultationwithanswers",
+                                                        &createconsultationwithanswers,
+                                                                                   false },
+    { "dao",                "getstakervote",            &getstakervote,            false },
+    { "dao",                "proposeanswer",            &proposeanswer,            false },
+    { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
+    { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
     { "wallet",             "stakervote",               &stakervote,               false },
+    { "dao",                "support",                  &support,                  false },
+    { "dao",                "supportlist",              &supportlist,              false },
+    { "dao",                "consultationvote",         &consultationvote,         false },
+    { "dao",                "consultationvotelist",     &consultationvotelist,     false },
     { "communityfund",      "proposalvote",             &proposalvote,             false },
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+    { "communityfund",      "listproposals",            &listproposals,            true  },
     { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
     { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
-    { "communityfund",      "listproposals",            &listproposals,            true  },
-    { "wallet",             "anonsend",                 &anonsend,                 false },
-    { "wallet",             "getanondestination",       &getanondestination,       false },
+    { "communityfund",      "proposalvote",             &proposalvote,             false },
+    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
     { "wallet",             "setaccount",               &setaccount,               true  },
     { "wallet",             "settxfee",                 &settxfee,                 true  },
     { "wallet",             "signmessage",              &signmessage,              true  },

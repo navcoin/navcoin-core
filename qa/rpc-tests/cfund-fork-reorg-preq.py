@@ -78,6 +78,8 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
 
+        assert_equal(self.nodes[1].getpaymentrequest(paymentHash0)["status"], "accepted")
+
         # Now make sure that both nodes are on different chains
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
 
@@ -94,12 +96,14 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         sync_blocks(self.nodes)
 
         # Now check that the hash for both nodes are the same
+        assert_equal(self.nodes[0].getpaymentrequest(paymentHash0)["status"], "accepted")
         assert_equal(self.nodes[0].getbestblockhash(), best_block)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(paymentHash0), self.nodes[1].getpaymentrequest(paymentHash0))
 
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
+        slow_gen(self.nodes[0], 1)
+        end_cycle(self.nodes[0])
         sync_blocks(self.nodes)
 
         assert_equal(self.nodes[0].getpaymentrequest(paymentHash0)["status"], "paid")

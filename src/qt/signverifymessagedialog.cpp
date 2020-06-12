@@ -28,14 +28,14 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *platformSt
 {
     ui->setupUi(this);
 
-    ui->addressBookButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->pasteButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
-    ui->copySignatureButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
-    ui->signMessageButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/edit"));
-    ui->clearButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->addressBookButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->verifyMessageButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/transaction_0"));
-    ui->clearButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
+    ui->addressBookButton_SM->setIcon(platformStyle->Icon(":/icons/address-book"));
+    ui->pasteButton_SM->setIcon(platformStyle->Icon(":/icons/editpaste"));
+    ui->copySignatureButton_SM->setIcon(platformStyle->Icon(":/icons/editcopy"));
+    ui->signMessageButton_SM->setIcon(platformStyle->Icon(":/icons/edit"));
+    ui->clearButton_SM->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->addressBookButton_VM->setIcon(platformStyle->Icon(":/icons/address-book"));
+    ui->verifyMessageButton_VM->setIcon(platformStyle->Icon(":/icons/transaction_0"));
+    ui->clearButton_VM->setIcon(platformStyle->Icon(":/icons/remove"));
 
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
 

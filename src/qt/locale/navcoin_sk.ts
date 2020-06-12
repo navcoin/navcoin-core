@@ -588,9 +588,6 @@
     </message>
 </context>
 <context>
-    <name>NavTechInit</name>
-    </context>
-<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -2337,18 +2334,4 @@ The network does not appear to fully agree! Some miners appear to be experiencin
         <translation>Chyba</translation>
     </message>
 </context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <source>Form</source>
-        <translation>Forma</translation>
-    </message>
-    </context>
-<context>
-    <name>navtechsetup</name>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrániť</translation>
-    </message>
-    </context>
 </TS>

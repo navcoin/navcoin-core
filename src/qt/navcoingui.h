@@ -11,19 +11,23 @@
 
 #include <amount.h>
 
-#include <QLabel>
-#include <QMainWindow>
+#include <QAbstractButton>
+#include <QComboBox>
 #include <QEvent>
 #include <QHoverEvent>
+#include <QLabel>
+#include <QMainWindow>
 #include <QMap>
 #include <QMenu>
-#include <QComboBox>
+#include <QPainter>
 #include <QPoint>
-#include <QPushButton>
+#include <QToolButton>
 #include <QSystemTrayIcon>
 #include <QtNetwork>
-#include <QAbstractButton>
-#include <QPainter>
+
+#ifdef Q_OS_MAC
+#include <qt/macappnapinhibitor.h>
+#endif
 
 class ClientModel;
 class NetworkStyle;
@@ -61,10 +65,30 @@ class NavCoinGUI : public QMainWindow
 
 public:
     static const QString DEFAULT_WALLET;
-    static const std::string DEFAULT_UIPLATFORM;
 
     explicit NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
     ~NavCoinGUI();
+
+    /** Get the screen scale, usefull for scaling UI elements */
+    float scale();
+
+    /** Show/Hide the wallet sync warning notification */
+    void showOutOfSyncWarning(bool fShow);
+
+    /** Show/Hide a notification */
+    void showHideNotification(bool show, int index);
+
+    /** Set the active menuBtns */
+    void setActiveMenu(int index);
+
+    /** Sets the balance for the wallet GUI header */
+    void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
+
+    /** Sets the staked amounts for the wallet GUI header */
+    void setStaked(const CAmount &all, const CAmount &today, const CAmount &week);
+
+    /** Set the bubble counter on menubtns */
+    void setMenuBubble(int index, int drak);
 
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
@@ -101,9 +125,17 @@ private:
     GUIUtil::ClickableLabel* labelBlocksIcon;
     QLabel *labelStakingIcon;
     QLabel *labelPrice;
+    QTimer *timerPrice;
     QLabel *progressBarLabel;
     GUIUtil::ClickableProgressBar* progressBar;
     QProgressDialog *progressDialog;
+
+    QLabel* balanceAvail;
+    QLabel* balancePendi;
+    QLabel* balanceImmat;
+    QLabel* stakedAvail;
+    QLabel* stakedPendi;
+    QLabel* stakedImmat;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
@@ -116,6 +148,7 @@ private:
     QAction *repairWalletAction;
     QAction *importPrivateKeyAction;
     QAction *exportMasterPrivateKeyAction;
+    QAction *exportMnemonicAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
@@ -137,11 +170,9 @@ private:
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
     QAction *splitRewardAction;
-    QPushButton *topMenu1; // Home
-    QPushButton *topMenu2; // Send
-    QPushButton *topMenu3; // Recieve
-    QPushButton *topMenu4; // Transaction History
-    QPushButton *topMenu5; // Community Fund
+    QToolButton *menuBtns[5];
+    QLabel *menuBubbles[5];
+    QLabel *notifications[3];
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -150,12 +181,13 @@ private:
     HelpMessageDialog *helpMessageDialog;
     ModalOverlay* modalOverlay;
 
+#ifdef Q_OS_MAC
+    CAppNapInhibitor* appNapInhibitor = nullptr;
+#endif
+
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;
-
-    bool fDontShowAgain;
-    int64_t lastDialogShown;
 
     uint64_t nWeight;
 
@@ -168,6 +200,8 @@ private:
     void createActions();
     /** Create the menu bar and sub-menus. */
     void createMenuBar();
+    /** Create the header widgets */
+    void createHeaderWidgets();
     /** Create the toolbars */
     void createToolBars();
     /** Create system tray icon and notification */
@@ -183,6 +217,7 @@ private:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
+    void updateHeadersSyncProgressLabel();
 
     void updateWeight();
 
@@ -193,12 +228,16 @@ private:
 Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString &uri);
+    /** Restart handling */
+    void requestedRestart(QStringList args);
 
 public Q_SLOTS:
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
     /** Set number of blocks and last block date shown in the UI */
     void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
+    /** Get restart command-line parameters and request restart */
+    void handleRestart(QStringList args);
 
     /** Notify the user of an event from the core network or transaction handling code.
        @param[in] title     the message box / notification title
@@ -253,6 +292,11 @@ private Q_SLOTS:
 
     /** Used by curl request in updatePrice */
     static size_t priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+
+    /** Update the alerts notification */
+    void updateAlerts(const QString &warnings);
+
+    void onDaoEntriesChanged(int count);
 
 #endif // ENABLE_WALLET
     /** Show configuration dialog */

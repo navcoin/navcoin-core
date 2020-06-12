@@ -1,0 +1,99 @@
+<svg width="592" height="140.96" version="1.1" viewBox="0 0 592 140.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style>.cls-1{isolation:isolate;}.cls-2{fill:url(#linear-gradient);}.cls-3{fill:url(#nave);}.cls-4{fill:url(#navo);}.cls-5{fill:url(#navj);}.cls-6{fill:url(#navi);}.cls-7{fill:url(#navh);}.cls-8{fill:url(#navd);}.cls-9{fill:url(#navg);}.cls-10{fill:url(#navf);}.cls-11{fill:url(#navc);}.cls-12,.cls-13,.cls-16,.cls-18,.cls-21,.cls-22,.cls-25,.cls-26,.cls-32,.cls-34{mix-blend-mode:overlay;}.cls-12{fill:url(#navb);}.cls-13{fill:url(#navaf);}.cls-14,.cls-15,.cls-23,.cls-24,.cls-30,.cls-31{mix-blend-mode:soft-light;}.cls-14{fill:url(#nava);}.cls-15{fill:url(#navae);}.cls-16{fill:url(#navad);}.cls-17{fill:url(#navac);}.cls-18{fill:url(#navab);}.cls-19,.cls-20,.cls-27,.cls-28{opacity:0.89;mix-blend-mode:hard-light;}.cls-19{fill:url(#navaa);}.cls-20{fill:url(#navz);}.cls-21{fill:url(#navy);}.cls-22{fill:url(#navx);}.cls-23{fill:url(#navw);}.cls-24{fill:url(#navv);}.cls-25{fill:url(#navu);}.cls-26{fill:url(#navt);}.cls-27{fill:url(#navs);}.cls-28{fill:url(#navr);}.cls-29,.cls-33{mix-blend-mode:darken;}.cls-29{fill:url(#navq);}.cls-30{fill:url(#navp);}.cls-31{fill:url(#navn);}.cls-32{fill:url(#navm);}.cls-33{fill:url(#navl);}.cls-34{fill:url(#navk);}</style>
+  <linearGradient id="linear-gradient" x1="195.67" x2="195.67" y1="126.63" y2="126.85" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#4da3db" offset="0"/>
+   <stop stop-color="#8361a9" offset="1"/>
+  </linearGradient>
+  <linearGradient id="nave" x1="150.65" x2="150.74" y1="126.91" y2="126.68" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#7897ce" offset="0"/>
+   <stop stop-color="#8555a2" offset="1"/>
+  </linearGradient>
+  <linearGradient id="navo" x1="481.1" x2="481.1" y1="126.63" y2="126.85" xlink:href="#linear-gradient"/>
+  <linearGradient id="navj" x1="436.08" x2="436.17" y1="126.91" y2="126.68" xlink:href="#nave"/>
+  <linearGradient id="navi" x1="482.15" x2="482.15" y1="126.63" y2="126.85" xlink:href="#linear-gradient"/>
+  <linearGradient id="navh" x1="437.13" x2="437.23" y1="126.91" y2="126.68" xlink:href="#nave"/>
+  <linearGradient id="navd" x1="218.36" x2="67.45" y1="70.41" y2="70.41" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#34c3ee" offset="0"/>
+   <stop stop-color="#6a82d7" offset=".53"/>
+   <stop stop-color="#cc26b2" offset="1"/>
+  </linearGradient>
+  <linearGradient id="navg" x1="369.38" x2="268.25" y1="70.57" y2="70.57" xlink:href="#navd"/>
+  <linearGradient id="navf" x1="521.87" x2="388.46" y1="70.41" y2="70.41" xlink:href="#navd"/>
+  <linearGradient id="navc" x1="78.12" x2="116.87" y1="125.49" y2="17.55" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#ce25b2" offset="0"/>
+   <stop stop-color="#8e50c5" offset="1"/>
+  </linearGradient>
+  <linearGradient id="navb" x1="219.44" x2="211.27" y1="108.1" y2="22.04" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#3765b0" offset="0"/>
+   <stop stop-color="#4ab5e7" offset="1"/>
+  </linearGradient>
+  <linearGradient id="navaf" x1="168.53" x2="196.08" y1="115.3" y2="65.64" xlink:href="#navb"/>
+  <linearGradient id="nava" x1="125.33" x2="153.52" y1="35.14" y2="84.02" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#5a75d5" offset="0"/>
+   <stop stop-color="#9e75b4" stop-opacity=".9" offset="1"/>
+  </linearGradient>
+  <linearGradient id="navae" x1="146.46" x2="169.42" y1="50.23" y2="126.01" xlink:href="#nava"/>
+  <linearGradient id="navad" x1="166.19" x2="127.05" y1="68.52" y2="26.01" xlink:href="#nava"/>
+  <linearGradient id="navac" x1="34.85" x2="108.54" y1="108.67" y2="39.76" xlink:href="#navc"/>
+  <linearGradient id="navab" x1="171.64" x2="125.01" y1="130.26" y2="49.87" xlink:href="#nava"/>
+  <linearGradient id="navaa" x1="144.2" x2="231.44" y1="97.03" y2="9.51" xlink:href="#navb"/>
+  <linearGradient id="navz" x1="174.66" x2="208.44" y1="116.06" y2="48.82" xlink:href="#navb"/>
+  <linearGradient id="navy" x1="504.87" x2="496.7" y1="108.1" y2="22.04" xlink:href="#navb"/>
+  <linearGradient id="navx" x1="453.96" x2="481.51" y1="115.3" y2="65.64" xlink:href="#navb"/>
+  <linearGradient id="navw" x1="410.76" x2="438.95" y1="35.14" y2="84.02" xlink:href="#nava"/>
+  <linearGradient id="navv" x1="431.89" x2="454.85" y1="50.23" y2="126.01" xlink:href="#nava"/>
+  <linearGradient id="navu" x1="451.62" x2="412.48" y1="68.52" y2="26.01" xlink:href="#nava"/>
+  <linearGradient id="navt" x1="457.07" x2="410.43" y1="130.26" y2="49.87" xlink:href="#nava"/>
+  <linearGradient id="navs" x1="429.63" x2="516.87" y1="97.03" y2="9.51" xlink:href="#navb"/>
+  <linearGradient id="navr" x1="460.09" x2="493.87" y1="116.06" y2="48.82" xlink:href="#navb"/>
+  <linearGradient id="navq" x1="269.12" x2="307.87" y1="125.49" y2="17.55" xlink:href="#navc"/>
+  <linearGradient id="navp" x1="316.33" x2="344.52" y1="35.14" y2="84.02" xlink:href="#nava"/>
+  <linearGradient id="navn" x1="337.46" x2="360.42" y1="50.23" y2="126.01" xlink:href="#nava"/>
+  <linearGradient id="navm" x1="357.19" x2="318.05" y1="68.52" y2="26.01" xlink:href="#nava"/>
+  <linearGradient id="navl" x1="225.85" x2="299.54" y1="108.67" y2="39.76" xlink:href="#navc"/>
+  <linearGradient id="navk" x1="362.64" x2="316.01" y1="130.26" y2="49.87" xlink:href="#nava"/>
+  <linearGradient id="naval" x1="195.67" x2="195.67" y1="126.63" y2="126.85" gradientUnits="userSpaceOnUse" xlink:href="#linear-gradient"/>
+  <linearGradient id="navak" x1="150.65" x2="150.74" y1="126.91" y2="126.68" gradientUnits="userSpaceOnUse" xlink:href="#nave"/>
+  <linearGradient id="navaj" x1="218.36" x2="67.45" y1="70.41" y2="70.41" gradientUnits="userSpaceOnUse" xlink:href="#navd"/>
+  <linearGradient id="navai" x1="78.12" x2="116.87" y1="125.49" y2="17.55" gradientUnits="userSpaceOnUse" xlink:href="#navc"/>
+  <linearGradient id="navah" x1="219.44" x2="211.27" y1="108.1" y2="22.04" gradientUnits="userSpaceOnUse" xlink:href="#navb"/>
+  <linearGradient id="navag" x1="125.33" x2="153.52" y1="35.14" y2="84.02" gradientUnits="userSpaceOnUse" xlink:href="#nava"/>
+ </defs>
+ <title>oldlogo copy</title>
+ <g class="cls-1" transform="matrix(1.2499 0 0 1.2499 -64.256 -17.623)" style="isolation:isolate">
+  <polygon class="cls-2" points="195.67 126.62 195.78 126.88 195.56 126.88" fill="url(#naval)"/>
+  <polygon class="cls-3" points="150.66 126.62 150.77 126.88 150.55 126.88" fill="url(#navak)"/>
+  <polygon class="cls-4" points="481.1 126.62 481.21 126.88 480.99 126.88" fill="url(#navo)"/>
+  <polygon class="cls-5" points="436.09 126.62 436.2 126.88 435.98 126.88" fill="url(#navj)"/>
+  <polygon class="cls-6" points="482.15 126.62 482.26 126.88 482.04 126.88" fill="url(#navi)"/>
+  <polygon class="cls-7" points="437.14 126.62 437.25 126.88 437.03 126.88" fill="url(#navh)"/>
+  <polygon class="cls-8" points="194.77 14.1 239.78 14.1 192.09 126.46 191.98 126.72 147.19 126.72 147.08 126.46 121.87 67.06 96.55 126.72 51.54 126.72 99.35 14.1 144.4 14.1 169.59 73.44" fill="url(#navaj)"/>
+  <polygon class="cls-9" points="312.76 67.35 287.49 126.88 242.48 126.88 290.25 14.33 290.28 14.26 335.23 14.26 335.26 14.33 383.03 126.88 338.03 126.88" fill="url(#navg)"/>
+  <polygon class="cls-10" points="429.28 14.1 454.67 73.9 480.05 14.1 525.06 14.1 477.26 126.72 432.08 126.72 384.28 14.1" fill="url(#navf)"/>
+  <polygon class="cls-11" points="51.41 126.88 96.42 126.88 144.27 14.26" fill="url(#navai)"/>
+  <polygon class="cls-12" points="239.63 14.26 192.1 126.64 194.72 14.26" fill="url(#navah)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-13" points="147.19 126.64 194.72 14.26 192.1 126.64" fill="url(#navaf)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-14" points="99.67 14.38 147.19 126.76 144.27 14.26" fill="url(#navag)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-15" points="192.1 126.76 144.27 14.26 147.19 126.76" fill="url(#navae)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-16" points="144.27 14.32 99.22 14.32 191.79 126.7" fill="url(#navad)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-17" points="51.41 126.88 99.67 14.38 144.27 14.26" fill="url(#navac)"/>
+  <polygon class="cls-18" points="99.22 14.32 192.1 126.82 147.19 126.82" fill="url(#navab)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-19" points="239.52 14.2 194.61 14.2 146.9 126.59" fill="url(#navaa)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-20" points="191.81 126.62 146.9 126.62 239.52 14.23" fill="url(#navz)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-21" points="525.06 14.26 477.53 126.64 480.14 14.26" fill="url(#navy)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-22" points="432.62 126.64 480.14 14.26 477.53 126.64" fill="url(#navx)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-23" points="385.1 14.38 432.62 126.76 429.69 14.26" fill="url(#navw)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-24" points="477.53 126.76 429.69 14.26 432.62 126.76" fill="url(#navv)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-25" points="429.69 14.32 384.65 14.32 477.22 126.7" fill="url(#navu)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-26" points="384.64 14.32 477.53 126.82 432.62 126.82" fill="url(#navt)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-27" points="524.95 14.2 480.04 14.2 432.33 126.59" fill="url(#navs)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-28" points="477.24 126.62 432.33 126.62 524.95 14.23" fill="url(#navr)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-29" points="242.41 126.88 287.42 126.88 335.26 14.26" fill="url(#navq)" style="mix-blend-mode:darken"/>
+  <polygon class="cls-30" points="290.67 14.38 338.19 126.76 335.26 14.26" fill="url(#navp)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-31" points="383.1 126.76 335.26 14.26 338.19 126.76" fill="url(#navn)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-32" points="335.26 14.32 290.22 14.32 382.79 126.7" fill="url(#navm)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-33" points="242.41 126.88 290.67 14.38 335.26 14.26" fill="url(#navl)" style="mix-blend-mode:darken"/>
+  <polygon class="cls-34" points="290.21 14.32 383.1 126.82 338.19 126.82" fill="url(#navk)" style="mix-blend-mode:overlay"/>
+ </g>
+</svg>

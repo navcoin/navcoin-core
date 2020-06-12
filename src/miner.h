@@ -177,7 +177,7 @@ private:
 public:
     BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
-    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees);
+    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees, std::string &sLog);
 
 private:
     // utility functions
@@ -223,7 +223,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 // NAVCoin - Mining/Staking thread
-bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees);
+bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog);
 /** Check mined proof-of-stake block */
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams);
 void NavCoinStaker(const CChainParams& chainparams);

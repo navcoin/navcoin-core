@@ -1,0 +1,140 @@
+/**
+ * Copyright (c) 2018, Juergen Skrotzky (https://github.com/Jorgen-VikingGod, JorgenVikingGod@gmail.com)
+ * Copyright (c) 2019 The NavCoin Core developers
+ * Distributed under the MIT software license, see the accompanying
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.
+ */
+
+QMenu::indicator:non-exclusive:checked {
+    image: url(:/light/icon_checkbox_checked);
+    padding-left: 0.1em;
+}
+
+QMenu::indicator:non-exclusive:unchecked {
+    image: url(:/light/icon_checkbox_unchecked);
+    padding-left: 0.1em;
+}
+
+QMenu::indicator:exclusive:checked {
+    image: url(:/light/icon_radiobutton_checked);
+    padding-left: 0.1em;
+}
+
+QMenu::indicator:exclusive:unchecked {
+    image: url(:/light/icon_radiobutton_unchecked);
+    padding-left: 0.1em;
+}
+
+QCheckBox::indicator:checked,
+QTreeView::indicator:checked,
+QTableView::indicator:checked,
+QGroupBox::indicator:checked {
+    image: url(:/light/icon_checkbox_checked);
+}
+
+QCheckBox::indicator:checked:pressed,
+QTreeView::indicator:checked:pressed,
+QTableView::indicator:checked:pressed,
+QGroupBox::indicator:checked:pressed {
+    image: url(:/light/icon_checkbox_checked_pressed);
+}
+
+QCheckBox::indicator:checked:disabled,
+QTreeView::indicator:checked:disabled,
+QTableView::indicator:checked:disabled,
+QGroupBox::indicator:checked:disabled {
+    image: url(:/light/icon_checkbox_checked_disabled);
+}
+
+QCheckBox::indicator:unchecked,
+QTreeView::indicator:unchecked,
+QTableView::indicator:unchecked,
+QGroupBox::indicator:unchecked {
+    image: url(:/light/icon_checkbox_unchecked);
+}
+
+QCheckBox::indicator:unchecked:pressed,
+QTreeView::indicator:unchecked:pressed,
+QTableView::indicator:unchecked:pressed,
+QGroupBox::indicator:unchecked:pressed {
+    image: url(:/light/icon_checkbox_unchecked_pressed);
+}
+
+QCheckBox::indicator:unchecked:disabled,
+QTreeView::indicator:unchecked:disabled,
+QTableView::indicator:unchecked:disabled,
+QGroupBox::indicator:unchecked:disabled {
+    image: url(:/light/icon_checkbox_unchecked_disabled);
+}
+
+QCheckBox::indicator:indeterminate,
+QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate,
+QGroupBox::indicator:indeterminate {
+    image: url(:/light/icon_checkbox_indeterminate);
+}
+
+QCheckBox::indicator:indeterminate:pressed,
+QTreeView::indicator:indeterminate:pressed,
+QTableView::indicator:indeterminate:pressed,
+QGroupBox::indicator:indeterminate:pressed {
+    image: url(:/light/icon_checkbox_indeterminate_pressed);
+}
+
+QCheckBox::indicator:indeterminate:disabled,
+QTreeView::indicator:indeterminate:disabled,
+QTableView::indicator:indeterminate:disabled,
+QGroupBox::indicator:indeterminate:disabled {
+    image: url(:/light/icon_checkbox_indeterminate_disabled);
+}
+
+QRadioButton::indicator:checked {
+    image: url(:/light/icon_radiobutton_checked);
+}
+
+QRadioButton::indicator:checked:pressed {
+    image: url(:/light/icon_radiobutton_checked_pressed);
+}
+
+QRadioButton::indicator:checked:disabled {
+    image: url(:/light/icon_radiobutton_checked_disabled);
+}
+
+QRadioButton::indicator:unchecked {
+    image: url(:/light/icon_radiobutton_unchecked);
+}
+
+QRadioButton::indicator:unchecked:pressed {
+    image: url(:/light/icon_radiobutton_unchecked_pressed);
+}
+
+QRadioButton::indicator:unchecked:disabled {
+    image: url(:/light/icon_radiobutton_unchecked_disabled);
+}
+
+QTreeView::branch:has-siblings:!adjoins-item {
+    border-image: none;
+    image: url(:/light/icon_vline);
+}
+
+QTreeView::branch:has-siblings:adjoins-item {
+    border-image: none;
+    image: url(:/light/icon_branch_more);
+}
+
+QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+    border-image: none;
+    image: url(:/light/icon_branch_end);
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    image: url(:/light/icon_branch_closed);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings {
+    border-image: none;
+    image: url(:/light/icon_branch_open);
+}

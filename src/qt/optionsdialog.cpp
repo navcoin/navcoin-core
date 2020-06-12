@@ -92,6 +92,10 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->navcoinAtStartup->setToolTip(ui->navcoinAtStartup->toolTip().arg(tr(PACKAGE_NAME)));
     ui->navcoinAtStartup->setText(ui->navcoinAtStartup->text().arg(tr(PACKAGE_NAME)));
 
+    // Add the themes that we support
+    ui->theme->addItem(tr("Light") + "("+ tr("default") + ")", QVariant("light"));
+    ui->theme->addItem(tr("Dark"), QVariant("dark"));
+
     ui->lang->setToolTip(ui->lang->toolTip().arg(tr(PACKAGE_NAME)));
     ui->lang->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
     for(const QString &langStr: translations.entryList())
@@ -174,6 +178,8 @@ void OptionsDialog::setModel(OptionsModel *model)
     connect(ui->connectSocksTor, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
     /* Display */
     connect(ui->lang, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
+    connect(ui->theme, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
+    connect(ui->scaling, SIGNAL(valueChanged(int)), this, SLOT(showRestartWarning()));
     connect(ui->thirdPartyTxUrls, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
 }
 
@@ -210,6 +216,8 @@ void OptionsDialog::setMapper()
     /* Display */
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
+    mapper->addMapping(ui->theme, OptionsModel::Theme);
+    mapper->addMapping(ui->scaling, OptionsModel::Scaling);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
 }
 

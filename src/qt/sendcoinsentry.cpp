@@ -13,6 +13,7 @@
 #include <util.h>
 #include <utils/dns_utils.h>
 #include <qt/walletmodel.h>
+#include <qt/coincontroldialog.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -26,14 +27,12 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 {
     ui->setupUi(this);
 
-    ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->deleteButton_is->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->deleteButton_s->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
+    ui->addressBookButton->setIcon(platformStyle->Icon(":/icons/address-book"));
+    ui->deleteButton_is->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->deleteButton_s->setIcon(platformStyle->Icon(":/icons/remove"));
 
     setCurrentWidget(ui->SendCoins);
 
-    if (platformStyle->getUseExtraSpacing())
-        ui->payToLayout->setSpacing(4);
     ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book"));
 
     // normal navcoin address field
@@ -47,6 +46,8 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
+    connect(ui->checkboxUseFullAmount, SIGNAL(clicked()), this, SLOT(useFullAmount()));
+    connect(ui->checkboxCoinControl, SIGNAL(toggled(bool)), this, SLOT(_coinControlFeaturesChanged(bool)));
 
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
@@ -57,15 +58,19 @@ SendCoinsEntry::~SendCoinsEntry()
     delete ui;
 }
 
-
 void SendCoinsEntry::setTotalAmount(const CAmount& amount)
 {
     totalAmount = amount;
+
+    if (ui->checkboxUseFullAmount->isChecked()) {
+        useFullAmount();
+    }
 }
 
 void SendCoinsEntry::useFullAmount()
 {
     ui->payAmount->setValue(totalAmount);
+    ui->payAmount->setDisabled(ui->checkboxUseFullAmount->isChecked());
 }
 
 void SendCoinsEntry::updateAddressBook()
@@ -96,8 +101,12 @@ void SendCoinsEntry::setModel(WalletModel *model)
 {
     this->model = model;
 
-    if (model && model->getOptionsModel())
+    if (model && model->getOptionsModel()) {
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+        connect(model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeaturesChanged(bool)));
+
+        ui->checkboxCoinControl->setChecked(model->getOptionsModel()->getCoinControlFeatures());
+    }
 
     clear();
 }
@@ -123,6 +132,18 @@ void SendCoinsEntry::clear()
 
     // update the display unit, to not use the default ("NAV")
     updateDisplayUnit();
+}
+
+void SendCoinsEntry::coinControlFeaturesChanged(bool enabled)
+{
+    if (enabled == ui->checkboxCoinControl->isChecked())
+        return;
+
+    ui->checkboxCoinControl->setChecked(enabled);
+}
+
+void SendCoinsEntry::_coinControlFeaturesChanged(bool enabled) {
+    model->getOptionsModel()->setCoinControlFeatures(enabled);
 }
 
 void SendCoinsEntry::deleteClicked()

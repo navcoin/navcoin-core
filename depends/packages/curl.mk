@@ -1,8 +1,8 @@
 package=curl
-$(package)_version=7.65.3
+$(package)_version=7.68.0
 $(package)_download_path=https://curl.haxx.se/download/
-$(package)_file_name=$(package)-$($(package)_version).tar.xz
-$(package)_sha256_hash=f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea
+$(package)_file_name=$(package)-$($(package)_version).tar.gz
+$(package)_sha256_hash=1dd7604e418b0b9a9077f62f763f6684c1b092a7bc17e3f354b8ad5c964d7358
 $(package)_dependencies=openssl
 $(package)_patches=fix_lib_order.patch
 

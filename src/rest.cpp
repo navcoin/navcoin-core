@@ -61,6 +61,7 @@ struct CCoin {
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 extern UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails = false);
 extern UniValue mempoolInfoToJSON();
+extern UniValue stempoolInfoToJSON();
 extern UniValue mempoolToJSON(bool fVerbose = false);
 extern void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 extern UniValue blockheaderToJSON(const CBlockIndex* blockindex);
@@ -364,7 +365,7 @@ static bool rest_tx(HTTPRequest* req, const std::string& strURIPart)
 
     CTransaction tx;
     uint256 hashBlock = uint256();
-    CCoinsViewCache view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
     if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
         return RESTERR(req, HTTP_NOT_FOUND, hashStr + " not found");
 
@@ -506,11 +507,11 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
     {
         LOCK2(cs_main, mempool.cs);
 
-        CCoinsView viewDummy;
-        CCoinsViewCache view(&viewDummy);
+        CStateView viewDummy;
+        CStateViewCache view(&viewDummy);
 
-        CCoinsViewCache& viewChain = *pcoinsTip;
-        CCoinsViewMemPool viewMempool(&viewChain, mempool);
+        CStateViewCache& viewChain = *pcoinsTip;
+        CStateViewMemPool viewMempool(&viewChain, mempool);
 
         if (fCheckMemPool)
             view.SetBackend(viewMempool); // switch cache backend to db+mempool in case user likes to query mempool

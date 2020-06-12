@@ -83,7 +83,16 @@ static bool SignStep(const BaseSignatureCreator& creator, const CScript& scriptP
     case TX_PAYMENTREQUESTYESVOTE:
     case TX_PROPOSALNOVOTE:
     case TX_PAYMENTREQUESTNOVOTE:
+    case TX_PROPOSALABSVOTE:
+    case TX_PROPOSALREMOVEVOTE:
+    case TX_PAYMENTREQUESTABSVOTE:
+    case TX_PAYMENTREQUESTREMOVEVOTE:
     case TX_CONTRIBUTION:
+    case TX_CONSULTATIONVOTE:
+    case TX_DAOSUPPORT:
+    case TX_DAOSUPPORTREMOVE:
+    case TX_CONSULTATIONVOTEREMOVE:
+    case TX_CONSULTATIONVOTEABSTENTION:
     case TX_NULL_DATA:
         return false;
     case TX_PUBKEY:
@@ -100,6 +109,7 @@ static bool SignStep(const BaseSignatureCreator& creator, const CScript& scriptP
             ret.push_back(ToByteVector(vch));
         }
         return true;
+    case TX_COLDSTAKING_V2:
     case TX_COLDSTAKING:
         keyID = CKeyID(uint160(fCoinStake ? vSolutions[0] : vSolutions[1]));
         if (!Sign1(keyID, creator, scriptPubKey, ret, sigversion))
@@ -339,6 +349,7 @@ static Stacks CombineSignatures(const CScript& scriptPubKey, const BaseSignature
     case TX_PUBKEY:
     case TX_PUBKEYHASH:
     case TX_COLDSTAKING:
+    case TX_COLDSTAKING_V2:
         // Signatures are bigger than placeholders or empty scripts:
         if (sigs1.script.empty() || sigs1.script[0].empty())
             return sigs2;

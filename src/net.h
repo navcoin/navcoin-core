@@ -76,6 +76,17 @@ static const ServiceFlags REQUIRED_SERVICES = NODE_NETWORK;
 // NOTE: When adjusting this, update rpcnet:setban's help ("24h")
 static const unsigned int DEFAULT_MISBEHAVING_BANTIME = 60 * 60 * 24;  // Default 24-hour ban
 
+/** Maximum number of outbound peers designated as Dandelion destinations */
+static const int DANDELION_MAX_DESTINATIONS = 2;
+/** Expected time between Dandelion routing shuffles (in seconds). */
+static const int DANDELION_SHUFFLE_INTERVAL = 600;
+/** The minimum amount of time a Dandelion transaction is embargoed (seconds) */
+static const int DANDELION_EMBARGO_MINIMUM = 10;
+/** The average additional embargo time beyond the minimum amount (seconds) */
+static const int DANDELION_EMBARGO_AVG_ADD = 20;
+/** Probability (percentage) that a Dandelion transaction enters fluff phase */
+static const unsigned int DANDELION_FLUFF = 10;
+
 unsigned int ReceiveFloodSize();
 unsigned int SendBufferSize();
 
@@ -165,7 +176,7 @@ extern int nMaxConnections;
 
 extern std::vector<CNode*> vNodes;
 extern CCriticalSection cs_vNodes;
-extern limitedmap<uint256, int64_t> mapAlreadyAskedFor;
+extern limitedmap<CInv, int64_t> mapAlreadyAskedFor;
 
 extern std::vector<std::string> vAddedNodes;
 extern CCriticalSection cs_vAddedNodes;
@@ -173,8 +184,29 @@ extern CCriticalSection cs_vAddedNodes;
 extern NodeId nLastNodeId;
 extern CCriticalSection cs_nLastNodeId;
 
-extern std::vector<std::string> vAddedAnonServers;
-extern CCriticalSection cs_vAddedAnonServers;
+// Public Dandelion field
+extern std::map<uint256, int64_t> mDandelionEmbargo;
+// Dandelion methods
+bool IsDandelionInbound(const CNode* const pnode);
+bool IsDandelionOutbound(const CNode* const pnode);
+bool IsLocalDandelionDestinationSet();
+bool SetLocalDandelionDestination();
+CNode* GetDandelionDestination(CNode* pfrom);
+bool LocalDandelionDestinationPushInventory(const CInv& inv);
+bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
+bool IsTxDandelionEmbargoed(const uint256& hash);
+bool RemoveDandelionEmbargo(const uint256& hash);
+// Dandelion fields
+extern std::vector<CNode*> vDandelionInbound;
+extern std::vector<CNode*> vDandelionOutbound;
+extern std::vector<CNode*> vDandelionDestination;
+extern CNode* localDandelionDestination;
+extern std::map<CNode*, CNode*> mDandelionRoutes;
+// Dandelion helper functions
+CNode* SelectFromDandelionDestinations();
+void CloseDandelionConnections(const CNode* const pnode);
+std::string GetDandelionRoutingDataDebugString();
+void DandelionShuffle();
 
 /** Subversion as sent to the P2P network in `version` messages */
 extern std::string strSubVersion;
@@ -358,6 +390,7 @@ public:
     bool fNetworkNode;
     bool fSuccessfullyConnected;
     bool fDisconnect;
+    bool fSupportsDandelion = false;
     // We use fRelayTxes for two purposes -
     // a) it allows us to not relay tx invs before receiving the peer's version message
     // b) the peer may tell us in its version message that we should not relay tx invs
@@ -404,9 +437,13 @@ public:
 
     // inventory based relay
     CRollingBloomFilter filterInventoryKnown;
+    // Set of Dandelion transactions that should be known to this peer
+    std::set<uint256> setDandelionInventoryKnown;
     // Set of transaction ids we still have to announce.
     // They are sorted by the mempool before relay, so the order is not important.
     std::set<uint256> setInventoryTxToSend;
+    // List of Dandelion transaction ids to announce.
+    std::vector<uint256> vInventoryDandelionTxToSend;
     // List of block ids we still have announce.
     // There is no final sorting before sending, as they are always sent immediately
     // and in the order requested.
@@ -546,6 +583,10 @@ public:
             if (!filterInventoryKnown.contains(inv.hash)) {
                 setInventoryTxToSend.insert(inv.hash);
             }
+        } else if (inv.type == MSG_DANDELION_TX) {
+              if (setDandelionInventoryKnown.count(inv.hash)==0) {
+                  vInventoryDandelionTxToSend.push_back(inv.hash);
+              }
         } else if (inv.type == MSG_BLOCK) {
             vInventoryBlockToSend.push_back(inv.hash);
         }
@@ -813,7 +854,11 @@ public:
     static uint64_t GetMaxOutboundTimeLeftInCycle();
 };
 
-
+class CExplicitNetCleanup
+{
+public:
+    static void callCleanup();
+};
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);

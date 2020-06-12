@@ -70,9 +70,13 @@ class PaymentRequest452(NavCoinTestFramework):
 
         # vote yes for the payment request and generate until paid out
 
+        end_cycle(self.nodes[0])
+
         self.nodes[0].paymentrequestvote(paymentReq, "yes")
 
+        slow_gen(self.nodes[0], 1)
         start_new_cycle(self.nodes[0])
+
         assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 1)
         assert(self.nodes[0].getpaymentrequest(paymentReq)["stateChangedOnBlock"] != "0000000000000000000000000000000000000000000000000000000000000000")
 

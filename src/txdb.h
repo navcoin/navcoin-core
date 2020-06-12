@@ -23,7 +23,7 @@
 #include <boost/function.hpp>
 
 class CBlockIndex;
-class CCoinsViewDBCursor;
+class CStateViewDBCursor;
 class uint256;
 
 //! Compensate for extra memory peak (x1.5-x1.9) at flush time.
@@ -92,13 +92,13 @@ struct CDiskTxPos : public CDiskBlockPos
     }
 };
 
-/** CCoinsView backed by the coin database (chainstate/) */
-class CCoinsViewDB : public CCoinsView
+/** CStateView backed by the coin database (chainstate/) */
+class CStateViewDB : public CStateView
 {
 protected:
     CDBWrapper db;
 public:
-    CCoinsViewDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
+    CStateViewDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
 
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
@@ -106,19 +106,33 @@ public:
     bool HaveProposal(const uint256 &pid) const;
     bool GetPaymentRequest(const uint256 &prid, CPaymentRequest &coins) const;
     bool HavePaymentRequest(const uint256 &prid) const;
+    bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    bool HaveCachedVoter(const CVoteMapKey &voter) const;
+    bool GetConsultation(const uint256 &cid, CConsultation& consultation) const;
+    bool HaveConsultation(const uint256 &cid) const;
+    bool GetConsultationAnswer(const uint256 &aid, CConsultationAnswer& answer) const;
+    bool HaveConsultationAnswer(const uint256 &aid) const;
+    bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
+    bool HaveConsensusParameter(const int &pid) const;
+
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
-    CCoinsViewCursor *Cursor() const;
+    bool GetAllVotes(CVoteMap &map);
+    bool GetAllConsultations(CConsultationMap &map);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
+    CStateViewCursor *Cursor() const;
 };
 
-/** Specialization of CCoinsViewCursor to iterate over a CCoinsViewDB */
-class CCoinsViewDBCursor: public CCoinsViewCursor
+/** Specialization of CStateViewCursor to iterate over a CStateViewDB */
+class CStateViewDBCursor: public CStateViewCursor
 {
 public:
-    ~CCoinsViewDBCursor() {}
+    ~CStateViewDBCursor() {}
 
     bool GetKey(uint256 &key) const;
     bool GetValue(CCoins &coins) const;
@@ -128,12 +142,12 @@ public:
     void Next();
 
 private:
-    CCoinsViewDBCursor(CDBIterator* pcursorIn, const uint256 &hashBlockIn):
-        CCoinsViewCursor(hashBlockIn), pcursor(pcursorIn) {}
+    CStateViewDBCursor(CDBIterator* pcursorIn, const uint256 &hashBlockIn):
+        CStateViewCursor(hashBlockIn), pcursor(pcursorIn) {}
     boost::scoped_ptr<CDBIterator> pcursor;
     std::pair<char, uint256> keyTmp;
 
-    friend class CCoinsViewDB;
+    friend class CStateViewDB;
 };
 
 /** Access to the block database (blocks/index/) */
@@ -168,16 +182,20 @@ public:
     bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
-    bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex);
-    bool ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal);
-    bool WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
-    bool GetProposalIndex(std::vector<CFund::CProposal>&vect);
-    CFund::CProposal GetProposal(uint256 hash);
-    bool UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
-    bool ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest);
-    bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
-    bool GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect);
-    bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
+    bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex,
+                            boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
+                            boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
+                            boost::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
+                            boost::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes);
+    bool ReadProposalIndex(const uint256 &proposalid, CProposal &proposal);
+    bool WriteProposalIndex(const std::vector<std::pair<uint256, CProposal> >&vect);
+    bool GetProposalIndex(std::vector<CProposal>&vect);
+    CProposal GetProposal(uint256 hash);
+    bool UpdateProposalIndex(const std::vector<std::pair<uint256, CProposal> >&vect);
+    bool ReadPaymentRequestIndex(const uint256 &prequestid, CPaymentRequest &prequest);
+    bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
+    bool GetPaymentRequestIndex(std::vector<CPaymentRequest>&vect);
+    bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
 };
 
 #endif // NAVCOIN_TXDB_H

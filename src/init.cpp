@@ -71,11 +71,10 @@
 #include <zmq/zmqnotificationinterface.h>
 #endif
 
-char *sPrivKey, *sPubKey;
-
 using namespace std;
 
 bool fFeeEstimatesInitialized = false;
+volatile bool fRestartRequested = false; // true: restart false: shutdown
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
 static const bool DEFAULT_DISABLE_SAFEMODE = false;
@@ -172,7 +171,7 @@ void StartShutdown()
 }
 bool ShutdownRequested()
 {
-    return fRequestShutdown;
+    return fRequestShutdown || fRestartRequested;
 }
 
 /**
@@ -180,13 +179,13 @@ bool ShutdownRequested()
  * chainstate, while keeping user interface out of the common library, which is shared
  * between navcoind, and navcoin-qt and non-server tools.
 */
-class CCoinsViewErrorCatcher : public CCoinsViewBacked
+class CStateViewErrorCatcher : public CStateViewBacked
 {
 public:
-    CCoinsViewErrorCatcher(CCoinsView* view) : CCoinsViewBacked(view) {}
+    CStateViewErrorCatcher(CStateView* view) : CStateViewBacked(view) {}
     bool GetCoins(const uint256 &txid, CCoins &coins) const {
         try {
-            return CCoinsViewBacked::GetCoins(txid, coins);
+            return CStateViewBacked::GetCoins(txid, coins);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
@@ -197,18 +196,18 @@ public:
             abort();
         }
     }
-    bool GetProposal(const uint256 &id, CFund::CProposal &proposal) const {
+    bool GetProposal(const uint256 &id, CProposal &proposal) const {
         try {
-            return CCoinsViewBacked::GetProposal(id, proposal);
+            return CStateViewBacked::GetProposal(id, proposal);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
             abort();
         }
     }
-    bool GetPaymentRequest(const uint256 &id, CFund::CPaymentRequest &prequest) const {
+    bool GetPaymentRequest(const uint256 &id, CPaymentRequest &prequest) const {
         try {
-            return CCoinsViewBacked::GetPaymentRequest(id, prequest);
+            return CStateViewBacked::GetPaymentRequest(id, prequest);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
@@ -218,8 +217,8 @@ public:
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
-static CCoinsViewDB *pcoinsdbview = nullptr;
-static CCoinsViewErrorCatcher *pcoinscatcher = nullptr;
+static CStateViewDB *pcoinsdbview = nullptr;
+static CStateViewErrorCatcher *pcoinscatcher = nullptr;
 static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
 
 void Interrupt(boost::thread_group& threadGroup)
@@ -232,8 +231,11 @@ void Interrupt(boost::thread_group& threadGroup)
     threadGroup.interrupt_all();
 }
 
-void Shutdown()
+/** Preparing steps before shutting down or restarting the wallet */
+void PrepareShutdown()
 {
+    fRequestShutdown = true;  // Needed when we shutdown the wallet
+    fRestartRequested = true; // Needed when we restart the wallet
     LogPrintf("%s: In progress...\n", __func__);
     static CCriticalSection cs_Shutdown;
     TRY_LOCK(cs_Shutdown, lockShutdown);
@@ -246,6 +248,8 @@ void Shutdown()
     /// module was initialized.
     RenameThread("navcoin-shutoff");
     mempool.AddTransactionsUpdated(1);
+    // Changes to mempool should also be made to Dandelion stempool
+    stempool.AddTransactionsUpdated(1);
 
     StopHTTPRPC();
     StopREST();
@@ -256,7 +260,6 @@ void Shutdown()
         pwalletMain->Flush(false);
 #endif
     StopNode();
-    StopTorControl();
     UnregisterNodeSignals(GetNodeSignals());
 
     if (fFeeEstimatesInitialized)
@@ -305,6 +308,25 @@ void Shutdown()
     }
 #endif
     UnregisterAllValidationInterfaces();
+}
+
+/**
+* Shutdown is split into 2 parts:
+* Part 1: shut down everything but the main wallet instance (done in PrepareShutdown() )
+* Part 2: delete wallet instance
+*
+* In case of a restart PrepareShutdown() was already called before, but this method here gets
+* called implicitly when the parent object is deleted. In this case we have to skip the
+* PrepareShutdown() part because it was already executed and just delete the wallet instance.
+*/
+void Shutdown()
+{
+    // Shutdown part 1: prepare shutdown
+    if (!fRestartRequested) {
+        PrepareShutdown();
+    }
+    // Shutdown part 2: Stop TOR thread and delete wallet instance
+    StopTorControl();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = nullptr;
@@ -416,7 +438,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
-    strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
     strUsage += HelpMessageOpt("-banversion=<string>", strprintf(_("Version of wallet to be banned")));
@@ -970,7 +991,7 @@ void DownloadBlockchain(std::string url)
 /** Initialize navcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std::string& wordlist, const std::string& password)
 {
     // ********************************************************* Step 0: download bootstrap
     std::string sBootstrap = GetArg("-bootstrap","");
@@ -996,6 +1017,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
         uiInterface.InitMessage("Downloaded");
 
+    }
+
+    if(!wordlist.empty())
+    {
+        SoftSetBoolArg("-rescan", true);
     }
 
     // ********************************************************* Step 1: setup
@@ -1024,30 +1050,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
-
-    int keylen_pub, keylen_priv;
-
-    RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
-
-    /* Create Private Key */
-    BIO *biopriv = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPrivateKey(biopriv, rsa, nullptr, nullptr, 0, nullptr, nullptr);
-
-    keylen_priv = BIO_pending(biopriv);
-    sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
-    BIO_read(biopriv, sPrivKey, keylen_priv);
-
-
-    /* Create Public Key */
-    BIO *bio_pub = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSA_PUBKEY(bio_pub, rsa);
-
-    keylen_pub = BIO_pending(bio_pub);
-    sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */
-    BIO_read(bio_pub, sPubKey, keylen_pub);
-
-    LogPrintf("RSA keys pair generated.\n");
-
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {
 #ifdef ENABLE_WALLET
@@ -1141,6 +1143,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     int ratio = std::min<int>(std::max<int>(GetArg("-checkmempool", chainparams.DefaultConsistencyChecks() ? 1 : 0), 0), 1000000);
     if (ratio != 0) {
         mempool.setSanityCheck(1.0 / ratio);
+        // Changes to mempool should also be made to Dandelion stempool
+        stempool.setSanityCheck(1.0 / ratio);
     }
     fCheckBlockIndex = GetBoolArg("-checkblockindex", chainparams.DefaultConsistencyChecks());
     fCheckpointsEnabled = GetBoolArg("-checkpoints", DEFAULT_CHECKPOINTS_ENABLED);
@@ -1293,6 +1297,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (fServer)
     {
         uiInterface.InitMessage.connect(SetRPCWarmupStatus);
+        uiInterface.ShowProgress.connect(SetRPCWarmupStatusProgress);
         if (!AppInitServers(threadGroup))
             return InitError(_("Unable to start HTTP server. See debug log for details."));
     }
@@ -1344,7 +1349,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                 nWarningCounter++;
 
-                MilliSleep(30000);
+                if(!ShutdownRequested())
+                {
+                    MilliSleep(10000);
+                }
             }
             else
             {
@@ -1573,10 +1581,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pblocktree;
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex, dbCompression, dbMaxOpenFiles);
-                pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
+                pcoinsdbview = new CStateViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
 
-                pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
-                pcoinsTip = new CCoinsViewCache(pcoinscatcher);
+                pcoinscatcher = new CStateViewErrorCatcher(pcoinsdbview);
+                pcoinsTip = new CStateViewCache(pcoinscatcher);
 
                 if (fReindex) {
                     pblocktree->WriteReindexing(true);
@@ -1657,13 +1665,17 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     }
                 }
 
-                if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                          GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                fVerifyChain = true;
+                bool fVerifyRet = CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
+                                                       GetArg("-checkblocks", DEFAULT_CHECKBLOCKS));
+                fVerifyChain = false;
+
+                if (!fVerifyRet) {
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
 
-                std::vector<CFund::CProposal> vProposals;
+                std::vector<CProposal> vProposals;
                 CProposalMap mapProposals;
 
                 if (pblocktree->GetProposalIndex(vProposals))
@@ -1689,7 +1701,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     break;
                 }
 
-                std::vector<CFund::CPaymentRequest> vPaymentRequests;
+                std::vector<CPaymentRequest> vPaymentRequests;
                 CPaymentRequestMap mapPaymentRequest;
 
                 if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
@@ -1770,7 +1782,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         pwalletMain = nullptr;
         LogPrintf("Wallet disabled!\n");
     } else {
-        CWallet::InitLoadWallet();
+        CWallet::InitLoadWallet(wordlist, password);
         if (!pwalletMain)
             return false;
     }

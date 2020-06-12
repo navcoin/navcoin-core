@@ -9,44 +9,44 @@ QT_TS = \
 	qt/locale/navcoin_be_BY.ts \
 	qt/locale/navcoin_bg.ts \
 	qt/locale/navcoin_bg_BG.ts \
-	qt/locale/navcoin_ca_ES.ts \
 	qt/locale/navcoin_ca.ts \
 	qt/locale/navcoin_ca@valencia.ts \
-	qt/locale/navcoin_cs_CZ.ts \
+	qt/locale/navcoin_ca_ES.ts \
 	qt/locale/navcoin_cs.ts \
+	qt/locale/navcoin_cs_CZ.ts \
 	qt/locale/navcoin_cy.ts \
 	qt/locale/navcoin_da.ts \
 	qt/locale/navcoin_de.ts \
-	qt/locale/navcoin_el_GR.ts \
 	qt/locale/navcoin_el.ts \
-	qt/locale/navcoin_en_GB.ts \
+	qt/locale/navcoin_el_GR.ts \
 	qt/locale/navcoin_en.ts \
+	qt/locale/navcoin_en_GB.ts \
 	qt/locale/navcoin_eo.ts \
+	qt/locale/navcoin_es.ts \
 	qt/locale/navcoin_es_AR.ts \
 	qt/locale/navcoin_es_CL.ts \
 	qt/locale/navcoin_es_CO.ts \
 	qt/locale/navcoin_es_DO.ts \
 	qt/locale/navcoin_es_ES.ts \
 	qt/locale/navcoin_es_MX.ts \
-	qt/locale/navcoin_es.ts \
 	qt/locale/navcoin_es_UY.ts \
 	qt/locale/navcoin_es_VE.ts \
 	qt/locale/navcoin_et.ts \
 	qt/locale/navcoin_eu_ES.ts \
-	qt/locale/navcoin_fa_IR.ts \
 	qt/locale/navcoin_fa.ts \
+	qt/locale/navcoin_fa_IR.ts \
 	qt/locale/navcoin_fi.ts \
+	qt/locale/navcoin_fr.ts \
 	qt/locale/navcoin_fr_CA.ts \
 	qt/locale/navcoin_fr_FR.ts \
-	qt/locale/navcoin_fr.ts \
 	qt/locale/navcoin_gl.ts \
 	qt/locale/navcoin_he.ts \
 	qt/locale/navcoin_hi_IN.ts \
 	qt/locale/navcoin_hr.ts \
 	qt/locale/navcoin_hu.ts \
 	qt/locale/navcoin_id_ID.ts \
-	qt/locale/navcoin_it_IT.ts \
 	qt/locale/navcoin_it.ts \
+	qt/locale/navcoin_it_IT.ts \
 	qt/locale/navcoin_ja.ts \
 	qt/locale/navcoin_ka.ts \
 	qt/locale/navcoin_kk_KZ.ts \
@@ -65,92 +65,107 @@ QT_TS = \
 	qt/locale/navcoin_pl.ts \
 	qt/locale/navcoin_pt_BR.ts \
 	qt/locale/navcoin_pt_PT.ts \
-	qt/locale/navcoin_ro_RO.ts \
 	qt/locale/navcoin_ro.ts \
-	qt/locale/navcoin_ru_RU.ts \
+	qt/locale/navcoin_ro_RO.ts \
 	qt/locale/navcoin_ru.ts \
+	qt/locale/navcoin_ru_RU.ts \
 	qt/locale/navcoin_sk.ts \
 	qt/locale/navcoin_sl_SI.ts \
 	qt/locale/navcoin_sq.ts \
-	qt/locale/navcoin_sr@latin.ts \
 	qt/locale/navcoin_sr.ts \
+	qt/locale/navcoin_sr@latin.ts \
 	qt/locale/navcoin_sv.ts \
 	qt/locale/navcoin_ta.ts \
 	qt/locale/navcoin_th_TH.ts \
-	qt/locale/navcoin_tr_TR.ts \
 	qt/locale/navcoin_tr.ts \
+	qt/locale/navcoin_tr_TR.ts \
 	qt/locale/navcoin_uk.ts \
 	qt/locale/navcoin_ur_PK.ts \
 	qt/locale/navcoin_uz@Cyrl.ts \
 	qt/locale/navcoin_vi.ts \
 	qt/locale/navcoin_vi_VN.ts \
+	qt/locale/navcoin_zh.ts \
 	qt/locale/navcoin_zh_CN.ts \
 	qt/locale/navcoin_zh_HK.ts \
-	qt/locale/navcoin_zh.ts \
 	qt/locale/navcoin_zh_TW.ts
 
 QT_FORMS_UI = \
 	qt/forms/addressbookpage.ui \
 	qt/forms/askpassphrasedialog.ui \
+  qt/forms/startoptionsdialog.ui \
+  qt/forms/startoptions.ui \
+  qt/forms/startoptionspassword.ui \
+  qt/forms/startoptionsrestore.ui \
+  qt/forms/startoptionssort.ui \
+  qt/forms/startoptionsrevealed.ui \
+  qt/forms/startoptionsmain.ui \
 	qt/forms/coincontroldialog.ui \
+	qt/forms/communityfundcreatepaymentrequestdialog.ui \
+	qt/forms/communityfundcreateproposaldialog.ui \
+	qt/forms/communityfunddisplay.ui \
+	qt/forms/communityfunddisplaydetailed.ui \
+	qt/forms/communityfunddisplaypaymentrequest.ui \
+	qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
+	qt/forms/communityfundpage.ui \
+	qt/forms/communityfundsuccessdialog.ui \
+	qt/forms/debugwindow.ui \
 	qt/forms/editaddressdialog.ui \
+	qt/forms/getaddresstoreceive.ui \
 	qt/forms/helpmessagedialog.ui \
-	qt/forms/intro.ui \
 	qt/forms/modaloverlay.ui \
 	qt/forms/openuridialog.ui \
 	qt/forms/optionsdialog.ui \
 	qt/forms/overviewpage.ui \
-	qt/forms/communityfunddisplaydetailed.ui \
-	qt/forms/communityfundcreateproposaldialog.ui \
-	qt/forms/communityfundcreatepaymentrequestdialog.ui \
 	qt/forms/receivecoinsdialog.ui \
 	qt/forms/receiverequestdialog.ui \
-	qt/forms/debugwindow.ui \
 	qt/forms/sendcoinsdialog.ui \
 	qt/forms/sendcoinsentry.ui \
 	qt/forms/sendcommunityfunddialog.ui \
-	qt/forms/communityfundsuccessdialog.ui \
 	qt/forms/signverifymessagedialog.ui \
-	qt/forms/transactiondescdialog.ui \
-	qt/forms/communityfundpage.ui \
-	qt/forms/communityfunddisplay.ui \
-	qt/forms/communityfunddisplaypaymentrequest.ui \
-	qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
-	qt/navtechinit.ui \
-	qt/navtechitem.ui \
-	qt/navtechsetup.ui \
-	qt/getaddresstoreceive.ui
+	qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
 	qt/moc_addressbookpage.cpp \
 	qt/moc_addresstablemodel.cpp \
 	qt/moc_askpassphrasedialog.cpp \
 	qt/moc_bantablemodel.cpp \
+	qt/moc_clientmodel.cpp \
+  qt/moc_startoptionsdialog.cpp \
+  qt/moc_startoptions.cpp \
+  qt/moc_startoptionspassword.cpp \
+  qt/moc_startoptionsrestore.cpp \
+  qt/moc_startoptionssort.cpp \
+  qt/moc_startoptionsrevealed.cpp \
+  qt/moc_startoptionsmain.cpp \
+	qt/moc_coincontroldialog.cpp \
+	qt/moc_coincontroltreewidget.cpp \
+	qt/moc_coldstakingwizard.cpp \
+	qt/moc_communityfundcreatepaymentrequestdialog.cpp \
+	qt/moc_communityfundcreateproposaldialog.cpp \
+	qt/moc_communityfunddisplay.cpp \
+	qt/moc_communityfunddisplaydetailed.cpp \
+	qt/moc_communityfunddisplaypaymentrequest.cpp \
+	qt/moc_communityfunddisplaypaymentrequestdetailed.cpp \
+	qt/moc_communityfundpage.cpp \
+	qt/moc_communityfundsuccessdialog.cpp \
+	qt/moc_csvmodelwriter.cpp \
+	qt/moc_editaddressdialog.cpp \
+	qt/moc_getaddresstoreceive.cpp \
+	qt/moc_guiutil.cpp \
+	qt/moc_macappnapinhibitor.cpp \
+	qt/moc_macdockiconhandler.cpp \
+	qt/moc_macnotificationhandler.cpp \
+	qt/moc_modaloverlay.cpp \
 	qt/moc_navcoinaddressvalidator.cpp \
 	qt/moc_navcoinamountfield.cpp \
 	qt/moc_navcoingui.cpp \
 	qt/moc_navcoinunits.cpp \
-	qt/moc_clientmodel.cpp \
-	qt/moc_coincontroldialog.cpp \
-	qt/moc_coincontroltreewidget.cpp \
-	qt/moc_coldstakingwizard.cpp \
-	qt/moc_csvmodelwriter.cpp \
-	qt/moc_editaddressdialog.cpp \
-	qt/moc_guiutil.cpp \
-	qt/moc_intro.cpp \
-	qt/moc_modaloverlay.cpp \
-	qt/moc_macdockiconhandler.cpp \
-	qt/moc_macnotificationhandler.cpp \
-	qt/moc_navtechinit.cpp \
-	qt/moc_navtechsetup.cpp \
-	qt/moc_navtechitem.cpp \
-	qt/moc_getaddresstoreceive.cpp \
 	qt/moc_notificator.cpp \
 	qt/moc_openuridialog.cpp \
 	qt/moc_optionsdialog.cpp \
 	qt/moc_optionsmodel.cpp \
 	qt/moc_overviewpage.cpp \
-	qt/moc_communityfundpage.cpp \
+  qt/moc_communityfundpage.cpp \
 	qt/moc_communityfunddisplay.cpp \
 	qt/moc_communityfunddisplaypaymentrequest.cpp \
 	qt/moc_communityfunddisplaypaymentrequestdetailed.cpp \
@@ -158,9 +173,10 @@ QT_MOC_CPP = \
 	qt/moc_communityfundcreatepaymentrequestdialog.cpp \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_paymentserver.cpp \
-  qt/moc_qjsonmodel.cpp \
-  qt/moc_qvalidatedlineedit.cpp \
-  qt/moc_qvalidatedplaintextedit.cpp \
+	qt/moc_peertablemodel.cpp \
+	qt/moc_qjsonmodel.cpp \
+	qt/moc_qvalidatedlineedit.cpp \
+	qt/moc_qvalidatedplaintextedit.cpp \
 	qt/moc_qvalidatedspinbox.cpp \
 	qt/moc_qvaluecombobox.cpp \
 	qt/moc_receivecoinsdialog.cpp \
@@ -170,10 +186,9 @@ QT_MOC_CPP = \
 	qt/moc_sendcoinsdialog.cpp \
 	qt/moc_sendcoinsentry.cpp \
 	qt/moc_sendcommunityfunddialog.cpp \
-	qt/moc_communityfundsuccessdialog.cpp \
 	qt/moc_signverifymessagedialog.cpp \
-  qt/moc_splitrewards.cpp \
 	qt/moc_splashscreen.cpp \
+	qt/moc_splitrewards.cpp \
 	qt/moc_trafficgraphwidget.cpp \
 	qt/moc_transactiondesc.cpp \
 	qt/moc_transactiondescdialog.cpp \
@@ -181,28 +196,40 @@ QT_MOC_CPP = \
 	qt/moc_transactiontablemodel.cpp \
 	qt/moc_transactionview.cpp \
 	qt/moc_utilitydialog.cpp \
-	qt/moc_walletframe.cpp \
-	qt/moc_walletmodel.cpp \
+  qt/moc_walletframe.cpp \
+  qt/moc_walletmodel.cpp \
 	qt/moc_walletview.cpp \
-	qt/moc_communityfunddisplaydetailed.cpp
+  qt/moc_communityfunddisplaydetailed.cpp \
+  qt/moc_daopage.cpp \
+  qt/moc_daoconsultationvote.cpp \
+  qt/moc_daoconsultationcreate.cpp \
+  qt/moc_navcoinlistwidget.cpp \
+  qt/moc_navcoinpushbutton.cpp \
+  qt/moc_daoproposeanswer.cpp \
+  qt/moc_daosupport.cpp \
+	qt/styles/moc_dark.cpp \
+	qt/styles/moc_light.cpp
 
 NAVCOIN_MM = \
+	qt/macappnapinhibitor.mm \
 	qt/macdockiconhandler.mm \
 	qt/macnotificationhandler.mm
 
 QT_MOC = \
-	qt/navcoin.moc \
-	qt/navcoinamountfield.moc \
-	qt/intro.moc \
-	qt/overviewpage.moc \
-	qt/rpcconsole.moc \
-	qt/communityfundpage.moc \
+	qt/communityfundcreatepaymentrequestdialog.moc \
+	qt/communityfundcreateproposaldialog.moc \
 	qt/communityfunddisplay.moc \
+	qt/communityfunddisplaydetailed.moc \
 	qt/communityfunddisplaypaymentrequest.moc \
 	qt/communityfunddisplaypaymentrequestdetailed.moc \
 	qt/communityfunddisplaydetailed.moc \
 	qt/communityfundcreateproposaldialog.moc \
-	qt/communityfundcreatepaymentrequestdialog.moc
+  qt/communityfundcreatepaymentrequestdialog.moc \
+	qt/communityfundpage.moc \
+	qt/navcoin.moc \
+	qt/navcoinamountfield.moc \
+	qt/overviewpage.moc \
+	qt/rpcconsole.moc
 
 QT_QRC_CPP = qt/qrc_navcoin.cpp
 QT_QRC = qt/navcoin.qrc
@@ -218,46 +245,51 @@ NAVCOIN_QT_H = \
 	qt/addresstablemodel.h \
 	qt/askpassphrasedialog.h \
 	qt/bantablemodel.h \
+	qt/clientmodel.h \
+  qt/startoptionsdialog.h \
+  qt/startoptions.h \
+  qt/startoptionspassword.h \
+  qt/startoptionsrestore.h \
+  qt/startoptionssort.h \
+  qt/startoptionsrevealed.h \
+  qt/startoptionsmain.h \
+	qt/coincontroldialog.h \
+	qt/coincontroltreewidget.h \
+	qt/coldstakingwizard.h \
+	qt/communityfundcreatepaymentrequestdialog.h \
+	qt/communityfundcreateproposaldialog.h \
+	qt/communityfunddisplay.h \
+	qt/communityfunddisplaydetailed.h \
+	qt/communityfunddisplaypaymentrequest.h \
+	qt/communityfunddisplaypaymentrequestdetailed.h \
+	qt/communityfundpage.h \
+	qt/communityfundsuccessdialog.h \
+	qt/csvmodelwriter.h \
+	qt/editaddressdialog.h \
+	qt/getaddresstoreceive.h \
+	qt/guiconstants.h \
+	qt/guiutil.h \
+	qt/listview.h \
+	qt/macappnapinhibitor.h \
+	qt/macdockiconhandler.h \
+	qt/macnotificationhandler.h \
+	qt/modaloverlay.h \
 	qt/navcoinaddressvalidator.h \
 	qt/navcoinamountfield.h \
 	qt/navcoingui.h \
 	qt/navcoinunits.h \
-	qt/clientmodel.h \
-	qt/coincontroldialog.h \
-	qt/coincontroltreewidget.h \
-	qt/coldstakingwizard.h \
-	qt/csvmodelwriter.h \
-	qt/editaddressdialog.h \
-	qt/guiconstants.h \
-	qt/guiutil.h \
-	qt/intro.h \
-  qt/qjsonitem.h \
-  qt/qjsonmodel.h \
-	qt/listview.h \
-	qt/macdockiconhandler.h \
-	qt/macnotificationhandler.h \
-	qt/navtechinit.h \
-	qt/navtechitem.h \
-	qt/navtechsetup.h \
-	qt/getaddresstoreceive.h \
-	qt/modaloverlay.h \
 	qt/networkstyle.h \
 	qt/notificator.h \
 	qt/openuridialog.h \
 	qt/optionsdialog.h \
 	qt/optionsmodel.h \
 	qt/overviewpage.h \
-	qt/communityfundpage.h \
-	qt/communityfunddisplay.h \
-	qt/communityfunddisplaypaymentrequest.h \
-	qt/communityfunddisplaypaymentrequestdetailed.h \
-	qt/communityfunddisplaydetailed.h \
-	qt/communityfundcreateproposaldialog.h \
-	qt/communityfundcreatepaymentrequestdialog.h \
 	qt/paymentrequestplus.h \
 	qt/paymentserver.h \
 	qt/peertablemodel.h \
 	qt/platformstyle.h \
+	qt/qjsonitem.h \
+	qt/qjsonmodel.h \
 	qt/qvalidatedlineedit.h \
 	qt/qvalidatedplaintextedit.h \
 	qt/qvalidatedspinbox.h \
@@ -269,11 +301,11 @@ NAVCOIN_QT_H = \
 	qt/sendcoinsdialog.h \
 	qt/sendcoinsentry.h \
 	qt/sendcommunityfunddialog.h \
-	qt/communityfundsuccessdialog.h \
 	qt/signverifymessagedialog.h \
-	qt/skinize.h \
-  qt/splitrewards.h \
 	qt/splashscreen.h \
+	qt/splitrewards.h \
+	qt/styles/dark.h \
+	qt/styles/light.h \
 	qt/trafficgraphwidget.h \
 	qt/transactiondesc.h \
 	qt/transactiondescdialog.h \
@@ -286,100 +318,162 @@ NAVCOIN_QT_H = \
 	qt/walletmodel.h \
 	qt/walletmodeltransaction.h \
 	qt/walletview.h \
-	qt/winshutdownmonitor.h
+  qt/winshutdownmonitor.h \
+  qt/daopage.h \
+  qt/daoconsultationvote.h \
+  qt/daoconsultationcreate.h \
+  qt/navcoinlistwidget.h \
+  qt/navcoinpushbutton.h \
+  qt/daoproposeanswer.h \
+  qt/daosupport.h
 
+# Icons
 RES_ICONS = \
-	qt/res/icons/background_top.png \
-	qt/res/icons/navcoin.png \
+	qt/res/icons/logo_n.png \
+	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
-	qt/res/icons/ghost.png \
-	qt/res/icons/address-book.png \
-	qt/res/icons/quit.png \
-	qt/res/icons/send.png \
-	qt/res/icons/connect0.png \
-	qt/res/icons/connect1.png \
-	qt/res/icons/connect2.png \
-	qt/res/icons/connect3.png \
-	qt/res/icons/connect4.png \
-	qt/res/icons/transaction0.png \
-	qt/res/icons/transaction2.png \
-	qt/res/icons/transaction_conflicted.png \
-	qt/res/icons/clock1.png \
-	qt/res/icons/clock2.png \
-	qt/res/icons/clock3.png \
-	qt/res/icons/clock4.png \
-	qt/res/icons/clock5.png \
-	qt/res/icons/eye.png \
-	qt/res/icons/eye_minus.png \
-	qt/res/icons/eye_plus.png \
-	qt/res/icons/configure.png \
-	qt/res/icons/receive.png \
-	qt/res/icons/editpaste.png \
-	qt/res/icons/editcopy.png \
-	qt/res/icons/add.png \
-	qt/res/icons/edit.png \
-	qt/res/icons/history.png \
-	qt/res/icons/overview.png \
-	qt/res/icons/export.png \
-	qt/res/icons/synced.png \
-	qt/res/icons/remove.png \
-	qt/res/icons/tx_mined.png \
-	qt/res/icons/tx_input.png \
-	qt/res/icons/tx_output.png \
-	qt/res/icons/tx_inout.png \
-	qt/res/icons/lock_closed.png \
-	qt/res/icons/lock_open.png \
-	qt/res/icons/key.png \
-	qt/res/icons/filesave.png \
-	qt/res/icons/splash.png \
-	qt/res/icons/debugwindow.png \
-	qt/res/icons/open.png \
-	qt/res/icons/info.png \
-	qt/res/icons/about.png \
-	qt/res/icons/about_qt.png \
-	qt/res/icons/verify.png \
-	qt/res/icons/warning.png \
-	qt/res/icons/fontbigger.png \
-	qt/res/icons/fontsmaller.png \
-	qt/res/icons/chevron.png \
-	qt/res/icons/transaction_abandoned.png \
-	qt/res/icons/logo_ns.png \
-	qt/res/icons/home_ns.png \
-	qt/res/icons/receive_ns.png \
-	qt/res/icons/send_ns.png \
-	qt/res/icons/home_hover.png \
-	qt/res/icons/home_s.png \
-	qt/res/icons/receive_hover.png \
-	qt/res/icons/receive_s.png \
-	qt/res/icons/send_hover.png \
-	qt/res/icons/send_s.png \
-	qt/res/icons/transaction_ns.png \
-	qt/res/icons/transaction_s.png \
-	qt/res/icons/transaction_hover.png \
-	qt/res/icons/community_fund_ns.png \
-	qt/res/icons/community_fund_s.png \
-	qt/res/icons/community_fund_hover.png \
+	qt/res/icons/navcoin.png \
+	qt/res/icons/navcoin_full.png
+
+# Vector Icons
+RES_ICONS += \
+	qt/res/icons/about.svg \
+	qt/res/icons/about_qt.svg \
+	qt/res/icons/add.svg \
+	qt/res/icons/address-book.svg \
+	qt/res/icons/chevron.svg \
+	qt/res/icons/clock1.svg \
+	qt/res/icons/clock2.svg \
+	qt/res/icons/clock3.svg \
+	qt/res/icons/clock4.svg \
+	qt/res/icons/clock5.svg \
+	qt/res/icons/configure.svg \
+	qt/res/icons/connect0.svg \
+	qt/res/icons/connect1.svg \
+	qt/res/icons/connect2.svg \
+	qt/res/icons/connect3.svg \
+	qt/res/icons/connect4.svg \
+	qt/res/icons/connect_disabled.svg \
+	qt/res/icons/dao.svg \
+	qt/res/icons/debugwindow.svg \
+	qt/res/icons/edit.svg \
+	qt/res/icons/editcopy.svg \
+	qt/res/icons/editpaste.svg \
+	qt/res/icons/export.svg \
+	qt/res/icons/eye.svg \
+	qt/res/icons/eye_minus.svg \
+	qt/res/icons/eye_plus.svg \
+	qt/res/icons/filesave.svg \
+	qt/res/icons/fontbigger.svg \
+	qt/res/icons/fontsmaller.svg \
+	qt/res/icons/ghost.svg \
+	qt/res/icons/home.svg \
+	qt/res/icons/info.svg \
+	qt/res/icons/key.svg \
+	qt/res/icons/lock_closed.svg \
+	qt/res/icons/lock_open.svg \
+	qt/res/icons/open.svg \
+	qt/res/icons/quit.svg \
+	qt/res/icons/receive.svg \
+	qt/res/icons/remove.svg \
+	qt/res/icons/send.svg \
+	qt/res/icons/staking_off.svg \
+	qt/res/icons/staking_on.svg \
+	qt/res/icons/synced.svg \
+	qt/res/icons/transaction0.svg \
+	qt/res/icons/transaction2.svg \
+	qt/res/icons/transaction_abandoned.svg \
+	qt/res/icons/transaction_conflicted.svg \
+	qt/res/icons/transactions.svg \
+	qt/res/icons/tx_inout.svg \
+	qt/res/icons/tx_input.svg \
+	qt/res/icons/tx_mined.svg \
+	qt/res/icons/tx_output.svg \
+	qt/res/icons/verify.svg \
+	qt/res/icons/wallet.svg \
+	qt/res/icons/warning.svg
+
+# Fonts
+RES_ICONS += \
+	qt/res/fonts/roboto-black.ttf \
+	qt/res/fonts/roboto-bold.ttf \
+	qt/res/fonts/roboto-medium.ttf \
+	qt/res/fonts/roboto-regular.ttf \
 	qt/res/fonts/roboto.ttf \
-	qt/res/fonts/robotoregular.ttf \
-	qt/res/fonts/source.ttf \
-	qt/res/fonts/Roboto-Black.ttf \
-	qt/res/fonts/Roboto-Bold.ttf \
-	qt/res/fonts/Roboto-Medium.ttf
+	qt/res/fonts/source.ttf
+
+# Main styles
+RES_STYLESHEETS = \
+	qt/res/themes/app.qss \
+	qt/res/themes/shared.qss
+
+# Theme styles
+RES_STYLESHEETS += \
+	qt/res/themes/dark/styles.qss \
+	qt/res/themes/light/styles.qss
+
+# Dark theme icons
+RES_ICONS += \
+	qt/res/themes/dark/icons/icon_branch_closed.png \
+	qt/res/themes/dark/icons/icon_branch_end.png \
+	qt/res/themes/dark/icons/icon_branch_more.png \
+	qt/res/themes/dark/icons/icon_branch_open.png \
+	qt/res/themes/dark/icons/icon_checkbox_checked.png \
+	qt/res/themes/dark/icons/icon_checkbox_checked_disabled.png \
+	qt/res/themes/dark/icons/icon_checkbox_checked_pressed.png \
+	qt/res/themes/dark/icons/icon_checkbox_indeterminate.png \
+	qt/res/themes/dark/icons/icon_checkbox_indeterminate_disabled.png \
+	qt/res/themes/dark/icons/icon_checkbox_indeterminate_pressed.png \
+	qt/res/themes/dark/icons/icon_checkbox_unchecked.png \
+	qt/res/themes/dark/icons/icon_checkbox_unchecked_disabled.png \
+	qt/res/themes/dark/icons/icon_checkbox_unchecked_pressed.png \
+	qt/res/themes/dark/icons/icon_close.png \
+	qt/res/themes/dark/icons/icon_radiobutton_checked.png \
+	qt/res/themes/dark/icons/icon_radiobutton_checked_disabled.png \
+	qt/res/themes/dark/icons/icon_radiobutton_checked_pressed.png \
+	qt/res/themes/dark/icons/icon_radiobutton_unchecked.png \
+	qt/res/themes/dark/icons/icon_radiobutton_unchecked_disabled.png \
+	qt/res/themes/dark/icons/icon_radiobutton_unchecked_pressed.png \
+	qt/res/themes/dark/icons/icon_restore.png \
+	qt/res/themes/dark/icons/icon_undock.png \
+	qt/res/themes/dark/icons/icon_vline.png
+
+# Light theme icons
+RES_ICONS += \
+	qt/res/themes/light/icons/icon_branch_closed.png \
+	qt/res/themes/light/icons/icon_branch_end.png \
+	qt/res/themes/light/icons/icon_branch_more.png \
+	qt/res/themes/light/icons/icon_branch_open.png \
+	qt/res/themes/light/icons/icon_checkbox_checked.png \
+	qt/res/themes/light/icons/icon_checkbox_checked_disabled.png \
+	qt/res/themes/light/icons/icon_checkbox_checked_pressed.png \
+	qt/res/themes/light/icons/icon_checkbox_indeterminate.png \
+	qt/res/themes/light/icons/icon_checkbox_indeterminate_disabled.png \
+	qt/res/themes/light/icons/icon_checkbox_indeterminate_pressed.png \
+	qt/res/themes/light/icons/icon_checkbox_unchecked.png \
+	qt/res/themes/light/icons/icon_checkbox_unchecked_disabled.png \
+	qt/res/themes/light/icons/icon_checkbox_unchecked_pressed.png \
+	qt/res/themes/light/icons/icon_close.png \
+	qt/res/themes/light/icons/icon_radiobutton_checked.png \
+	qt/res/themes/light/icons/icon_radiobutton_checked_disabled.png \
+	qt/res/themes/light/icons/icon_radiobutton_checked_pressed.png \
+	qt/res/themes/light/icons/icon_radiobutton_unchecked.png \
+	qt/res/themes/light/icons/icon_radiobutton_unchecked_disabled.png \
+	qt/res/themes/light/icons/icon_radiobutton_unchecked_pressed.png \
+	qt/res/themes/light/icons/icon_restore.png \
+	qt/res/themes/light/icons/icon_undock.png \
+	qt/res/themes/light/icons/icon_vline.png
 
 NAVCOIN_QT_CPP = \
 	qt/bantablemodel.cpp \
+	qt/clientmodel.cpp \
+	qt/csvmodelwriter.cpp \
+	qt/getaddresstoreceive.cpp \
+	qt/guiutil.cpp \
 	qt/navcoinaddressvalidator.cpp \
 	qt/navcoinamountfield.cpp \
 	qt/navcoingui.cpp \
 	qt/navcoinunits.cpp \
-	qt/navtechinit.cpp \
-	qt/navtechitem.cpp \
-	qt/navtechsetup.cpp \
-	qt/getaddresstoreceive.cpp \
-	qt/clientmodel.cpp \
-	qt/csvmodelwriter.cpp \
-	qt/guiutil.cpp \
-	qt/intro.cpp \
 	qt/networkstyle.cpp \
 	qt/notificator.cpp \
 	qt/optionsdialog.cpp \
@@ -391,9 +485,20 @@ NAVCOIN_QT_CPP = \
 	qt/qvalidatedspinbox.cpp \
 	qt/qvaluecombobox.cpp \
 	qt/rpcconsole.cpp \
-	qt/skinize.cpp \
 	qt/splashscreen.cpp \
+	qt/styles/dark.cpp \
+	qt/styles/light.cpp \
 	qt/trafficgraphwidget.cpp \
+  qt/utilitydialog.cpp \
+  qt/navcoinlistwidget.cpp \
+  qt/navcoinpushbutton.cpp \
+  qt/startoptionsdialog.cpp \
+  qt/startoptions.cpp \
+  qt/startoptionspassword.cpp \
+  qt/startoptionsrestore.cpp \
+  qt/startoptionssort.cpp \
+  qt/startoptionsrevealed.cpp \
+  qt/startoptionsmain.cpp \
 	qt/utilitydialog.cpp
 
 if TARGET_WINDOWS
@@ -408,13 +513,21 @@ NAVCOIN_QT_CPP += \
 	qt/coincontroldialog.cpp \
 	qt/coincontroltreewidget.cpp \
 	qt/coldstakingwizard.cpp \
+	qt/communityfundcreatepaymentrequestdialog.cpp \
+	qt/communityfundcreateproposaldialog.cpp \
+	qt/communityfunddisplay.cpp \
+	qt/communityfunddisplaydetailed.cpp \
+	qt/communityfunddisplaypaymentrequest.cpp \
+	qt/communityfunddisplaypaymentrequestdetailed.cpp \
+	qt/communityfundpage.cpp \
+	qt/communityfundsuccessdialog.cpp \
 	qt/editaddressdialog.cpp \
 	qt/modaloverlay.cpp \
 	qt/openuridialog.cpp \
 	qt/overviewpage.cpp \
 	qt/communityfundpage.cpp \
-	qt/communityfunddisplay.cpp \
-	qt/communityfunddisplaypaymentrequest.cpp \
+  qt/communityfunddisplay.cpp \
+  qt/communityfunddisplaypaymentrequest.cpp \
 	qt/communityfunddisplaypaymentrequestdetailed.cpp \
 	qt/communityfunddisplaydetailed.cpp \
 	qt/communityfundcreateproposaldialog.cpp \
@@ -423,15 +536,16 @@ NAVCOIN_QT_CPP += \
   qt/qjsonmodel.cpp \
 	qt/paymentrequestplus.cpp \
 	qt/paymentserver.cpp \
+	qt/qjsonitem.cpp \
+	qt/qjsonmodel.cpp \
 	qt/receivecoinsdialog.cpp \
 	qt/receiverequestdialog.cpp \
 	qt/recentrequeststablemodel.cpp \
 	qt/sendcoinsdialog.cpp \
 	qt/sendcoinsentry.cpp \
 	qt/sendcommunityfunddialog.cpp \
-	qt/communityfundsuccessdialog.cpp \
 	qt/signverifymessagedialog.cpp \
-  qt/splitrewards.cpp \
+	qt/splitrewards.cpp \
 	qt/transactiondesc.cpp \
 	qt/transactiondescdialog.cpp \
 	qt/transactionfilterproxy.cpp \
@@ -441,7 +555,12 @@ NAVCOIN_QT_CPP += \
 	qt/walletframe.cpp \
 	qt/walletmodel.cpp \
 	qt/walletmodeltransaction.cpp \
-	qt/walletview.cpp
+  qt/walletview.cpp \
+  qt/daopage.cpp \
+  qt/daoconsultationvote.cpp \
+  qt/daoconsultationcreate.cpp \
+  qt/daoproposeanswer.cpp \
+  qt/daosupport.cpp
 endif # ENABLE_WALLET
 
 RES_IMAGES =
@@ -454,12 +573,12 @@ NAVCOIN_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
 	-I$(builddir)/qt/forms -DQT_NO_KEYWORDS
 
 qt_libnavcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
-	$(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
+  $(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS) $(CHARTS_CFLAGS)
 qt_libnavcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libnavcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libnavcoinqt_a_SOURCES = $(NAVCOIN_QT_CPP) $(NAVCOIN_QT_H) $(QT_FORMS_UI) \
-	$(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
+	$(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS)
 
 nodist_qt_libnavcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
 	$(PROTOBUF_H) $(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
@@ -479,7 +598,7 @@ $(QT_MOC_CPP): $(PROTOBUF_H)
 
 # navcoin-qt binary #
 qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
-	$(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
+  $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS) $(CHARTS_CFLAGS)
 qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_navcoin_qt_SOURCES = qt/navcoin.cpp
@@ -487,7 +606,7 @@ if TARGET_DARWIN
   qt_navcoin_qt_SOURCES += $(NAVCOIN_MM)
 endif
 if TARGET_WINDOWS
-  qt_navcoin_qt_SOURCES+=$(NAVCOIN_RC)
+  qt_navcoin_qt_SOURCES += $(NAVCOIN_RC)
 endif
 qt_navcoin_qt_LDADD = qt/libnavcoinqt.a $(LIBNAVCOIN_SERVER)
 if ENABLE_WALLET
@@ -497,7 +616,7 @@ if ENABLE_ZMQ
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
-	$(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(UNBOUND_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
+  $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(CHARTS_LIBS) $(BDB_LIBS) $(UNBOUND_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
 	$(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
 qt_navcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_navcoin_qt_LIBTOOLFLAGS = $(AM_LIBTOOLFLAGS) --tag CXX
@@ -522,7 +641,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 		$(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS) $(PROTOBUF_H)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name navcoin $< | \
 		$(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@

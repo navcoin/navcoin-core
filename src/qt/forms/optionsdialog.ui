@@ -688,6 +688,63 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_Theme_Display">
+         <item>
+          <widget class="QLabel" name="themeLabel">
+           <property name="text">
+            <string>Wallet &amp;Theme:</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="buddy">
+            <cstring>theme</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QValueComboBox" name="theme">
+           <property name="toolTip">
+            <string>User Interface Theme (What color scheme to use for the wallet GUI?)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_Scaling_Display">
+         <item>
+          <widget class="QLabel" name="scalingLabel">
+           <property name="text">
+            <string>GUI S&amp;caling:</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="buddy">
+            <cstring>scaling</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="scaling">
+           <property name="toolTip">
+            <string>User Interface Scaling (What scale % to use for wallet GUI?)</string>
+           </property>
+           <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="minimum">
+             <number>90</number>
+           </property>
+           <property name="maximum">
+             <number>150</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3_Display">
          <item>
           <widget class="QLabel" name="thirdPartyTxUrlsLabel">
