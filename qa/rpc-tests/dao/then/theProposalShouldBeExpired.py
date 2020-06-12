@@ -9,7 +9,7 @@
 
 from test_framework.util import *
 
-def thenTheProposalShouldBeExpired(node=None, 
+def thenTheProposalShouldBeExpired(node=None,
 proposalHash=None):
 
   if (node is None
@@ -31,4 +31,4 @@ proposalHash=None):
 
   assert(proposal["votingCycle"] == maxCycles)
   assert(proposal["status"] == 'expired')
-  assert(proposal["state"] == 0)
+  assert(proposal["state"] == 3)
