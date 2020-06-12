@@ -52,8 +52,6 @@ public:
     void MakeMock();
     bool IsMock() { return fMockDb; }
 
-    std::string GetPath() { return strPath; }
-
     bool IsCrypted() { return fCrypted; }
 
     /**
