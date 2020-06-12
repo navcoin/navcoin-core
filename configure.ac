@@ -7,7 +7,7 @@ define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
 define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, false)
-define(_COPYRIGHT_YEAR, 2018)
+define(_COPYRIGHT_YEAR, 2020)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
 AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
@@ -275,25 +275,25 @@ case $host in
      use_pkgconfig=no
 
      TARGET_OS=windows
-     AC_CHECK_LIB([mingwthrd],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([kernel32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([user32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([gdi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comdlg32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winspool],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winmm],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shell32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comctl32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ole32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([oleaut32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([mingwthrd], [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([kernel32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([user32],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([gdi32],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([comdlg32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([winspool],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([winmm],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([shell32],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([comctl32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([ole32],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([oleaut32],  [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([uuid],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([rpcrt4],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([advapi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ws2_32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([mswsock],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([rpcrt4],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([advapi32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([ws2_32],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([mswsock],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([shlwapi],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([iphlpapi],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([crypt32],   [main],, AC_MSG_ERROR(lib missing))
 
      # -static is interpreted by libtool, where it has a different meaning.
      # In libtool-speak, it's -all-static.
@@ -610,6 +610,49 @@ if test x$use_reduce_exports = xyes; then
   AX_CHECK_COMPILE_FLAG([-fvisibility=hidden],[RE_CXXFLAGS="-fvisibility=hidden"],
   [AC_MSG_ERROR([Cannot set default symbol visibility. Use --disable-reduce-exports.])])
 fi
+
+dnl LevelDB platform checks
+AC_MSG_CHECKING(for fdatasync)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
+ [[ fdatasync(0); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_FDATASYNC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_FDATASYNC=0 ]
+)
+
+AC_MSG_CHECKING(for F_FULLFSYNC)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ fcntl(0, F_FULLFSYNC, 0); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_FULLFSYNC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_FULLFSYNC=0 ]
+)
+
+AC_MSG_CHECKING(for O_CLOEXEC)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ open("", O_CLOEXEC); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_O_CLOEXEC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_O_CLOEXEC=0 ]
+)
+
+dnl crc32c platform checks
+AC_MSG_CHECKING(for __builtin_prefetch)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+  char data = 0;
+  const char* address = &data;
+  __builtin_prefetch(address, 0, 0);
+  ]])],
+ [ AC_MSG_RESULT(yes); HAVE_BUILTIN_PREFETCH=1 ],
+ [ AC_MSG_RESULT(no); HAVE_BUILTIN_PREFETCH=0 ]
+)
+
+AC_MSG_CHECKING(for _mm_prefetch)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
+  char data = 0;
+  const char* address = &data;
+  _mm_prefetch(address, _MM_HINT_NTA);
+  ]])],
+ [ AC_MSG_RESULT(yes); HAVE_MM_PREFETCH=1 ],
+ [ AC_MSG_RESULT(no); HAVE_MM_PREFETCH=0 ]
+)
 
 LEVELDB_CPPFLAGS=
 LIBLEVELDB=
@@ -1077,21 +1120,28 @@ if test x$build_navcoin_utils$build_navcoin_libs$build_navcoind$navcoin_enable_q
   AC_MSG_ERROR([No targets! Please specify at least one of: --with-utils --with-libs --with-daemon --with-gui or --enable-tests])
 fi
 
-AM_CONDITIONAL([TARGET_DARWIN], [test x$TARGET_OS = xdarwin])
-AM_CONDITIONAL([BUILD_DARWIN], [test x$BUILD_OS = xdarwin])
-AM_CONDITIONAL([TARGET_WINDOWS], [test x$TARGET_OS = xwindows])
-AM_CONDITIONAL([ENABLE_WALLET],[test x$enable_wallet = xyes])
-AM_CONDITIONAL([ENABLE_TESTS],[test x$BUILD_TEST = xyes])
-AM_CONDITIONAL([ENABLE_QT],[test x$navcoin_enable_qt = xyes])
-AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
-AM_CONDITIONAL([ENABLE_BENCH],[test x$use_bench = xyes])
-AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
-AM_CONDITIONAL([HAVE_UNBOUND], [test x$have_unbound = xyes])
-AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
-AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
-AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
-AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
-AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
+AM_CONDITIONAL([TARGET_DARWIN],                   [test x$TARGET_OS = xdarwin])
+AM_CONDITIONAL([BUILD_DARWIN],                    [test x$BUILD_OS = xdarwin])
+AM_CONDITIONAL([TARGET_WINDOWS],                  [test x$TARGET_OS = xwindows])
+AM_CONDITIONAL([ENABLE_WALLET],                   [test x$enable_wallet = xyes])
+AM_CONDITIONAL([ENABLE_TESTS],                    [test x$BUILD_TEST = xyes])
+AM_CONDITIONAL([ENABLE_QT],                       [test x$navcoin_enable_qt = xyes])
+AM_CONDITIONAL([ENABLE_QT_TESTS],                 [test x$BUILD_TEST_QT = xyes])
+AM_CONDITIONAL([ENABLE_BENCH],                    [test x$use_bench = xyes])
+AM_CONDITIONAL([USE_QRCODE],                      [test x$use_qr = xyes])
+AM_CONDITIONAL([HAVE_UNBOUND],                    [test x$have_unbound = xyes])
+AM_CONDITIONAL([USE_LCOV],                        [test x$use_lcov = xyes])
+AM_CONDITIONAL([USE_COMPARISON_TOOL],             [test x$use_comparison_tool != xno])
+AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS], [test x$use_comparison_tool_reorg_test != xno])
+AM_CONDITIONAL([GLIBC_BACK_COMPAT],               [test x$use_glibc_compat = xyes])
+AM_CONDITIONAL([HARDEN],                          [test x$use_hardening = xyes])
+AM_CONDITIONAL([ENABLE_SSE42],                    [test x$enable_sse42 = xyes])
+AM_CONDITIONAL([ENABLE_SSE41],                    [test x$enable_sse41 = xyes])
+AM_CONDITIONAL([ENABLE_AVX2],                     [test x$enable_avx2 = xyes])
+AM_CONDITIONAL([ENABLE_SHANI],                    [test x$enable_shani = xyes])
+AM_CONDITIONAL([ENABLE_ARM_CRC],                  [test x$enable_arm_crc = xyes])
+AM_CONDITIONAL([USE_ASM],                         [test x$use_asm = xyes])
+AM_CONDITIONAL([WORDS_BIGENDIAN],                 [test x$ac_cv_c_bigendian = xyes])
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])
 AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])
@@ -1145,6 +1195,13 @@ AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
+# AC_SUBST(HAVE_GMTIME_R)
+AC_SUBST(HAVE_FDATASYNC)
+AC_SUBST(HAVE_FULLFSYNC)
+# AC_SUBST(HAVE_O_CLOEXEC)
+AC_SUBST(HAVE_BUILTIN_PREFETCH)
+AC_SUBST(HAVE_MM_PREFETCH)
+
 AC_CONFIG_FILES([Makefile src/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
 AC_CONFIG_FILES([qa/pull-tester/run-navcoind-for-test.sh],[chmod +x qa/pull-tester/run-navcoind-for-test.sh])
 AC_CONFIG_FILES([qa/pull-tester/tests_config.py],[chmod +x qa/pull-tester/tests_config.py])
