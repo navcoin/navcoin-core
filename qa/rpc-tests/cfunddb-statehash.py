@@ -32,18 +32,18 @@ class CFundDBStateHash(NavCoinTestFramework):
             if (hash == ""):
                 hash = phash
             self.nodes[1].generate(1)
-            sync_blocks(self.nodes)
+            self.sync_all()
             self.nodes[1].proposalvote(phash, 'yes')
 
         self.nodes[1].invalidateblock(self.nodes[1].getblockhash(311))
         self.nodes[1].donatefund(100000)
         self.nodes[1].generate(30)
-        sync_blocks(self.nodes)
+        self.sync_all()
 
         assert_equal(self.nodes[0].getcfunddbstatehash(), self.nodes[1].getcfunddbstatehash())
 
         self.nodes[1].generate(60)
-        sync_blocks(self.nodes)
+        self.sync_all()
 
         assert_equal(self.nodes[1].getinfo()['errors'],"")
 
@@ -57,12 +57,12 @@ class CFundDBStateHash(NavCoinTestFramework):
         self.nodes[1].sendrawtransaction(raw_preq)
 
         self.nodes[0].generate(1)
-        self.nodes[1].generate(5)
+        self.nodes[1].generate(60)
 
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
         assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
 
-        connect_nodes_bi(self.nodes, 0, 1)
+        connect_nodes(self.nodes[0], 1)
 
         self.sync_all()
 
@@ -73,7 +73,7 @@ class CFundDBStateHash(NavCoinTestFramework):
 
         self.nodes[0].createconsultation("test",1)
 
-        self.nodes[0].generate(5)
+        self.nodes[0].generate(60)
 
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
         assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
@@ -90,7 +90,7 @@ class CFundDBStateHash(NavCoinTestFramework):
 
         self.nodes[0].createconsultationwithanswers("test",["one","two"])
 
-        self.nodes[0].generate(5)
+        self.nodes[0].generate(60)
 
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
         assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
@@ -145,6 +145,7 @@ class CFundDBStateHash(NavCoinTestFramework):
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
         assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
 
+        slow_gen(self.nodes[0], 10)
 
         connect_nodes(self.nodes[0], 1)
 
