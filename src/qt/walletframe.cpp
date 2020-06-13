@@ -230,6 +230,13 @@ void WalletFrame::encryptWallet(bool status)
         walletView->encryptWallet(status);
 }
 
+void WalletFrame::encryptTx()
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->encryptTx();
+}
+
 void WalletFrame::backupWallet()
 {
     WalletView *walletView = currentWalletView();

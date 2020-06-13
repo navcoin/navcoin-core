@@ -101,6 +101,11 @@ bool CWallet::IsHDEnabled() const
     return !hdChain.masterKeyID.IsNull();
 }
 
+bool CWallet::IsCryptedTx() const
+{
+    return bitdb.IsCrypted();
+}
+
 CPubKey CWallet::GenerateNewKey()
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata

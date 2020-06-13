@@ -729,6 +729,7 @@ public:
 
     bool IsHDEnabled() const;
 
+    bool IsCryptedTx() const;
 
     std::map<uint256, CWalletTx> mapWallet;
     std::list<CAccountingEntry> laccentries;

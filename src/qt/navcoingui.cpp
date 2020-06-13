@@ -145,8 +145,10 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     cfundPaymentRequestsAction(0),
     toggleHideAction(0),
     encryptWalletAction(0),
+    encryptTxAction(0),
     backupWalletAction(0),
     changePassphraseAction(0),
+    changePinAction(0),
     aboutQtAction(0),
     openRPCConsoleAction(0),
     openAction(0),
@@ -491,12 +493,17 @@ void NavCoinGUI::createActions()
     encryptWalletAction = new QAction(platformStyle->IconAlt(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
+    encryptTxAction = new QAction(platformStyle->IconAlt(":/icons/lock_closed"), tr("&Encrypt Txdata..."), this);
+    encryptTxAction->setStatusTip(tr("Encrypt the transaction history data in your wallet"));
+    encryptTxAction->setCheckable(true);
     unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking..."), this);
     unlockWalletAction->setToolTip(tr("Unlock wallet for Staking"));
     backupWalletAction = new QAction(platformStyle->IconAlt(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->IconAlt(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
+    changePinAction = new QAction(platformStyle->IconAlt(":/icons/key"), tr("&Change Txdata Pin..."), this);
+    changePinAction->setStatusTip(tr("Change the pin used for transaction data encryption"));
 
     signMessageAction = new QAction(platformStyle->IconAlt(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your NavCoin addresses to prove you own them"));
@@ -553,9 +560,11 @@ void NavCoinGUI::createActions()
     if(walletFrame)
     {
         connect(encryptWalletAction, SIGNAL(triggered(bool)), walletFrame, SLOT(encryptWallet(bool)));
+        connect(encryptTxAction, SIGNAL(triggered()), walletFrame, SLOT(encryptTx()));
         connect(unlockWalletAction, SIGNAL(triggered()), walletFrame, SLOT(unlockWalletStaking()));
         connect(backupWalletAction, SIGNAL(triggered()), walletFrame, SLOT(backupWallet()));
         connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
+        connect(changePinAction, SIGNAL(triggered()), walletFrame, SLOT(encryptTx()));
         connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
         connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
@@ -608,6 +617,9 @@ void NavCoinGUI::createMenuBar()
         settings->addAction(encryptWalletAction);
         settings->addAction(unlockWalletAction);
         settings->addAction(changePassphraseAction);
+        settings->addSeparator();
+        settings->addAction(encryptTxAction);
+        settings->addAction(changePinAction);
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
         settings->addAction(splitRewardAction);
@@ -1130,8 +1142,10 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
     receiveCoinsMenuAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
+    encryptTxAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
+    changePinAction->setEnabled(enabled);
     signMessageAction->setEnabled(enabled);
     verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
@@ -1737,6 +1751,12 @@ void NavCoinGUI::setEncryptionStatus(int status)
     }
     }
     updateStakingStatus();
+}
+
+void NavCoinGUI::setEncryptionTxStatus(bool fCrypted)
+{
+    encryptTxAction->setEnabled(!fCrypted);
+    changePinAction->setEnabled(fCrypted);
 }
 #endif // ENABLE_WALLET
 

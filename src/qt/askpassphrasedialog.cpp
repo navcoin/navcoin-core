@@ -51,6 +51,11 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
             ui->passLabel1->hide();
             ui->passEdit1->hide();
             setWindowTitle(tr("Encrypt wallet"));
+        case EncryptTx: // Ask passphrase x2
+            ui->warningLabel->setText(tr("Enter the new pin to the wallet.<br/>Please use a pin of <b>ten or more random characters</b>, or <b>eight or more words</b>."));
+            ui->passLabel1->hide();
+            ui->passEdit1->hide();
+            setWindowTitle(tr("Encrypt wallet txdata"));
             break;
         case Unlock: // Ask passphrase
             ui->warningLabel->setText(tr("This operation needs your wallet passphrase to unlock the wallet."));
@@ -117,53 +122,104 @@ void AskPassphraseDialog::accept()
 
     switch(mode)
     {
-    case Encrypt: {
-        if(newpass1.empty() || newpass2.empty())
+    case Encrypt:
         {
-            // Cannot encrypt with empty passphrase
-            break;
-        }
-        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet encryption"),
-                 tr("Warning: If you encrypt your wallet and lose your passphrase, you will <b>LOSE ALL OF YOUR NAVCOINS</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet?"),
-                 QMessageBox::Yes|QMessageBox::Cancel,
-                 QMessageBox::Cancel);
-        if(retval == QMessageBox::Yes)
-        {
-            if(newpass1 == newpass2)
+            if(newpass1.empty() || newpass2.empty())
             {
-                if(model->setWalletEncrypted(true, newpass1))
+                // Cannot encrypt with empty passphrase
+                break;
+            }
+            QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet encryption"),
+                    tr("Warning: If you encrypt your wallet and lose your passphrase, you will <b>LOSE ALL OF YOUR NAVCOINS</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet?"),
+                    QMessageBox::Yes|QMessageBox::Cancel,
+                    QMessageBox::Cancel);
+            if(retval == QMessageBox::Yes)
+            {
+                if(newpass1 == newpass2)
                 {
-                    QMessageBox::warning(this, tr("Wallet encrypted"),
-                                         "<qt>" +
-                                         tr("%1 will close now to finish the encryption process. "
-                                         "Remember that encrypting your wallet cannot fully protect "
-                                         "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
-                                         "<br><br><b>" +
-                                         tr("IMPORTANT: Any previous backups you have made of your wallet file "
-                                         "should be replaced with the newly generated, encrypted wallet file. "
-                                         "For security reasons, previous backups of the unencrypted wallet file "
-                                         "will become useless as soon as you start using the new, encrypted wallet.") +
-                                         "</b></qt>");
-                    QApplication::quit();
+                    if(model->setWalletEncrypted(true, newpass1))
+                    {
+                        QMessageBox::warning(this, tr("Wallet encrypted"),
+                                "<qt>" +
+                                tr("%1 will close now to finish the encryption process. "
+                                    "Remember that encrypting your wallet cannot fully protect "
+                                    "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
+                                "<br><br><b>" +
+                                tr("IMPORTANT: Any previous backups you have made of your wallet file "
+                                    "should be replaced with the newly generated, encrypted wallet file. "
+                                    "For security reasons, previous backups of the unencrypted wallet file "
+                                    "will become useless as soon as you start using the new, encrypted wallet.") +
+                                "</b></qt>");
+                        QApplication::quit();
+                    }
+                    else
+                    {
+                        QMessageBox::critical(this, tr("Wallet encryption failed"),
+                                tr("Wallet encryption failed due to an internal error. Your wallet was not encrypted."));
+                    }
+                    QDialog::accept(); // Success
                 }
                 else
                 {
                     QMessageBox::critical(this, tr("Wallet encryption failed"),
-                                         tr("Wallet encryption failed due to an internal error. Your wallet was not encrypted."));
+                            tr("The supplied passphrases do not match."));
                 }
-                QDialog::accept(); // Success
             }
             else
             {
-                QMessageBox::critical(this, tr("Wallet encryption failed"),
-                                     tr("The supplied passphrases do not match."));
+                QDialog::reject(); // Cancelled
             }
         }
-        else
+        break;
+    case EncryptTx:
         {
-            QDialog::reject(); // Cancelled
+            if(newpass1.empty() || newpass2.empty())
+            {
+                // Cannot encrypt with empty passphrase
+                break;
+            }
+            QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet txdata encryption"),
+                    tr("Warning: If you encrypt your wallet txdata and lose your pin, you will <b>LOSE ALL OF YOUR NAVCOINS</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet txdata?"),
+                    QMessageBox::Yes|QMessageBox::Cancel,
+                    QMessageBox::Cancel);
+            if(retval == QMessageBox::Yes)
+            {
+                if(newpass1 == newpass2)
+                {
+                    if(model->setTxEncrypted(newpass1))
+                    {
+                        QMessageBox::warning(this, tr("Wallet txdata encrypted"),
+                                "<qt>" +
+                                tr("%1 will close now to finish the encryption process. "
+                                    "Remember that encrypting your wallet cannot fully protect "
+                                    "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
+                                "<br><br><b>" +
+                                tr("IMPORTANT: Any previous backups you have made of your wallet file "
+                                    "should be replaced with the newly generated, encrypted wallet file. "
+                                    "For security reasons, previous backups of the unencrypted wallet file "
+                                    "will become useless as soon as you start using the new, encrypted wallet.") +
+                                "</b></qt>");
+                        QApplication::quit();
+                    }
+                    else
+                    {
+                        QMessageBox::critical(this, tr("Wallet txdata encryption failed"),
+                                tr("Wallet txdata encryption failed due to an internal error. Your wallet txdata was not encrypted."));
+                    }
+                    QDialog::accept(); // Success
+                }
+                else
+                {
+                    QMessageBox::critical(this, tr("Wallet txdata encryption failed"),
+                            tr("The supplied pins do not match."));
+                }
+            }
+            else
+            {
+                QDialog::reject(); // Cancelled
+            }
         }
-        } break;
+        break;
     case UnlockStaking:
     case Unlock:
         if(!model->setWalletLocked(false, oldpass))
@@ -219,6 +275,9 @@ void AskPassphraseDialog::textChanged()
     switch(mode)
     {
     case Encrypt: // New passphrase x2
+        acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
+        break;
+    case EncryptTx: // New passphrase x2
         acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
         break;
     case Unlock: // Old passphrase x1

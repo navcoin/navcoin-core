@@ -165,8 +165,10 @@ private:
     QAction *cfundPaymentRequestsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
+    QAction *encryptTxAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
+    QAction *changePinAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
     QAction *openAction;
@@ -263,6 +265,8 @@ public Q_SLOTS:
        @see WalletModel::EncryptionStatus
     */
     void setEncryptionStatus(int status);
+
+    void setEncryptionTxStatus(bool fCrypted);
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
