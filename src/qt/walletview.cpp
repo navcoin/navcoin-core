@@ -128,6 +128,8 @@ void WalletView::setClientModel(ClientModel *clientModel)
     overviewPage->setClientModel(clientModel);
     sendCoinsPage->setClientModel(clientModel);
     daoPage->setClientModel(clientModel);
+
+    settingsPage->setModel(clientModel->getOptionsModel());
 }
 
 void WalletView::requestAddressHistory()
@@ -206,7 +208,13 @@ void WalletView::gotoHistoryPage()
 
 void WalletView::gotoSettingsPage()
 {
+    // We need to update the settings if it was modified externally
+    // This fixes a bug where coin control was enabled on the send page
+    // but was not shown as enabled on the setting spage
+    settingsPage->setModel(this->clientModel->getOptionsModel());
+
     setCurrentWidget(settingsPage);
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoCommunityFundPage()
