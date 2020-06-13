@@ -194,7 +194,13 @@ testScripts = [
     'dao-consultation-consensus.py',
     'dao-consultation-consensus-cycle-length.py',
     'createrawscriptaddress.py',
-    'cfunddb-statehash.py'
+    'cfunddb-statehash.py',
+    'dao/001-proposal-expired.py',
+    'dao/002-proposal-rejected.py',
+    'dao/003-proposal-accepted.py',
+    'dao/004-proposal-expired-preq.py',
+    'dao/005-proposal-rejected-preq.py',
+    'dao/006-proposal-accepted-preq.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
