@@ -238,8 +238,8 @@ void OptionsDialog::on_resetButton_clicked()
     {
         // confirmation dialog
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
-            tr("Client restart required to activate changes.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+                tr("Client restart required to activate changes.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
+                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
         if(btnRetVal == QMessageBox::Cancel)
             return;
@@ -253,17 +253,16 @@ void OptionsDialog::on_resetButton_clicked()
 void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
-    accept();
     updateDefaultProxyNets();
 }
 
 void OptionsDialog::on_openNavCoinConfButton_clicked()
 {
-      QMessageBox::information(this, tr("Configuration options"),
+    QMessageBox::information(this, tr("Configuration options"),
             tr("The configuration is used to specify advanced user options less any command-line or Qt options. "
-            "Any command-line options will override this configuration file."));
-      GUIUtil::openNavCoinConf();
- }
+                "Any command-line options will override this configuration file."));
+    GUIUtil::openNavCoinConf();
+}
 
 void OptionsDialog::on_cancelButton_clicked()
 {
@@ -352,7 +351,7 @@ void OptionsDialog::updateDefaultProxyNets()
 }
 
 ProxyAddressValidator::ProxyAddressValidator(QObject *parent) :
-QValidator(parent)
+    QValidator(parent)
 {
 }
 
