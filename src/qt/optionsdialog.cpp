@@ -254,6 +254,8 @@ void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
     updateDefaultProxyNets();
+
+    QMessageBox::information(this, tr("Config saved"), tr("Config settings have been saved"));
 }
 
 void OptionsDialog::on_openNavCoinConfButton_clicked()
