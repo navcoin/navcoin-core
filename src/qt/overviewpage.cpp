@@ -302,11 +302,20 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
     CAmount amount1y  = aRange[33].Total;
     CAmount amountAll = aRange[34].Total;
 
+    CStateViewCache view(pcoinsTip);
+
+    uint64_t nWeight = pwalletMain ? pwalletMain->GetStakeWeight() : 0;
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
+    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
+
     ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount24h, false, NavCoinUnits::separatorAlways));
     ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount7d, false, NavCoinUnits::separatorAlways));
     ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount30d, false, NavCoinUnits::separatorAlways));
     ui->label1yStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount1y, false, NavCoinUnits::separatorAlways));
     ui->labelallStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amountAll, false, NavCoinUnits::separatorAlways));
+    ui->labelExpectedStakingStats->setText(NavCoinUnits::formatWithUnit(unit, nExpectedDailyReward, false, NavCoinUnits::separatorAlways));
 
     uiInterface.SetStaked(amountAll, amount24h, amount7d);
 }
