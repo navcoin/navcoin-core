@@ -849,7 +849,7 @@ void NavCoinGUI::createToolBars()
         "RECEIVE",
         "HISTORY",
         "DAO",
-        "CONFIG"
+        "OPTIONS"
     };
 
     // Build each new button
