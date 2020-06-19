@@ -812,6 +812,7 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
+      PKG_CHECK_MODULES([ZLIB], [zlib],, [AC_MSG_ERROR(zlib  not found.)])
       PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [AC_MSG_ERROR(libunbound not found)])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
@@ -844,6 +845,7 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
+  AC_CHECK_LIB([zlib],         [main],ZLIB_LIBS=-lz, AC_MSG_ERROR(libzlib missing))
   AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
@@ -934,7 +936,7 @@ AC_SUBST(UNIVALUE_LIBS)
 CXXFLAGS_TEMP="$CXXFLAGS"
 LIBS_TEMP="$LIBS"
 CXXFLAGS="$CXXFLAGS $SSL_CFLAGS $CRYPTO_CFLAGS"
-LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS"
+LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS $ZLIB_LIBS"
 AC_CHECK_HEADER([openssl/ec.h],, AC_MSG_ERROR(OpenSSL ec header missing),)
 CXXFLAGS="$CXXFLAGS_TEMP"
 LIBS="$LIBS_TEMP"
@@ -1138,6 +1140,7 @@ AC_SUBST(MINIUPNPC_CPPFLAGS)
 AC_SUBST(MINIUPNPC_LIBS)
 AC_SUBST(CRYPTO_LIBS)
 AC_SUBST(SSL_LIBS)
+AC_SUBST(ZLIB_LIBS)
 AC_SUBST(UNBOUND_LIBS)
 AC_SUBST(CURL_LIBS)
 AC_SUBST(EVENT_LIBS)
