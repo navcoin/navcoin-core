@@ -30,6 +30,7 @@ packages:
 - "python3-distutils"
 - "fonts-tuffy"
 - "cmake"
+- 'libattr1-dev'
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
