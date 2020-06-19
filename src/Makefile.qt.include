@@ -94,6 +94,7 @@ QT_FORMS_UI = \
 	qt/forms/askpassphrasedialog.ui \
   qt/forms/startoptionsdialog.ui \
   qt/forms/startoptions.ui \
+  qt/forms/startoptionspassword.ui \
   qt/forms/startoptionsrestore.ui \
   qt/forms/startoptionssort.ui \
   qt/forms/startoptionsrevealed.ui \

@@ -26,7 +26,7 @@ void PrepareShutdown();
 void InitLogging();
 //!Parameter interaction: change current parameters depending on various rules
 void InitParameterInteraction();
-bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std::string& wordlist);
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std::string& wordlist, const std::string& password);
 
 /** The help message mode determines what help message to show */
 enum HelpMessageMode {

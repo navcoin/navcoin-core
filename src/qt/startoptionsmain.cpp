@@ -96,6 +96,7 @@ void StartOptionsMain::on_Back_clicked() {
      *          Page 3 : Order the words
      *      Path 2 : Restore wallet
      *          Page 4 Enter words to restore
+     * Page 5 : Set a password
      */
     switch (pageNum) {
         case StartPage: {
@@ -114,7 +115,6 @@ void StartOptionsMain::on_Back_clicked() {
             pageNum = CreateOrRestorePage;
             ui->QStackTutorialContainer->addWidget(startOptionsRevealed);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsRevealed);
-            ui->Next->setText(tr("Next"));
             break;
         }
         case CheckWordsPage: {
@@ -138,6 +138,7 @@ void StartOptionsMain::on_Next_clicked() {
      *          Page 3 : Order the words
      *      Path 2 : Restore wallet
      *          Page 4 Enter words to restore
+     * Page 5 : Set a password
      */
     switch (pageNum) {
         case StartPage: {
@@ -149,7 +150,6 @@ void StartOptionsMain::on_Next_clicked() {
             startOptionsSort = new StartOptionsSort(words, rows, this);
             ui->QStackTutorialContainer->addWidget(startOptionsSort);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsSort);
-            ui->Next->setText(tr("Skip/Next"));
             break;
         }
         case OrderWordsPage: {
@@ -177,12 +177,16 @@ void StartOptionsMain::on_Next_clicked() {
             if (words_empty_str == "") {
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText("Are you sure you want to skip seed confirmation?");
-                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                msgBox.setText(tr("Are you sure you want to skip seed confirmation?"));
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
                 msgBox.setDefaultButton(QMessageBox::Cancel);
-                if (msgBox.exec() == QMessageBox::Ok) {
+                if (msgBox.exec() == QMessageBox::Yes) {
                     wordsDone = join(words, " ");
-                    QApplication::quit();
+                    pageNum = PasswordPage;
+                    ui->Back->setVisible(false);
+                    startOptionsPassword = new StartOptionsPassword(this);
+                    ui->QStackTutorialContainer->addWidget(startOptionsPassword);
+                    ui->QStackTutorialContainer->setCurrentWidget(startOptionsPassword);
                 }
             } else if (words_empty_str != words_mnemonic) {
                 QString error = tr("Unfortunately, your words are in the wrong "
@@ -191,7 +195,11 @@ void StartOptionsMain::on_Next_clicked() {
                 dlg.exec();
             } else {
                 wordsDone = join(words, " ");
-                QApplication::quit();
+                pageNum = PasswordPage;
+                ui->Back->setVisible(false);
+                startOptionsPassword = new StartOptionsPassword(this);
+                ui->QStackTutorialContainer->addWidget(startOptionsPassword);
+                ui->QStackTutorialContainer->setCurrentWidget(startOptionsPassword);
             }
             break;
         }
@@ -209,7 +217,11 @@ void StartOptionsMain::on_Next_clicked() {
             dictionary lexicon = string_to_lexicon("english");
             if (validate_mnemonic(sentence_to_word_list(seedphrase), lexicon)) {
                 wordsDone = join(word_str, " ");
-                QApplication::quit();
+                pageNum = PasswordPage;
+                ui->Back->setVisible(false);
+                startOptionsPassword = new StartOptionsPassword(this);
+                ui->QStackTutorialContainer->addWidget(startOptionsPassword);
+                ui->QStackTutorialContainer->setCurrentWidget(startOptionsPassword);
             } else {
                 QString error =
                     tr("Unfortunately, your words seem to be invalid. This is "
@@ -221,6 +233,34 @@ void StartOptionsMain::on_Next_clicked() {
                 dlg.exec();
             }
 
+            break;
+        }
+        case PasswordPage: {
+            std::string pass = startOptionsPassword->getPass().toStdString();
+            std::string passConf = startOptionsPassword->getPassConf().toStdString();
+            if (pass.empty() && passConf.empty())
+            {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Are you sure you don't want to set a password?"));
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                // Check if they want to really skip password
+                if (msgBox.exec() == QMessageBox::Yes) {
+                    password = pass;
+                    QApplication::quit();
+                }
+            } else if (pass != passConf) {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Critical);
+                msgBox.setText(tr("Passwords don't match"));
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                msgBox.setDefaultButton(QMessageBox::Ok);
+                msgBox.exec();
+            } else {
+                password = pass;
+                QApplication::quit();
+            }
             break;
         }
     }

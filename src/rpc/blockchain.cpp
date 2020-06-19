@@ -1041,38 +1041,37 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     bool showReflection = false;
     bool showVoting = false;
     bool showFinished = false;
-    bool showAll = params.size() == 0;
+    bool showAll = true;
 
     if(params.size() >= 1)
     {
-        showNotEnoughAnswers = false;
-        showLookingForSupport = false;
-        showReflection = false;
-        showVoting = false;
-        showFinished = false;
-
         for(unsigned int i = 0; i < params.size(); i++)
         {
             auto p = params[i];
             if (p.get_str() == "not_enough_answers")
             {
                 showNotEnoughAnswers = true;
+                showAll = false;
             }
             else if (p.get_str() == "waiting_for_support")
             {
                 showLookingForSupport = true;
+                showAll = false;
             }
             else if (p.get_str() == "reflection")
             {
                 showReflection = true;
+                showAll = false;
             }
             else if (p.get_str() == "voting")
             {
                 showVoting = true;
+                showAll = false;
             }
             else if (p.get_str() == "finished")
             {
                 showFinished = true;
+                showAll = false;
             }
         }
     }
@@ -1544,6 +1543,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "blsct", consensusParams, Consensus::DEPLOYMENT_BLSCT);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
+    BIP9SoftForkDescPushBack(bip9_softforks, "votestatecache", consensusParams, Consensus::DEPLOYMENT_VOTE_STATE_CACHE);
     BIP9SoftForkDescPushBack(bip9_softforks, "consultations", consensusParams, Consensus::DEPLOYMENT_CONSULTATIONS);
     BIP9SoftForkDescPushBack(bip9_softforks, "dao_consensus", consensusParams, Consensus::DEPLOYMENT_DAO_CONSENSUS);
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_v2", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING_V2);

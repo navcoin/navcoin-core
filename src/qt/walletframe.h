@@ -98,6 +98,7 @@ public Q_SLOTS:
     void lockWallet();
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
+    void exportMnemonicAction();
 
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
 

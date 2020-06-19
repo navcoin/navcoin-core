@@ -125,6 +125,7 @@ private:
     GUIUtil::ClickableLabel* labelBlocksIcon;
     QLabel *labelStakingIcon;
     QLabel *labelPrice;
+    QTimer *timerPrice;
     QLabel *progressBarLabel;
     GUIUtil::ClickableProgressBar* progressBar;
     QProgressDialog *progressDialog;
@@ -150,6 +151,7 @@ private:
     QAction *repairWalletAction;
     QAction *importPrivateKeyAction;
     QAction *exportMasterPrivateKeyAction;
+    QAction *exportMnemonicAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;

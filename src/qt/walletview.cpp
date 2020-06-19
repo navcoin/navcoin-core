@@ -362,6 +362,58 @@ void WalletView::exportMasterPrivateKeyAction()
 
 }
 
+void WalletView::exportMnemonicAction()
+{
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+    if(!ctx.isValid())
+    {
+        // Unlock wallet was cancelled
+        return;
+    }
+
+    CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
+    if (!pwalletMain->IsHDEnabled())
+    {
+        QMessageBox::critical(0, tr(PACKAGE_NAME),
+                tr("Wallet is not a HD wallet."));
+    }
+
+    CKey key;
+    if (pwalletMain->GetKey(masterKeyID, key))
+    {
+        std::vector<unsigned char> keyData;
+        const unsigned char* ptrKeyData = key.begin();
+        for (int i = 0; ptrKeyData != key.end(); i++) {
+            unsigned char byte = *ptrKeyData;
+            keyData.push_back(byte);
+            ptrKeyData++;
+        }
+
+        std::string mnemonic;
+
+        // TODO: Add language support for the key
+        //       Currently will only export the key in english
+        word_list mnemonic_words = create_mnemonic(keyData, string_to_lexicon("english"));
+        for (auto it = mnemonic_words.begin(); it != mnemonic_words.end();) {
+            const auto word = *it;
+            mnemonic += word;
+            ++it;
+            if (it == mnemonic_words.end())
+                break;
+            mnemonic += " ";
+        }
+
+        QMessageBox::information(this, tr("Show Mnemonic"),
+                tr("Mnemonic:<br><br>%1").arg(QString::fromStdString(mnemonic)));
+    } else // Could not get the master key
+    {
+        QMessageBox::critical(0, tr(PACKAGE_NAME),
+                tr("Unable to retrieve mnemonic"));
+    }
+}
+
 void WalletView::importPrivateKey()
 {
     bool ok;

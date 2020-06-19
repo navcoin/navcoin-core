@@ -2671,14 +2671,21 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, hash, k, true), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, true), out.nValue));
 
                     // restore unspent index
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), hash, k), CAddressUnspentValue()));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
 
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
+                    uint160 hashBytes;
+                    CTxDestination destination;
+                    int type = 0;
+
+                    ExtractDestination(out.scriptPubKey, destination);
+                    CNavCoinAddress address(destination);
+
+                    address.GetIndexKey(hashBytes, type);
 
                     // undo receiving activity
                     addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
@@ -2765,13 +2772,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
 
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
-                        vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23);
+                        uint160 hashBytes;
+                        CTxDestination destination;
+                        int type = 0;
+
+                        ExtractDestination(prevout.scriptPubKey, destination);
+                        CNavCoinAddress address(destination);
+
+                        address.GetIndexKey(hashBytes, type);
 
                         // undo spending activity
-                        addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
 
                         // restore unspent index
-                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
+                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
                     } else {
                         continue;
@@ -3755,8 +3769,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22));
                         addressType = 2;
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
-                        hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23));
-                        addressType = 1;
+                        CTxDestination destination;
+                        ExtractDestination(prevout.scriptPubKey, destination);
+                        CNavCoinAddress address(destination);
+                        address.GetIndexKey(hashBytes, addressType);
                     } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
@@ -3882,20 +3898,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
-                    // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, txhash, k, true), out.nValue));
+                    // record spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
 
-                    // restore unspent index
+                    // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
+                    uint160 hashBytes;
+                    CTxDestination destination;
+                    int type = 0;
 
+                    ExtractDestination(out.scriptPubKey, destination);
+                    CNavCoinAddress address(destination);
+
+                    address.GetIndexKey(hashBytes, type);
                     // record receiving activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, txhash, k, false), out.nValue));
 
                     // record unspent output
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
                 } else {
                     continue;
@@ -6016,23 +6038,36 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
 
 bool static LoadBlockIndexDB()
 {
+    uiInterface.InitMessage(_("Loading block guts..."));
     const CChainParams& chainparams = Params();
     if (!pblocktree->LoadBlockIndexGuts(InsertBlockIndex, InsertProposalVotes, InsertPaymentRequestVotes, InsertSupport, InsertConsultationVotes))
         return false;
 
     boost::this_thread::interruption_point();
 
+    uiInterface.InitMessage(_("Loading block index..."));
+
+    int nMapBlockInc = 0;
+
     // Calculate nChainWork
     vector<pair<int, CBlockIndex*> > vSortedByHeight;
     vSortedByHeight.reserve(mapBlockIndex.size());
     for(const PAIRTYPE(uint256, CBlockIndex*)& item: mapBlockIndex)
     {
+        if (++nMapBlockInc % PROGRESS_INTERVAL == 0) {
+            // Update the progress
+            uiInterface.ShowProgress(_("Loading block index..."),  (int)((float) nMapBlockInc / (float) mapBlockIndex.size() * 50));
+        }
         CBlockIndex* pindex = item.second;
         vSortedByHeight.push_back(make_pair(pindex->nHeight, pindex));
     }
     sort(vSortedByHeight.begin(), vSortedByHeight.end());
     for(const PAIRTYPE(int, CBlockIndex*)& item: vSortedByHeight)
     {
+        if (++nMapBlockInc % PROGRESS_INTERVAL == 0) {
+            // Update the progress
+            uiInterface.ShowProgress(_("Loading block index..."),  (int)((float) nMapBlockInc / (float) vSortedByHeight.size() * 50));
+        }
         CBlockIndex* pindex = item.second;
         pindex->nChainWork = (pindex->pprev ? pindex->pprev->nChainWork : 0) + GetBlockProof(*pindex);
         // We can link the chain of blocks for which we've received transactions at some point.
@@ -6136,16 +6171,6 @@ bool static LoadBlockIndexDB()
     hashBestChain = chainActive.Tip()->GetBlockHash();
 
     return true;
-}
-
-CVerifyDB::CVerifyDB()
-{
-    uiInterface.ShowProgress(_("Verifying blocks..."), 0);
-}
-
-CVerifyDB::~CVerifyDB()
-{
-    uiInterface.ShowProgress("", 100);
 }
 
 bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview, int nCheckLevel, int nCheckDepth)
@@ -6404,6 +6429,10 @@ bool RewindBlockIndex(const CChainParams& params)
 
     int nHeight = 1;
     while (nHeight <= chainActive.Height()) {
+        if (nHeight % PROGRESS_INTERVAL == 0) {
+            // Update the progress
+            uiInterface.ShowProgress(_("Rewinding blocks..."),  (int)((float) nHeight / (float) chainActive.Height() * 50));
+        }
         if (IsWitnessEnabled(chainActive[nHeight - 1], params.GetConsensus()) && !(chainActive[nHeight]->nStatus & BLOCK_OPT_WITNESS)) {
             break;
         }
@@ -6430,11 +6459,17 @@ bool RewindBlockIndex(const CChainParams& params)
             return false;
     }
 
+    int nCount = 0;
+
     // Reduce validity flag and have-data flags.
     // We do this after actual disconnecting, otherwise we'll end up writing the lack of data
     // to disk before writing the chainstate, resulting in a failure to continue if interrupted.
     for (BlockMap::iterator it = mapBlockIndex.begin(); it != mapBlockIndex.end(); it++) {
         CBlockIndex* pindexIter = it->second;
+        if (++nCount % PROGRESS_INTERVAL == 0) {
+            // Update the progress
+            uiInterface.ShowProgress(_("Rewinding blocks..."),  (int)((float) nCount / (float) mapBlockIndex.size() * 50 + 50.0));
+        }
 
         // Note: If we encounter an insufficiently validated block that
         // is on chainActive, it must be because we are a pruning node, and
