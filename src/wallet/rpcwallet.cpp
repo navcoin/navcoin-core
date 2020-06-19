@@ -829,7 +829,7 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
 
     {
         LOCK(cs_main);
-        nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
+        auto nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
 
         if (nCount == 0)
             throw JSONRPCError(RPC_WALLET_ERROR, "There are no candidates for mixing.");
@@ -840,7 +840,7 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
         }
     }
 
-    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true, false, true, selectedCoins);
+    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true, false, true, &selectedCoins);
 
     return wtx.GetHash().GetHex();
 }
