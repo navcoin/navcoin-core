@@ -500,9 +500,9 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0)
 {
-    CAmount curBalance = pwalletMain->GetBalance();
+    CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance() : pwalletMain->GetBalance();
 
     // Check amount
     if (nValue <= 0)
@@ -546,7 +546,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         }
     }
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -731,6 +731,116 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
 
     SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true);
 
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 2 || params.size() > 6)
+        throw runtime_error(
+                "privatesendmixtoaddress \"navcoinaddress\" amount \"comment\" ( \"comment-to\" \"strdzeel\" subtractfeefromamount )\n"
+                "\nSend an amount to a given address using the private balance of coins after participating in an aggregation session.\n"
+                + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+                "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
+                "2. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
+                "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
+                "                             This is part of the transaction and will be seen by the receiver. Max 20 chars.\n"
+                "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
+                "                             to which you're sending the transaction. This is not part of the \n"
+                "                             transaction, just kept in your wallet.\n"
+                "5. \"strdzeel\"            (string, optional) Attached string metadata \n"
+                "6. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+                "                             The recipient will receive less navcoins than you enter in the amount field.\n"
+                "\nResult:\n"
+                "\"transactionid\"  (string) The transaction id.\n"
+                "\nExamples:\n"
+                + HelpExampleCli("privatesendmixtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+                + HelpExampleCli("privatesendmixtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
+                + HelpExampleCli("privatesendmixtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
+                + HelpExampleRpc("privatesendmixtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    string address_str = params[0].get_str();
+    utils::DNSResolver *DNS = nullptr;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
+
+        if(addresses.empty())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        else
+        {
+
+            address_str = addresses.front();
+
+        }
+
+    }
+
+    CNavCoinAddress address(address_str);
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+
+    if (address.IsPrivateAddress(Params()) && params.size() < 3)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Private addresses require memo field");
+
+    // Amount
+    CAmount nAmount = AmountFromValue(params[1]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    // Wallet comments
+    CWalletTx wtx;
+    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
+        wtx.mapValue["comment"] = params[2].get_str();
+    if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
+        wtx.mapValue["to"] = params[3].get_str();
+
+    std::string strDZeel;
+
+    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
+        strDZeel = params[4].get_str();
+
+    bool fSubtractFeeFromAmount = false;
+    if (params.size() > 5)
+        fSubtractFeeFromAmount = params[5].get_bool();
+
+    EnsureWalletIsUnlocked();
+
+    wtx.strDZeel = strDZeel;
+
+    CTxDestination dest = address.Get();
+
+    if (!pwalletMain->aggSession)
+        throw JSONRPCError(RPC_WALLET_ERROR, "Could not find an aggregation session");
+
+    CandidateTransaction selectedCoins;
+
+    {
+        LOCK(cs_main);
+        nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
+
+        if (nCount == 0)
+            throw JSONRPCError(RPC_WALLET_ERROR, "There are no candidates for mixing.");
+
+        if (!pwalletMain->aggSession->SelectCandidates(selectedCoins))
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "There was an error trying to validate the coins after mixing.");
+        }
+    }
+
+    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true, false, true, selectedCoins);
 
     return wtx.GetHash().GetHex();
 }
@@ -2424,7 +2534,7 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
                                            !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()) &&
                                            !CNavCoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
-        entry.pushKV("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false);
+        entry.pushKV("canSpend", ((::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) || (pwalletMain->IsMine(wtx.vout[r.vout]) & ISMINE_SPENDABLE_PRIVATE)) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
             entry.pushKV("label", account);
         entry.pushKV("vout", r.vout);
@@ -2462,7 +2572,8 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 const CTxOut& txout = wtx.vout[nOut];
                 if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
             }
-            entry.pushKV("category", fCFund ? "cfund contribution" : "send");
+            entry.pushKV("category", s.amount == nFee ? "fee" : (fCFund ? "cfund contribution" : "send"));
+            entry.pushKV("memo", std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()));
             entry.pushKV("amount", ValueFromAmount(-s.amount));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.pushKV("label", pwalletMain->mapAddressBook[s.destination].name);
@@ -4651,6 +4762,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getprivateaddress",        &getprivateaddress,        true  },
     { "wallet",             "listprivateunspent",       &listprivateunspent,       false },
     { "wallet",             "privatesendtoaddress",     &privatesendtoaddress,     false },
+    { "wallet",             "privatesendmixtoaddress",  &privatesendmixtoaddress,  false },
     { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
     { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
     { "wallet",             "abandontransaction",       &abandontransaction,       false },

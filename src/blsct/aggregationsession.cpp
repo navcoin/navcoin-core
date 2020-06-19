@@ -192,6 +192,11 @@ bool AggregationSesion::Join() const
     if (vAvailableCoins.size() == 0)
         return false;
 
+    int nRand = 3+GetRandInt(3);
+
+    if (GetRandInt(nRand+vAvailableCoins.size()) < nRand)
+        return false;
+
     random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
 
     const CWalletTx *prevcoin = vAvailableCoins[0].tx;
@@ -350,7 +355,7 @@ bool AggregationSesion::Join() const
 
              CloseSocket(so);
 
-             LockOutputFor(prevcoin->GetHash(), prevout, 90);
+             LockOutputFor(prevcoin->GetHash(), prevout, 60);
              pwalletMain->NotifyTransactionChanged(pwalletMain, prevcoin->GetHash(), CT_UPDATED);
 
              return ret;

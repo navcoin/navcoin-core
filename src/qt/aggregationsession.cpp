@@ -68,7 +68,7 @@ void AggregationSesionDialog::NewAggregationSesion(std::string hs)
         SetTopLabel(tr("Session started."));
         SetTopLabel(tr("Waiting for coin candidates..."));
         fReady = true;
-        nExpiresAt = GetTime()+20;
+        nExpiresAt = GetTime()+10;
     }
 }
 
