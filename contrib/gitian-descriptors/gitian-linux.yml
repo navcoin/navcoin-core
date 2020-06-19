@@ -36,6 +36,7 @@ packages:
 - "python3-distutils"
 - "cmake"
 - 'libattr1-dev'
+- 'libcap-dev'
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
