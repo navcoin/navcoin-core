@@ -1265,20 +1265,26 @@ AC_CONFIG_SUBDIRS([src/secp256k1])
 AC_CONFIG_SUBDIRS([src/tor])
 
 BLS_OPSYS="Linux"
+BLS_SEED="UDEV"
 if test x$TARGET_OS = xwindows; then
     BLS_OPSYS="Windows"
+    BLS_SEED="WCGR"
 fi
 if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
 fi
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
-AC_CONFIG_COMMANDS([src/bls-signatures],
-                   [cmake $OPTIONS -Bsrc/bls-signatures -Hsrc/bls-signatures],
+AC_CONFIG_COMMANDS([src/bls-signatures/build],
+                   [CC="$CC" CXX="$CXX" cmake $OPTIONS -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
                    [OPTIONS="
+                    -DOPSYS:STRING=$BLS_OPSYS
+                    -DSEED:STRING=$BLS_SEED
                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS
-                    -DCMAKE_C_COMPILER:STRING='$CC'
-                    -DCMAKE_CXX_COMPILER:STRING='$BLS_CXX'
+                    -DCMAKE_AR:FILEPATH=$AR
+                    -DCMAKE_NM:FILEPATH=$NM
+                    -DCMAKE_RANLIB:FILEPATH=$RANLIB
+                    -DCMAKE_LINKER:FILEPATH=$LD
                     -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS:STRING=''
                     -DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS:STRING=''
                     "])
