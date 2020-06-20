@@ -79,7 +79,7 @@ NAVCOIN_TESTS =\
   test/testutil.cpp \
   test/testutil.h \
   test/timedata_tests.cpp \
-  test/univalue_tests.cpp 
+  test/univalue_tests.cpp
 
 #NAVCOIN_TESTS =\
 #  test/arith_uint256_tests.cpp \
@@ -149,17 +149,59 @@ NAVCOIN_TESTS =\
 #  wallet/test/rpc_wallet_tests.cpp
 #endif
 
-test_test_navcoin_SOURCES = $(NAVCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_navcoin_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) -I$(builddir)/test/ $(TESTDEFS)
-test_test_navcoin_LDADD = $(LIBNAVCOIN_SERVER) $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
-  $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1) $(BLS_LIBS) $(TOR_INTERNAL_LIBS)
+test_test_navcoin_SOURCES = \
+                            $(NAVCOIN_TESTS) \
+                            $(JSON_TEST_FILES) \
+                            $(RAW_TEST_FILES)
+
+test_test_navcoin_CPPFLAGS = \
+                             $(AM_CPPFLAGS) \
+                             $(NAVCOIN_INCLUDES) \
+                             -I$(builddir)/test/ \
+                             $(TESTDEFS)
+
+test_test_navcoin_LDADD = \
+                          $(LIBNAVCOIN_SERVER) \
+                          $(LIBNAVCOIN_CLI) \
+                          $(LIBNAVCOIN_COMMON) \
+                          $(LIBNAVCOIN_UTIL) \
+                          $(LIBNAVCOIN_CONSENSUS) \
+                          $(LIBUNIVALUE) \
+                          $(LIBLEVELDB) \
+                          $(LIBMEMENV) \
+                          $(BOOST_LIBS) \
+                          $(BOOST_UNIT_TEST_FRAMEWORK_LIB) \
+                          $(LIBSECP256K1) \
+                          $(TOR_INTERNAL_LIBS)
+
 test_test_navcoin_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+
 if ENABLE_WALLET
 test_test_navcoin_LDADD += $(LIBNAVCOIN_WALLET)
 endif
 
-test_test_navcoin_LDADD += $(LIBNAVCOIN_CRYPTO) $(LIBNAVCOIN_CONSENSUS) $(BDB_LIBS) $(ZLIB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBNAVCOIN_ZMQ) $(EVENT_LIBS) $(EVENT_PTHREADS_LIBS)
-test_test_navcoin_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
+test_test_navcoin_LDADD += \
+                           $(LIBNAVCOIN_CRYPTO) \
+                           $(LIBNAVCOIN_CONSENSUS) \
+                           $(BLS_LIBS) \
+                           $(BDB_LIBS) \
+                           $(ZLIB_LIBS) \
+                           $(SSL_LIBS) \
+                           $(UNBOUND_LIBS) \
+                           $(CURL_LIBS) \
+                           $(CRYPTO_LIBS) \
+                           $(MINIUPNPC_LIBS) \
+                           $(LIBNAVCOIN_ZMQ) \
+                           $(EVENT_LIBS) \
+                           $(EVENT_PTHREADS_LIBS) \
+                           $(LIBCAP_LIBS) \
+                           $(LIBSECCOMP_LIBS)
+
+test_test_navcoin_LDFLAGS = \
+                            $(RELDFLAGS) \
+                            $(AM_LDFLAGS) \
+                            $(LIBTOOL_APP_LDFLAGS) \
+                            -static
 
 if ENABLE_ZMQ
 test_test_navcoin_LDADD += $(ZMQ_LIBS)

@@ -1,4 +1,4 @@
-DIST_SUBDIRS = secp256k1 univalue tor
+DIST_SUBDIRS = secp256k1 univalue tor bls-signatures
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
@@ -18,7 +18,7 @@ endif
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -I$(srcdir)/bls-signatures/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -30,7 +30,7 @@ LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
-BLS_LIBS=-L$(srcdir)/bls-signatures/build/ -lbls
+BLS_LIBS=-L$(srcdir)/bls-signatures/ -lbls
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -87,7 +87,7 @@ LIBDONNA = tor/src/lib/libcurve25519_donna.a \
 
 # Internal crypto libraries used in Tor
 TOR_CRYPTO_LIBS = \
-        src/lib/libtor-tls.a \
+        tor/src/lib/libtor-tls.a \
         tor/src/lib/libtor-crypt-ops.a \
         $(LIBKECCAK_TINY) \
         $(LIBDONNA)
@@ -97,7 +97,7 @@ TOR_INTERNAL_LIBS = \
         tor/src/core/libtor-app.a \
         tor/src/lib/libtor-compress.a \
         tor/src/lib/libtor-evloop.a \
-        tor/$(TOR_CRYPTO_LIBS) \
+        $(TOR_CRYPTO_LIBS) \
         $(TOR_UTIL_LIBS) \
         tor/src/trunnel/libor-trunnel.a \
         tor/src/lib/libtor-trace.a
@@ -498,24 +498,40 @@ navcoind_SOURCES += navcoind-res.rc
 endif
 
 navcoind_LDADD = \
-  $(LIBNAVCOIN_SERVER) \
-  $(LIBNAVCOIN_COMMON) \
-  $(LIBUNIVALUE) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_WALLET) \
-  $(LIBNAVCOIN_ZMQ) \
-  $(LIBNAVCOIN_CONSENSUS) \
-  $(LIBNAVCOIN_CRYPTO) \
-  $(LIBLEVELDB) \
-  $(LIBMEMENV) \
-  $(LIBSECP256K1) \
-  $(TOR_INTERNAL_LIBS) \
-  $(LIBEVENT_LIBS) \
-  $(LIBSECCOMP_LIBS) \
-  $(LIBCAP_LIBS) \
-  $(ZLIB_LIBS)
+                 $(LIBNAVCOIN_SERVER) \
+                 $(LIBNAVCOIN_COMMON) \
+                 $(LIBUNIVALUE) \
+                 $(LIBNAVCOIN_UTIL) \
+                 $(LIBNAVCOIN_WALLET) \
+                 $(LIBNAVCOIN_ZMQ) \
+                 $(LIBNAVCOIN_CONSENSUS) \
+                 $(LIBNAVCOIN_CRYPTO) \
+                 $(LIBLEVELDB) \
+                 $(LIBMEMENV) \
+                 $(LIBSECP256K1) \
+                 $(TOR_INTERNAL_LIBS) \
+                 $(LIBEVENT_LIBS) \
+                 $(LIBSECCOMP_LIBS) \
+                 $(LIBCAP_LIBS) \
+                 $(ZLIB_LIBS)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(ZLIB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(BLS_LIBS) $(LIBEVENT_LDFLAGS) $(LIBSECCOMP_LDFLAGS) $(LIBCAP_LDFLAGS) $(ZLIB_LDFLAGS)
+navcoind_LDADD += \
+                  $(BOOST_LIBS) \
+                  $(BDB_LIBS) \
+                  $(ZLIB_LIBS) \
+                  $(SSL_LIBS) \
+                  $(UNBOUND_LIBS) \
+                  $(CURL_LIBS) \
+                  $(CRYPTO_LIBS) \
+                  $(MINIUPNPC_LIBS) \
+                  $(EVENT_PTHREADS_LIBS) \
+                  $(EVENT_LIBS) \
+                  $(ZMQ_LIBS) \
+                  $(BLS_LIBS) \
+                  $(LIBEVENT_LDFLAGS) \
+                  $(LIBSECCOMP_LDFLAGS) \
+                  $(LIBCAP_LDFLAGS) \
+                  $(ZLIB_LDFLAGS)
 
 # navcoin-cli binary #
 navcoin_cli_SOURCES = navcoin-cli.cpp
@@ -567,8 +583,8 @@ if GLIBC_BACK_COMPAT
 endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) -lbls -L$(srcdir)/bls-signatures/build/
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src  -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) -lbls -L$(srcdir)/bls-signatures/
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src  -I$(srcdir)/bls-signatures/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
@@ -582,7 +598,6 @@ CTAES_DIST += crypto/ctaes/test.c
 
 CLEANFILES = $(EXTRA_LIBRARIES)
 
-CLEANFILES += bls-signatures/build/*
 CLEANFILES += *.gcda *.gcno
 CLEANFILES += compat/*.gcda compat/*.gcno
 CLEANFILES += consensus/*.gcda consensus/*.gcno
@@ -603,10 +618,10 @@ clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C bls-signatures clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__
-	-rm -rf bls-signatures/build/*
 
 .rc.o:
 	@test -f $(WINDRES)

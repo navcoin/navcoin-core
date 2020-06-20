@@ -812,11 +812,11 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
-      PKG_CHECK_MODULES(LIBEVENT, [libevent], [], [AC_MSG_ERROR([libevent not found])])
+      PKG_CHECK_MODULES([LIBEVENT], [libevent],, [AC_MSG_ERROR([libevent not found])])
       PKG_CHECK_MODULES([ZLIB], [zlib],, [AC_MSG_ERROR(zlib  not found.)])
       if test x$TARGET_OS = xlinux; then
-        PKG_CHECK_MODULES(LIBSECCOMP, [libseccomp], [], [AC_MSG_ERROR([libseccomp not found])])
-        PKG_CHECK_MODULES(LIBCAP, [libcap], [], [AC_MSG_ERROR([libcap not found])])
+        PKG_CHECK_MODULES([LIBSECCOMP], [libseccomp],, [AC_MSG_ERROR([libseccomp not found])])
+        PKG_CHECK_MODULES([LIBCAP], [libcap],, [AC_MSG_ERROR([libcap not found])])
       fi
       PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [AC_MSG_ERROR(libunbound not found)])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
@@ -850,7 +850,12 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
-  AC_CHECK_LIB([zlib],         [main],ZLIB_LIBS=-lz, AC_MSG_ERROR(libzlib missing))
+  AC_CHECK_LIB([libevent],    [main],LIBEVENT_LIBS=-levent, AC_MSG_ERROR(libevent missing))
+  if test x$TARGET_OS = xlinux; then
+    AC_CHECK_LIB([seccomp],   [main],LIBSECCOMP_LIBS=-lseccomp, AC_MSG_ERROR(libseccomp missing))
+    AC_CHECK_LIB([libcap],    [main],LIBCAP_LIBS=-lcap, AC_MSG_ERROR(libcap missing))
+  fi
+  AC_CHECK_LIB([zlib],        [main],ZLIB_LIBS=-lz, AC_MSG_ERROR(libzlib missing))
   AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
@@ -1188,8 +1193,10 @@ fi
 
 ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --disable-system-torrc --disable-systemd --disable-asciidoc --disable-lzma"
 AC_CONFIG_SUBDIRS([src/secp256k1])
-AC_CONFIG_SUBDIRS([src/bls-signatures/build])
 AC_CONFIG_SUBDIRS([src/tor])
+
+dnl Run cmake for bls-sigs (This project does not support autotools)
+AC_CONFIG_COMMANDS([src/bls-signatures], [cmake -Bsrc/bls-signatures -Hsrc/bls-signatures])
 
 AC_OUTPUT
 

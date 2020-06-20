@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src/bls-signatures/build src/tor src
+SUBDIRS = src/bls-signatures src/tor src
 .PHONY: deploy FORCE
 
 # GZIP_ENV="-9n" # Disabled cause it was giving out a warning

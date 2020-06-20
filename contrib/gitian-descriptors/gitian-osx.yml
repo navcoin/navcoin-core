@@ -1,5 +1,5 @@
 ---
-name: "navcoin-osx-4.0.0"
+name: "navcoin-osx-5.0.1"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -7,31 +7,29 @@ suites:
 architectures:
 - "amd64"
 packages:
+- "autoconf"
+- "automake"
+- "bsdmainutils"
 - "ca-certificates"
+- "cmake"
+- "cmake"
 - "curl"
+- "faketime"
+- "fonts-tuffy"
 - "g++"
 - "git"
-- "pkg-config"
-- "autoconf"
+- "imagemagick"
+- "libbz2-dev"
+- "libcap-dev"
 - "librsvg2-bin"
 - "libtiff-tools"
 - "libtool"
-- "automake"
-- "faketime"
-- "bsdmainutils"
-- "cmake"
-- "imagemagick"
-- "libcap-dev"
 - "libz-dev"
-- "libbz2-dev"
+- "pkg-config"
 - "python3"
 - "python3-dev"
-- "python3-setuptools"
 - "python3-distutils"
-- "fonts-tuffy"
-- "cmake"
-- 'libattr1-dev'
-- 'libcap-dev'
+- "python3-setuptools"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"

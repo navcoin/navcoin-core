@@ -1,4 +1,6 @@
-packages:=boost openssl libevent libcap libseccomp zeromq curl gmp unbound expat
+packages:=boost openssl libevent zeromq curl gmp unbound expat
+
+linux_packages = libseccomp
 
 qt_native_packages = native_protobuf
 qt_packages = qrencode protobuf zlib
