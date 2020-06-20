@@ -1265,10 +1265,8 @@ AC_CONFIG_SUBDIRS([src/secp256k1])
 AC_CONFIG_SUBDIRS([src/tor])
 
 BLS_OPSYS="Linux"
-BLS_SEED="UDEV"
 if test x$TARGET_OS = xwindows; then
     BLS_OPSYS="Windows"
-    BLS_SEED="WCGR"
 fi
 if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
@@ -1281,7 +1279,6 @@ AC_CONFIG_COMMANDS([src/bls-signatures],
                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS
                     -DCMAKE_C_COMPILER:STRING='$CC'
                     -DCMAKE_CXX_COMPILER:STRING='$BLS_CXX'
-                    -DCMAKE_CXX_FLAGS:STRING='$CPPFLAGS'
                     -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS:STRING=''
                     -DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS:STRING=''
                     "])
@@ -1322,7 +1319,6 @@ echo "  with upnp     = $use_upnp"
 echo "  debug enabled = $enable_debug"
 echo
 echo "  bls opsys     = $BLS_OPSYS"
-echo "  bls seed      = $BLS_SEED"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
