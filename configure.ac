@@ -76,6 +76,10 @@ case $host in
      lt_cv_deplibs_check_method="pass_all"
   ;;
 esac
+
+dnl Save the compiler name before we add any flags
+BLS_CXX=$CXX
+
 dnl Require C++11 compiler (no GNU extensions)
 AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
 
@@ -1250,8 +1254,28 @@ ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignu
 AC_CONFIG_SUBDIRS([src/secp256k1])
 AC_CONFIG_SUBDIRS([src/tor])
 
+BLS_OPSYS="Linux"
+BLS_SEED="UDEV"
+if test x$TARGET_OS = xwindows; then
+    BLS_OPSYS="Windows"
+    BLS_SEED="WCGR"
+fi
+if test x$TARGET_OS = xdarwin; then
+    BLS_OPSYS="Darwin"
+fi
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
-AC_CONFIG_COMMANDS([src/bls-signatures], [cmake -Bsrc/bls-signatures -Hsrc/bls-signatures])
+AC_CONFIG_COMMANDS([src/bls-signatures],
+                   [cmake $OPTIONS -Bsrc/bls-signatures -Hsrc/bls-signatures],
+                   [OPTIONS="
+                    -DSEED:STRING=$BLS_SEED
+                    -DOPSYS:STRING=$BLS_OPSYS
+                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS
+                    -DCMAKE_C_COMPILER:STRING='$CC'
+                    -DCMAKE_CXX_COMPILER:STRING=$BLS_CXX
+                    -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS:STRING=''
+                    -DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS:STRING=''
+                    "])
 
 AC_OUTPUT
 
@@ -1287,6 +1311,9 @@ echo "  with test     = $use_tests"
 echo "  with bench    = $use_bench"
 echo "  with upnp     = $use_upnp"
 echo "  debug enabled = $enable_debug"
+echo
+echo "  bls opsys     = $BLS_OPSYS"
+echo "  bls seed      = $BLS_SEED"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
