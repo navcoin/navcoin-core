@@ -618,7 +618,7 @@ clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
-	-$(MAKE) -C bls-signatures clean
+	-cmake --clean bls-signatures
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__
