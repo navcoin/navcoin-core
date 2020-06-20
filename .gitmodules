@@ -1,6 +1,0 @@
-[submodule "src/bls-signatures"]
-	path = src/bls-signatures
-	url = http://www.github.com/Chia-Network/bls-signatures
-[submodule "src/tor"]
-	path = src/tor
-	url = http://www.github.com/torproject/tor
