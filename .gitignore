@@ -163,4 +163,4 @@ CTestTestfile.cmake
 _deps
 
 # bls sigs
-src/bls-signatures
+src/bls-signatures/build
