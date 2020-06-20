@@ -18,7 +18,7 @@ endif
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/build/src -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/build/contrib/relic/include/
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -584,7 +584,7 @@ endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
 libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) -lbls -L$(srcdir)/bls-signatures/build/
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/build/src  -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src  -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
@@ -618,7 +618,7 @@ clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
-	-rm -rf bls-signatures/build/*
+	-$(MAKE) -C bls-signatures/build clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__

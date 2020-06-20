@@ -77,9 +77,6 @@ case $host in
   ;;
 esac
 
-dnl Save the compiler name before we add any flags
-BLS_CXX=$CXX
-
 AC_ARG_ENABLE([c++17],
   [AS_HELP_STRING([--enable-c++17],
   [enable compilation in c++17 mode (disabled by default)])],
@@ -1274,20 +1271,66 @@ if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
 fi
 
+dnl Get some proper paths for the compilers
+BLS_CC=${CC%%\ *}
+BLS_CXX=${CXX%%\ *}
+BLS_CFLAGS=${CC/$BLS_CC\ /}
+BLS_CXXFLAGS=${CXX/$BLS_CXX\ /}
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [CC="$CC" CXX="$CXX" cmake $OPTIONS -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
-                   [OPTIONS="
-                    -DOPSYS:STRING=$BLS_OPSYS
-                    -DSEED:STRING=$BLS_SEED
-                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS
-                    -DCMAKE_AR:FILEPATH=$AR
-                    -DCMAKE_NM:FILEPATH=$NM
-                    -DCMAKE_RANLIB:FILEPATH=$RANLIB
-                    -DCMAKE_LINKER:FILEPATH=$LD
-                    -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS:STRING=''
-                    -DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS:STRING=''
-                    "])
+                   [rm -rf src/bls-signatures/build/* && cmake\
+                    -DOPSYS:STRING=$BLS_OPSYS\
+                    -DSEED:STRING=$BLS_SEED\
+                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS\
+                    -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC\
+                    -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX\
+                    -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
+                   [
+                    BLS_OPSYS=$BLS_OPSYS
+                    BLS_SEED=$BLS_SEED
+                    BLS_CC=$BLS_CC
+                    BLS_CXX=$BLS_CXX
+                    BLS_CFLAGS=$BLS_CFLAGS
+                    BLS_CXXFLAGS=$BLS_CXXFLAGS
+                    AR=$AR
+                    NM=$NM
+                    RANLIB=$RANLIB
+                    LD=$LD])
+
+# dnl Run cmake for bls-sigs (This project does not support autotools)
+# AC_CONFIG_COMMANDS([src/bls-signatures/build],
+#                    [rm -rf src/bls-signatures/build/* && cmake\
+#                     -DOPSYS:STRING=$BLS_OPSYS\
+#                     -DSEED:STRING=$BLS_SEED\
+#                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS\
+#                     -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC\
+#                     -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX\
+#                     -DCMAKE_C_FLAGS:STRING="$BLS_CFLAGS"\
+#                     -DCMAKE_CXX_FLAGS:STRING="$BLS_CXXFLAGS"\
+#                     -DCMAKE_AR:FILEPATH=$AR\
+#                     -DCMAKE_NM:FILEPATH=$NM\
+#                     -DCMAKE_RANLIB:FILEPATH=$RANLIB\
+#                     -DCMAKE_LINKER:FILEPATH=$LD\
+#                     -DCMAKE_C_COMPILER_AR:FILEPATH=$AR\
+#                     -DCMAKE_C_COMPILER_RANLIB:FILEPATH=$RANLIB\
+#                     -DCMAKE_CXX_COMPILER_AR:FILEPATH=$AR\
+#                     -DCMAKE_CXX_COMPILER_RANLIB:FILEPATH=$RANLIB\
+#                     -DCMAKE_OBJCOPY:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-objcopy\
+#                     -DCMAKE_OBJDUMP:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-objdump\
+#                     -DCMAKE_STRIP:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-strip\
+#                     -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
+#                    [
+#                     BLS_OPSYS=$BLS_OPSYS
+#                     BLS_SEED=$BLS_SEED
+#                     BLS_CC=$BLS_CC
+#                     BLS_CXX=$BLS_CXX
+#                     BLS_CFLAGS=$BLS_CFLAGS
+#                     BLS_CXXFLAGS=$BLS_CXXFLAGS
+#                     AR=$AR
+#                     NM=$NM
+#                     RANLIB=$RANLIB
+#                     LD=$LD])
 
 AC_OUTPUT
 
@@ -1325,6 +1368,12 @@ echo "  with upnp     = $use_upnp"
 echo "  debug enabled = $enable_debug"
 echo
 echo "  bls opsys     = $BLS_OPSYS"
+echo "  bls seed      = $BLS_SEED"
+echo
+echo "  BLS_CC        = $BLS_CC"
+echo "  BLS_CXX       = $BLS_CXX"
+echo "  BLS_CFLAGS    = ==$BLS_CFLAGS=="
+echo "  BLS_CXXFLAGS  = ==$BLS_CXXFLAGS=="
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
