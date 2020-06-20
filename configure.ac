@@ -80,8 +80,18 @@ esac
 dnl Save the compiler name before we add any flags
 BLS_CXX=$CXX
 
-dnl Require C++11 compiler (no GNU extensions)
-AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
+AC_ARG_ENABLE([c++17],
+  [AS_HELP_STRING([--enable-c++17],
+  [enable compilation in c++17 mode (disabled by default)])],
+  [use_cxx17=$enableval],
+  [use_cxx17=no])
+
+dnl Require C++11 or C++17 compiler (no GNU extensions)
+if test "x$use_cxx17" = xyes -o "x$enable_fuzz" = xyes ; then
+  AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+else
+  AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+fi
 
 dnl Unless the user specified OBJCXX, force it to be the same as CXX. This ensures
 dnl that we get the same -std flags for both.
@@ -1268,11 +1278,10 @@ dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures],
                    [cmake $OPTIONS -Bsrc/bls-signatures -Hsrc/bls-signatures],
                    [OPTIONS="
-                    -DSEED:STRING=$BLS_SEED
-                    -DOPSYS:STRING=$BLS_OPSYS
                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS
                     -DCMAKE_C_COMPILER:STRING='$CC'
-                    -DCMAKE_CXX_COMPILER:STRING=$BLS_CXX
+                    -DCMAKE_CXX_COMPILER:STRING='$BLS_CXX'
+                    -DCMAKE_CXX_FLAGS:STRING='$CPPFLAGS'
                     -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS:STRING=''
                     -DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS:STRING=''
                     "])
