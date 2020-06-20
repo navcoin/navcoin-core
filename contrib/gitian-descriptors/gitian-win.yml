@@ -17,7 +17,6 @@ packages:
 - "g++"
 - "g++-mingw-w64"
 - "git"
-- "libcap-dev"
 - "libtool"
 - "mingw-w64"
 - "nsis"

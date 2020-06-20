@@ -20,7 +20,6 @@ packages:
 - "git"
 - "imagemagick"
 - "libbz2-dev"
-- "libcap-dev"
 - "librsvg2-bin"
 - "libtiff-tools"
 - "libtool"

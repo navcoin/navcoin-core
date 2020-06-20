@@ -30,7 +30,6 @@ packages:
 - "gcc-8-multilib"
 - "gcc-8-riscv64-linux-gnu"
 - "git"
-- "libcap-dev"
 - "libtool"
 - "pkg-config"
 - "python3"
