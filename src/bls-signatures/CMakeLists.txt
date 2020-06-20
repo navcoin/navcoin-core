@@ -79,11 +79,3 @@ set(PP_METHD "LAZYR;OATEP" CACHE STRING "")
 
 add_subdirectory(contrib/relic)
 add_subdirectory(src)
-
-if (EMSCRIPTEN)
-  add_subdirectory(js-bindings)
-else()
-  # emscripten can't build python bindings, it produces only javascript
-  add_subdirectory(contrib/pybind11)
-  add_subdirectory(python-bindings)
-endif()
