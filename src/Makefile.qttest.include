@@ -52,7 +52,7 @@ qt_test_test_navcoin_qt_LDADD += \
                                  $(QR_LIBS) \
                                  $(PROTOBUF_LIBS) \
                                  $(BDB_LIBS) \
-                                 $(TOR_INTERNAL_LIBS) \
+                                 $(LIBTOR) \
                                  $(ZLIB_LIBS) \
                                  $(SSL_LIBS) \
                                  $(UNBOUND_LIBS) \
@@ -62,7 +62,7 @@ qt_test_test_navcoin_qt_LDADD += \
                                  $(EVENT_PTHREADS_LIBS) \
                                  $(EVENT_LIBS) \
                                  $(CURL_LIBS) \
-                                 $(BLS_LIBS) \
+                                 $(LIBBLS) \
                                  $(LIBEVENT_LIBS) \
                                  $(LIBSECCOMP_LIBS) \
                                  $(LIBCAP_LIBS) \

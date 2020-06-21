@@ -1279,13 +1279,14 @@ BLS_CXXFLAGS=${CXX/$BLS_CXX\ /}
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [rm -rf src/bls-signatures/build/* && cmake\
-                    -DOPSYS:STRING=$BLS_OPSYS\
-                    -DSEED:STRING=$BLS_SEED\
-                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS\
-                    -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC\
-                    -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX\
-                    -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
+                   [rm -rf src/bls-signatures/build/* && cmake \
+                    -DOPSYS:STRING=$BLS_OPSYS \
+                    -DSEED:STRING=$BLS_SEED \
+                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS \
+                    -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC \
+                    -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX \
+                    -Bsrc/bls-signatures/build -Hsrc/bls-signatures && \
+                    printf 'distdir:\n\techo' >> src/bls-signatures/build/Makefile],
                    [
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
