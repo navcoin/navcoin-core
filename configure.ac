@@ -1274,12 +1274,10 @@ fi
 dnl Get some proper paths for the compilers
 BLS_CC=${CC%%\ *}
 BLS_CXX=${CXX%%\ *}
-BLS_CFLAGS=${CC/$BLS_CC\ /}
-BLS_CXXFLAGS=${CXX/$BLS_CXX\ /}
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [rm -rf src/bls-signatures/build/* && cmake \
+                   [rm -rf src/bls-signatures/build/* && CFLAGS="$BLS_CFLAGS" CXXFLAGS="$BLS_CXXFLAGS" cmake \
                     -DOPSYS:STRING=$BLS_OPSYS \
                     -DSEED:STRING=$BLS_SEED \
                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS \
@@ -1292,8 +1290,8 @@ AC_CONFIG_COMMANDS([src/bls-signatures/build],
                     BLS_SEED=$BLS_SEED
                     BLS_CC=$BLS_CC
                     BLS_CXX=$BLS_CXX
-                    BLS_CFLAGS=$BLS_CFLAGS
-                    BLS_CXXFLAGS=$BLS_CXXFLAGS
+                    BLS_CFLAGS=$CFLAGS
+                    BLS_CXXFLAGS=$CXXFLAGS
                     AR=$AR
                     NM=$NM
                     RANLIB=$RANLIB
