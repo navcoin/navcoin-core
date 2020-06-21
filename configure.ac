@@ -1261,6 +1261,7 @@ ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignu
 AC_CONFIG_SUBDIRS([src/secp256k1])
 AC_CONFIG_SUBDIRS([src/tor])
 
+BLS_WSIZE=64
 BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
 if test x$TARGET_OS = xwindows; then
@@ -1271,6 +1272,11 @@ if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
 fi
 
+BLS_HOST=${host%%-*}
+if test x$BLS_HOST = xi686; then
+    BLS_WSIZE=32
+fi
+
 dnl Get some proper paths for the compilers
 BLS_CC=${CC%%\ *}
 BLS_CXX=${CXX%%\ *}
@@ -1278,6 +1284,7 @@ BLS_CXX=${CXX%%\ *}
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
                    [rm -rf src/bls-signatures/build/* && CFLAGS="$BLS_CFLAGS" CXXFLAGS="$BLS_CXXFLAGS" cmake \
+                    -DWSIZE:INT=$BLS_WSIZE \
                     -DOPSYS:STRING=$BLS_OPSYS \
                     -DSEED:STRING=$BLS_SEED \
                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS \
@@ -1287,6 +1294,7 @@ AC_CONFIG_COMMANDS([src/bls-signatures/build],
                     printf 'distdir:\n\techo' >> src/bls-signatures/build/Makefile],
                    [
                     BLS_OPSYS=$BLS_OPSYS
+                    BLS_WSIZE=$BLS_WSIZE
                     BLS_SEED=$BLS_SEED
                     BLS_CC=$BLS_CC
                     BLS_CXX=$BLS_CXX
@@ -1366,13 +1374,11 @@ echo "  with bench    = $use_bench"
 echo "  with upnp     = $use_upnp"
 echo "  debug enabled = $enable_debug"
 echo
-echo "  bls opsys     = $BLS_OPSYS"
-echo "  bls seed      = $BLS_SEED"
-echo
-echo "  BLS_CC        = $BLS_CC"
-echo "  BLS_CXX       = $BLS_CXX"
-echo "  BLS_CFLAGS    = ==$BLS_CFLAGS=="
-echo "  BLS_CXXFLAGS  = ==$BLS_CXXFLAGS=="
+echo "  bls OPSYS     = $BLS_OPSYS"
+echo "  bls SEED      = $BLS_SEED"
+echo "  bls CC        = $BLS_CC"
+echo "  bls CXX       = $BLS_CXX"
+echo "  bls WSIZE     = $BLS_WSIZE"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
