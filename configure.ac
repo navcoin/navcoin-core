@@ -1264,12 +1264,16 @@ AC_CONFIG_SUBDIRS([src/tor])
 BLS_WSIZE=64
 BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
+BLS_AR=""
+BLS_RANLIB=""
 if test x$TARGET_OS = xwindows; then
     BLS_OPSYS="Windows"
     BLS_SEED="WCGR"
 fi
 if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
+    BLS_AR=[-DCMAKE_AR=$AR]
+    BLS_RANLIB=[-DCMAKE_RANLIB=$RANLIB]
 fi
 
 BLS_HOST=${host%%-*}
@@ -1277,67 +1281,34 @@ if test x$BLS_HOST = xi686 || x$BLS_HOST = xarm; then
     BLS_WSIZE=32
 fi
 
-dnl Get some proper paths for the compilers
-BLS_CC=${CC%%\ *}
-BLS_CXX=${CXX%%\ *}
-
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [rm -rf src/bls-signatures/build/* && CFLAGS="$BLS_CFLAGS" CXXFLAGS="$BLS_CXXFLAGS" cmake \
-                    -DWSIZE:INT=$BLS_WSIZE \
-                    -DOPSYS:STRING=$BLS_OPSYS \
-                    -DSEED:STRING=$BLS_SEED \
-                    -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS \
-                    -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC \
-                    -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX \
-                    -Bsrc/bls-signatures/build -Hsrc/bls-signatures && \
-                    printf 'distdir:\n\techo' >> src/bls-signatures/build/Makefile],
+                   [#!/usr/bin/env sh \
+                    rm -rf src/bls-signatures/build/* && \
+                    export CC="$CC" && \
+                    export CFLAGS="$CFLAGS $CPPFLAGS" && \
+                    export CXX="$CXX" && \
+                    export CXXFLAGS="$CXXFLAGS $CPPFLAGS" && \
+                    export LDFLAGS="$LDFLAGS" && \
+                    cd src/bls-signatures/build && \
+                    cmake ../ \
+                    -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
+                    -DOPSYS=$BLS_OPSYS \
+                    -DSEED=$BLS_SEED \
+                    -DWSIZE=$BLS_WSIZE \
+                    $BLS_AR \
+                    $BLS_RANLIB && \
+                    printf 'distdir:\n\techo' >> Makefile],
                    [
                     BLS_OPSYS=$BLS_OPSYS
-                    BLS_WSIZE=$BLS_WSIZE
                     BLS_SEED=$BLS_SEED
-                    BLS_CC=$BLS_CC
-                    BLS_CXX=$BLS_CXX
-                    BLS_CFLAGS=$CFLAGS
-                    BLS_CXXFLAGS=$CXXFLAGS
-                    AR=$AR
-                    NM=$NM
-                    RANLIB=$RANLIB
-                    LD=$LD])
-
-# dnl Run cmake for bls-sigs (This project does not support autotools)
-# AC_CONFIG_COMMANDS([src/bls-signatures/build],
-#                    [rm -rf src/bls-signatures/build/* && cmake\
-#                     -DOPSYS:STRING=$BLS_OPSYS\
-#                     -DSEED:STRING=$BLS_SEED\
-#                     -DCMAKE_SYSTEM_NAME:STRING=$BLS_OPSYS\
-#                     -DCMAKE_C_COMPILER:FILEPATH=$BLS_CC\
-#                     -DCMAKE_CXX_COMPILER:FILEPATH=$BLS_CXX\
-#                     -DCMAKE_C_FLAGS:STRING="$BLS_CFLAGS"\
-#                     -DCMAKE_CXX_FLAGS:STRING="$BLS_CXXFLAGS"\
-#                     -DCMAKE_AR:FILEPATH=$AR\
-#                     -DCMAKE_NM:FILEPATH=$NM\
-#                     -DCMAKE_RANLIB:FILEPATH=$RANLIB\
-#                     -DCMAKE_LINKER:FILEPATH=$LD\
-#                     -DCMAKE_C_COMPILER_AR:FILEPATH=$AR\
-#                     -DCMAKE_C_COMPILER_RANLIB:FILEPATH=$RANLIB\
-#                     -DCMAKE_CXX_COMPILER_AR:FILEPATH=$AR\
-#                     -DCMAKE_CXX_COMPILER_RANLIB:FILEPATH=$RANLIB\
-#                     -DCMAKE_OBJCOPY:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-objcopy\
-#                     -DCMAKE_OBJDUMP:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-objdump\
-#                     -DCMAKE_STRIP:FILEPATH=/home/mxaddict/Projects/mxaddict/navcoin-core/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-strip\
-#                     -Bsrc/bls-signatures/build -Hsrc/bls-signatures],
-#                    [
-#                     BLS_OPSYS=$BLS_OPSYS
-#                     BLS_SEED=$BLS_SEED
-#                     BLS_CC=$BLS_CC
-#                     BLS_CXX=$BLS_CXX
-#                     BLS_CFLAGS=$BLS_CFLAGS
-#                     BLS_CXXFLAGS=$BLS_CXXFLAGS
-#                     AR=$AR
-#                     NM=$NM
-#                     RANLIB=$RANLIB
-#                     LD=$LD])
+                    BLS_WSIZE=$BLS_WSIZE
+                    BLS_AR=$BLS_AR
+                    BLS_RANLIB=$BLS_RANLIB
+                    CC=$CC
+                    CFLAGS=$CFLAGS
+                    CXX=$CXX
+                    CXXFLAGS=$CXXFLAGS])
 
 AC_OUTPUT
 
@@ -1376,8 +1347,6 @@ echo "  debug enabled = $enable_debug"
 echo
 echo "  bls OPSYS     = $BLS_OPSYS"
 echo "  bls SEED      = $BLS_SEED"
-echo "  bls CC        = $BLS_CC"
-echo "  bls CXX       = $BLS_CXX"
 echo "  bls WSIZE     = $BLS_WSIZE"
 echo
 echo "  target os     = $TARGET_OS"
