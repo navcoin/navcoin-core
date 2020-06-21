@@ -30,6 +30,3 @@ endef
 define $(package)_stage_cmds
   $(MAKE) DESTDIR=$($(package)_staging_dir) install
 endef
-
-define $(package)_postprocess_cmds
-endef
