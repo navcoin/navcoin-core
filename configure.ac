@@ -1280,6 +1280,10 @@ BLS_HOST=${host%%-*}
 if test x$BLS_HOST = xi686 || x$BLS_HOST = xarm; then
     BLS_WSIZE=32
 fi
+BLS_PREFIX="/"
+if test x$depends_prefix != x; then
+    BLS_PREFIX=$depends_prefix
+fi
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
@@ -1293,6 +1297,7 @@ AC_CONFIG_COMMANDS([src/bls-signatures/build],
                     cd src/bls-signatures/build && \
                     cmake ../ \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
+                    -DCMAKE_PREFIX_PATH=$BLS_PREFIX \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
@@ -1305,6 +1310,7 @@ AC_CONFIG_COMMANDS([src/bls-signatures/build],
                     BLS_WSIZE=$BLS_WSIZE
                     BLS_AR=$BLS_AR
                     BLS_RANLIB=$BLS_RANLIB
+                    BLS_PREFIX=$BLS_PREFIX
                     CC=$CC
                     CFLAGS=$CFLAGS
                     CXX=$CXX
