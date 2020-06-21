@@ -32,7 +32,7 @@ remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
 files:
-- "MacOSX10.11.sdk.tar.gz"
+- "MacOSX10.14.sdk.tar.gz"
 script: |
   set -e -o pipefail
 
