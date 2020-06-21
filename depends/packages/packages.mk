@@ -2,8 +2,7 @@ packages:=boost openssl libevent libcap zeromq curl gmp unbound
 
 linux_packages = libseccomp
 
-qt_native_packages = native_protobuf
-qt_packages = qrencode protobuf zlib
+qt_packages = qrencode zlib
 
 qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libX11 xextproto libXext xtrans
 

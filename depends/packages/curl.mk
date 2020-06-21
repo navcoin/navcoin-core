@@ -1,13 +1,13 @@
 package=curl
-$(package)_version=7.68.0
+$(package)_version=7.70.0
 $(package)_download_path=https://curl.haxx.se/download/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash=1dd7604e418b0b9a9077f62f763f6684c1b092a7bc17e3f354b8ad5c964d7358
+$(package)_sha256_hash=ca2feeb8ef13368ce5d5e5849a5fd5e2dd4755fecf7d8f0cc94000a4206fb8e7
 $(package)_dependencies=openssl
-$(package)_patches=fix_lib_order.patch
+$(package)_patches=patch_builtin_available.patch
 
 define $(package)_preprocess_cmds
-  patch -p1 < $($(package)_patch_dir)/fix_lib_order.patch
+  patch -p1 < $($(package)_patch_dir)/patch_builtin_available.patch
 endef
 
 define $(package)_set_vars
