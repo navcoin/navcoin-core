@@ -5,6 +5,13 @@
 #ifndef BLSCT_VERIFICATION_H
 #define BLSCT_VERIFICATION_H
 
+#ifdef _WIN32
+/* Avoid redefinition warning. */
+#undef ERROR
+#undef WSIZE
+#undef DOUBLE
+#endif
+
 #include <bls.hpp>
 #include <blsct/bulletproofs.h>
 #include <coins.h>

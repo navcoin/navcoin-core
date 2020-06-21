@@ -5,6 +5,13 @@
 #ifndef KEY_H
 #define KEY_H
 
+#ifdef _WIN32
+/* Avoid redefinition warning. */
+#undef ERROR
+#undef WSIZE
+#undef DOUBLE
+#endif
+
 #include <bls.hpp>
 #include <blsct/types.h>
 #include <hash.h>
