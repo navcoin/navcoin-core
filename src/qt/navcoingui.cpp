@@ -428,14 +428,14 @@ void NavCoinGUI::createActions()
     daoAction->setStatusTip(tr("Participate in the DAO"));
     daoAction->setToolTip(daoAction->statusTip());
     daoAction->setCheckable(true);
-    daoAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    daoAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(daoAction);
 
     settingsAction = new QAction(platformStyle->Icon(":/icons/options"), tr("&Settings"), this);
     settingsAction->setStatusTip(tr("Update settings"));
     settingsAction->setToolTip(settingsAction->statusTip());
     settingsAction->setCheckable(true);
-    settingsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    settingsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     tabGroup->addAction(settingsAction);
 
     updatePriceAction  = new QAction(tr("Update exchange prices"), this);
