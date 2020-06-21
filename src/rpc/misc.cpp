@@ -957,10 +957,15 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
 
     CAmount balance = 0;
     CAmount received = 0;
+    CAmount staked = 0;
 
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
         if (it->second > 0) {
             received += it->second;
+        }
+        if (it->first.blockHeight > Params().GetConsensus().nLastPOWBlock && it->first.txindex == 1)
+        {
+            staked += it->second;
         }
         balance += it->second;
     }
@@ -968,6 +973,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
     result.pushKV("balance", balance);
     result.pushKV("received", received);
+    result.pushKV("staked", staked);
 
     return result;
 
