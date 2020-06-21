@@ -8,7 +8,8 @@ define $(package)_build_cmds
   $(MAKE) DESTDIR=`pwd`/out prefix=/ RAISE_SETFCAP=no lib="lib" install && \
   mkdir -p $($(package)_staging_dir)$(host_prefix)/bin && \
   cp -a out/sbin/* $($(package)_staging_dir)$(host_prefix)/bin/ && \
-  \
+  mkdir -p $($(package)_staging_dir)$(host_prefix)/include && \
+  cp -a out/include/* $($(package)_staging_dir)$(host_prefix)/include/ && \
   mkdir -p $($(package)_staging_dir)$(host_prefix)/lib && \
   cp -a out/lib/* $($(package)_staging_dir)$(host_prefix)/lib/ && \
   cp -a out/lib/pkgconfig/* $($(package)_staging_dir)$(host_prefix)/lib/pkgconfig/
