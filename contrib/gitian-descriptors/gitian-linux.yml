@@ -175,14 +175,6 @@ script: |
     mkdir src/obj
     cp ../src/obj/build.h src/obj/
 
-    cd src/bls-signatures/build
-    rm -rf *
-    export CFLAGS="${HOST_CFLAGS}"
-    export CXXFLAGS="${HOST_CXXFLAGS}"
-    cmake ../ ${CONFIGFLAGS}
-    make ${MAKEOPTS}
-    cd ../../..
-
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
     make ${MAKEOPTS}
     make ${MAKEOPTS} -C src check-security
