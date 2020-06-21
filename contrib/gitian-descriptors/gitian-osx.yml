@@ -12,7 +12,6 @@ packages:
 - "bsdmainutils"
 - "ca-certificates"
 - "cmake"
-- "cmake"
 - "curl"
 - "faketime"
 - "fonts-tuffy"
