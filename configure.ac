@@ -1295,7 +1295,8 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DWSIZE=$BLS_WSIZE \
                     $BLS_AR \
                     $BLS_RANLIB && \
-                    printf 'distdir:\n\techo' >> src/bls/build/Makefile],
+                    printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
+                    printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
                    [
                     CC=$CC
                     CXX=$CXX
