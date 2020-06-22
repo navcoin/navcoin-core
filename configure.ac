@@ -1279,25 +1279,30 @@ BLS_CXX=${CXX%%\ *}
 BLS_CFLAGS="'${CC/$BLS_CC\ /}'"
 BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
 
+CONFDIR=$ac_abs_confdir
+CONFPWD=$ac_pwd
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
-                   [rm -rf src/bls/build/* || true && \
-                    mkdir -p src/bls/build || true && \
+                   [rm -rf $CONFPWD/src/bls/build/* || true && \
+                    mkdir -p $CONFPWD/src/bls/build || true && \
                     export CC=$CC && \
                     export CFLAGS=$BLS_CFLAGS && \
                     export CXX=$CXX && \
                     export CXXFLAGS=$BLS_CXXFLAGS && \
                     export LDFLAGS=$LDFLAGS && \
-                    cmake -Bsrc/bls/build -Hsrc/bls \
+                    cmake -B$CONFPWD/src/bls/build -H$CONFDIR/src/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
                     $BLS_AR \
                     $BLS_RANLIB && \
-                    printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
-                    printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
+                    printf 'distdir:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile && \
+                    printf 'distclean:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile],
                    [
+                    CONFDIR=$CONFDIR
+                    CONFPWD=$CONFPWD
                     CC=$CC
                     CXX=$CXX
                     BLS_AR=$BLS_AR
