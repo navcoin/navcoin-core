@@ -164,3 +164,9 @@ _deps
 
 # bls sigs
 src/bls-signatures/build
+
+# Ignore temp conf dirs
+conf*/
+
+# Ignore .tmp files from tor build
+*.tmp
