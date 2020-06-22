@@ -7,7 +7,6 @@
 #include <qt/addresstablemodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
-#include <qt/paymentserver.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/transactiontablemodel.h>
 
@@ -401,20 +400,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 
             for(const SendCoinsRecipient &rcp: transaction.getRecipients())
             {
-              if (rcp.paymentRequest.IsInitialized())
-              {
-                // Make sure any payment requests involved are still valid.
-                if (PaymentServer::verifyExpired(rcp.paymentRequest.getDetails())) {
-                  return PaymentRequestExpired;
-                }
-
-                // Store PaymentRequests in wtx.vOrderForm in wallet.
-                std::string key("PaymentRequest");
-                std::string value;
-                rcp.paymentRequest.SerializeToString(&value);
-                const_cast<CWalletTx&>(newTx).vOrderForm.push_back(make_pair(key, value));
-              }
-              else if (!rcp.message.isEmpty()) // Message from normal navcoin:URI (navcoin:123...?message=example)
+              if (!rcp.message.isEmpty()) // Message from normal navcoin:URI (navcoin:123...?message=example)
                 const_cast<CWalletTx&>(newTx).vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
             }
           }
@@ -447,26 +433,22 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     // and emit coinsSent signal for each recipient
     for(const SendCoinsRecipient &rcp: transaction.getRecipients())
     {
-        // Don't touch the address book when we have a payment request
-        if (!rcp.paymentRequest.IsInitialized())
+        std::string strAddress = rcp.address.toStdString();
+        CTxDestination dest = CNavCoinAddress(strAddress).Get();
+        std::string strLabel = rcp.label.toStdString();
         {
-            std::string strAddress = rcp.address.toStdString();
-            CTxDestination dest = CNavCoinAddress(strAddress).Get();
-            std::string strLabel = rcp.label.toStdString();
+            LOCK(wallet->cs_wallet);
+
+            std::map<CTxDestination, CAddressBookData>::iterator mi = wallet->mapAddressBook.find(dest);
+
+            // Check if we have a new address or an updated label
+            if (mi == wallet->mapAddressBook.end())
             {
-                LOCK(wallet->cs_wallet);
-
-                std::map<CTxDestination, CAddressBookData>::iterator mi = wallet->mapAddressBook.find(dest);
-
-                // Check if we have a new address or an updated label
-                if (mi == wallet->mapAddressBook.end())
-                {
-                    wallet->SetAddressBook(dest, strLabel, "send");
-                }
-                else if (mi->second.name != strLabel)
-                {
-                    wallet->SetAddressBook(dest, strLabel, ""); // "" means don't change purpose
-                }
+                wallet->SetAddressBook(dest, strLabel, "send");
+            }
+            else if (mi->second.name != strLabel)
+            {
+                wallet->SetAddressBook(dest, strLabel, ""); // "" means don't change purpose
             }
         }
         Q_EMIT coinsSent(wallet, rcp, transaction_array);

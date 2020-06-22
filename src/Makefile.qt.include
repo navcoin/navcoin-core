@@ -173,7 +173,6 @@ QT_MOC_CPP = \
 	qt/moc_communityfundcreateproposaldialog.cpp \
 	qt/moc_communityfundcreatepaymentrequestdialog.cpp \
 	qt/moc_peertablemodel.cpp \
-	qt/moc_paymentserver.cpp \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_qjsonmodel.cpp \
 	qt/moc_qvalidatedlineedit.cpp \
@@ -237,10 +236,6 @@ QT_QRC = qt/navcoin.qrc
 QT_QRC_LOCALE_CPP = qt/qrc_navcoin_locale.cpp
 QT_QRC_LOCALE = qt/navcoin_locale.qrc
 
-PROTOBUF_CC = qt/paymentrequest.pb.cc
-PROTOBUF_H = qt/paymentrequest.pb.h
-PROTOBUF_PROTO = qt/paymentrequest.proto
-
 NAVCOIN_QT_H = \
 	qt/addressbookpage.h \
 	qt/addresstablemodel.h \
@@ -286,8 +281,6 @@ NAVCOIN_QT_H = \
 	qt/optionsdialog.h \
 	qt/optionsmodel.h \
 	qt/overviewpage.h \
-	qt/paymentrequestplus.h \
-	qt/paymentserver.h \
 	qt/peertablemodel.h \
 	qt/platformstyle.h \
 	qt/qjsonitem.h \
@@ -537,8 +530,6 @@ NAVCOIN_QT_CPP += \
 	qt/communityfundcreatepaymentrequestdialog.cpp \
   qt/qjsonitem.cpp \
   qt/qjsonmodel.cpp \
-	qt/paymentrequestplus.cpp \
-	qt/paymentserver.cpp \
 	qt/qjsonitem.cpp \
 	qt/qjsonmodel.cpp \
 	qt/receivecoinsdialog.cpp \

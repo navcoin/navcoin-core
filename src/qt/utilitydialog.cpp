@@ -13,7 +13,6 @@
 #include <qt/navcoingui.h>
 #include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
-#include <qt/paymentrequestplus.h>
 #include <qt/guiutil.h>
 
 #include <clientversion.h>
@@ -79,9 +78,6 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
         std::string strUsage = HelpMessage(HMM_NAVCOIN_QT);
         const bool showDebug = GetBoolArg("-help-debug", false);
         strUsage += HelpMessageGroup(tr("UI Options:").toStdString());
-        if (showDebug) {
-            strUsage += HelpMessageOpt("-allowselfsignedrootcertificates", strprintf("Allow self signed root certificates (default: %u)", DEFAULT_SELFSIGNED_ROOTCERTS));
-        }
         strUsage += HelpMessageOpt("-lang=<lang>", tr("Set language, for example \"de_DE\" (default: system locale)").toStdString());
         strUsage += HelpMessageOpt("-min", tr("Start minimized").toStdString());
         strUsage += HelpMessageOpt("-rootcertificates=<file>", tr("Set SSL root certificates for payment request (default: -system-)").toStdString());
