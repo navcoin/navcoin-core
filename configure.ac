@@ -1274,10 +1274,27 @@ if test x$BLS_HOST = xi686 || x$BLS_HOST = xarm; then
     BLS_WSIZE=32
 fi
 
-BLS_CC=${CC%%\ *}
-BLS_CXX=${CXX%%\ *}
-BLS_CFLAGS="'${CC/$BLS_CC\ /}'"
-BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
+BLS_CCACHE=${CC%%\ *}
+BLS_CC=${CC/$BLS_CCACHE\ /}
+BLS_CC=${BLS_CC%%\ *}
+BLS_CXX=${CXX/$BLS_CCACHE\ /}
+BLS_CXX=${BLS_CXX%%\ *}
+BLS_CFLAGS=${CC/$BLS_CCACHE\ /}
+BLS_CFLAGS="'${BLS_CFLAGS/$BLS_CC\ /}'"
+BLS_CXXFLAGS=${CXX/$BLS_CCACHE\ /}
+BLS_CXXFLAGS="'${BLS_CXXFLAGS/$BLS_CXX\ /}'"
+if test x$BLS_CCACHE != x/usr/bin/ccache; then
+    BLS_CCACHE=""
+    BLS_CC=${CC%%\ *}
+    BLS_CXX=${CXX%%\ *}
+    BLS_CFLAGS="'${CC/$BLS_CC\ /}'"
+    BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
+fi
+
+BLS_CCACHE_CMAKE=""
+if test x$BLS_CCACHE = x/usr/bin/ccache; then
+    BLS_CCACHE_CMAKE=-DCMAKE_CXX_COMPILER_LAUNCHER=$BLS_CCACHE
+fi
 
 CONFDIR=$ac_abs_confdir
 CONFPWD=$ac_pwd
@@ -1297,12 +1314,13 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
                     $BLS_AR \
+                    $BLS_CCACHE_CMAKE \
                     $BLS_RANLIB && \
                     printf 'distdir:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile],
-                   [
-                    CONFDIR=$CONFDIR
+                   [CONFDIR=$CONFDIR
                     CONFPWD=$CONFPWD
+                    BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
                     CC=$CC
                     CXX=$CXX
                     BLS_AR=$BLS_AR
