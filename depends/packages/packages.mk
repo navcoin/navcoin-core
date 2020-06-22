@@ -4,7 +4,7 @@ linux_packages = libseccomp
 
 qt_packages = qrencode
 
-qt_linux_packages:=qt libxcb xcb_proto libXau xproto freetype fontconfig libX11 xextproto libXext xtrans
+qt_linux_packages:=qt dbus libxcb xcb_proto libXau xproto freetype fontconfig libX11 xextproto libXext xtrans
 
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
