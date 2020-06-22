@@ -212,17 +212,17 @@ struct CAddressHistoryValue {
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
-        ser_writedata64be(s, spendable);
-        ser_writedata64be(s, stakable);
-        ser_writedata64be(s, voting_weight);
-        ser_writedata8be(s, flags);
+        ser_writedata64(s, spendable);
+        ser_writedata64(s, stakable);
+        ser_writedata64(s, voting_weight);
+        ser_writedata8(s, flags);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
-        spendable = ser_readdata64be(s);
-        stakable = ser_readdata64be(s);
-        voting_weight = ser_readdata64be(s);
-        flags = ser_readdata8be(s);
+        spendable = ser_readdata64(s);
+        stakable = ser_readdata64(s);
+        voting_weight = ser_readdata64(s);
+        flags = ser_readdata8(s);
     }
 
     CAddressHistoryValue(const CAmount &spendable_, const CAmount &stakable_, const CAmount &voting_weight_,

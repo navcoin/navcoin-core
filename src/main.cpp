@@ -1887,7 +1887,7 @@ bool HashOnchainActive(const uint256 &hash)
 
 bool GetAddressHistory(uint160 addressHash,
                      std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressHistory,
-                     int start = 0, int end = 0)
+                     int start, int end)
 {
     if (!fAddressIndex)
         return error("address index not enabled");
