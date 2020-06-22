@@ -170,3 +170,8 @@ conf*/
 
 # Ignore .tmp files from tor build
 *.tmp
+
+# Ignore macdpeloy files
+*.app
+*.tiff
+

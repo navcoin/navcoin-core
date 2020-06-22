@@ -1264,21 +1264,21 @@ AC_CONFIG_SUBDIRS([src/tor])
 BLS_WSIZE=64
 BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
+BLS_AR=
+BLS_RANLIB=
 if test x$TARGET_OS = xwindows; then
     BLS_OPSYS="Windows"
     BLS_SEED="WCGR"
 fi
 if test x$TARGET_OS = xdarwin; then
     BLS_OPSYS="Darwin"
+    BLS_AR=-DCMAKE_AR=$AR
+    BLS_RANLIB=-DCMAKE_RANLIB=$RANLIB
 fi
 
 BLS_HOST=${host%%-*}
 if test x$BLS_HOST = xi686 || x$BLS_HOST = xarm; then
     BLS_WSIZE=32
-fi
-BLS_PREFIX="/"
-if test x$depends_prefix != x; then
-    BLS_PREFIX=$depends_prefix
 fi
 
 BLS_CC=${CC%%\ *}
@@ -1288,20 +1288,16 @@ BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [#!/usr/bin/env sh \
-                    rm -rf src/bls-signatures/build/* || true && \
+                   [rm -rf src/bls-signatures/build/* || true && \
                     mkdir src/bls-signatures/build || true && \
+                    cd src/bls-signatures/build && \
                     export CC=$CC && \
                     export CFLAGS=$BLS_CFLAGS && \
                     export CXX=$CXX && \
                     export CXXFLAGS=$BLS_CXXFLAGS && \
                     export LDFLAGS=$LDFLAGS && \
-                    cd src/bls-signatures/build && \
                     cmake ../ \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
-                    -DCMAKE_PREFIX_PATH=$BLS_PREFIX \
-                    -DCMAKE_AR=$AR \
-                    -DCMAKE_RANLIB=$RANLIB \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
@@ -1309,13 +1305,13 @@ AC_CONFIG_COMMANDS([src/bls-signatures/build],
                     $BLS_RANLIB && \
                     printf 'distdir:\n\techo' >> Makefile],
                    [
-                    AR=$AR
                     CC=$CC
                     CXX=$CXX
+                    BLS_AR=$BLS_AR
+                    BLS_RANLIB=$BLS_RANLIB
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
                     BLS_WSIZE=$BLS_WSIZE
-                    RANLIB=$RANLIB
                     BLS_PREFIX=$BLS_PREFIX
                     BLS_CFLAGS=$BLS_CFLAGS
                     BLS_CXXFLAGS=$BLS_CXXFLAGS])
