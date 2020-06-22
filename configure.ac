@@ -1280,23 +1280,22 @@ BLS_CFLAGS="'${CC/$BLS_CC\ /}'"
 BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
-AC_CONFIG_COMMANDS([src/bls-signatures/build],
-                   [rm -rf src/bls-signatures/build/* || true && \
-                    mkdir src/bls-signatures/build || true && \
-                    cd src/bls-signatures/build && \
+AC_CONFIG_COMMANDS([src/bls/build],
+                   [rm -rf src/bls/build/* || true && \
+                    mkdir -p src/bls/build || true && \
                     export CC=$CC && \
                     export CFLAGS=$BLS_CFLAGS && \
                     export CXX=$CXX && \
                     export CXXFLAGS=$BLS_CXXFLAGS && \
                     export LDFLAGS=$LDFLAGS && \
-                    cmake ../ \
+                    cmake -Bsrc/bls/build -Hsrc/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
                     $BLS_AR \
                     $BLS_RANLIB && \
-                    printf 'distdir:\n\techo' >> Makefile],
+                    printf 'distdir:\n\techo' >> src/bls/build/Makefile],
                    [
                     CC=$CC
                     CXX=$CXX
