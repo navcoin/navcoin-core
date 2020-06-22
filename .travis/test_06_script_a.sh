@@ -23,8 +23,11 @@ else
 fi
 END_FOLD
 
+mkdir build
+cd build || (echo "could not enter build directory"; exit 1)
+
 BEGIN_FOLD configure
-DOCKER_EXEC ./configure --cache-file=config.cache $NAVCOIN_CONFIG_ALL $NAVCOIN_CONFIG || ( cat config.log && false)
+DOCKER_EXEC ../configure --cache-file=config.cache $NAVCOIN_CONFIG_ALL $NAVCOIN_CONFIG || ( cat config.log && false)
 END_FOLD
 
 set -o errtrace
