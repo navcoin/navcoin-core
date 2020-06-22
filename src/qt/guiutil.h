@@ -6,6 +6,7 @@
 #define NAVCOIN_QT_GUIUTIL_H
 
 #include <amount.h>
+#include <base58.h>
 
 #include <QEvent>
 #include <QHeaderView>

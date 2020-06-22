@@ -9,6 +9,7 @@
 
 #include <support/allocators/secure.h>
 #include <wallet/wallet.h>
+#include <base58.h>
 
 #include <map>
 #include <vector>
