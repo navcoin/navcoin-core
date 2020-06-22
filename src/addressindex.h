@@ -151,6 +151,100 @@ struct CAddressIndexKey {
 
 };
 
+struct CAddressHistoryKey {
+    uint160 hashBytes;
+    int blockHeight;
+    unsigned int txindex;
+    uint256 txhash;
+    uint32_t time;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 64;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const {
+        hashBytes.Serialize(s, nType, nVersion);
+        // Heights are stored big-endian for key sorting in LevelDB
+        ser_writedata32be(s, blockHeight);
+        ser_writedata32be(s, txindex);
+        txhash.Serialize(s, nType, nVersion);
+        ser_writedata32be(s, time);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion) {
+        hashBytes.Unserialize(s, nType, nVersion);
+        blockHeight = ser_readdata32be(s);
+        txindex = ser_readdata32be(s);
+        txhash.Unserialize(s, nType, nVersion);
+        time = ser_readdata32be(s);
+    }
+
+    CAddressHistoryKey(uint160 addressHash, int height, int blockindex,
+                     uint256 txid, uint32_t time_) {
+        hashBytes = addressHash;
+        blockHeight = height;
+        txindex = blockindex;
+        txhash = txid;
+        time = time_;
+    }
+
+    CAddressHistoryKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        hashBytes.SetNull();
+        blockHeight = 0;
+        txindex = 0;
+        txhash.SetNull();
+        time = 0;
+    }
+};
+
+struct CAddressHistoryValue {
+    CAmount spendable;
+    CAmount stakable;
+    CAmount voting_weight;
+    char flags;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 25;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const {
+        ser_writedata64be(s, spendable);
+        ser_writedata64be(s, stakable);
+        ser_writedata64be(s, voting_weight);
+        ser_writedata8be(s, flags);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion) {
+        spendable = ser_readdata64be(s);
+        stakable = ser_readdata64be(s);
+        voting_weight = ser_readdata64be(s);
+        flags = ser_readdata8be(s);
+    }
+
+    CAddressHistoryValue(const CAmount &spendable_, const CAmount &stakable_, const CAmount &voting_weight_,
+                         const char& flags_) {
+        spendable = spendable_;
+        stakable = stakable_;
+        voting_weight = voting_weight_;
+        flags = flags_;
+    }
+
+    CAddressHistoryValue() {
+        SetNull();
+    }
+
+    void SetNull() {
+        spendable = 0;
+        stakable = 0;
+        voting_weight = 0;
+        flags = 0;
+    }
+};
+
 struct CAddressIndexIteratorKey {
     unsigned int type;
     uint160 hashBytes;
@@ -217,6 +311,67 @@ struct CAddressIndexIteratorHeightKey {
 
     void SetNull() {
         type = 0;
+        hashBytes.SetNull();
+        blockHeight = 0;
+    }
+};
+
+struct CAddressHistoryIteratorKey {
+    uint160 hashBytes;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 20;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const {
+        hashBytes.Serialize(s, nType, nVersion);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion) {
+        hashBytes.Unserialize(s, nType, nVersion);
+    }
+
+    CAddressHistoryIteratorKey(uint160 addressHash) {
+        hashBytes = addressHash;
+    }
+
+    CAddressHistoryIteratorKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        hashBytes.SetNull();
+    }
+};
+
+struct CAddressHistoryIteratorHeightKey {
+    uint160 hashBytes;
+    int blockHeight;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 24;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const {
+        hashBytes.Serialize(s, nType, nVersion);
+        ser_writedata32be(s, blockHeight);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion) {
+        hashBytes.Unserialize(s, nType, nVersion);
+        blockHeight = ser_readdata32be(s);
+    }
+
+    CAddressHistoryIteratorHeightKey(uint160 addressHash, int height) {
+        hashBytes = addressHash;
+        blockHeight = height;
+    }
+
+    CAddressHistoryIteratorHeightKey() {
+        SetNull();
+    }
+
+    void SetNull() {
         hashBytes.SetNull();
         blockHeight = 0;
     }

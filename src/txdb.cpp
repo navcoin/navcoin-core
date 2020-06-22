@@ -23,6 +23,7 @@ static const char DB_TXINDEX = 't';
 static const char DB_PROPINDEX = 'o';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
+static const char DB_ADDRESSHISTORY = 'h';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
 static const char DB_BLOCKHASHINDEX = 'z';
@@ -665,6 +666,54 @@ bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type,
                 pcursor->Next();
             } else {
                 return error("failed to get address index value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CBlockTreeDB::WriteAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue > >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
+        batch.Write(make_pair(DB_ADDRESSHISTORY, it->first), it->second);
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::EraseAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue > >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
+        batch.Erase(make_pair(DB_ADDRESSHISTORY, it->first));
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash,
+                                    std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressIndex,
+                                    int start, int end) {
+
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+
+    if (start > 0 && end > 0) {
+        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorHeightKey(addressHash, start)));
+    } else {
+        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorKey(addressHash)));
+    }
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char,CAddressHistoryKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_ADDRESSHISTORY && key.second.hashBytes == addressHash) {
+            if (end > 0 && key.second.blockHeight > end) {
+                break;
+            }
+            CAddressHistoryValue nValue;
+            if (pcursor->GetValue(nValue)) {
+                addressIndex.push_back(make_pair(key.second, nValue));
+                pcursor->Next();
+            } else {
+                return error("failed to get address history value");
             }
         } else {
             break;

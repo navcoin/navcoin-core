@@ -1885,6 +1885,19 @@ bool HashOnchainActive(const uint256 &hash)
     return true;
 }
 
+bool GetAddressHistory(uint160 addressHash,
+                     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressHistory,
+                     int start = 0, int end = 0)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!pblocktree->ReadAddressHistory(addressHash, addressHistory, start, end))
+        return error("unable to get history for address");
+
+    return true;
+}
+
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
 {
