@@ -269,55 +269,33 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         if (rcp.isanon)
             fPrivate = true;
 
-        if (rcp.paymentRequest.IsInitialized())
-        {   // PaymentRequest...
-            CAmount subtotal = 0;
-            const payments::PaymentDetails& details = rcp.paymentRequest.getDetails();
-            for (int i = 0; i < details.outputs_size(); i++)
-            {
-                const payments::Output& out = details.outputs(i);
-                if (out.amount() <= 0) continue;
-                subtotal += out.amount();
-                const unsigned char* scriptStr = (const unsigned char*)out.script().data();
-                CScript scriptPubKey(scriptStr, scriptStr+out.script().size());
-                CAmount nAmount = out.amount();
-                CRecipient recipient = {scriptPubKey, nAmount, rcp.fSubtractFeeFromAmount};
-                vecSend.push_back(recipient);
-            }
-            if (subtotal <= 0)
-            {
-                return InvalidAmount;
-            }
-            total += subtotal;
+        // User-entered navcoin address / amount:
+        if(!validateAddress(rcp.address))
+        {
+            return InvalidAddress;
         }
-        else
-        {   // User-entered navcoin address / amount:
-            if(!validateAddress(rcp.address))
-            {
-                return InvalidAddress;
-            }
-            if(rcp.amount <= 0)
-            {
-                return InvalidAmount;
-            }
-            setAddress.insert(rcp.address);
-            ++nAddresses;
-
-            CTxDestination address = CNavCoinAddress(rcp.address.toStdString()).Get();
-            CScript scriptPubKey = GetScriptForDestination(address);
-            bool fBLSCT = address.type() == typeid(blsctDoublePublicKey);
-            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount, fBLSCT};
-            fAnyBLSCT |= fBLSCT;
-            if (fBLSCT)
-            {
-                recipient.sk = boost::get<blsctDoublePublicKey>(address).GetSpendKey().Serialize();
-                recipient.vk = boost::get<blsctDoublePublicKey>(address).GetViewKey().Serialize();
-                recipient.sMemo = rcp.message.toStdString();
-            }
-            vecSend.push_back(recipient);
-
-            total += rcp.amount;
+        if(rcp.amount <= 0)
+        {
+            return InvalidAmount;
         }
+        setAddress.insert(rcp.address);
+        ++nAddresses;
+
+        CTxDestination address = CNavCoinAddress(rcp.address.toStdString()).Get();
+        CScript scriptPubKey = GetScriptForDestination(address);
+        bool fBLSCT = address.type() == typeid(blsctDoublePublicKey);
+        CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount, fBLSCT};
+        fAnyBLSCT |= fBLSCT;
+        if (fBLSCT)
+        {
+            recipient.sk = boost::get<blsctDoublePublicKey>(address).GetSpendKey().Serialize();
+            recipient.vk = boost::get<blsctDoublePublicKey>(address).GetViewKey().Serialize();
+            recipient.sMemo = rcp.message.toStdString();
+        }
+        vecSend.push_back(recipient);
+
+        total += rcp.amount;
+
     }
     if(setAddress.size() != nAddresses)
     {
