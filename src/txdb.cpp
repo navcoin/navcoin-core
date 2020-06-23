@@ -691,7 +691,7 @@ bool CBlockTreeDB::EraseAddressHistory(const std::vector<std::pair<CAddressHisto
 
 bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash,
                                     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressIndex,
-                                    int start, int end) {
+                                    AddressHistoryFilter filter, int start, int end) {
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
@@ -710,7 +710,16 @@ bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash,
             }
             CAddressHistoryValue nValue;
             if (pcursor->GetValue(nValue)) {
-                addressIndex.push_back(make_pair(key.second, nValue));
+                if (!(filter & AddressHistoryFilter::SPENDABLE))
+                    nValue.spendable = 0;
+                if (!(filter & AddressHistoryFilter::STAKABLE))
+                    nValue.stakable = 0;
+                if (!(filter & AddressHistoryFilter::VOTING_WEIGHT))
+                    nValue.voting_weight = 0;
+                if (filter & AddressHistoryFilter::GENERATED_FILTER && !(nValue.flags & AddressHistoryFlag::GENERATED_FLAG))
+                    continue;
+                if (nValue.spendable != 0 || nValue.stakable != 0 || nValue.voting_weight != 0)
+                    addressIndex.push_back(make_pair(key.second, nValue));
                 pcursor->Next();
             } else {
                 return error("failed to get address history value");

@@ -88,6 +88,19 @@ struct CAddressUnspentValue {
     }
 };
 
+enum AddressHistoryFlag {
+    GENERATED_FLAG = 1,
+};
+
+enum AddressHistoryFilter {
+    SPENDABLE = 1,
+    STAKABLE = 2,
+    VOTING_WEIGHT = 4,
+    STAKABLE_VOTING_WEIGHT = STAKABLE|VOTING_WEIGHT,
+    ALL = SPENDABLE|STAKABLE|VOTING_WEIGHT,
+    GENERATED_FILTER = 8,
+};
+
 struct CAddressIndexKey {
     unsigned int type;
     uint160 hashBytes;
@@ -179,6 +192,26 @@ struct CAddressHistoryKey {
         time = ser_readdata32be(s);
     }
 
+    bool operator<(const CAddressHistoryKey& b) const {
+        if (hashBytes == b.hashBytes) {
+            if (blockHeight == b.blockHeight) {
+                if (txindex == b.txindex) {
+                    if (txhash == b.txhash) {
+                        return time < b.time;
+                    } else {
+                        return txhash < b.txhash;
+                    }
+                } else {
+                    return txindex < b.txindex;
+                }
+            } else {
+                return blockHeight < b.blockHeight;
+            }
+        } else {
+            return hashBytes < b.hashBytes;
+        }
+    }
+
     CAddressHistoryKey(uint160 addressHash, int height, int blockindex,
                      uint256 txid, uint32_t time_) {
         hashBytes = addressHash;
@@ -223,6 +256,10 @@ struct CAddressHistoryValue {
         stakable = ser_readdata64(s);
         voting_weight = ser_readdata64(s);
         flags = ser_readdata8(s);
+    }
+
+    bool operator<(const CAddressHistoryValue& b) const {
+        return spendable < b.spendable;
     }
 
     CAddressHistoryValue(const CAmount &spendable_, const CAmount &stakable_, const CAmount &voting_weight_,

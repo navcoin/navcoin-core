@@ -491,7 +491,7 @@ bool GetAddressIndex(uint160 addressHash, int type,
                      int start = 0, int end = 0);
 bool GetAddressHistory(uint160 addressHash, 
                      std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressHistory,
-                     int start = 0, int end = 0);
+                     AddressHistoryFilter filter = AddressHistoryFilter::ALL, int start = 0, int end = 0);
 bool GetAddressUnspent(uint160 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
 

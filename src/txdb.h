@@ -180,7 +180,7 @@ public:
     bool EraseAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &vect);
     bool ReadAddressHistory(uint160 addressHash,
                           std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressIndex,
-                          int start = 0, int end = 0);
+                          AddressHistoryFilter filter = AddressHistoryFilter::ALL, int start = 0, int end = 0);
     bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
     bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect);
     bool WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
