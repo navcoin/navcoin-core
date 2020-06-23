@@ -5,12 +5,5 @@ $(package)_file_name=$(package)-$($(package)_version).tar.xz
 $(package)_sha256_hash=5048c849bdbbe24d2ca59463142cb279abec5edf3ab6731ab35a596bcf538a49
 
 define $(package)_build_cmds
-  $(MAKE) DESTDIR=`pwd`/out prefix=/ RAISE_SETFCAP=no lib="lib" install && \
-  mkdir -p $($(package)_staging_dir)$(host_prefix)/bin && \
-  cp -a out/sbin/* $($(package)_staging_dir)$(host_prefix)/bin/ && \
-  mkdir -p $($(package)_staging_dir)$(host_prefix)/include && \
-  cp -a out/include/* $($(package)_staging_dir)$(host_prefix)/include/ && \
-  mkdir -p $($(package)_staging_dir)$(host_prefix)/lib && \
-  cp -a out/lib/* $($(package)_staging_dir)$(host_prefix)/lib/ && \
-  cp -a out/lib/pkgconfig/* $($(package)_staging_dir)$(host_prefix)/lib/pkgconfig/
+  $(MAKE) DESTDIR=$($(package)_staging_dir)$(host_prefix) prefix=/ lib="lib" install
 endef
