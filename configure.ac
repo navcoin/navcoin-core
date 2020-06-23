@@ -1284,20 +1284,20 @@ esac
 
 BLS_CCACHE=""
 BLS_CC=`echo $CC | awk '{ print $1 }'`
-BLS_CC_RAW=${CC/$BLS_CCACHE/}
+BLS_CC_RAW=$CC
 BLS_CXX=`echo $CXX | awk '{ print $1 }'`
-BLS_CXX_RAW=${CXX/$BLS_CCACHE/}
-BLS_CFLAGS=${CC/$BLS_CC/}
-BLS_CXXFLAGS=${CXX/$BLS_CXX/}
+BLS_CXX_RAW=$CXX
+BLS_CFLAGS=`echo $CC | awk '{ $1=""; print $0 }'`
+BLS_CXXFLAGS=`echo $CXX | awk '{ $1=""; print $0 }'`
 BLS_CCACHE_CMAKE=""
 if test "x$use_ccache" != "xno"; then
     BLS_CCACHE=`echo $CC | awk '{ print $1 }'`
     BLS_CC=`echo $CC | awk '{ print $2 }'`
-    BLS_CC_RAW=${CC/$BLS_CCACHE\ /}
+    BLS_CC_RAW=`echo $CC | awk '{ $1=""; print $0 }'`
     BLS_CXX=`echo $CXX | awk '{ print $2 }'`
-    BLS_CXX_RAW=${CXX/$BLS_CCACHE\ /}
-    BLS_CFLAGS=${CC/$BLS_CCACHE\ $BLS_CC/}
-    BLS_CXXFLAGS=${CXX/$BLS_CCACHE\ $BLS_CXX/}
+    BLS_CXX_RAW=`echo $CXX | awk '{ $1=""; print $0 }'`
+    BLS_CFLAGS=`echo $CC | awk '{ $1=""; $2=""; print $0 }'`
+    BLS_CXXFLAGS=`echo $CXX | awk '{ $1=""; $2=""; print $0 }'`
     BLS_CCACHE_CMAKE=-DCMAKE_CXX_COMPILER_LAUNCHER=$BLS_CCACHE
 fi
 
