@@ -1259,42 +1259,44 @@ BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
 BLS_AR=
 BLS_RANLIB=
-if test x$TARGET_OS = xwindows; then
+if test "x$TARGET_OS" = "xwindows"; then
     BLS_OPSYS="Windows"
     BLS_SEED="WCGR"
 fi
-if test x$TARGET_OS = xdarwin; then
+if test "x$TARGET_OS" = "xdarwin"; then
     BLS_OPSYS="Darwin"
     BLS_AR=-DCMAKE_AR=$AR
     BLS_RANLIB=-DCMAKE_RANLIB=$RANLIB
 fi
 
-BLS_HOST=${host%%-*}
-if test x$BLS_HOST = xi686 || x$BLS_HOST = xarm; then
+BLS_HOST="${host%%-*}"
+if test "x$BLS_HOST" = "xi686" || x$BLS_HOST = xarm; then
     BLS_WSIZE=32
 fi
 
-BLS_CCACHE=${CC%%\ *}
-BLS_CC=${CC/$BLS_CCACHE\ /}
-BLS_CC=${BLS_CC%%\ *}
-BLS_CXX=${CXX/$BLS_CCACHE\ /}
-BLS_CXX=${BLS_CXX%%\ *}
-BLS_CFLAGS=${CC/$BLS_CCACHE\ /}
-BLS_CFLAGS="'${BLS_CFLAGS/$BLS_CC\ /}'"
-BLS_CXXFLAGS=${CXX/$BLS_CCACHE\ /}
-BLS_CXXFLAGS="'${BLS_CXXFLAGS/$BLS_CXX\ /}'"
-if test x$BLS_CCACHE != x/usr/bin/ccache; then
-    BLS_CCACHE=""
-    BLS_CC=${CC%%\ *}
-    BLS_CXX=${CXX%%\ *}
-    BLS_CFLAGS="'${CC/$BLS_CC\ /}'"
-    BLS_CXXFLAGS="'${CXX/$BLS_CXX\ /}'"
-fi
-
+BLS_CCACHE=""
+BLS_CC=`echo $CC | awk '{ print $1 }'`
+BLS_CC_RAW=${CC/$BLS_CCACHE/}
+BLS_CXX=`echo $CXX | awk '{ print $1 }'`
+BLS_CXX_RAW=${CXX/$BLS_CCACHE/}
+BLS_CFLAGS=${CC/$BLS_CC/}
+BLS_CXXFLAGS=${CXX/$BLS_CXX/}
 BLS_CCACHE_CMAKE=""
-if test x$BLS_CCACHE = x/usr/bin/ccache; then
+if test "x$use_ccache" != "xno"; then
+    BLS_CCACHE=`echo $CC | awk '{ print $1 }'`
+    BLS_CC=`echo $CC | awk '{ print $2 }'`
+    BLS_CC_RAW=${CC/$BLS_CCACHE\ /}
+    BLS_CXX=`echo $CXX | awk '{ print $2 }'`
+    BLS_CXX_RAW=${CXX/$BLS_CCACHE\ /}
+    BLS_CFLAGS=${CC/$BLS_CCACHE\ $BLS_CC/}
+    BLS_CXXFLAGS=${CXX/$BLS_CCACHE\ $BLS_CXX/}
     BLS_CCACHE_CMAKE=-DCMAKE_CXX_COMPILER_LAUNCHER=$BLS_CCACHE
 fi
+
+BLS_CFLAGS=`echo $BLS_CFLAGS $CFLAGS | awk '{ print $0 }'`
+BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
+BLS_CFLAGS="'$BLS_CFLAGS'"
+BLS_CXXFLAGS="'$BLS_CXXFLAGS'"
 
 CONFDIR=$ac_abs_confdir
 CONFPWD=$ac_pwd
@@ -1304,33 +1306,37 @@ AC_CONFIG_COMMANDS([src/bls/build],
                    [rm -rf $CONFPWD/src/bls/build/* || true && \
                     mkdir -p $CONFPWD/src/bls/build || true && \
                     export CC=$CC && \
-                    export CFLAGS=$BLS_CFLAGS && \
                     export CXX=$CXX && \
-                    export CXXFLAGS=$BLS_CXXFLAGS && \
+                    export CFLAGS=$CFLAGS && \
+                    export CXXFLAGS=$CXXFLAGS && \
+                    export CPPFLAGS=$CPPFLAGS && \
                     export LDFLAGS=$LDFLAGS && \
                     cmake -B$CONFPWD/src/bls/build -H$CONFDIR/src/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
-                    $BLS_AR \
+                    -DCMAKE_CXX_COMPILER=$BLS_CXX \
                     $BLS_CCACHE_CMAKE \
+                    $BLS_AR \
                     $BLS_RANLIB && \
                     printf 'distdir:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile],
                    [CONFDIR=$CONFDIR
                     CONFPWD=$CONFPWD
+                    CC=$BLS_CC_RAW
+                    CXX=$BLS_CXX_RAW
+                    CFLAGS=$BLS_CFLAGS
+                    CXXFLAGS=$BLS_CXXFLAGS
+                    CPPFLAGS=$CPPFLAGS
+                    BLS_CC=$BLS_CC
+                    BLS_CXX=$BLS_CXX
                     BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
-                    CC=$CC
-                    CXX=$CXX
                     BLS_AR=$BLS_AR
                     BLS_RANLIB=$BLS_RANLIB
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
-                    BLS_WSIZE=$BLS_WSIZE
-                    BLS_PREFIX=$BLS_PREFIX
-                    BLS_CFLAGS=$BLS_CFLAGS
-                    BLS_CXXFLAGS=$BLS_CXXFLAGS])
+                    BLS_WSIZE=$BLS_WSIZE])
 
 AC_OUTPUT
 
@@ -1370,6 +1376,13 @@ echo
 echo "  bls OPSYS     = $BLS_OPSYS"
 echo "  bls SEED      = $BLS_SEED"
 echo "  bls WSIZE     = $BLS_WSIZE"
+echo "  bls CCACHE    = $BLS_CCACHE"
+echo "  bls CC        = $BLS_CC"
+echo "  bls CC_RAW    = $BLS_CC_RAW"
+echo "  bls CXX       = $BLS_CXX"
+echo "  bls CXX_RAW   = $BLS_CXX_RAW"
+echo "  bls CFLAGS    = $BLS_CFLAGS"
+echo "  bls CXXFLAGS  = $BLS_CXXFLAGS"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
