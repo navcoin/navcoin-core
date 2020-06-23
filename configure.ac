@@ -1270,7 +1270,7 @@ if test "x$TARGET_OS" = "xdarwin"; then
 fi
 
 BLS_HOST="${host%%-*}"
-if test "x$BLS_HOST" = "xi686" || x$BLS_HOST = xarm; then
+if test "x$BLS_HOST" = "xi686" || test "x$BLS_HOST" = "xarm"; then
     BLS_WSIZE=32
 fi
 
