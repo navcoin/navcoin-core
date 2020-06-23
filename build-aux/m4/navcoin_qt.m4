@@ -79,25 +79,12 @@ AC_DEFUN([NAVCOIN_QT_INIT],[
   AC_SUBST(QT_TRANSLATION_DIR,$qt_translation_path)
 ])
 
-dnl Find the appropriate version of Qt libraries and includes.
-dnl Inputs: $1: Whether or not pkg-config should be used. yes|no. Default: yes.
-dnl Inputs: $2: If $1 is "yes" and --with-gui=auto, which qt version should be
-dnl         tried first.
-dnl Outputs: See _NAVCOIN_QT_FIND_LIBS_*
+dnl Find Qt libraries and includes.
+dnl Outputs: See _NAVCOIN_QT_FIND_LIBS
 dnl Outputs: Sets variables for all qt-related tools.
 dnl Outputs: navcoin_enable_qt, navcoin_enable_qt_dbus, navcoin_enable_qt_test
 AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
-  use_pkgconfig=$1
-
-  if test "x$use_pkgconfig" = x; then
-    use_pkgconfig=yes
-  fi
-
-  if test "x$use_pkgconfig" = xyes; then
-    NAVCOIN_QT_CHECK([_NAVCOIN_QT_FIND_LIBS_WITH_PKGCONFIG])
-  else
-    NAVCOIN_QT_CHECK([_NAVCOIN_QT_FIND_LIBS_WITHOUT_PKGCONFIG])
-  fi
+  NAVCOIN_QT_CHECK([_NAVCOIN_QT_FIND_LIBS])
 
   dnl This is ugly and complicated. Yuck. Works as follows:
   dnl For Qt5, we can check a header to find out whether Qt is build
@@ -116,8 +103,6 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
   if test "x$navcoin_cv_static_qt" = xyes; then
     _NAVCOIN_QT_FIND_STATIC_PLUGINS
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
-    _NAVCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
-    AC_DEFINE(QT_QPA_PLATFORM_MINIMAL, 1, [Define this symbol if the minimal qt platform exists])
     if test "x$TARGET_OS" = xwindows; then
       _NAVCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)],[-lqwindows])
       AC_DEFINE(QT_QPA_PLATFORM_WINDOWS, 1, [Define this symbol if the qt platform is windows])
@@ -128,15 +113,16 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
       AX_CHECK_LINK_FLAG([[-framework IOKit]],[QT_LIBS="$QT_LIBS -framework IOKit"],[AC_MSG_ERROR(could not iokit framework)])
       _NAVCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin)],[-lqcocoa])
       AC_DEFINE(QT_QPA_PLATFORM_COCOA, 1, [Define this symbol if the qt platform is cocoa])
+    elif test "x$TARGET_OS" = xandroid; then
+      QT_LIBS="-Wl,--export-dynamic,--undefined=JNI_OnLoad -lqtforandroid -ljnigraphics -landroid -lqtfreetype -lQt5EglSupport $QT_LIBS"
+      AC_DEFINE(QT_QPA_PLATFORM_ANDROID, 1, [Define this symbol if the qt platform is android])
     fi
-    _NAVCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QSvgPlugin)],[-lqsvg])
-    _NAVCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QSvgIconPlugin)],[-lqsvgicon])
   fi
   CPPFLAGS=$TEMP_CPPFLAGS
   CXXFLAGS=$TEMP_CXXFLAGS
   ])
 
-  if test "x$use_pkgconfig$qt_bin_path" = xyes; then
+  if test "x$qt_bin_path" = x; then
     qt_bin_path="`$PKG_CONFIG --variable=host_bins Qt5Core 2>/dev/null`"
   fi
 
@@ -210,7 +196,7 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
 
 
   dnl enable qt support
-  AC_MSG_CHECKING(whether to build ]AC_PACKAGE_NAME[ GUI)
+  AC_MSG_CHECKING([whether to build ]AC_PACKAGE_NAME[ GUI])
   NAVCOIN_QT_CHECK([
     navcoin_enable_qt=yes
     navcoin_enable_qt_test=yes
@@ -230,7 +216,11 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
   ],[
     navcoin_enable_qt=no
   ])
-  AC_MSG_RESULT([$navcoin_enable_qt (Qt5)])
+  if test x$navcoin_enable_qt = xyes; then
+    AC_MSG_RESULT([$navcoin_enable_qt ($QT_LIB_PREFIX)])
+  else
+    AC_MSG_RESULT([$navcoin_enable_qt])
+  fi
 
   AC_SUBST(QT_PIE_FLAGS)
   AC_SUBST(QT_INCLUDES)
@@ -248,57 +238,15 @@ dnl All macros below are internal and should _not_ be used from the main
 dnl configure.ac.
 dnl ----
 
-dnl Internal. Check included version of Qt against minimum specified in doc/dependencies.md
-dnl Requires: INCLUDES must be populated as necessary.
-dnl Output: navcoin_cv_qt5=yes|no
-AC_DEFUN([_NAVCOIN_QT_CHECK_QT5],[
-  AC_CACHE_CHECK(for Qt 5, navcoin_cv_qt5,[
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #include <QtCore/qconfig.h>
-      #ifndef QT_VERSION
-      #  include <QtCore/qglobal.h>
-      #endif
-    ]],
-    [[
-      #if QT_VERSION < 0x050501
-      choke
-      #endif
-    ]])],
-    [navcoin_cv_qt5=yes],
-    [navcoin_cv_qt5=no])
-])])
-
-dnl Internal. Check if the included version of Qt is greater than Qt58.
-dnl Requires: INCLUDES must be populated as necessary.
-dnl Output: navcoin_cv_qt5=yes|no
-AC_DEFUN([_NAVCOIN_QT_CHECK_QT58],[
-  AC_CACHE_CHECK(for > Qt 5.7, navcoin_cv_qt58,[
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #include <QtCore/qconfig.h>
-      #ifndef QT_VERSION
-      #  include <QtCore/qglobal.h>
-      #endif
-    ]],
-    [[
-      #if QT_VERSION_MINOR < 8
-      choke
-      #endif
-    ]])],
-    [navcoin_cv_qt58=yes],
-    [navcoin_cv_qt58=no])
-])])
-
-
 dnl Internal. Check if the linked version of Qt was built as static libs.
 dnl Requires: Qt5.
 dnl Requires: INCLUDES and LIBS must be populated as necessary.
 dnl Output: navcoin_cv_static_qt=yes|no
-dnl Output: Defines QT_STATICPLUGIN if plugins are static.
 AC_DEFUN([_NAVCOIN_QT_IS_STATIC],[
   AC_CACHE_CHECK(for static Qt, navcoin_cv_static_qt,[
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QtCore/qconfig.h>
-        #ifndef QT_VERSION OR QT_VERSION_STR
+        #ifndef QT_VERSION
         #  include <QtCore/qglobal.h>
         #endif
       ]],
@@ -310,9 +258,6 @@ AC_DEFUN([_NAVCOIN_QT_IS_STATIC],[
       [navcoin_cv_static_qt=yes],
       [navcoin_cv_static_qt=no])
     ])
-  if test "x$navcoin_cv_static_qt" = xyes; then
-    AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol for static Qt plugins])
-  fi
 ])
 
 dnl Internal. Check if the link-requirements for static plugins are met.
@@ -339,80 +284,42 @@ dnl Inputs: qt_plugin_path. optional.
 dnl Outputs: QT_LIBS is appended
 AC_DEFUN([_NAVCOIN_QT_FIND_STATIC_PLUGINS],[
     if test "x$qt_plugin_path" != x; then
-      QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms -L$qt_plugin_path/imageformats -L$qt_plugin_path/iconengines"
+      QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms"
       if test -d "$qt_plugin_path/accessible"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
       fi
-     if test "x$use_pkgconfig" = xyes; then
-     : dnl
-     m4_ifdef([PKG_CHECK_MODULES],[
-       if test x$navcoin_cv_qt58 = xno; then
-         PKG_CHECK_MODULES([QSVG], [QSVG], [QT_LIBS="$QSVG_LIBS $QT_LIBS"])
-         PKG_CHECK_MODULES([QTPLATFORM], [Qt5PlatformSupport], [QT_LIBS="$QTPLATFORM_LIBS $QT_LIBS"])
-       else
-         PKG_CHECK_MODULES([QTFONTDATABASE], [Qt5FontDatabaseSupport], [QT_LIBS="-lQt5FontDatabaseSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTEVENTDISPATCHER], [Qt5EventDispatcherSupport], [QT_LIBS="-lQt5EventDispatcherSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTTHEME], [Qt5ThemeSupport], [QT_LIBS="-lQt5ThemeSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTDEVICEDISCOVERY], [Qt5DeviceDiscoverySupport], [QT_LIBS="-lQt5DeviceDiscoverySupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTACCESSIBILITY], [Qt5AccessibilitySupport], [QT_LIBS="-lQt5AccessibilitySupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTFB], [Qt5FbSupport], [QT_LIBS="-lQt5FbSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTSVG], [Qt5Svg], [QT_LIBS="$QTSVG_LIBS $QT_LIBS"])
-       fi
-       if test "x$TARGET_OS" = xlinux; then
-         PKG_CHECK_MODULES([X11XCB], [x11-xcb], [QT_LIBS="$X11XCB_LIBS $QT_LIBS"])
-         PKG_CHECK_MODULES([QTXCBQPA], [Qt5XcbQpa], [QT_LIBS="$QTXCBQPA_LIBS $QT_LIBS"])
-       elif test "x$TARGET_OS" = xdarwin; then
-         PKG_CHECK_MODULES([QTCLIPBOARD], [Qt5ClipboardSupport], [QT_LIBS="-lQt5ClipboardSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTGRAPHICS], [Qt5GraphicsSupport], [QT_LIBS="-lQt5GraphicsSupport $QT_LIBS"])
-         PKG_CHECK_MODULES([QTCGL], [Qt5CglSupport], [QT_LIBS="-lQt5CglSupport $QT_LIBS"])
-       fi
-     ])
-     else
-       if test "x$TARGET_OS" = xwindows; then
-         AC_CACHE_CHECK(for Qt >= 5.6, navcoin_cv_need_platformsupport,[
-           AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-               #include <QtCore/qconfig.h>
-               #ifndef QT_VERSION
-               #  include <QtCore/qglobal.h>
-               #endif
-             ]],
-             [[
-               #if QT_VERSION < 0x050600 || QT_VERSION_MINOR < 6
-               choke
-               #endif
-             ]])],
-           [navcoin_cv_need_platformsupport=yes],
-           [navcoin_cv_need_platformsupport=no])
-         ])
-         if test "x$navcoin_cv_need_platformsupport" = xyes; then
-           if test x$navcoin_cv_qt58 = xno; then
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}PlatformSupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXPlatformSupport not found)))
-           else
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}FontDatabaseSupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXFontDatabaseSupport not found)))
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}EventDispatcherSupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXEventDispatcherSupport not found)))
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}ThemeSupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXThemeSupport not found)))
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}FbSupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXFbSupport not found)))
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}DeviceDiscoverySupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXDeviceDiscoverySupport not found)))
-             NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}AccessibilitySupport],[main],,NAVCOIN_QT_FAIL(lib$QT_LIB_PREFIXAccessibilitySupport not found)))
-             QT_LIBS="$QT_LIBS -lversion -ldwmapi -luxtheme"
-           fi
-         fi
-       fi
-     fi
-   fi
+      if test -d "$qt_plugin_path/platforms/android"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
+      fi
+      m4_ifdef([PKG_CHECK_MODULES],[
+        if test x$navcoin_cv_qt58 = xno; then
+          PKG_CHECK_MODULES([QTPLATFORM], [Qt5PlatformSupport], [QT_LIBS="$QTPLATFORM_LIBS $QT_LIBS"])
+        else
+          PKG_CHECK_MODULES([QTFONTDATABASE], [Qt5FontDatabaseSupport], [QT_LIBS="-lQt5FontDatabaseSupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTEVENTDISPATCHER], [Qt5EventDispatcherSupport], [QT_LIBS="-lQt5EventDispatcherSupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTTHEME], [Qt5ThemeSupport], [QT_LIBS="-lQt5ThemeSupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTDEVICEDISCOVERY], [Qt5DeviceDiscoverySupport], [QT_LIBS="-lQt5DeviceDiscoverySupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTACCESSIBILITY], [Qt5AccessibilitySupport], [QT_LIBS="-lQt5AccessibilitySupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTFB], [Qt5FbSupport], [QT_LIBS="-lQt5FbSupport $QT_LIBS"])
+        fi
+        if test "x$TARGET_OS" = xlinux; then
+          PKG_CHECK_MODULES([QTXCBQPA], [Qt5XcbQpa], [QT_LIBS="$QTXCBQPA_LIBS $QT_LIBS"])
+        elif test "x$TARGET_OS" = xdarwin; then
+          PKG_CHECK_MODULES([QTCLIPBOARD], [Qt5ClipboardSupport], [QT_LIBS="-lQt5ClipboardSupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTGRAPHICS], [Qt5GraphicsSupport], [QT_LIBS="-lQt5GraphicsSupport $QT_LIBS"])
+          PKG_CHECK_MODULES([QTCGL], [Qt5CglSupport], [QT_LIBS="-lQt5CglSupport $QT_LIBS"])
+        fi
+      ])
+    fi
 ])
 
 dnl Internal. Find Qt libraries using pkg-config.
-dnl Inputs: navcoin_qt_want_version (from --with-gui=). The version to check
-dnl         first.
-dnl Inputs: $1: If navcoin_qt_want_version is "auto", check for this version
-dnl         first.
 dnl Outputs: All necessary QT_* variables are set.
 dnl Outputs: have_qt_test and have_qt_dbus are set (if applicable) to yes|no.
-AC_DEFUN([_NAVCOIN_QT_FIND_LIBS_WITH_PKGCONFIG],[
+AC_DEFUN([_NAVCOIN_QT_FIND_LIBS],[
   m4_ifdef([PKG_CHECK_MODULES],[
     QT_LIB_PREFIX=Qt5
-    qt5_modules="Qt5Core Qt5Gui Qt5Network Qt5Widgets Qt5Svg"
+    qt5_modules="Qt5Core Qt5Gui Qt5Network Qt5Widgets"
     NAVCOIN_QT_CHECK([
       PKG_CHECK_MODULES([QT5], [$qt5_modules], [QT_INCLUDES="$QT5_CFLAGS"; QT_LIBS="$QT5_LIBS" have_qt=yes],[have_qt=no])
 
@@ -429,87 +336,4 @@ AC_DEFUN([_NAVCOIN_QT_FIND_LIBS_WITH_PKGCONFIG],[
     ])
   ])
   true; dnl
-])
-
-dnl Internal. Find Qt libraries without using pkg-config. Version is deduced
-dnl from the discovered headers.
-dnl Inputs: navcoin_qt_want_version (from --with-gui=). The version to use.
-dnl         If "auto", the version will be discovered by _NAVCOIN_QT_CHECK_QT5.
-dnl Outputs: All necessary QT_* variables are set.
-dnl Outputs: have_qt_test and have_qt_dbus are set (if applicable) to yes|no.
-AC_DEFUN([_NAVCOIN_QT_FIND_LIBS_WITHOUT_PKGCONFIG],[
-  TEMP_CPPFLAGS="$CPPFLAGS"
-  TEMP_CXXFLAGS="$CXXFLAGS"
-  CXXFLAGS="$PIC_FLAGS $CXXFLAGS"
-  TEMP_LIBS="$LIBS"
-  NAVCOIN_QT_CHECK([
-    if test "x$qt_include_path" != x; then
-      QT_INCLUDES="-I$qt_include_path -I$qt_include_path/QtCore -I$qt_include_path/QtGui -I$qt_include_path/QtWidgets -I$qt_include_path/QtNetwork -I$qt_include_path/QtTest -I$qt_include_path/QtDBus -I$qt_include_path/QtCharts -I$qt_include_path/QtSvg"
-      CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
-    fi
-  ])
-
-  NAVCOIN_QT_CHECK([AC_CHECK_HEADER([QtPlugin],,NAVCOIN_QT_FAIL(QtCore headers missing))])
-  NAVCOIN_QT_CHECK([AC_CHECK_HEADER([QApplication],, NAVCOIN_QT_FAIL(QtGui headers missing))])
-  NAVCOIN_QT_CHECK([AC_CHECK_HEADER([QLocalSocket],, NAVCOIN_QT_FAIL(QtNetwork headers missing))])
-  NAVCOIN_QT_CHECK([AC_CHECK_HEADER([QtSvg],, NAVCOIN_QT_FAIL(QtSvg headers missing))])
-
-  NAVCOIN_QT_CHECK([
-    if test "x$navcoin_qt_want_version" = xauto; then
-      _NAVCOIN_QT_CHECK_QT5
-      _NAVCOIN_QT_CHECK_QT58
-    fi
-    QT_LIB_PREFIX=Qt5
-  ])
-
-  NAVCOIN_QT_CHECK([
-    LIBS=
-    if test "x$qt_lib_path" != x; then
-      LIBS="$LIBS -L$qt_lib_path"
-    fi
-
-    if test "x$TARGET_OS" = xwindows; then
-      AC_CHECK_LIB([imm32],      [main],, NAVCOIN_QT_FAIL(libimm32 not found))
-    fi
-  ])
-
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([z] ,[main],,AC_MSG_WARN([zlib not found. Assuming qt has it built-in])))
-  NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([jpeg_create_decompress] ,[qtjpeg jpeg],,AC_MSG_WARN([libjpeg not found. Assuming qt has it built-in])))
-  if test x$navcoin_cv_qt58 = xno; then
-    NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([png_error] ,[qtpng png],,AC_MSG_WARN([libpng not found. Assuming qt has it built-in])))
-    NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([pcre16_exec], [qtpcre pcre16],,AC_MSG_WARN([libpcre16 not found. Assuming qt has it built-in])))
-  else
-    NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([png_error] ,[qtlibpng png],,AC_MSG_WARN([libpng not found. Assuming qt has it built-in])))
-    NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([pcre2_match_16], [qtpcre2 libqtpcre2],,AC_MSG_WARN([libqtpcre2 not found. Assuming qt has it built-in])))
-  fi
-  NAVCOIN_QT_CHECK(AC_SEARCH_LIBS([hb_ot_tags_from_script] ,[qtharfbuzzng qtharfbuzz harfbuzz],,AC_MSG_WARN([libharfbuzz not found. Assuming qt has it built-in or support is disabled])))
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}Core]   ,[main],,NAVCOIN_QT_FAIL(lib${QT_LIB_PREFIX}Core not found)))
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}Gui]    ,[main],,NAVCOIN_QT_FAIL(lib${QT_LIB_PREFIX}Gui not found)))
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}Svg]    ,[main],,NAVCOIN_QT_FAIL(lib${QT_LIB_PREFIX}Svg not found)))
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}Network],[main],,NAVCOIN_QT_FAIL(lib${QT_LIB_PREFIX}Network not found)))
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}Widgets],[main],,NAVCOIN_QT_FAIL(lib${QT_LIB_PREFIX}Widgets not found)))
-  QT_LIBS="$LIBS"
-  LIBS="$TEMP_LIBS"
-
-  NAVCOIN_QT_CHECK([
-    LIBS=
-    if test "x$qt_lib_path" != x; then
-      LIBS="-L$qt_lib_path"
-    fi
-    AC_CHECK_LIB([${QT_LIB_PREFIX}Test],      [main],, have_qt_test=no)
-    AC_CHECK_HEADER([QTest],, have_qt_test=no)
-    QT_TEST_LIBS="$LIBS"
-    if test "x$use_dbus" != xno; then
-      LIBS=
-      if test "x$qt_lib_path" != x; then
-        LIBS="-L$qt_lib_path"
-      fi
-      AC_CHECK_LIB([${QT_LIB_PREFIX}DBus],      [main],, have_qt_dbus=no)
-      AC_CHECK_HEADER([QtDBus],, have_qt_dbus=no)
-      QT_DBUS_LIBS="$LIBS"
-    fi
-  ])
-  CPPFLAGS="$TEMP_CPPFLAGS"
-  CXXFLAGS="$TEMP_CXXFLAGS"
-  LIBS="$TEMP_LIBS"
 ])
