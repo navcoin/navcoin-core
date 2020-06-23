@@ -878,7 +878,6 @@ if test x$use_pkgconfig = xyes; then
         NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
       NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts], ,[NAVCOIN_QT_FAIL(qtcharts not found)])])
-      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([SVG], [Qt5Svg], ,[NAVCOIN_QT_FAIL(qtsvg not found)])])
       if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
         PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
         if test x$TARGET_OS != xwindows; then
@@ -943,7 +942,6 @@ else
   fi
 
   NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main], [CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(qtcharts not found))])
-  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Svg], [main], [CHARTS_LIBS=-lQt5Svg], NAVCOIN_QT_FAIL(qtsvg not found))])
   if test x$use_qr != xno; then
     NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main], [QR_LIBS=-lqrencode], [have_qrencode=no])])
     NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h], , have_qrencode=no)])
