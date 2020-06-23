@@ -1257,8 +1257,8 @@ AC_CONFIG_SUBDIRS([src/tor])
 BLS_WSIZE=64
 BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
-BLS_AR=
-BLS_RANLIB=
+BLS_AR=""
+BLS_RANLIB=""
 if test "x$TARGET_OS" = "xwindows"; then
     BLS_OPSYS="Windows"
     BLS_SEED="WCGR"
@@ -1270,9 +1270,13 @@ if test "x$TARGET_OS" = "xdarwin"; then
 fi
 
 BLS_HOST="${host%%-*}"
-if test "x$BLS_HOST" = "xi686" || test "x$BLS_HOST" = "xarm"; then
+
+case $host in
+# Need to check WSIZE value based on host
+i?86-* | arm*)
     BLS_WSIZE=32
-fi
+;;
+esac
 
 BLS_CCACHE=""
 BLS_CC=`echo $CC | awk '{ print $1 }'`
@@ -1298,20 +1302,17 @@ BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
 BLS_CFLAGS="'$BLS_CFLAGS'"
 BLS_CXXFLAGS="'$BLS_CXXFLAGS'"
 
-CONFDIR=$ac_abs_confdir
-CONFPWD=$ac_pwd
-
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
-                   [rm -rf $CONFPWD/src/bls/build/* || true && \
-                    mkdir -p $CONFPWD/src/bls/build || true && \
+                   [rm -rf src/bls/build/* || true && \
+                    mkdir -p src/bls/build || true && \
                     export CC=$CC && \
                     export CXX=$CXX && \
                     export CFLAGS=$CFLAGS && \
                     export CXXFLAGS=$CXXFLAGS && \
                     export CPPFLAGS=$CPPFLAGS && \
                     export LDFLAGS=$LDFLAGS && \
-                    cmake -B$CONFPWD/src/bls/build -H$CONFDIR/src/bls \
+                    cmake -Bsrc/bls/build -Hsrc/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
                     -DOPSYS=$BLS_OPSYS \
                     -DSEED=$BLS_SEED \
@@ -1320,11 +1321,9 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
-                    printf 'distdir:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile && \
-                    printf 'distclean:\n\techo\n\n' >> $CONFPWD/src/bls/build/Makefile],
-                   [CONFDIR=$CONFDIR
-                    CONFPWD=$CONFPWD
-                    CC=$BLS_CC_RAW
+                    printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
+                    printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
+                   [CC=$BLS_CC_RAW
                     CXX=$BLS_CXX_RAW
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS

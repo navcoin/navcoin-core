@@ -6,7 +6,8 @@
 
 export LC_ALL=C.UTF-8
 
-cd build || (echo "could not enter build directory"; exit 1)
+# TODO: Add proper out of source build support
+# cd build || (echo "could not enter build directory"; exit 1)
 
 if [ "$RUN_UNIT_TESTS" = "true" ]; then
   BEGIN_FOLD unit-tests
