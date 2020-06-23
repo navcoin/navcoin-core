@@ -90,7 +90,7 @@ jobs:
         PACKAGES="nsis g++-mingw-w64-i686 wine-binfmt wine32"
         RUN_FUNCTIONAL_TESTS=false
         GOAL="install"
-        NAVCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
+        NAVCOIN_CONFIG="--disable-gcc-hardening --enable-reduce-exports --disable-gui-tests"
 
     - stage: test
       name: 'Win64  [GOAL: install]  [no functional tests]'
@@ -99,7 +99,7 @@ jobs:
         PACKAGES="nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
         RUN_FUNCTIONAL_TESTS=false
         GOAL="install"
-        NAVCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
+        NAVCOIN_CONFIG="--disable-gcc-hardening --enable-reduce-exports --disable-gui-tests"
 
     - stage: test
       name: 'i686 Linux  [GOAL: install] [dash shell]'
