@@ -489,7 +489,7 @@ bool HashOnchainActive(const uint256 &hash);
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
                      int start = 0, int end = 0);
-bool GetAddressHistory(uint160 addressHash, 
+bool GetAddressHistory(uint160 addressHash, uint160 addressHash2,
                      std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressHistory,
                      AddressHistoryFilter filter = AddressHistoryFilter::ALL, int start = 0, int end = 0);
 bool GetAddressUnspent(uint160 addressHash, int type,

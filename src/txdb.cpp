@@ -689,22 +689,22 @@ bool CBlockTreeDB::EraseAddressHistory(const std::vector<std::pair<CAddressHisto
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash,
+bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
                                     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressIndex,
                                     AddressHistoryFilter filter, int start, int end) {
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     if (start > 0 && end > 0) {
-        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorHeightKey(addressHash, start)));
+        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorHeightKey(addressHash, addressHash2, start)));
     } else {
-        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorKey(addressHash)));
+        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorKey(addressHash, addressHash2)));
     }
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char,CAddressHistoryKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_ADDRESSHISTORY && key.second.hashBytes == addressHash) {
+        if (pcursor->GetKey(key) && key.first == DB_ADDRESSHISTORY && key.second.hashBytes == addressHash && key.second.hashBytes2 == addressHash2) {
             if (end > 0 && key.second.blockHeight > end) {
                 break;
             }

@@ -178,7 +178,7 @@ public:
                           int start = 0, int end = 0);
     bool WriteAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &vect);
     bool EraseAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &vect);
-    bool ReadAddressHistory(uint160 addressHash,
+    bool ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
                           std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressIndex,
                           AddressHistoryFilter filter = AddressHistoryFilter::ALL, int start = 0, int end = 0);
     bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);

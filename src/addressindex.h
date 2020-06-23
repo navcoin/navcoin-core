@@ -166,59 +166,71 @@ struct CAddressIndexKey {
 
 struct CAddressHistoryKey {
     uint160 hashBytes;
+    uint160 hashBytes2;
     int blockHeight;
     unsigned int txindex;
     uint256 txhash;
+    int txout;
     uint32_t time;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 64;
+        return 88;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
         hashBytes.Serialize(s, nType, nVersion);
+        hashBytes2.Serialize(s, nType, nVersion);
         // Heights are stored big-endian for key sorting in LevelDB
         ser_writedata32be(s, blockHeight);
         ser_writedata32be(s, txindex);
         txhash.Serialize(s, nType, nVersion);
         ser_writedata32be(s, time);
+        ser_writedata32be(s, txout);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
         hashBytes.Unserialize(s, nType, nVersion);
+        hashBytes2.Unserialize(s, nType, nVersion);
         blockHeight = ser_readdata32be(s);
         txindex = ser_readdata32be(s);
         txhash.Unserialize(s, nType, nVersion);
         time = ser_readdata32be(s);
+        txout = ser_readdata32be(s);
     }
 
     bool operator<(const CAddressHistoryKey& b) const {
         if (hashBytes == b.hashBytes) {
-            if (blockHeight == b.blockHeight) {
-                if (txindex == b.txindex) {
-                    if (txhash == b.txhash) {
-                        return time < b.time;
+            if (hashBytes2 == b.hashBytes2) {
+                if (blockHeight == b.blockHeight) {
+                    if (txindex == b.txindex) {
+                        if (txhash == b.txhash) {
+                            return time < b.time;
+                        } else {
+                            return txhash < b.txhash;
+                        }
                     } else {
-                        return txhash < b.txhash;
+                        return txindex < b.txindex;
                     }
                 } else {
-                    return txindex < b.txindex;
+                    return blockHeight < b.blockHeight;
                 }
             } else {
-                return blockHeight < b.blockHeight;
+                return hashBytes2 < b.hashBytes2;
             }
         } else {
             return hashBytes < b.hashBytes;
         }
     }
 
-    CAddressHistoryKey(uint160 addressHash, int height, int blockindex,
-                     uint256 txid, uint32_t time_) {
+    CAddressHistoryKey(uint160 addressHash, uint160 addressHash2, int height, int blockindex,
+                     uint256 txid, uint32_t time_, int txout_) {
         hashBytes = addressHash;
+        hashBytes2 = addressHash2;
         blockHeight = height;
         txindex = blockindex;
         txhash = txid;
         time = time_;
+        txout = txout_;
     }
 
     CAddressHistoryKey() {
@@ -227,10 +239,12 @@ struct CAddressHistoryKey {
 
     void SetNull() {
         hashBytes.SetNull();
+        hashBytes2.SetNull();
         blockHeight = 0;
         txindex = 0;
         txhash.SetNull();
         time = 0;
+        txout = 0;
     }
 };
 
@@ -355,21 +369,25 @@ struct CAddressIndexIteratorHeightKey {
 
 struct CAddressHistoryIteratorKey {
     uint160 hashBytes;
+    uint160 hashBytes2;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 20;
+        return 40;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
         hashBytes.Serialize(s, nType, nVersion);
+        hashBytes2.Serialize(s, nType, nVersion);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
         hashBytes.Unserialize(s, nType, nVersion);
+        hashBytes2.Unserialize(s, nType, nVersion);
     }
 
-    CAddressHistoryIteratorKey(uint160 addressHash) {
+    CAddressHistoryIteratorKey(uint160 addressHash, uint160 addressHash2) {
         hashBytes = addressHash;
+        hashBytes2 = addressHash2;
     }
 
     CAddressHistoryIteratorKey() {
@@ -378,29 +396,34 @@ struct CAddressHistoryIteratorKey {
 
     void SetNull() {
         hashBytes.SetNull();
+        hashBytes2.SetNull();
     }
 };
 
 struct CAddressHistoryIteratorHeightKey {
     uint160 hashBytes;
+    uint160 hashBytes2;
     int blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 24;
+        return 44;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
         hashBytes.Serialize(s, nType, nVersion);
+        hashBytes2.Serialize(s, nType, nVersion);
         ser_writedata32be(s, blockHeight);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
         hashBytes.Unserialize(s, nType, nVersion);
+        hashBytes2.Unserialize(s, nType, nVersion);
         blockHeight = ser_readdata32be(s);
     }
 
-    CAddressHistoryIteratorHeightKey(uint160 addressHash, int height) {
+    CAddressHistoryIteratorHeightKey(uint160 addressHash, uint160 addressHash2, int height) {
         hashBytes = addressHash;
+        hashBytes2 = addressHash2;
         blockHeight = height;
     }
 
@@ -410,6 +433,7 @@ struct CAddressHistoryIteratorHeightKey {
 
     void SetNull() {
         hashBytes.SetNull();
+        hashBytes2.SetNull();
         blockHeight = 0;
     }
 };
