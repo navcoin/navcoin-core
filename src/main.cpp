@@ -2593,7 +2593,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     // undo unspent index
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, hashBytes, hash, k), CAddressUnspentValue()));
 
-                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2609,12 +2609,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, true), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, false), out.nValue));
 
                     // restore unspent index
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
-                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2632,13 +2632,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     addressSpending.GetIndexKey(hashBytesSpending, type);
 
                     // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, true), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, false), out.nValue));
 
                     // restore unspent index
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
-                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2650,8 +2650,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     {
                         address.GetStakingAddress(addressStaking);
                         addressStaking.GetIndexKey(hashBytesStaking, type);
-                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime, k);
-                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime, k);
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime);
                         if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue()));
                         if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
@@ -2662,8 +2662,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     {
                         address.GetVotingAddress(addressVoting);
                         addressVoting.GetIndexKey(hashBytesVoting, type);
-                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime, k);
-                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime, k);
+                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime);
                         if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue()));
                         if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
@@ -2727,7 +2727,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
-                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2747,7 +2747,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
-                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2775,8 +2775,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
-                        CAddressHistoryKey addressHistoryKey(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKey2(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -2788,8 +2788,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         {
                             address.GetStakingAddress(addressStaking);
                             addressStaking.GetIndexKey(hashBytesStaking, type);
-                            CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime, j);
-                            CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime, j);
+                            CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime);
+                            CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime);
                             if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                                 addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue()));
                             if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
@@ -2800,8 +2800,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         {
                             address.GetVotingAddress(addressVoting);
                             addressVoting.GetIndexKey(hashBytesVoting, type);
-                            CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime, j);
-                            CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime, j);
+                            CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime);
+                            CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime);
                             if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
                                 addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue()));
                             if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
@@ -3790,7 +3790,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         uint160 hashBytes(hashBytes_);
                         addressType = 2;
 
-                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3804,7 +3804,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         CNavCoinAddress address(destination);
                         address.GetIndexKey(hashBytes, addressType);
 
-                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3824,8 +3824,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetIndexKey(hashBytes, addressType);
                         addresssSpending.GetIndexKey(hashBytesSpending, addressType);
 
-                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3839,8 +3839,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetStakingAddress(addressStaking);
                         addressStaking.GetIndexKey(hashBytesStaking, dummyType);
 
-                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3865,8 +3865,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetIndexKey(hashBytes, addressType);
                         addresssSpending.GetIndexKey(hashBytesSpending, addressType);
 
-                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKey) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3880,8 +3880,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetStakingAddress(addressStaking);
                         addressStaking.GetIndexKey(hashBytesStaking, dummyType);
 
-                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -3895,8 +3895,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         address.GetVotingAddress(addressVoting);
                         addressVoting.GetIndexKey(hashBytesVoting, dummyType);
 
-                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime, j);
-                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime, j);
+                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime);
 
                         if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
                             addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4013,7 +4013,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
-                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
@@ -4038,8 +4038,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
-                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4053,8 +4053,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     address.GetStakingAddress(addressStaking);
                     addressStaking.GetIndexKey(hashBytesStaking, type);
 
-                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4068,7 +4068,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     addressHistoryMap[addressHistoryKeyStaking2].stakable += out.nValue;
                     addressHistoryMap[addressHistoryKeyStaking2].voting_weight += out.nValue;
                 }
-
                 else if (out.scriptPubKey.IsColdStakingv2())
                 {
                     uint160 hashBytes, hashBytesStaking, hashBytesVoting, hashBytesSpending;
@@ -4087,8 +4086,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
-                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4103,8 +4102,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     address.GetVotingAddress(addressVoting);
                     addressVoting.GetIndexKey(hashBytesVoting, type);
 
-                    CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4119,8 +4118,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     address.GetStakingAddress(addressStaking);
                     addressStaking.GetIndexKey(hashBytesStaking, type);
 
-                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime, k);
-                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
@@ -4146,7 +4145,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
-                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime, k);
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
 
                     if (addressHistoryMap.count(addressHistoryKey) == 0)
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));

@@ -762,7 +762,7 @@ bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::p
                 if (!address.GetIndexKey(hashBytes, type)) {
                     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
                 }
-                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytes), AddressHistoryFilter::SPENDABLE));
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytes), AddressHistoryFilter::ALL));
             }
 
         }
@@ -1212,15 +1212,7 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         auto b_ = b.first;
 
         if (a_.blockHeight == b_.blockHeight) {
-            if (a_.txindex == b_.txindex) {
-                if (a_.txhash == b_.txhash) {
-                    return a_.time < b_.time;
-                } else {
-                    return a_.txhash < b_.txhash;
-                }
-            } else {
-                return a_.txindex < b_.txindex;
-            }
+            return a_.time < b_.time;
         } else {
             return a_.blockHeight < b_.blockHeight;
         }
@@ -1240,7 +1232,6 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         entry.pushKV("txindex", (uint64_t)(*it).first.txindex);
         entry.pushKV("time", (uint64_t)(*it).first.time);
         entry.pushKV("txid", (*it).first.txhash.ToString());
-        entry.pushKV("txout", (uint64_t)(*it).first.txout);
         CNavCoinAddress address;
         address.Set(CKeyID((*it).first.hashBytes2));
         entry.pushKV("address", address.ToString());

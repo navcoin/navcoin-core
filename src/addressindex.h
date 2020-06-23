@@ -170,11 +170,10 @@ struct CAddressHistoryKey {
     int blockHeight;
     unsigned int txindex;
     uint256 txhash;
-    int txout;
     uint32_t time;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 88;
+        return 84;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
@@ -185,7 +184,6 @@ struct CAddressHistoryKey {
         ser_writedata32be(s, txindex);
         txhash.Serialize(s, nType, nVersion);
         ser_writedata32be(s, time);
-        ser_writedata32be(s, txout);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
@@ -195,21 +193,16 @@ struct CAddressHistoryKey {
         txindex = ser_readdata32be(s);
         txhash.Unserialize(s, nType, nVersion);
         time = ser_readdata32be(s);
-        txout = ser_readdata32be(s);
     }
 
     bool operator<(const CAddressHistoryKey& b) const {
         if (hashBytes == b.hashBytes) {
             if (hashBytes2 == b.hashBytes2) {
                 if (blockHeight == b.blockHeight) {
-                    if (txindex == b.txindex) {
-                        if (txhash == b.txhash) {
-                            return time < b.time;
-                        } else {
-                            return txhash < b.txhash;
-                        }
+                    if (txhash == b.txhash) {
+                        return time < b.time;
                     } else {
-                        return txindex < b.txindex;
+                        return txhash < b.txhash;
                     }
                 } else {
                     return blockHeight < b.blockHeight;
@@ -223,14 +216,13 @@ struct CAddressHistoryKey {
     }
 
     CAddressHistoryKey(uint160 addressHash, uint160 addressHash2, int height, int blockindex,
-                     uint256 txid, uint32_t time_, int txout_) {
+                     uint256 txid, uint32_t time_) {
         hashBytes = addressHash;
         hashBytes2 = addressHash2;
         blockHeight = height;
         txindex = blockindex;
         txhash = txid;
         time = time_;
-        txout = txout_;
     }
 
     CAddressHistoryKey() {
@@ -244,7 +236,6 @@ struct CAddressHistoryKey {
         txindex = 0;
         txhash.SetNull();
         time = 0;
-        txout = 0;
     }
 };
 
