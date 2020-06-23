@@ -323,6 +323,8 @@ case $host in
      if test "x$CXXFLAGS_overridden" = "xno"; then
        CXXFLAGS="$CXXFLAGS -w"
      fi
+     # We need to build larger files
+     AX_CHECK_COMPILE_FLAG([-Wa,-mbig-obj],[CXXFLAGS="$CXXFLAGS -Wa,-mbig-obj"],,[[$CXXFLAG_WERROR]])
      case $host in
        i?86-*) WINDOWS_BITS=32 ;;
        x86_64-*) WINDOWS_BITS=64 ;;
@@ -875,7 +877,8 @@ if test x$use_pkgconfig = xyes; then
       if test x$use_qr != xno; then
         NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
-      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts],,[NAVCOIN_QT_FAIL(qtcharts not found)])])
+      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts], ,[NAVCOIN_QT_FAIL(qtcharts not found)])])
+      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([SVG], [Qt5Svg], ,[NAVCOIN_QT_FAIL(qtsvg not found)])])
       if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
         PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
         if test x$TARGET_OS != xwindows; then
@@ -939,10 +942,11 @@ else
     esac
   fi
 
-  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main],[CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(charts not found))])
+  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main], [CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(qtcharts not found))])
+  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Svg], [main], [CHARTS_LIBS=-lQt5Svg], NAVCOIN_QT_FAIL(qtsvg not found))])
   if test x$use_qr != xno; then
-    NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main],[QR_LIBS=-lqrencode], [have_qrencode=no])])
-    NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h],, have_qrencode=no)])
+    NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main], [QR_LIBS=-lqrencode], [have_qrencode=no])])
+    NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h], , have_qrencode=no)])
   fi
 fi
 
