@@ -1310,12 +1310,12 @@ dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
                    [rm -rf src/bls/build/* || true && \
                     mkdir -p src/bls/build || true && \
-                    export CC=$CC && \
-                    export CXX=$CXX && \
-                    export CFLAGS=$CFLAGS && \
-                    export CXXFLAGS=$CXXFLAGS && \
-                    export CPPFLAGS=$CPPFLAGS && \
-                    export LDFLAGS=$LDFLAGS && \
+                    CC=$CC \
+                    CXX=$CXX \
+                    CFLAGS=$CFLAGS \
+                    CXXFLAGS=$CXXFLAGS \
+                    CPPFLAGS=$CPPFLAGS \
+                    LDFLAGS=$LDFLAGS \
                     cmake -Bsrc/bls/build -Hsrc/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
                     -DOPSYS=$BLS_OPSYS \
