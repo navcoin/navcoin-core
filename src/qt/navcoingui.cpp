@@ -198,12 +198,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     windowTitle += " " + networkStyle->getTitleAddText();
 
 
-#ifndef Q_OS_MAC
     QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowIcon(networkStyle->getTrayAndWindowIcon());
-#else
-    MacDockIconHandler::instance()->setIcon(networkStyle->getAppIcon());
-#endif
     setWindowTitle(windowTitle);
 
 #if defined(Q_OS_MAC)
@@ -1160,6 +1156,8 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
 
 void NavCoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
 {
+    assert(QSystemTrayIcon::isSystemTrayAvailable());
+
 #ifndef Q_OS_MAC
     trayIcon = new QSystemTrayIcon(this);
     QString toolTip = tr("%1 client").arg(tr(PACKAGE_NAME)) + " " + networkStyle->getTitleAddText();
@@ -1186,8 +1184,8 @@ void NavCoinGUI::createTrayIconMenu()
 #else
     // Note: On Mac, the dock icon is used to provide the tray's functionality.
     MacDockIconHandler *dockIconHandler = MacDockIconHandler::instance();
-    dockIconHandler->setMainWindow((QMainWindow *)this);
-    trayIconMenu = dockIconHandler->dockMenu();
+    connect(dockIconHandler, &MacDockIconHandler::dockIconClicked, this, &NavCoinGUI::macosDockIconActivated);
+    trayIconMenu->setAsDockMenu();
 #endif
 
     // Configuration of the tray icon (or dock icon) icon menu
@@ -1215,6 +1213,12 @@ void NavCoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
         // Click on system tray icon triggers show/hide of the main window
         toggleHidden();
     }
+}
+#else
+void NavCoinGUI::macosDockIconActivated()
+{
+    show();
+    activateWindow();
 }
 #endif
 
