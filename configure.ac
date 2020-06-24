@@ -1300,6 +1300,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
+                    printf 'check:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
                    [CC=$BLS_CC_RAW
