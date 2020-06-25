@@ -23,6 +23,7 @@ packages:
 - "libtiff-tools"
 - "libtool"
 - "libz-dev"
+- "libpcap-dev"
 - "pkg-config"
 - "python3"
 - "python3-dev"
