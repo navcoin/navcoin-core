@@ -26,7 +26,7 @@ packages:
 - "python3-distutils"
 - "rename"
 - "zip"
-- "libpcap-dev"
+- "libcap-dev"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
