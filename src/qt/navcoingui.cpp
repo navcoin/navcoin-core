@@ -153,7 +153,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     openAction(0),
     showHelpMessageAction(0),
     trayIcon(0),
-    trayIconMenu(0),
+    trayIconMenu{new QMenu()},
     notificator(0),
     rpcConsole(0),
     helpMessageDialog(0),
