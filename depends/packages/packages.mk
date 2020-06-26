@@ -1,6 +1,6 @@
 packages:=boost openssl libevent zeromq curl gmp expat unbound zlib
 
-linux_packages = libseccomp
+linux_packages = libseccomp libcap
 
 qt_packages = qrencode
 
