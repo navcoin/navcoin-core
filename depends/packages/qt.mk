@@ -79,7 +79,6 @@ $(package)_config_opts += -qt-harfbuzz
 $(package)_config_opts += -system-zlib
 $(package)_config_opts += -static
 $(package)_config_opts += -silent
-$(package)_config_opts += -v
 $(package)_config_opts += -no-feature-bearermanagement
 $(package)_config_opts += -no-feature-colordialog
 $(package)_config_opts += -no-feature-commandlineparser
@@ -118,6 +117,10 @@ $(package)_config_opts += -no-feature-xml
 
 $(package)_config_opts_darwin = -no-dbus
 $(package)_config_opts_darwin += -no-opengl
+
+ifneq ($(host_os),darwin)
+$(package)_config_opts += -v
+endif
 
 ifneq ($(build_os),darwin)
 $(package)_config_opts_darwin += -xplatform macx-clang-linux
