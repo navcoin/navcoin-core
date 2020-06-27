@@ -38,7 +38,7 @@ extern unsigned nMaxDatacarrierBytes;
  * them to be valid. (but old blocks may not comply with) Currently just P2SH,
  * but in the future other flags may be added, such as a soft-fork to enforce
  * strict DER encoding.
- * 
+ *
  * Failing one of these tests may trigger a DoS ban - see CheckInputs() for
  * details.
  */
@@ -80,7 +80,7 @@ public:
     friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
 };
 
-/** 
+/**
  * A txout script template with a specific destination. It is either:
  *  * CNoDestination: no destination set
  *  * CKeyID: TX_PUBKEYHASH destination
@@ -89,7 +89,7 @@ public:
  *  * Pair of one CKeyID and one pair of two CKeyID: TX_COLDSTAKING_V2 destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, blsctDoublePublicKey, std::pair<CKeyID, std::pair<CKeyID, CKeyID>>, CScript> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, std::pair<CKeyID, CKeyID>, blsctDoublePublicKey, std::pair<CKeyID, std::pair<CKeyID, CKeyID>>, CScript> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 
