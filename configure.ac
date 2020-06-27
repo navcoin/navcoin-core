@@ -1278,8 +1278,8 @@ fi
 
 BLS_CFLAGS=`echo $BLS_CFLAGS $CFLAGS | awk '{ print $0 }'`
 BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
-BLS_CFLAGS="'$BLS_CFLAGS'"
-BLS_CXXFLAGS="'$BLS_CXXFLAGS'"
+BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS'"
+BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS'"
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
@@ -1289,7 +1289,6 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     CXX=$CXX \
                     CFLAGS=$CFLAGS \
                     CXXFLAGS=$CXXFLAGS \
-                    CPPFLAGS=$CPPFLAGS \
                     LDFLAGS=$LDFLAGS \
                     cmake -Bsrc/bls/build -Hsrc/bls \
                     -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
@@ -1307,7 +1306,6 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     CXX=$BLS_CXX_RAW
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS
-                    CPPFLAGS=$CPPFLAGS
                     BLS_CC=$BLS_CC
                     BLS_CXX=$BLS_CXX
                     BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
