@@ -1,0 +1,13 @@
+diff --git a/Make.Rules b/Make.Rules
+index fed00c9..26b370b 100644
+--- a/Make.Rules
++++ b/Make.Rules
+@@ -49,7 +49,7 @@ MINOR=36
+ KERNEL_HEADERS := $(topdir)/libcap/include/uapi
+ IPATH += -fPIC -I$(KERNEL_HEADERS) -I$(topdir)/libcap/include
+ 
+-CC := $(CROSS_COMPILE)gcc
++# CC := $(CROSS_COMPILE)gcc
+ DEFINES := -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+ CFLAGS := -O2 $(DEFINES)
+ BUILD_CC := $(CC)
