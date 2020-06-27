@@ -3499,7 +3499,6 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
                 "{\n"
                 "  \"walletversion\": xxxxx,       (numeric) the wallet version\n"
                 "  \"balance\": xxxxxxx,           (numeric) the total confirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
-                "  \"public_balance\": xxxxxxx,    (numeric) the total confirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"unconfirmed_balance\": xxx,   (numeric) the total unconfirmed balance of the wallet in " + CURRENCY_UNIT + "\n"		             "  \"private_balance\": xxx,       (numeric) the total confirmed private balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"unconfirmed_balance\": xxx,   (numeric) the total unconfirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"immature_balance\": xxxxxx,   (numeric) the total immature balance of the wallet in " + CURRENCY_UNIT + "\n"
@@ -3519,17 +3518,17 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("walletversion", pwalletMain->GetVersion());
-    obj.pushKV("public_balance",       ValueFromAmount(pwalletMain->GetBalance()));
-    obj.pushKV("private_balance", ValueFromAmount(pwalletMain->GetPrivateBalance()));
-    obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
-    obj.pushKV("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
+    obj.pushKV("walletversion",           pwalletMain->GetVersion());
+    obj.pushKV("balance",                 ValueFromAmount(pwalletMain->GetBalance()));
+    obj.pushKV("private_balance",         ValueFromAmount(pwalletMain->GetPrivateBalance()));
+    obj.pushKV("coldstaking_balance",     ValueFromAmount(pwalletMain->GetColdStakingBalance()));
+    obj.pushKV("unconfirmed_balance",     ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
     obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
-    obj.pushKV("private_balance_locked", ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
-    obj.pushKV("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance()));
-    obj.pushKV("txcount",       (int)pwalletMain->mapWallet.size());
-    obj.pushKV("keypoololdest", pwalletMain->GetOldestKeyPoolTime());
-    obj.pushKV("keypoolsize",   (int)pwalletMain->GetKeyPoolSize());
+    obj.pushKV("private_balance_locked",  ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
+    obj.pushKV("immature_balance",        ValueFromAmount(pwalletMain->GetImmatureBalance()));
+    obj.pushKV("txcount",                 (int)pwalletMain->mapWallet.size());
+    obj.pushKV("keypoololdest",           pwalletMain->GetOldestKeyPoolTime());
+    obj.pushKV("keypoolsize",             (int)pwalletMain->GetKeyPoolSize());
     if (pwalletMain->IsCrypted()) {
         obj.pushKV("unlocked_until", nWalletUnlockTime);
         obj.pushKV("unlocked_for_staking", fWalletUnlockStakingOnly);
