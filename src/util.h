@@ -50,6 +50,7 @@ extern bool fDebug;
 extern bool fPrintToConsole;
 extern bool fPrintToDebugLog;
 extern bool fServer;
+extern bool fTorServer;
 extern std::string strMiscWarning;
 extern bool fLogTimestamps;
 extern bool fLogTimeMicros;
