@@ -7,7 +7,7 @@ TEST_QT_H = \
   qt/test/uritests.h
 
 qt_test_test_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
-  $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(PROTOBUF_CFLAGS)
+  $(QT_INCLUDES) $(QT_TEST_INCLUDES)
 
 qt_test_test_navcoin_qt_SOURCES = \
   qt/test/test_main.cpp \
@@ -40,7 +40,6 @@ qt_test_test_navcoin_qt_LDADD += \
                                  $(QT_TEST_LIBS) \
                                  $(QT_LIBS) \
                                  $(QR_LIBS) \
-                                 $(PROTOBUF_LIBS) \
                                  $(BDB_LIBS) \
                                  $(LIBTOR) \
                                  $(ZLIB_LIBS) \
