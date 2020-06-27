@@ -156,6 +156,9 @@ $(NAVCOIND_BIN): FORCE
 $(NAVCOIN_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
+check-recursive:
+	$(MAKE) -C src check
+
 if USE_LCOV
 
 baseline.info:
@@ -218,8 +221,6 @@ total.coverage/.dirstamp: total_coverage.info
 cov: test_navcoin.coverage/.dirstamp total.coverage/.dirstamp
 
 endif
-
-check-recursive: $(MAKE) -C src check
 
 dist_noinst_SCRIPTS = autogen.sh
 
