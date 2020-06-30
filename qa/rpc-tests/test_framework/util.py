@@ -167,7 +167,7 @@ def initialize_datadir(dirname, n):
         f.write("dandelion=0\n")
         f.write("ntpminmeasures=-1\n")
         f.write("torserver=0\n")
-        f.write("-suppressblsctwarning=1\n")
+        f.write("suppressblsctwarning=1\n")
     return datadir
 
 def rpc_auth_pair(n):
