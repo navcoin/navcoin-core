@@ -932,6 +932,32 @@ void NavCoinGUI::setActiveMenu(int index)
     }
 }
 
+bool NavCoinGUI::checkSettingsSaved()
+{
+    // Make sure we have a model
+    if (!clientModel || !clientModel->getOptionsModel())
+        return true;
+
+    // Check if it's even been changed
+    if (!clientModel->getOptionsModel()->isDirty())
+        return true;
+
+    // Confirmation dialog
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
+            tr("You have not saved your options, are you sure you want to discard the changes?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    // They don't want to discard the changes I guess
+    if(btnRetVal == QMessageBox::No)
+        return false;
+
+    // Mark as clean
+    clientModel->getOptionsModel()->setDirty(false);
+
+    // Default is to return true
+    return true;
+}
+
 void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat)
 {
     if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
@@ -1239,6 +1265,9 @@ void NavCoinGUI::openClicked()
 
 void NavCoinGUI::gotoOverviewPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(0);
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
@@ -1246,6 +1275,9 @@ void NavCoinGUI::gotoOverviewPage()
 
 void NavCoinGUI::gotoHistoryPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(3);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
@@ -1253,6 +1285,9 @@ void NavCoinGUI::gotoHistoryPage()
 
 void NavCoinGUI::gotoCommunityFundPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(4);
     daoAction->setChecked(true);
     if (walletFrame) walletFrame->gotoCommunityFundPage();
@@ -1267,6 +1302,9 @@ void NavCoinGUI::gotoSettingsPage()
 
 void NavCoinGUI::gotoReceiveCoinsPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
@@ -1274,6 +1312,9 @@ void NavCoinGUI::gotoReceiveCoinsPage()
 
 void NavCoinGUI::gotoRequestPaymentPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
@@ -1281,6 +1322,9 @@ void NavCoinGUI::gotoRequestPaymentPage()
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(1);
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);

@@ -187,6 +187,41 @@ void OptionsDialog::setModel(OptionsModel *model)
     connect(ui->theme, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
     connect(ui->scaling, SIGNAL(valueChanged(int)), this, SLOT(showRestartWarning()));
     connect(ui->thirdPartyTxUrls, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
+
+    /* Main */
+    connect(ui->navcoinAtStartup, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->threadsScriptVerif, SIGNAL(valueChanged(int)), this, SLOT(markModelDirty()));
+    connect(ui->databaseCache, SIGNAL(valueChanged(int)), this, SLOT(markModelDirty()));
+
+    /* Wallet */
+    connect(ui->spendZeroConfChange, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->coinControlFeatures, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+
+    /* Network */
+    connect(ui->mapPortUpnp, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->allowIncoming, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+
+    connect(ui->connectSocks, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->proxyIp, SIGNAL(textChanged(const QString &)), this, SLOT(markModelDirty()));
+    connect(ui->proxyPort, SIGNAL(textChanged(const QString &)), this, SLOT(markModelDirty()));
+
+    connect(ui->connectSocksTor, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->proxyIpTor, SIGNAL(textChanged(const QString &)), this, SLOT(markModelDirty()));
+    connect(ui->proxyPortTor, SIGNAL(textChanged(const QString &)), this, SLOT(markModelDirty()));
+
+    /* Window */
+#ifndef Q_OS_MAC
+    connect(ui->hideTrayIcon, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->minimizeToTray, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+    connect(ui->minimizeOnClose, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
+#endif
+
+    /* Display */
+    connect(ui->lang, SIGNAL(valueChanged()), this, SLOT(markModelDirty()));
+    connect(ui->unit, SIGNAL(valueChanged()), this, SLOT(markModelDirty()));
+    connect(ui->theme, SIGNAL(valueChanged()), this, SLOT(markModelDirty()));
+    connect(ui->scaling, SIGNAL(valueChanged(int)), this, SLOT(markModelDirty()));
+    connect(ui->thirdPartyTxUrls, SIGNAL(textChanged(const QString &)), this, SLOT(markModelDirty()));
 }
 
 void OptionsDialog::setMapper()
@@ -227,6 +262,12 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
 }
 
+void OptionsDialog::markModelDirty()
+{
+    info("MODEL DIRTY");
+    model->setDirty(true);
+}
+
 void OptionsDialog::setOkButtonState(bool fState)
 {
     ui->okButton->setEnabled(fState);
@@ -253,9 +294,10 @@ void OptionsDialog::on_resetButton_clicked()
 void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
+    model->setDirty(false);
     updateDefaultProxyNets();
 
-    QMessageBox::information(this, tr("Config saved"), tr("Config settings have been saved"));
+    QMessageBox::information(this, tr("Options saved"), tr("Options have been saved!"));
 }
 
 void OptionsDialog::on_openNavCoinConfButton_clicked()

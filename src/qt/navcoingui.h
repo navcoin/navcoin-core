@@ -81,6 +81,9 @@ public:
     /** Set the active menuBtns */
     void setActiveMenu(int index);
 
+    /** Prompt user if they have not saved changes to options page */
+    bool checkSettingsSaved();
+
     /** Sets the balance for the wallet GUI header */
     void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
 
