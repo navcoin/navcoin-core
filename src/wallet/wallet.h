@@ -68,6 +68,9 @@ static const bool DEFAULT_WALLETBROADCAST = true;
 //! if set, all keys will be derived by using BIP32
 static const bool DEFAULT_USE_HD_WALLET = true;
 
+//! Do we wanna warn the user of a failed blsct generation?
+static const bool DEFAULT_SUPPRESS_BLSCT_WARNING = false;
+
 extern const char * DEFAULT_WALLET_DAT;
 
 class CBlockIndex;
