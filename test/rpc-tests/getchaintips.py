@@ -17,6 +17,11 @@ class GetChainTipsTest (NavCoinTestFramework):
         self.setup_clean_chain = True
 
     def run_test (self):
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
+        self.nodes[2].staking(False)
+        self.nodes[3].staking(False)
+
         slow_gen(self.nodes[0], 200)
         self.sync_all()
 
