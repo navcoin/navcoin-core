@@ -7,7 +7,7 @@ significantly.
 
 * Any test improvements or new tests that improve coverage are always welcome.
 * All other changes should have accompanying unit tests (see `src/test/`) or
-  functional tests (see `qa/`). Contributors should note which tests cover
+  functional tests (see `test/`). Contributors should note which tests cover
   modified code. If no tests exist for a region of modified code, new tests
   should accompany the change.
 * Bug fixes are most welcome when they come with steps to reproduce or an

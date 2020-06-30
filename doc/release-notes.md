@@ -83,7 +83,7 @@ building. Effectively this means GCC 4.7 or higher, or Clang 3.3 or higher.
 When cross-compiling for a target that doesn't have C++11 libraries, configure with
 `./configure --enable-glibc-back-compat ... LDFLAGS=-static-libstdc++`.
 
-For running the functional tests in `qa/rpc-tests`, Python3.4 or higher is now
+For running the functional tests in `test/rpc-tests`, Python3.4 or higher is now
 required.
 
 
@@ -320,10 +320,10 @@ Low-level RPC changes
 
 - Asm script outputs replacements for OP_NOP2 and OP_NOP3
 
-  - OP_NOP2 has been renamed to OP_CHECKLOCKTIMEVERIFY by [BIP 
+  - OP_NOP2 has been renamed to OP_CHECKLOCKTIMEVERIFY by [BIP
 65](https://github.com/navcoin/bips/blob/master/bip-0065.mediawiki)
 
-  - OP_NOP3 has been renamed to OP_CHECKSEQUENCEVERIFY by [BIP 
+  - OP_NOP3 has been renamed to OP_CHECKSEQUENCEVERIFY by [BIP
 112](https://github.com/navcoin/bips/blob/master/bip-0112.mediawiki)
 
   - The following outputs are affected by this change:

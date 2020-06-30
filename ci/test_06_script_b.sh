@@ -17,6 +17,6 @@ fi
 
 if [ "$RUN_FUNCTIONAL_TESTS" = "true" ]; then
   BEGIN_FOLD functional-tests
-  DOCKER_EXEC ./qa/pull-tester/rpc-tests.py -parallel=3 --coverage --failfast
+  DOCKER_EXEC ./test/pull-tester/rpc-tests.py -parallel=3 --coverage --failfast
   END_FOLD
 fi
