@@ -2580,8 +2580,9 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 const CTxOut& txout = wtx.vout[nOut];
                 if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
             }
+
             entry.pushKV("category", s.amount == nFee ? "fee" : (fCFund ? "cfund contribution" : "send"));
-            entry.pushKV("memo", std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()));
+            entry.pushKV("memo", wtx.vMemos.size() > s.vout ? std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()) : "");
             entry.pushKV("amount", ValueFromAmount(-s.amount));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.pushKV("label", pwalletMain->mapAddressBook[s.destination].name);
