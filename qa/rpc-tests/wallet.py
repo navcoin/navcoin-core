@@ -23,7 +23,7 @@ class WalletTest (NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-
+        print("Disable staking...")
         self.nodes[0].staking(False)
         self.nodes[1].staking(False)
         self.nodes[2].staking(False)
