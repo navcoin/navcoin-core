@@ -3203,9 +3203,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
             nSubtractFeeFromAmount++;
 
         if (recipient.fBLSCT)
-        {
             fBLSCT = true;
-        }
     }
     if (vecSend.empty() || nValue < 0)
     {

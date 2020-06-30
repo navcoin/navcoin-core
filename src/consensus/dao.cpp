@@ -758,7 +758,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         if(!view.GetAllConsultationAnswers(mapConsultationAnswers) || !view.GetAllConsultations(mapConsultations))
             return false;
     }
-    
+
     std::vector<uint256> vClearAnswers;
 
     if(lastConsensusStateHash != lastConsensusStateHash)
@@ -1580,7 +1580,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         CAmount nContribution = 0;
         int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
 
-        for(unsigned int i=0;i<tx.vout.size();i++)
+        for(unsigned int i = 0; i < tx.vout.size(); i++)
             if(tx.vout[i].IsCommunityFundContribution())
                 nContribution +=tx.vout[i].nValue;
 
@@ -1656,14 +1656,39 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
 
         CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, coins) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, coins) * answersArray.size();
 
-        bool ret = (sQuestion != "" && nContribution >= nMinFee &&
-                ((fRange && nMin >= 0 && nMax < (uint64_t)VoteFlags::VOTE_ABSTAIN  && nMax > nMin) ||
-                 (!fRange && nMax > 0  && nMax < 16)) &&
-                ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
-                (nVersion & ~nMaskVersion) == 0);
+        // Check if we have a question
+        if (sQuestion == "")
+            return error("%s: Question can't be empty for proposal %s", __func__, tx.GetHash().ToString());
 
-        if (!ret)
-            return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
+        // Make sure we have enough fee
+        if (nContribution < nMinFee)
+            return error("%s: Contribution %d is less than %d for proposal %s", __func__, nContribution, nMinFee, tx.GetHash().ToString());
+
+        // Check if we need to validate a range value
+        if (fRange)
+        {
+            if (nMax <= nMin)
+                return error("%s: Max (%d) value for range must be more than min (%d) value for proposal %s", __func__, nMax, nMin, tx.GetHash().ToString());
+
+            if (nMin < 1)
+                return error("%s: Min (%d) value for range must be atleast 1 for proposal %s", __func__, nMin, tx.GetHash().ToString());
+
+            if (nMax >= (uint64_t) VoteFlags::VOTE_ABSTAIN)
+                return error("%s: Max (%d) value for range must be less than %d for proposal %s", __func__, nMax, (uint64_t) VoteFlags::VOTE_ABSTAIN, tx.GetHash().ToString());
+        }
+        else
+        {
+            if (nMax < 1 || nMax > 15)
+                return error("%s: Max (%d) value must be between 1-15 for proposal %s", __func__, tx.GetHash().ToString());
+        }
+
+        // Make sure we have atleast 2 answers if we don't accept suggestions and it's not a range
+        if (!((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange))
+            return error("%s: Need atleast 1 answer for proposal %s", __func__, tx.GetHash().ToString());
+
+        // Check our version
+        if ((nVersion & ~nMaskVersion) != 0)
+            return error("%s: Wrong version %d for proposal %s", __func__, nVersion, tx.GetHash().ToString());
     }
     catch(...)
     {
