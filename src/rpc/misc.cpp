@@ -209,7 +209,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "  \"spendingaddress\" : \"navcoinaddress\", (string) The navcoin spending address part of a cold staking address\n"
             "  \"votingaddress\" : \"navcoinaddress\", (string) The navcoin voting address part of a cold staking v2 address\n"
             "  \"ismine\" : true|false,        (boolean) If the address is yours or not\n"
-            "  \"ismine\" : true|false,        (boolean) If the coins from the address are stakable or not\n"
+            "  \"isstakeable\" : true|false,   (boolean) If the coins from the address are stakable or not\n"
             "  \"iswatchonly\" : true|false,   (boolean) If the address is watchonly\n"
             "  \"isscript\" : true|false,      (boolean) If the key is a script\n"
             "  \"iscoldstaking\" : true|false,        (boolean) If the address is a cold staking address or not\n"
