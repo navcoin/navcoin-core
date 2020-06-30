@@ -44,11 +44,13 @@ class WalletHDTest(NavCoinTestFramework):
 
         # Derive some HD addresses and remember the last
         # Also send funds to each add
+        print("Generating 101 blocks ...")
         slow_gen(self.nodes[0], 101)
         hd_add = None
         num_hd_adds = 50
         #an address has already been created on m/0/0/1, must offset
         for i in range(num_hd_adds):
+            print("Create a new address ...")
             hd_add = self.nodes[1].getnewaddress()
             hd_info = self.nodes[1].validateaddress(hd_add)
             assert_equal(hd_info["hdkeypath"], "m/0'/0'/"+str(i+2)+"'")
