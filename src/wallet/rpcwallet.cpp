@@ -2349,7 +2349,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
                 continue;
 
             tallyitem& item = mapTally[address];
-            item.nAmount += txout.nValue + wtx.vAmounts[i];
+            item.nAmount += txout.nValue + (wtx.vAmounts.size() > i ? wtx.vAmounts[i] : 0);
             item.nConf = min(item.nConf, nDepth);
             item.txids.push_back(wtx.GetHash());
             if (mine & ISMINE_WATCH_ONLY)
