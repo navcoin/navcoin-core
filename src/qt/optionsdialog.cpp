@@ -297,7 +297,7 @@ void OptionsDialog::on_okButton_clicked()
     model->setDirty(false);
     updateDefaultProxyNets();
 
-    QMessageBox::information(this, tr("Options saved"), tr("Options have been saved!"));
+    QMessageBox::information(this, tr("Changes saved"), tr("Changes have been saved!"));
 }
 
 void OptionsDialog::on_openNavCoinConfButton_clicked()
