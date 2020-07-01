@@ -34,6 +34,9 @@ IntroPage::IntroPage(QWidget *parent)
                           "      coins sent to the cold staking address.<br>"
                           " - a spending address: this address will be authorised to spend the<br>"
                           "      coins sent to the cold staking address.<br>"
+                          "You can optionally specify a third address, which would hold the<br>"
+                          "voting rights. This address should belong to a wallet compatible<br>"
+                          "with the light wallet voting features like NavCash.<br>"
                           "These addresses will be used to generate a cold staking address."));
     label->setWordWrap(true);
 
@@ -55,6 +58,10 @@ GetAddressesPage::GetAddressesPage(QWidget *parent)
     spendingAddressLineEdit = new QLineEdit;
     spendingAddressLabel->setBuddy(spendingAddressLineEdit);
 
+    votingAddressLabel = new QLabel(tr("&Voting Address:"));
+    votingAddressLineEdit = new QLineEdit;
+    votingAddressLabel->setBuddy(votingAddressLineEdit);
+
     descriptionLabel = new QLabel(tr("Your Spending address and Staking address must be different."));
     errorLabel = new QLabel();
     errorLabel->setStyleSheet("QLabel { color : red }");
@@ -64,24 +71,29 @@ GetAddressesPage::GetAddressesPage(QWidget *parent)
     layout->addWidget(stakingAddressLineEdit, 0, 1);
     layout->addWidget(spendingAddressLabel, 1, 0);
     layout->addWidget(spendingAddressLineEdit, 1, 1);
-    layout->addWidget(descriptionLabel, 2, 0, 1, 2);
-    layout->addWidget(errorLabel, 3, 0, 1, 2);
+    layout->addWidget(votingAddressLabel, 2, 0);
+    layout->addWidget(votingAddressLineEdit, 2, 1);
+    layout->addWidget(descriptionLabel, 3, 0, 1, 2);
+    layout->addWidget(errorLabel, 4, 0, 1, 2);
     setLayout(layout);
 
     registerField("stakingAddress*", stakingAddressLineEdit);
     registerField("spendingAddress*", spendingAddressLineEdit);
+    registerField("votingAddress", votingAddressLineEdit);
 }
 
 bool GetAddressesPage::validatePage()
 {
     QString stakingAddressStr = field("stakingAddress").toString();
     QString spendingAddressStr = field("spendingAddress").toString();
+    QString votingAddressStr = field("votingAddress").toString();
 
     CNavCoinAddress stakingAddress(stakingAddressStr.toStdString());
     CNavCoinAddress spendingAddress(spendingAddressStr.toStdString());
 
     CKeyID stakingKeyID;
     CKeyID spendingKeyID;
+
     if (field("stakingAddress").toString() == field("spendingAddress").toString())  {
         errorLabel->setText(tr("The addresses can't be the same!"));
         return false;
@@ -94,6 +106,17 @@ bool GetAddressesPage::validatePage()
         errorLabel->setText("The spending address is not valid.");
         return false;
     }
+    if (votingAddressStr != "") {
+        CNavCoinAddress votingAddress(votingAddressStr.toStdString());
+        CKeyID votingKeyID;
+        if(!(votingAddress.IsValid() && votingAddress.GetKeyID(votingKeyID))) {
+            errorLabel->setText("The voting address is not valid.");
+            return false;
+        }
+    }
+
+    errorLabel->setText("");
+
     return true;
 }
 
@@ -126,6 +149,7 @@ void ColdStakingAddressPage::initializePage()
 {
     QString stakingAddressStr = field("stakingAddress").toString();
     QString spendingAddressStr = field("spendingAddress").toString();
+    QString votingAddressStr = field("votingAddress").toString();
 
 
     CNavCoinAddress stakingAddress(stakingAddressStr.toStdString());
@@ -136,7 +160,17 @@ void ColdStakingAddressPage::initializePage()
     CKeyID spendingKeyID;
     spendingAddress.GetKeyID(spendingKeyID);
 
-    coldStakingAddress = QString::fromStdString(CNavCoinAddress(stakingKeyID, spendingKeyID).ToString());
+    if (votingAddressStr != "")
+    {
+        CNavCoinAddress votingAddress(votingAddressStr.toStdString());
+        CKeyID votingKeyID;
+        votingAddress.GetKeyID(votingKeyID);
+        coldStakingAddress = QString::fromStdString(CNavCoinAddress(stakingKeyID, spendingKeyID, votingKeyID).ToString());
+    }
+    else
+    {
+        coldStakingAddress = QString::fromStdString(CNavCoinAddress(stakingKeyID, spendingKeyID).ToString());
+    }
 
 #ifdef USE_QRCODE
     QString uri = "navcoin:" + coldStakingAddress;
