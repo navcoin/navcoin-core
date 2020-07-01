@@ -217,7 +217,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "  \"spendingaddress\" : \"navcoinaddress\", (string) The navcoin spending address part of a cold staking address\n"
             "  \"votingaddress\" : \"navcoinaddress\", (string) The navcoin voting address part of a cold staking v2 address\n"
             "  \"ismine\" : true|false,        (boolean) If the address is yours or not\n"
-            "  \"ismine\" : true|false,        (boolean) If the coins from the address are stakable or not\n"
+            "  \"isstakable\" : true|false,    (boolean) If the coins from the address are stakable or not\n"
             "  \"iswatchonly\" : true|false,   (boolean) If the address is watchonly\n"
             "  \"isscript\" : true|false,      (boolean) If the key is a script\n"
             "  \"iscoldstaking\" : true|false,        (boolean) If the address is a cold staking address or not\n"
@@ -965,10 +965,15 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
 
     CAmount balance = 0;
     CAmount received = 0;
+    CAmount staked = 0;
 
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
         if (it->second > 0) {
             received += it->second;
+        }
+        if (it->first.blockHeight > Params().GetConsensus().nLastPOWBlock && it->first.txindex == 1)
+        {
+            staked += it->second;
         }
         balance += it->second;
     }
@@ -976,6 +981,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
     result.pushKV("balance", balance);
     result.pushKV("received", received);
+    result.pushKV("staked", staked);
 
     return result;
 
