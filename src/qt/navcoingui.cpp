@@ -944,7 +944,7 @@ bool NavCoinGUI::checkSettingsSaved()
 
     // Confirmation dialog
     QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
-            tr("You have not saved your options, are you sure you want to discard the changes?"),
+            tr("You have not saved your changes, are you sure you want to discard them?"),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
     // They don't want to discard the changes I guess
