@@ -1107,6 +1107,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     CAmount stakable = 0;
     CAmount voting_weight = 0;
     CAmount received = 0;
+    CAmount staked = 0;
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
         spending += (*it).second.spendable;
@@ -1122,6 +1123,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     result.pushKV("stakable", stakable);
     result.pushKV("voting_weight", voting_weight);
     result.pushKV("received", received);
+    result.pushKV("staked", staked);
 
     return result;
 
