@@ -606,9 +606,9 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     obj.pushKV("weight", (uint64_t)nWeight);
     obj.pushKV("netstakeweight", (uint64_t)nNetworkWeight);
 
-    obj.pushKV("hotstakingcoins", stakingCoins.first);
-    obj.pushKV("coldstakingcoins", stakingCoins.second.first);
-    obj.pushKV("coldv2stakingcoins", stakingCoins.second.second);
+    obj.pushKV("hotstakingcoins", FormatMoney(stakingCoins.first));
+    obj.pushKV("coldstakingcoins", FormatMoney(stakingCoins.second.first));
+    obj.pushKV("coldv2stakingcoins", FormatMoney(stakingCoins.second.second));
 
     obj.pushKV("expectedtime", nExpectedTime);
     obj.pushKV("expecteddailyreward", (double) nExpectedDailyReward / COIN);
