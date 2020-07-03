@@ -328,7 +328,11 @@ class RPCTestHandler:
             for j in self.jobs:
                 (name, time0, proc) = j
                 if proc.poll() is not None:
-                    (stdout, stderr) = proc.communicate(timeout=300)
+                    try:
+                        (stdout, stderr) = proc.communicate(timeout=10)
+                    except TimeoutExpired:
+                        proc.kill()
+                        (stdout, stderr) = proc.communicate()
                     passed = stderr == "" and proc.returncode == 0
                     self.num_running -= 1
                     self.jobs.remove(j)
