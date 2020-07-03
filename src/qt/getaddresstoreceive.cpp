@@ -4,6 +4,7 @@
 #include <main.h>
 #include <qt/walletmodel.h>
 #include <wallet/wallet.h>
+#include <base58.h>
 
 #include <qt/coldstakingwizard.h>
 #include <qt/getaddresstoreceive.h>
@@ -37,7 +38,6 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
 
     ui->lblAddress->setMinimumWidth(360 * GUIUtil::scale());
 
-    connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
     connect(ui->coldStakingButton,SIGNAL(clicked()),this,SLOT(getColdStakingAddress()));
@@ -67,7 +67,6 @@ void getAddressToReceive::showPrivateAddress()
         }
         ui->privateAddressButton->setText(QString(tr("Show private address")));
         ui->requestNewAddressButton->show();
-        ui->requestPaymentButton->show();
         ui->coldStakingButton->show();
         ui->newAddressButton->show();
     }
@@ -83,7 +82,6 @@ void getAddressToReceive::showPrivateAddress()
 
         ui->privateAddressButton->setText(QString(tr("Show public address")));
         ui->requestNewAddressButton->hide();
-        ui->requestPaymentButton->hide();
         ui->coldStakingButton->hide();
         ui->newAddressButton->hide();
     }

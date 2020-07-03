@@ -122,7 +122,7 @@ Run with the -testnet option to run with "play navcoins" on the test network, if
 are testing multi-machine code that needs to operate across the internet.
 
 If you are testing something that can run on one machine, run with the -regtest option.
-In regression test mode, blocks can be created on-demand; see qa/rpc-tests/ for tests
+In regression test mode, blocks can be created on-demand; see test/rpc-tests/ for tests
 that run in -regtest mode.
 
 **DEBUG_LOCKORDER**
@@ -231,9 +231,9 @@ General NavCoin Core
   - *Rationale*: Makes sure that they pass thorough testing, and that the tester will keep passing
      on the master branch. Otherwise all new pull requests will start failing the tests, resulting in
      confusion and mayhem
- 
+
   - *Explanation*: If the test suite is to be updated for a change, this has to
-    be done first 
+    be done first
 
 Wallet
 -------
@@ -242,7 +242,7 @@ Wallet
 
   - *Rationale*: In RPC code that conditionally uses the wallet (such as
     `validateaddress`) it is easy to forget that global pointer `pwalletMain`
-    can be NULL. See `qa/rpc-tests/disablewallet.py` for functional tests
+    can be NULL. See `test/rpc-tests/disablewallet.py` for functional tests
     exercising the API with `-disablewallet`
 
 - Include `db_cxx.h` (BerkeleyDB header) only when `ENABLE_WALLET` is set

@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <sstream>
 #include <QAbstractScrollArea>
+#include <chainparams.h>
 
 #include <qt/communityfunddisplay.h>
 #include <qt/communityfunddisplaypaymentrequest.h>

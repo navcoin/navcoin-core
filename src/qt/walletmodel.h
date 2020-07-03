@@ -5,11 +5,11 @@
 #ifndef NAVCOIN_QT_WALLETMODEL_H
 #define NAVCOIN_QT_WALLETMODEL_H
 
-#include <qt/paymentrequestplus.h>
 #include <qt/walletmodeltransaction.h>
 
 #include <support/allocators/secure.h>
 #include <wallet/wallet.h>
+#include <base58.h>
 
 #include <map>
 #include <vector>
@@ -58,8 +58,6 @@ public:
     double transaction_fee;
     bool isanon;
 
-    // If from a payment request, paymentRequest.IsInitialized() will be true
-    PaymentRequestPlus paymentRequest;
     // Empty if no authentication or invalid signature/cert/etc.
     QString authenticatedMerchant;
 
@@ -76,8 +74,6 @@ public:
         std::string sLabel = label.toStdString();
         std::string sMessage = message.toStdString();
         std::string sPaymentRequest;
-        if (!ser_action.ForRead() && paymentRequest.IsInitialized())
-            paymentRequest.SerializeToString(&sPaymentRequest);
         std::string sAuthenticatedMerchant = authenticatedMerchant.toStdString();
 
         READWRITE(this->nVersion);
@@ -94,8 +90,6 @@ public:
             address = QString::fromStdString(sAddress);
             label = QString::fromStdString(sLabel);
             message = QString::fromStdString(sMessage);
-            if (!sPaymentRequest.empty())
-                paymentRequest.parse(QByteArray::fromRawData(sPaymentRequest.data(), sPaymentRequest.size()));
             authenticatedMerchant = QString::fromStdString(sAuthenticatedMerchant);
         }
     }

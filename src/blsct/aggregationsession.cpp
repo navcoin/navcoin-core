@@ -350,7 +350,7 @@ bool AggregationSesion::Join() const
              std::vector<unsigned char> vBuffer(ds.begin(), ds.end());
              vBuffer.push_back('\0');
 
-             auto ret = send(so, vBuffer.data(), vBuffer.size(), MSG_NOSIGNAL);
+             auto ret = send(so, reinterpret_cast<const char *>(vBuffer.data()), vBuffer.size(), MSG_NOSIGNAL);
              LogPrintf("AggregationSesion::%s: Sent %d bytes\n", __func__, ret);
 
              CloseSocket(so);

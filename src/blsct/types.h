@@ -5,6 +5,13 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#ifdef _WIN32
+/* Avoid redefinition warning. */
+#undef ERROR
+#undef WSIZE
+#undef DOUBLE
+#endif
+
 #include <bls.hpp>
 #include <hash.h>
 #include <uint256.h>

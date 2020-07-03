@@ -87,9 +87,6 @@
     <name>OverviewPage</name>
     </context>
 <context>
-    <name>PaymentServer</name>
-    </context>
-<context>
     <name>PeerTableModel</name>
     </context>
 <context>

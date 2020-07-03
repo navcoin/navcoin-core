@@ -103,11 +103,11 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/run-navcoind-for-test.sh
-qa/pull-tester/tests_config.py
-qa/pull-tester/cache/*
-qa/pull-tester/test.*/*
-qa/tmp
+test/pull-tester/run-navcoind-for-test.sh
+test/pull-tester/tests_config.py
+test/pull-tester/cache/*
+test/pull-tester/test.*/*
+test/tmp
 cache/
 share/NavcoindComparisonTool.jar
 
@@ -148,3 +148,30 @@ ui_*.h
 
 # VS Code
 *.code-workspace
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# bls sigs
+src/bls-signatures/build
+
+# Ignore temp conf dirs
+conf*/
+
+# Ignore .tmp files from tor build
+*.tmp
+
+# Ignore macdpeloy files
+*.app
+*.tiff
+

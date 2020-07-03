@@ -258,25 +258,14 @@ void SendCoinsDialog::on_sendButton_clicked()
 
         QString recipientElement;
 
-        if (!rcp.paymentRequest.IsInitialized()) // normal payment
+        if(rcp.label.length() > 0) // label with address
         {
-            if(rcp.label.length() > 0) // label with address
-            {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ")  : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
-                recipientElement.append(QString(" (%1)").arg(address));
-            }
-            else // just address
-            {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ?  tr(" Private payment ")  : "" ) +amount, address);
-            }
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ")  : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
+            recipientElement.append(QString(" (%1)").arg(address));
         }
-        else if(!rcp.authenticatedMerchant.isEmpty()) // authenticated payment request
+        else // just address
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ")  : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
-        }
-        else // unauthenticated payment request
-        {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ") : "") +amount, address);
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ?  tr(" Private payment ")  : "" ) +amount, address);
         }
 
         if (selectedCoins.tx.vin.size() > 0)
@@ -285,7 +274,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
 
         formatted.append(recipientElement);
-
 
         questionString.append("<br /><br />%1");
 

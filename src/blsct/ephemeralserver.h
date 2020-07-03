@@ -45,8 +45,8 @@ private:
 class tcp_connection
 {
 public:
-    tcp_connection(boost::asio::io_service& io_service, cb_t data_cb_in)
-        : socket_(io_service), data_cb(data_cb_in)
+    tcp_connection(boost::asio::io_context& io_context, cb_t data_cb_in)
+        : socket_(io_context), data_cb(data_cb_in)
     {
     }
 
@@ -69,8 +69,8 @@ private:
 class EphemeralSession
 {
 public:
-    EphemeralSession(boost::asio::io_service& io_service, cb_t data_cb_in)
-        : acceptor_(io_service, tcp::endpoint(tcp::v4(), 0)), data_cb(data_cb_in)
+    EphemeralSession(boost::asio::io_context& io_context, cb_t data_cb_in)
+        : io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), 0)), data_cb(data_cb_in)
     {
         port = acceptor_.local_endpoint().port();
         Accept();
@@ -82,7 +82,7 @@ private:
     void Accept()
     {
         tcp_connection* new_connection = new
-                tcp_connection(acceptor_.get_io_service(), data_cb);
+                tcp_connection(io_context_, data_cb);
 
         acceptor_.async_accept(new_connection->socket(),
                                boost::bind(&EphemeralSession::HandleAccept, this, new_connection,
@@ -105,6 +105,7 @@ private:
     }
 
     tcp::acceptor acceptor_;
+    boost::asio::io_context& io_context_;
     cb_t data_cb;
 };
 

@@ -6,7 +6,6 @@
 
 #include <qt/navcoinunits.h>
 #include <qt/guiutil.h>
-#include <qt/paymentserver.h>
 #include <qt/transactionrecord.h>
 
 #include <base58.h>
@@ -247,21 +246,6 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
     for (const PAIRTYPE(std::string, std::string)& r: wtx.vOrderForm)
         if (r.first == "Message")
             strHTML += "<br><b>" + tr("Message") + ":</b><br>" + GUIUtil::HtmlEscape(r.second, true) + "<br>";
-
-    //
-    // PaymentRequest info:
-    //
-    for (const PAIRTYPE(std::string, std::string)& r: wtx.vOrderForm)
-    {
-        if (r.first == "PaymentRequest")
-        {
-            PaymentRequestPlus req;
-            req.parse(QByteArray::fromRawData(r.second.data(), r.second.size()));
-            QString merchant;
-            if (req.getMerchant(PaymentServer::getCertStore(), merchant))
-                strHTML += "<b>" + tr("Merchant") + ":</b> " + GUIUtil::HtmlEscape(merchant) + "<br>";
-        }
-    }
 
     if (wtx.IsCoinBase())
     {

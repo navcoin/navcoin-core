@@ -1087,7 +1087,7 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, false, true, fDump);
 
     if (!fDump)
     {
@@ -1180,7 +1180,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, false, true, fDump);
 
     if (!fDump)
     {
@@ -1273,7 +1273,7 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, false, true, fDump);
 
     if (!fDump)
     {
@@ -1514,7 +1514,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 255)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, false, true, fDump);
 
     if (!fDump)
     {
@@ -2349,7 +2349,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
                 continue;
 
             tallyitem& item = mapTally[address];
-            item.nAmount += txout.nValue + wtx.vAmounts[i];
+            item.nAmount += txout.nValue + (wtx.vAmounts.size() > i ? wtx.vAmounts[i] : 0);
             item.nConf = min(item.nConf, nDepth);
             item.txids.push_back(wtx.GetHash());
             if (mine & ISMINE_WATCH_ONLY)
@@ -2580,8 +2580,9 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 const CTxOut& txout = wtx.vout[nOut];
                 if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
             }
+
             entry.pushKV("category", s.amount == nFee ? "fee" : (fCFund ? "cfund contribution" : "send"));
-            entry.pushKV("memo", std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()));
+            entry.pushKV("memo", wtx.vMemos.size() > s.vout ? std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()) : "");
             entry.pushKV("amount", ValueFromAmount(-s.amount));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.pushKV("label", pwalletMain->mapAddressBook[s.destination].name);
@@ -3499,7 +3500,6 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
                 "{\n"
                 "  \"walletversion\": xxxxx,       (numeric) the wallet version\n"
                 "  \"balance\": xxxxxxx,           (numeric) the total confirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
-                "  \"public_balance\": xxxxxxx,    (numeric) the total confirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"unconfirmed_balance\": xxx,   (numeric) the total unconfirmed balance of the wallet in " + CURRENCY_UNIT + "\n"		             "  \"private_balance\": xxx,       (numeric) the total confirmed private balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"unconfirmed_balance\": xxx,   (numeric) the total unconfirmed balance of the wallet in " + CURRENCY_UNIT + "\n"
                 "  \"immature_balance\": xxxxxx,   (numeric) the total immature balance of the wallet in " + CURRENCY_UNIT + "\n"
@@ -3519,17 +3519,17 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("walletversion", pwalletMain->GetVersion());
-    obj.pushKV("public_balance",       ValueFromAmount(pwalletMain->GetBalance()));
-    obj.pushKV("private_balance", ValueFromAmount(pwalletMain->GetPrivateBalance()));
-    obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
-    obj.pushKV("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
+    obj.pushKV("walletversion",           pwalletMain->GetVersion());
+    obj.pushKV("balance",                 ValueFromAmount(pwalletMain->GetBalance()));
+    obj.pushKV("private_balance",         ValueFromAmount(pwalletMain->GetPrivateBalance()));
+    obj.pushKV("coldstaking_balance",     ValueFromAmount(pwalletMain->GetColdStakingBalance()));
+    obj.pushKV("unconfirmed_balance",     ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
     obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
-    obj.pushKV("private_balance_locked", ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
-    obj.pushKV("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance()));
-    obj.pushKV("txcount",       (int)pwalletMain->mapWallet.size());
-    obj.pushKV("keypoololdest", pwalletMain->GetOldestKeyPoolTime());
-    obj.pushKV("keypoolsize",   (int)pwalletMain->GetKeyPoolSize());
+    obj.pushKV("private_balance_locked",  ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
+    obj.pushKV("immature_balance",        ValueFromAmount(pwalletMain->GetImmatureBalance()));
+    obj.pushKV("txcount",                 (int)pwalletMain->mapWallet.size());
+    obj.pushKV("keypoololdest",           pwalletMain->GetOldestKeyPoolTime());
+    obj.pushKV("keypoolsize",             (int)pwalletMain->GetKeyPoolSize());
     if (pwalletMain->IsCrypted()) {
         obj.pushKV("unlocked_until", nWalletUnlockTime);
         obj.pushKV("unlocked_for_staking", fWalletUnlockStakingOnly);

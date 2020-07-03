@@ -50,20 +50,20 @@ env:
     - BASE_OUTDIR=$TRAVIS_BUILD_DIR/out
     - SDK_URL=https://bitcoincore.org/depends-sources/sdks
     - WINEDEBUG=fixme-all
-    - DOCKER_PACKAGES="build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache python3 autoconf"
+    - DOCKER_PACKAGES="build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache python3 autoconf cmake"
     - CACHE_ERR_MSG="Error! Initial build successful, but not enough time remains to run later build stages and tests. Please manually re-run this job by using the travis restart button or asking a maintainer to restart. The next run should not time out because the build cache has been saved."
 before_install:
-  - set -o errexit; source .travis/test_03_before_install.sh
+  - set -o errexit; source ci/test_03_before_install.sh
 install:
-  - set -o errexit; source .travis/test_04_install.sh
+  - set -o errexit; source ci/test_04_install.sh
 before_script:
-  - set -o errexit; source .travis/test_05_before_script.sh
+  - set -o errexit; source ci/test_05_before_script.sh
 script:
   - export CONTINUE=1
   - if [ $SECONDS -gt 1200 ]; then export CONTINUE=0; fi  # Likely the depends build took very long
-  - if [ $CONTINUE = "1" ]; then set -o errexit; source .travis/test_06_script_a.sh; else set +o errexit; echo "$CACHE_ERR_MSG"; false; fi
+  - if [ $CONTINUE = "1" ]; then set -o errexit; source ci/test_06_script_a.sh; else set +o errexit; echo "$CACHE_ERR_MSG"; false; fi
   - if [ $SECONDS -gt 2000 ]; then export CONTINUE=0; fi  # Likely the build took very long; The tests take about 1000s, so we should abort if we have less than 50*60-1000=2000s left
-  - if [ $CONTINUE = "1" ]; then set -o errexit; source .travis/test_06_script_b.sh; else set +o errexit; echo "$CACHE_ERR_MSG"; false; fi
+  - if [ $CONTINUE = "1" ]; then set -o errexit; source ci/test_06_script_b.sh; else set +o errexit; echo "$CACHE_ERR_MSG"; false; fi
 after_script:
   - echo $TRAVIS_COMMIT_RANGE
   - echo $TRAVIS_COMMIT_LOG
@@ -87,19 +87,19 @@ jobs:
       env: >-
         HOST=i686-w64-mingw32
         DPKG_ADD_ARCH="i386"
-        PACKAGES="nsis g++-mingw-w64-i686 wine-binfmt wine32"
+        PACKAGES="nsis g++-mingw-w64-i686 wine-binfmt wine32 libcap-dev"
         RUN_FUNCTIONAL_TESTS=false
         GOAL="install"
-        NAVCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
+        NAVCOIN_CONFIG="--disable-gcc-hardening --enable-reduce-exports --disable-gui-tests"
 
     - stage: test
       name: 'Win64  [GOAL: install]  [no functional tests]'
       env: >-
         HOST=x86_64-w64-mingw32
-        PACKAGES="nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
+        PACKAGES="nsis g++-mingw-w64-x86-64 wine-binfmt wine64 libcap-dev"
         RUN_FUNCTIONAL_TESTS=false
         GOAL="install"
-        NAVCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
+        NAVCOIN_CONFIG="--disable-gcc-hardening --enable-reduce-exports --disable-gui-tests"
 
     - stage: test
       name: 'i686 Linux  [GOAL: install] [dash shell]'
@@ -121,11 +121,11 @@ jobs:
         NAVCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports CPPFLAGS=-DDEBUG_LOCKORDER"
 
     - stage: test
-      name: 'macOS 10.10  [GOAL: deploy] [no tests]'
+      name: 'macOS 10.12  [GOAL: deploy] [no tests]'
       env: >-
-        HOST=x86_64-apple-darwin14
-        PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python3-dev python3-setuptools"
-        OSX_SDK=10.11
+        HOST=x86_64-apple-darwin16
+        PACKAGES="imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python3-dev python3-setuptools libcap-dev"
+        OSX_SDK=10.14
         RUN_UNIT_TESTS=false
         RUN_FUNCTIONAL_TESTS=false
         GOAL="deploy"

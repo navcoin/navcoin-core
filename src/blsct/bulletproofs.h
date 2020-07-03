@@ -9,6 +9,13 @@
 #ifndef NAVCOIN_blsct_OPERATIONS_H
 #define NAVCOIN_blsct_OPERATIONS_H
 
+#ifdef _WIN32
+/* Avoid redefinition warning. */
+#undef ERROR
+#undef WSIZE
+#undef DOUBLE
+#endif
+
 #include <amount.h>
 #include <bls.hpp>
 #include <blsct/types.h>

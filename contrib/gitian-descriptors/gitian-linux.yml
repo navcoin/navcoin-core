@@ -1,5 +1,5 @@
 ---
-name: "navcoin-linux-4.0.0"
+name: "navcoin-linux-5.0.1"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -7,36 +7,34 @@ suites:
 architectures:
 - "amd64"
 packages:
-- "curl"
-- "g++-aarch64-linux-gnu"
-- "g++-8-aarch64-linux-gnu"
-- "gcc-8-aarch64-linux-gnu"
-- "binutils-aarch64-linux-gnu"
-- "g++-arm-linux-gnueabihf"
-- "g++-8-arm-linux-gnueabihf"
-- "gcc-8-arm-linux-gnueabihf"
-- "binutils-arm-linux-gnueabihf"
-- "g++-riscv64-linux-gnu"
-- "g++-8-riscv64-linux-gnu"
-- "gcc-8-riscv64-linux-gnu"
-- "binutils-riscv64-linux-gnu"
-- "g++-8-multilib"
-- "gcc-8-multilib"
-- "binutils-gold"
-- "git"
-- "pkg-config"
+# - "binutils-riscv64-linux-gnu"
+# - "g++-8-riscv64-linux-gnu"
+# - "g++-riscv64-linux-gnu"
+# - "gcc-8-riscv64-linux-gnu"
 - "autoconf"
-- "libtool"
 - "automake"
-- "faketime"
+- "binutils-aarch64-linux-gnu"
+- "binutils-arm-linux-gnueabihf"
+- "binutils-gold"
 - "bsdmainutils"
 - "ca-certificates"
+- "cmake"
+- "curl"
+- "faketime"
+- "g++-8-aarch64-linux-gnu"
+- "g++-8-arm-linux-gnueabihf"
+- "g++-8-multilib"
+- "g++-aarch64-linux-gnu"
+- "g++-arm-linux-gnueabihf"
+- "gcc-8-aarch64-linux-gnu"
+- "gcc-8-arm-linux-gnueabihf"
+- "gcc-8-multilib"
+- "git"
+- "libtool"
+- "pkg-config"
 - "python3"
 - "python3-dev"
 - "python3-distutils"
-- "cmake"
-- 'libattr1-dev'
-- 'libcap-dev'
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
@@ -45,7 +43,8 @@ script: |
   set -e -o pipefail
 
   WRAP_DIR=$HOME/wrapped
-  HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu"
+  # HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu"
+  HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
   CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests"
   FAKETIME_HOST_PROGS="gcc g++"
   FAKETIME_PROGS="date ar ranlib nm"
@@ -176,14 +175,6 @@ script: |
     echo '#!/bin/true' >share/genbuild.sh
     mkdir src/obj
     cp ../src/obj/build.h src/obj/
-
-    cd src/bls-signatures/build
-    rm -rf *
-    export CFLAGS="${HOST_CFLAGS}"
-    export CXXFLAGS="${HOST_CXXFLAGS}"
-    cmake ../ ${CONFIGFLAGS}
-    make ${MAKEOPTS}
-    cd ../../..
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
     make ${MAKEOPTS}

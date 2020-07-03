@@ -87,30 +87,30 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     obj.pushKV("protocolversion", PROTOCOL_VERSION);
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
-        obj.pushKV("walletversion", pwalletMain->GetVersion());
-        obj.pushKV("public_balance",       ValueFromAmount(pwalletMain->GetBalance()));
-        obj.pushKV("private_balance", ValueFromAmount(pwalletMain->GetPrivateBalance()));
+        obj.pushKV("walletversion",           pwalletMain->GetVersion());
+        obj.pushKV("balance",                 ValueFromAmount(pwalletMain->GetBalance()));
+        obj.pushKV("private_balance",         ValueFromAmount(pwalletMain->GetPrivateBalance()));
         obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
-        obj.pushKV("private_balance_locked", ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
-        obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
-        obj.pushKV("newmint",       ValueFromAmount(pwalletMain->GetNewMint()));
-        obj.pushKV("stake",         ValueFromAmount(pwalletMain->GetStake()));
+        obj.pushKV("private_balance_locked",  ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
+        obj.pushKV("coldstaking_balance",     ValueFromAmount(pwalletMain->GetColdStakingBalance()));
+        obj.pushKV("newmint",                 ValueFromAmount(pwalletMain->GetNewMint()));
+        obj.pushKV("stake",                   ValueFromAmount(pwalletMain->GetStake()));
     }
 #endif
     obj.pushKV("blocks",        (int)chainActive.Height());
 
     UniValue cf(UniValue::VOBJ);
-    cf.pushKV("available",      ValueFromAmount(chainActive.Tip()->nCFSupply));
-    cf.pushKV("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked));
+    cf.pushKV("available",           ValueFromAmount(chainActive.Tip()->nCFSupply));
+    cf.pushKV("locked",              ValueFromAmount(chainActive.Tip()->nCFLocked));
 
-    obj.pushKV("communityfund", cf);
-    obj.pushKV("publicmoneysupply", FormatMoney(chainActive.Tip()->nPublicMoneySupply));
+    obj.pushKV("communityfund",      cf);
+    obj.pushKV("publicmoneysupply",  FormatMoney(chainActive.Tip()->nPublicMoneySupply));
     obj.pushKV("privatemoneysupply", FormatMoney(chainActive.Tip()->nPrivateMoneySupply));
-    obj.pushKV("timeoffset",    GetTimeOffset());
-    obj.pushKV("ntptimeoffset", GetNtpTimeOffset());
-    obj.pushKV("connections",   (int)vNodes.size());
-    obj.pushKV("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string()));
-    obj.pushKV("testnet",       Params().TestnetToBeDeprecatedFieldRPC());
+    obj.pushKV("timeoffset",         GetTimeOffset());
+    obj.pushKV("ntptimeoffset",      GetNtpTimeOffset());
+    obj.pushKV("connections",        (int)vNodes.size());
+    obj.pushKV("proxy",              (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string()));
+    obj.pushKV("testnet",            Params().TestnetToBeDeprecatedFieldRPC());
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
         obj.pushKV("keypoololdest", pwalletMain->GetOldestKeyPoolTime());
@@ -217,7 +217,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "  \"spendingaddress\" : \"navcoinaddress\", (string) The navcoin spending address part of a cold staking address\n"
             "  \"votingaddress\" : \"navcoinaddress\", (string) The navcoin voting address part of a cold staking v2 address\n"
             "  \"ismine\" : true|false,        (boolean) If the address is yours or not\n"
-            "  \"ismine\" : true|false,        (boolean) If the coins from the address are stakable or not\n"
+            "  \"isstakable\" : true|false,    (boolean) If the coins from the address are stakable or not\n"
             "  \"iswatchonly\" : true|false,   (boolean) If the address is watchonly\n"
             "  \"isscript\" : true|false,      (boolean) If the key is a script\n"
             "  \"iscoldstaking\" : true|false,        (boolean) If the address is a cold staking address or not\n"
@@ -965,10 +965,15 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
 
     CAmount balance = 0;
     CAmount received = 0;
+    CAmount staked = 0;
 
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
         if (it->second > 0) {
             received += it->second;
+        }
+        if (it->first.blockHeight > Params().GetConsensus().nLastPOWBlock && it->first.txindex == 1)
+        {
+            staked += it->second;
         }
         balance += it->second;
     }
@@ -976,6 +981,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
     result.pushKV("balance", balance);
     result.pushKV("received", received);
+    result.pushKV("staked", staked);
 
     return result;
 

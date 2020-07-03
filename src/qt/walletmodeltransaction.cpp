@@ -58,22 +58,6 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet, CWalletTx* wTx, 
 
         if(j != index) continue;
 
-        if (rcp.paymentRequest.IsInitialized())
-        {
-            CAmount subtotal = 0;
-            const payments::PaymentDetails& details = rcp.paymentRequest.getDetails();
-            for (int j = 0; j < details.outputs_size(); j++)
-            {
-                const payments::Output& out = details.outputs(j);
-                if (out.amount() <= 0) continue;
-                if (i == nChangePosRet)
-                    i++;
-                subtotal += wTx->vout[i].nValue;
-                i++;
-            }
-            rcp.amount = subtotal;
-        }
-        else // normal recipient (no payment request)
         {
             if (i == nChangePosRet)
                 i++;

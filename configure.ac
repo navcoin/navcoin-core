@@ -7,7 +7,7 @@ define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
 define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, false)
-define(_COPYRIGHT_YEAR, 2018)
+define(_COPYRIGHT_YEAR, 2020)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
 AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
@@ -51,14 +51,14 @@ dnl faketime breaks configure and is only needed for make. Disable it here.
 unset FAKETIME
 
 dnl Automake init set-up and checks
-AM_INIT_AUTOMAKE([no-define subdir-objects foreign])
+AM_INIT_AUTOMAKE([1.13 no-define subdir-objects foreign])
 
 dnl faketime messes with timestamps and causes configure to be re-run.
 dnl --disable-maintainer-mode can be used to bypass this.
 AM_MAINTAINER_MODE([enable])
 
 dnl make the compilation flags quiet unless V=1 is used
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+AM_SILENT_RULES([yes])
 
 dnl Compiler checks (here before libtool).
 if test "x${CXXFLAGS+set}" = "xset"; then
@@ -76,8 +76,19 @@ case $host in
      lt_cv_deplibs_check_method="pass_all"
   ;;
 esac
-dnl Require C++11 compiler (no GNU extensions)
-AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
+
+AC_ARG_ENABLE([c++17],
+  [AS_HELP_STRING([--enable-c++17],
+  [enable compilation in c++17 mode (disabled by default)])],
+  [use_cxx17=$enableval],
+  [use_cxx17=no])
+
+dnl Require C++11 or C++17 compiler (no GNU extensions)
+if test "x$use_cxx17" = xyes -o "x$enable_fuzz" = xyes ; then
+  AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+else
+  AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+fi
 
 dnl Unless the user specified OBJCXX, force it to be the same as CXX. This ensures
 dnl that we get the same -std flags for both.
@@ -88,6 +99,10 @@ fi
 AC_PROG_OBJCXX
 ])
 
+dnl Since libtool 1.5.2 (released 2004-01-25), on Linux libtool no longer
+dnl sets RPATH for any directories in the dynamic linker search path.
+dnl See more: https://wiki.debian.org/RpathIssue
+LT_PREREQ([1.5.2])
 dnl Libtool init checks.
 LT_INIT([pic-only])
 
@@ -107,6 +122,8 @@ AC_PATH_PROG(HEXDUMP,hexdump)
 AC_PATH_TOOL(READELF, readelf)
 AC_PATH_TOOL(CPPFILT, c++filt)
 AC_PATH_TOOL(OBJCOPY, objcopy)
+AC_PATH_PROG(DOXYGEN, doxygen)
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 
 AC_ARG_VAR(PYTHONPATH, Augments the default search path for python module files)
 
@@ -207,8 +224,6 @@ AC_ARG_ENABLE([zmq],
   [use_zmq=$enableval],
   [use_zmq=yes])
 
-AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
-
 # Enable debug
 AC_ARG_ENABLE([debug],
     [AS_HELP_STRING([--enable-debug],
@@ -271,32 +286,32 @@ use_pkgconfig=yes
 case $host in
   *mingw*)
 
-     #pkgconfig does more harm than good with MinGW
+     dnl pkgconfig does more harm than good with MinGW
      use_pkgconfig=no
 
      TARGET_OS=windows
-     AC_CHECK_LIB([mingwthrd],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([kernel32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([user32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([gdi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comdlg32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winspool],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winmm],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shell32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comctl32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ole32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([oleaut32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([mingwthrd], [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([kernel32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([user32],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([gdi32],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([comdlg32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([winspool],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([winmm],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([shell32],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([comctl32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([ole32],     [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([oleaut32],  [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([uuid],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([rpcrt4],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([advapi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ws2_32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([mswsock],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([rpcrt4],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([advapi32],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([ws2_32],    [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([mswsock],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([shlwapi],   [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([iphlpapi],  [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([crypt32],   [main],, AC_MSG_ERROR(lib missing))
 
-     # -static is interpreted by libtool, where it has a different meaning.
-     # In libtool-speak, it's -all-static.
+     dnl -static is interpreted by libtool, where it has a different meaning.
+     dnl In libtool-speak, it's -all-static.
      AX_CHECK_LINK_FLAG([[-static]],[LIBTOOL_APP_LDFLAGS="$LIBTOOL_APP_LDFLAGS -all-static"])
 
      AC_PATH_PROG([MAKENSIS], [makensis], none)
@@ -309,15 +324,15 @@ case $host in
        AC_MSG_ERROR("windres not found")
      fi
 
-     CPPFLAGS="$CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB"
-     LEVELDB_TARGET_FLAGS="-DOS_WINDOWS"
-     if test "x$CXXFLAGS_overridden" = "xno"; then
-       CXXFLAGS="$CXXFLAGS -w"
-     fi
+     CPPFLAGS="$CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -D_WIN32_WINNT=0x0601"
+
+     # We need to build larger files
+     AX_CHECK_COMPILE_FLAG([-Wa,-mbig-obj],[CXXFLAGS="$CXXFLAGS -Wa,-mbig-obj"],,[[$CXXFLAG_WERROR]])
+
      case $host in
-       i?86-*) WINDOWS_BITS=32 ;;
-       x86_64-*) WINDOWS_BITS=64 ;;
-       *) AC_MSG_ERROR("Could not determine win32/win64 for installer") ;;
+         i?86-*) WINDOWS_BITS=32 ;;
+         x86_64-*) WINDOWS_BITS=64 ;;
+         *) AC_MSG_ERROR("Could not determine win32/win64 for installer") ;;
      esac
      AC_SUBST(WINDOWS_BITS)
 
@@ -329,23 +344,13 @@ case $host in
      archive_cmds_CXX="\$CC -shared \$libobjs \$deplibs \$compiler_flags -static -o \$output_objdir/\$soname \${wl}--enable-auto-image-base -Xlinker --out-implib -Xlinker \$lib"
      postdeps_CXX=
 
+     dnl We require Windows 7 (NT 6.1) or later
+     AX_CHECK_LINK_FLAG([[-Wl,--major-subsystem-version -Wl,6 -Wl,--minor-subsystem-version -Wl,1]],[LDFLAGS="$LDFLAGS -Wl,--major-subsystem-version -Wl,6 -Wl,--minor-subsystem-version -Wl,1"],,[[$LDFLAG_WERROR]])
      ;;
   *darwin*)
      TARGET_OS=darwin
-     LEVELDB_TARGET_FLAGS="-DOS_MACOSX"
      if  test x$cross_compiling != xyes; then
        BUILD_OS=darwin
-       AC_CHECK_PROG([PORT],port, port)
-       if test x$PORT = xport; then
-         dnl add default macports paths
-         CPPFLAGS="$CPPFLAGS -isystem /opt/local/include"
-         LIBS="$LIBS -L/opt/local/lib"
-         if test -d /opt/local/include/db48; then
-           CPPFLAGS="$CPPFLAGS -I/opt/local/include/db48"
-           LIBS="$LIBS -L/opt/local/lib/db48"
-         fi
-       fi
-
        AC_PATH_PROGS([RSVG_CONVERT], [rsvg-convert rsvg],rsvg-convert)
        AC_CHECK_PROG([BREW],brew, brew)
        if test x$BREW = xbrew; then
@@ -355,20 +360,11 @@ case $host in
          dnl It's safe to add these paths even if the functionality is disabled by
          dnl the user (--without-wallet or --without-gui for example).
 
-         openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
-         bdb_prefix=`$BREW --prefix berkeley-db4 2>/dev/null`
-         qt5_prefix=`$BREW --prefix qt5 2>/dev/null`
-         if test x$openssl_prefix != x; then
-           PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
-           export PKG_CONFIG_PATH
-         fi
+         bdb_prefix=$($BREW --prefix berkeley-db4 2>/dev/null)
+         qt5_prefix=$($BREW --prefix qt5 2>/dev/null)
          if test x$bdb_prefix != x; then
            CPPFLAGS="$CPPFLAGS -I$bdb_prefix/include"
            LIBS="$LIBS -L$bdb_prefix/lib"
-         fi
-         if test x$unbound_prefix != x; then
-            CPPFLAGS="$CPPFLAGS -I$unbound_prefix/include"
-            LIBS="$LIBS -L$unbound_prefix/lib"
          fi
          if test x$qt5_prefix != x; then
            PKG_CONFIG_PATH="$qt5_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -397,17 +393,16 @@ case $host in
        esac
      fi
 
-     AX_CHECK_LINK_FLAG([[-Wl,-headerpad_max_install_names]], [LDFLAGS="$LDFLAGS -Wl,-headerpad_max_install_names"])
-     CPPFLAGS="$CPPFLAGS -DMAC_OSX"
-     OBJCXXFLAGS="-std=c++11 $CXXFLAGS"
+     AX_CHECK_LINK_FLAG([[-Wl,-headerpad_max_install_names]], [LDFLAGS="$LDFLAGS -Wl,-headerpad_max_install_names"],, [[$LDFLAG_WERROR]])
+     CPPFLAGS="$CPPFLAGS -DMAC_OSX -DOBJC_OLD_DISPATCH_PROTOTYPES=0"
+     OBJCXXFLAGS="$CXXFLAGS"
+     ;;
+   *android*)
+     dnl make sure android stays above linux for hosts like *linux-android*
+     TARGET_OS=android
      ;;
    *linux*)
      TARGET_OS=linux
-     LEVELDB_TARGET_FLAGS="-DOS_LINUX"
-     ;;
-   *)
-     OTHER_OS=`echo ${host_os} | awk '{print toupper($0)}'`
-     LEVELDB_TARGET_FLAGS="-DOS_${OTHER_OS}"
      ;;
 esac
 
@@ -611,6 +606,49 @@ if test x$use_reduce_exports = xyes; then
   [AC_MSG_ERROR([Cannot set default symbol visibility. Use --disable-reduce-exports.])])
 fi
 
+dnl LevelDB platform checks
+AC_MSG_CHECKING(for fdatasync)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
+ [[ fdatasync(0); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_FDATASYNC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_FDATASYNC=0 ]
+)
+
+AC_MSG_CHECKING(for F_FULLFSYNC)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ fcntl(0, F_FULLFSYNC, 0); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_FULLFSYNC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_FULLFSYNC=0 ]
+)
+
+AC_MSG_CHECKING(for O_CLOEXEC)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ open("", O_CLOEXEC); ]])],
+ [ AC_MSG_RESULT(yes); HAVE_O_CLOEXEC=1 ],
+ [ AC_MSG_RESULT(no); HAVE_O_CLOEXEC=0 ]
+)
+
+dnl crc32c platform checks
+AC_MSG_CHECKING(for __builtin_prefetch)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+  char data = 0;
+  const char* address = &data;
+  __builtin_prefetch(address, 0, 0);
+  ]])],
+ [ AC_MSG_RESULT(yes); HAVE_BUILTIN_PREFETCH=1 ],
+ [ AC_MSG_RESULT(no); HAVE_BUILTIN_PREFETCH=0 ]
+)
+
+AC_MSG_CHECKING(for _mm_prefetch)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
+  char data = 0;
+  const char* address = &data;
+  _mm_prefetch(address, _MM_HINT_NTA);
+  ]])],
+ [ AC_MSG_RESULT(yes); HAVE_MM_PREFETCH=1 ],
+ [ AC_MSG_RESULT(no); HAVE_MM_PREFETCH=0 ]
+)
+
 LEVELDB_CPPFLAGS=
 LIBLEVELDB=
 LIBMEMENV=
@@ -618,6 +656,11 @@ AM_CONDITIONAL([EMBEDDED_LEVELDB],[true])
 AC_SUBST(LEVELDB_CPPFLAGS)
 AC_SUBST(LIBLEVELDB)
 AC_SUBST(LIBMEMENV)
+
+NAVCOIN_QT_INIT
+
+dnl sets $navcoin_enable_qt, $navcoin_enable_qt_test, $navcoin_enable_qt_dbus
+NAVCOIN_QT_CONFIGURE([$use_pkgconfig])
 
 if test x$enable_wallet != xno; then
     dnl Check for libdb_cxx only if wallet enabled
@@ -628,15 +671,30 @@ dnl Check for libminiupnpc (optional)
 if test x$use_upnp != xno; then
   AC_CHECK_HEADERS(
     [miniupnpc/miniwget.h miniupnpc/miniupnpc.h miniupnpc/upnpcommands.h miniupnpc/upnperrors.h],
-    [AC_CHECK_LIB([miniupnpc], [main],[MINIUPNPC_LIBS=-lminiupnpc], [have_miniupnpc=no])],
+    [AC_CHECK_LIB([miniupnpc], [upnpDiscover], [MINIUPNPC_LIBS=-lminiupnpc], [have_miniupnpc=no])],
     [have_miniupnpc=no]
   )
+dnl The minimum supported miniUPnPc API version is set to 10. This keeps compatibility
+dnl with Ubuntu 16.04 LTS and Debian 8 libminiupnpc-dev packages.
+if test x$have_miniupnpc != xno; then
+  AC_MSG_CHECKING([whether miniUPnPc API version is supported])
+  AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
+      @%:@include <miniupnpc/miniupnpc.h>
+    ]], [[
+      #if MINIUPNPC_API_VERSION >= 10
+      // Everything is okay
+      #else
+      #  error miniUPnPc API version is too old
+      #endif
+    ]])],[
+      AC_MSG_RESULT(yes)
+    ],[
+    AC_MSG_RESULT(no)
+    AC_MSG_WARN([miniUPnPc API version < 10 is unsupported, disabling UPnP support.])
+    have_miniupnpc=no
+  ])
 fi
-
-NAVCOIN_QT_INIT
-
-dnl sets $navcoin_enable_qt, $navcoin_enable_qt_test, $navcoin_enable_qt_dbus
-NAVCOIN_QT_CONFIGURE([$use_pkgconfig])
+fi
 
 if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests$use_bench = xnonononono; then
     use_boost=no
@@ -812,20 +870,18 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
-      PKG_CHECK_MODULES(LIBEVENT, [libevent], [], [AC_MSG_ERROR([libevent not found])])
       PKG_CHECK_MODULES([ZLIB], [zlib],, [AC_MSG_ERROR(zlib  not found.)])
       if test x$TARGET_OS = xlinux; then
-        PKG_CHECK_MODULES(LIBSECCOMP, [libseccomp], [], [AC_MSG_ERROR([libseccomp not found])])
-        PKG_CHECK_MODULES(LIBCAP, [libcap], [], [AC_MSG_ERROR([libcap not found])])
+        PKG_CHECK_MODULES([LIBSECCOMP], [libseccomp],, [AC_MSG_ERROR([libseccomp not found])])
+        PKG_CHECK_MODULES([LIBCAP], [libcap],, [AC_MSG_ERROR([libcap not found])])
       fi
       PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [AC_MSG_ERROR(libunbound not found)])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
-      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [NAVCOIN_QT_FAIL(libprotobuf not found)])])
       if test x$use_qr != xno; then
         NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
-      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts],,[NAVCOIN_QT_FAIL(qtcharts not found)])])
+      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts], ,[NAVCOIN_QT_FAIL(qtcharts not found)])])
       if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
         PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
         if test x$TARGET_OS != xwindows; then
@@ -850,7 +906,11 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
-  AC_CHECK_LIB([zlib],         [main],ZLIB_LIBS=-lz, AC_MSG_ERROR(libzlib missing))
+  if test x$TARGET_OS = xlinux; then
+    AC_CHECK_LIB([seccomp],   [main],LIBSECCOMP_LIBS=-lseccomp, AC_MSG_ERROR(libseccomp missing))
+    AC_CHECK_LIB([libcap],    [main],LIBCAP_LIBS=-lcap, AC_MSG_ERROR(libcap missing))
+  fi
+  AC_CHECK_LIB([z],           [main],ZLIB_LIBS=-lz, AC_MSG_ERROR(libzlib missing))
   AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
@@ -885,11 +945,10 @@ else
     esac
   fi
 
-  NAVCOIN_QT_CHECK(AC_CHECK_LIB([protobuf] ,[main],[PROTOBUF_LIBS=-lprotobuf], NAVCOIN_QT_FAIL(libprotobuf not found)))
-  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main],[CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(charts not found))])
+  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main], [CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(qtcharts not found))])
   if test x$use_qr != xno; then
-    NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main],[QR_LIBS=-lqrencode], [have_qrencode=no])])
-    NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h],, have_qrencode=no)])
+    NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main], [QR_LIBS=-lqrencode], [have_qrencode=no])])
+    NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h], , have_qrencode=no)])
   fi
 fi
 
@@ -945,8 +1004,6 @@ LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS $ZLIB_LIBS"
 AC_CHECK_HEADER([openssl/ec.h],, AC_MSG_ERROR(OpenSSL ec header missing),)
 CXXFLAGS="$CXXFLAGS_TEMP"
 LIBS="$LIBS_TEMP"
-
-NAVCOIN_QT_PATH_PROGS([PROTOC], [protoc],$protoc_bin_path)
 
 AC_MSG_CHECKING([whether to build navcoind])
 AM_CONDITIONAL([BUILD_NAVCOIND], [test x$build_navcoind = xyes])
@@ -1084,21 +1141,28 @@ if test x$build_navcoin_utils$build_navcoin_libs$build_navcoind$navcoin_enable_q
   AC_MSG_ERROR([No targets! Please specify at least one of: --with-utils --with-libs --with-daemon --with-gui or --enable-tests])
 fi
 
-AM_CONDITIONAL([TARGET_DARWIN], [test x$TARGET_OS = xdarwin])
-AM_CONDITIONAL([BUILD_DARWIN], [test x$BUILD_OS = xdarwin])
-AM_CONDITIONAL([TARGET_WINDOWS], [test x$TARGET_OS = xwindows])
-AM_CONDITIONAL([ENABLE_WALLET],[test x$enable_wallet = xyes])
-AM_CONDITIONAL([ENABLE_TESTS],[test x$BUILD_TEST = xyes])
-AM_CONDITIONAL([ENABLE_QT],[test x$navcoin_enable_qt = xyes])
-AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
-AM_CONDITIONAL([ENABLE_BENCH],[test x$use_bench = xyes])
-AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
-AM_CONDITIONAL([HAVE_UNBOUND], [test x$have_unbound = xyes])
-AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
-AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
-AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
-AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
-AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
+AM_CONDITIONAL([TARGET_DARWIN],                   [test x$TARGET_OS = xdarwin])
+AM_CONDITIONAL([BUILD_DARWIN],                    [test x$BUILD_OS = xdarwin])
+AM_CONDITIONAL([TARGET_WINDOWS],                  [test x$TARGET_OS = xwindows])
+AM_CONDITIONAL([ENABLE_WALLET],                   [test x$enable_wallet = xyes])
+AM_CONDITIONAL([ENABLE_TESTS],                    [test x$BUILD_TEST = xyes])
+AM_CONDITIONAL([ENABLE_QT],                       [test x$navcoin_enable_qt = xyes])
+AM_CONDITIONAL([ENABLE_QT_TESTS],                 [test x$BUILD_TEST_QT = xyes])
+AM_CONDITIONAL([ENABLE_BENCH],                    [test x$use_bench = xyes])
+AM_CONDITIONAL([USE_QRCODE],                      [test x$use_qr = xyes])
+AM_CONDITIONAL([HAVE_UNBOUND],                    [test x$have_unbound = xyes])
+AM_CONDITIONAL([USE_LCOV],                        [test x$use_lcov = xyes])
+AM_CONDITIONAL([USE_COMPARISON_TOOL],             [test x$use_comparison_tool != xno])
+AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS], [test x$use_comparison_tool_reorg_test != xno])
+AM_CONDITIONAL([GLIBC_BACK_COMPAT],               [test x$use_glibc_compat = xyes])
+AM_CONDITIONAL([HARDEN],                          [test x$use_hardening = xyes])
+AM_CONDITIONAL([ENABLE_SSE42],                    [test x$enable_sse42 = xyes])
+AM_CONDITIONAL([ENABLE_SSE41],                    [test x$enable_sse41 = xyes])
+AM_CONDITIONAL([ENABLE_AVX2],                     [test x$enable_avx2 = xyes])
+AM_CONDITIONAL([ENABLE_SHANI],                    [test x$enable_shani = xyes])
+AM_CONDITIONAL([ENABLE_ARM_CRC],                  [test x$enable_arm_crc = xyes])
+AM_CONDITIONAL([USE_ASM],                         [test x$use_asm = xyes])
+AM_CONDITIONAL([WORDS_BIGENDIAN],                 [test x$ac_cv_c_bigendian = xyes])
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])
 AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])
@@ -1151,13 +1215,19 @@ AC_SUBST(CURL_LIBS)
 AC_SUBST(EVENT_LIBS)
 AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
-AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
+# AC_SUBST(HAVE_GMTIME_R)
+AC_SUBST(HAVE_FDATASYNC)
+AC_SUBST(HAVE_FULLFSYNC)
+# AC_SUBST(HAVE_O_CLOEXEC)
+AC_SUBST(HAVE_BUILTIN_PREFETCH)
+AC_SUBST(HAVE_MM_PREFETCH)
+
 AC_CONFIG_FILES([Makefile src/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
-AC_CONFIG_FILES([qa/pull-tester/run-navcoind-for-test.sh],[chmod +x qa/pull-tester/run-navcoind-for-test.sh])
-AC_CONFIG_FILES([qa/pull-tester/tests_config.py],[chmod +x qa/pull-tester/tests_config.py])
+AC_CONFIG_FILES([test/pull-tester/run-navcoind-for-test.sh],[chmod +x test/pull-tester/run-navcoind-for-test.sh])
+AC_CONFIG_FILES([test/pull-tester/tests_config.py],[chmod +x test/pull-tester/tests_config.py])
 AC_CONFIG_FILES([contrib/devtools/split-debug.sh],[chmod +x contrib/devtools/split-debug.sh])
-AC_CONFIG_LINKS([qa/pull-tester/rpc-tests.py:qa/pull-tester/rpc-tests.py])
+AC_CONFIG_LINKS([test/pull-tester/rpc-tests.py:test/pull-tester/rpc-tests.py])
 
 dnl boost's m4 checks do something really nasty: they export these vars. As a
 dnl result, they leak into secp256k1's configure and crazy things happen.
@@ -1186,10 +1256,91 @@ if test x$system_univalue = xno; then
   AC_CONFIG_SUBDIRS([src/univalue])
 fi
 
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --disable-system-torrc --disable-systemd --disable-asciidoc --disable-lzma"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --disable-system-torrc --disable-systemd --disable-asciidoc --disable-lzma --disable-unittests"
 AC_CONFIG_SUBDIRS([src/secp256k1])
-AC_CONFIG_SUBDIRS([src/bls-signatures/build])
 AC_CONFIG_SUBDIRS([src/tor])
+
+BLS_WSIZE=64
+BLS_OPSYS="Linux"
+BLS_SEED="UDEV"
+BLS_AR=""
+BLS_RANLIB=""
+if test "x$TARGET_OS" = "xwindows"; then
+    BLS_OPSYS="Windows"
+    BLS_SEED="WCGR"
+fi
+if test "x$TARGET_OS" = "xdarwin"; then
+    BLS_OPSYS="Darwin"
+    BLS_AR=-DCMAKE_AR=$AR
+    BLS_RANLIB=-DCMAKE_RANLIB=$RANLIB
+fi
+
+BLS_HOST="${host%%-*}"
+
+case $host in
+# Need to check WSIZE value based on host
+i?86-* | arm*)
+    BLS_WSIZE=32
+;;
+esac
+
+BLS_CCACHE=""
+BLS_CC=`echo $CC | awk '{ print $1 }'`
+BLS_CC_RAW=$CC
+BLS_CXX=`echo $CXX | awk '{ print $1 }'`
+BLS_CXX_RAW=$CXX
+BLS_CFLAGS=`echo $CC | awk '{ $1=""; print $0 }'`
+BLS_CXXFLAGS=`echo $CXX | awk '{ $1=""; print $0 }'`
+BLS_CCACHE_CMAKE=""
+if test "x$use_ccache" != "xno"; then
+    BLS_CCACHE=`echo $CC | awk '{ print $1 }'`
+    BLS_CC=`echo $CC | awk '{ print $2 }'`
+    BLS_CC_RAW=`echo $CC | awk '{ $1=""; print $0 }'`
+    BLS_CXX=`echo $CXX | awk '{ print $2 }'`
+    BLS_CXX_RAW=`echo $CXX | awk '{ $1=""; print $0 }'`
+    BLS_CFLAGS=`echo $CC | awk '{ $1=""; $2=""; print $0 }'`
+    BLS_CXXFLAGS=`echo $CXX | awk '{ $1=""; $2=""; print $0 }'`
+    BLS_CCACHE_CMAKE=-DCMAKE_CXX_COMPILER_LAUNCHER=$BLS_CCACHE
+fi
+
+BLS_CFLAGS=`echo $BLS_CFLAGS $CFLAGS | awk '{ print $0 }'`
+BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
+BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS'"
+BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS'"
+
+dnl Run cmake for bls-sigs (This project does not support autotools)
+AC_CONFIG_COMMANDS([src/bls/build],
+                   [rm -rf src/bls/build/* || true && \
+                    mkdir -p src/bls/build || true && \
+                    CC=$CC \
+                    CXX=$CXX \
+                    CFLAGS=$CFLAGS \
+                    CXXFLAGS=$CXXFLAGS \
+                    LDFLAGS=$LDFLAGS \
+                    cmake -Bsrc/bls/build -Hsrc/bls \
+                    -DCMAKE_SYSTEM_NAME=$BLS_OPSYS \
+                    -DOPSYS=$BLS_OPSYS \
+                    -DSEED=$BLS_SEED \
+                    -DWSIZE=$BLS_WSIZE \
+                    -DCMAKE_CXX_COMPILER=$BLS_CXX \
+                    $BLS_CCACHE_CMAKE \
+                    $BLS_AR \
+                    $BLS_RANLIB && \
+                    printf 'check:\n\techo\n\n' >> src/bls/build/Makefile && \
+                    printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
+                    printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
+                   [CC=$BLS_CC_RAW
+                    CXX=$BLS_CXX_RAW
+                    CFLAGS=$BLS_CFLAGS
+                    CXXFLAGS=$BLS_CXXFLAGS
+                    BLS_CC=$BLS_CC
+                    BLS_CXX=$BLS_CXX
+                    BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
+                    BLS_AR=$BLS_AR
+                    BLS_RANLIB=$BLS_RANLIB
+                    BLS_OPSYS=$BLS_OPSYS
+                    BLS_SEED=$BLS_SEED
+                    BLS_WSIZE=$BLS_WSIZE])
 
 AC_OUTPUT
 
@@ -1207,8 +1358,8 @@ esac
 dnl Replace the BUILDDIR path with the correct Windows path if compiling on Native Windows
 case ${OS} in
    *Windows*)
-     sed  's/BUILDDIR="\/\([[a-z]]\)/BUILDDIR="\1:/'  qa/pull-tester/tests_config.py > qa/pull-tester/tests_config-2.py
-     mv qa/pull-tester/tests_config-2.py qa/pull-tester/tests_config.py
+     sed  's/BUILDDIR="\/\([[a-z]]\)/BUILDDIR="\1:/'  test/pull-tester/tests_config.py > test/pull-tester/tests_config-2.py
+     mv test/pull-tester/tests_config-2.py test/pull-tester/tests_config.py
    ;;
 esac
 
@@ -1225,6 +1376,17 @@ echo "  with test     = $use_tests"
 echo "  with bench    = $use_bench"
 echo "  with upnp     = $use_upnp"
 echo "  debug enabled = $enable_debug"
+echo
+echo "  bls OPSYS     = $BLS_OPSYS"
+echo "  bls SEED      = $BLS_SEED"
+echo "  bls WSIZE     = $BLS_WSIZE"
+echo "  bls CCACHE    = $BLS_CCACHE"
+echo "  bls CC        = $BLS_CC"
+echo "  bls CC_RAW    = $BLS_CC_RAW"
+echo "  bls CXX       = $BLS_CXX"
+echo "  bls CXX_RAW   = $BLS_CXX_RAW"
+echo "  bls CFLAGS    = $BLS_CFLAGS"
+echo "  bls CXXFLAGS  = $BLS_CXXFLAGS"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"

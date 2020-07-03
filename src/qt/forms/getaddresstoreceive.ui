@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1497</width>
-    <height>558</height>
+    <width>915</width>
+    <height>636</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -242,16 +242,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="requestPaymentButton">
+        <widget class="QPushButton" name="coldStakingButton">
          <property name="text">
-          <string>&amp;Request payment</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="requestNewAddressButton">
-         <property name="text">
-          <string>&amp;List old addresses</string>
+          <string>&amp;Create a Cold Staking address</string>
          </property>
         </widget>
        </item>
@@ -286,16 +279,16 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="coldStakingButton">
+        <widget class="QPushButton" name="privateAddressButton">
          <property name="text">
-          <string>&amp;Create a Cold Staking address</string>
+          <string>Show private address</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="privateAddressButton">
+        <widget class="QPushButton" name="requestNewAddressButton">
          <property name="text">
-          <string>Show private address</string>
+          <string>&amp;List old addresses</string>
          </property>
         </widget>
        </item>

@@ -259,9 +259,6 @@
     </message>
     </context>
 <context>
-    <name>PaymentServer</name>
-    </context>
-<context>
     <name>PeerTableModel</name>
     </context>
 <context>
