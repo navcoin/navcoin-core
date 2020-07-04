@@ -123,6 +123,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
+    daoAction(0),
+    settingsAction(0),
     quitAction(0),
     sendCoinsAction(0),
     sendCoinsMenuAction(0),
@@ -422,6 +424,20 @@ void NavCoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
+    daoAction = new QAction(platformStyle->Icon(":/icons/dao"), tr("&Transactions"), this);
+    daoAction->setStatusTip(tr("Participate in the DAO"));
+    daoAction->setToolTip(daoAction->statusTip());
+    daoAction->setCheckable(true);
+    daoAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    tabGroup->addAction(daoAction);
+
+    settingsAction = new QAction(platformStyle->Icon(":/icons/options"), tr("&Settings"), this);
+    settingsAction->setStatusTip(tr("Update settings"));
+    settingsAction->setToolTip(settingsAction->statusTip());
+    settingsAction->setCheckable(true);
+    settingsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    tabGroup->addAction(settingsAction);
+
     updatePriceAction  = new QAction(tr("Update exchange prices"), this);
     updatePriceAction->setStatusTip(tr("Update exchange prices"));
 
@@ -442,6 +458,8 @@ void NavCoinGUI::createActions()
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(gotoSettingsPage()));
     connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
     connect(splitRewardAction, SIGNAL(triggered()), this, SLOT(splitRewards()));
 #endif // ENABLE_WALLET
@@ -517,7 +535,8 @@ void NavCoinGUI::createActions()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(infoAction, SIGNAL(triggered()), this, SLOT(infoClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
+    connect(optionsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(optionsAction, SIGNAL(triggered()), this, SLOT(gotoSettingsPage()));
     connect(cfundProposalsAction, SIGNAL(triggered()), this, SLOT(cfundProposalsClicked()));
     connect(cfundPaymentRequestsAction, SIGNAL(triggered()), this, SLOT(cfundPaymentRequestsClicked()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
@@ -814,25 +833,27 @@ void NavCoinGUI::createToolBars()
     walletFrame->menuLayout->addWidget(logoBtn);
 
     // Buttons icon
-    QString btnNamesIcon[5] = {
+    QString btnNamesIcon[6] = {
         "home",
         "send",
         "receive",
         "transactions",
-        "dao"
+        "dao",
+        "options",
     };
 
     // Buttons text
-    std::string btnNamesText[5] = {
+    std::string btnNamesText[6] = {
         "HOME",
         "SEND",
         "RECEIVE",
         "HISTORY",
-        "DAO"
+        "DAO",
+        "OPTIONS"
     };
 
     // Build each new button
-    for (unsigned i = 0; i < 5; ++i)
+    for (unsigned i = 0; i < 6; ++i)
     {
         // Create the icon
         QIcon icon = platformStyle->Icon(":/icons/" + btnNamesIcon[i], COLOR_WHITE);
@@ -887,6 +908,7 @@ void NavCoinGUI::createToolBars()
     connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
     connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
     connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
+    connect(menuBtns[5], SIGNAL(clicked()), this, SLOT(gotoSettingsPage()));
 
     // Open about when versionLabel is clicked
     connect(versionLabel, SIGNAL(clicked()), this, SLOT(aboutClicked()));
@@ -904,10 +926,36 @@ void NavCoinGUI::showHideNotification(bool show, int index)
 
 void NavCoinGUI::setActiveMenu(int index)
 {
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         menuBtns[i]->setDisabled(i == index);
     }
+}
+
+bool NavCoinGUI::checkSettingsSaved()
+{
+    // Make sure we have a model
+    if (!clientModel || !clientModel->getOptionsModel())
+        return true;
+
+    // Check if it's even been changed
+    if (!clientModel->getOptionsModel()->isDirty())
+        return true;
+
+    // Confirmation dialog
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
+            tr("You have not saved your changes, are you sure you want to discard them?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    // They don't want to discard the changes I guess
+    if(btnRetVal == QMessageBox::No)
+        return false;
+
+    // Mark as clean
+    clientModel->getOptionsModel()->setDirty(false);
+
+    // Default is to return true
+    return true;
 }
 
 void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat)
@@ -1148,10 +1196,6 @@ void NavCoinGUI::optionsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    OptionsDialog dlg(this, enableWallet);
-    dlg.setModel(clientModel->getOptionsModel());
-    dlg.exec();
 }
 
 void NavCoinGUI::cfundProposalsClicked()
@@ -1221,6 +1265,9 @@ void NavCoinGUI::openClicked()
 
 void NavCoinGUI::gotoOverviewPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(0);
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
@@ -1228,6 +1275,9 @@ void NavCoinGUI::gotoOverviewPage()
 
 void NavCoinGUI::gotoHistoryPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(3);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
@@ -1235,13 +1285,26 @@ void NavCoinGUI::gotoHistoryPage()
 
 void NavCoinGUI::gotoCommunityFundPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(4);
-    historyAction->setChecked(true);
+    daoAction->setChecked(true);
     if (walletFrame) walletFrame->gotoCommunityFundPage();
+}
+
+void NavCoinGUI::gotoSettingsPage()
+{
+    setActiveMenu(5);
+    settingsAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoSettingsPage();
 }
 
 void NavCoinGUI::gotoReceiveCoinsPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
@@ -1249,6 +1312,9 @@ void NavCoinGUI::gotoReceiveCoinsPage()
 
 void NavCoinGUI::gotoRequestPaymentPage()
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
@@ -1256,6 +1322,9 @@ void NavCoinGUI::gotoRequestPaymentPage()
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
+    if (!checkSettingsSaved())
+        return;
+
     setActiveMenu(1);
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);

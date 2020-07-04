@@ -57,6 +57,7 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    void setDirty(bool dirty);
     /** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
     void setDisplayUnit(const QVariant &value);
     void setCoinControlFeatures(const bool enabled);
@@ -74,6 +75,7 @@ public:
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
     bool isRestartRequired();
+    bool isDirty();
 
 private:
     /* Qt-only settings */
@@ -86,6 +88,7 @@ private:
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
     bool fCoinControlFeatures;
+    bool fDirty = false;
     /* settings that were overriden by command-line */
     QString strOverriddenByCommandLine;
 

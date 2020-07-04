@@ -81,6 +81,9 @@ public:
     /** Set the active menuBtns */
     void setActiveMenu(int index);
 
+    /** Prompt user if they have not saved changes to options page */
+    bool checkSettingsSaved();
+
     /** Sets the balance for the wallet GUI header */
     void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
 
@@ -139,7 +142,9 @@ private:
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
+    QAction *daoAction;
     QAction *historyAction;
+    QAction *settingsAction;
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *sendCoinsMenuAction;
@@ -170,8 +175,8 @@ private:
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
     QAction *splitRewardAction;
-    QToolButton *menuBtns[5];
-    QLabel *menuBubbles[5];
+    QToolButton *menuBtns[6];
+    QLabel *menuBubbles[6];
     QLabel *notifications[3];
 
     QSystemTrayIcon *trayIcon;
@@ -267,6 +272,8 @@ private Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
+    /** Switch to settings page */
+    void gotoSettingsPage();
     /** Switch to community fund page*/
     void gotoCommunityFundPage();
     /** Switch to receive coins page */
