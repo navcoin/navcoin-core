@@ -435,9 +435,6 @@ bool NavCoinApplication::setupMnemonicWords(std::string& wordlist, std::string& 
         return true;
     }
 
-    std::string walletFile = GetArg("-wallet", "wallet.dat");
-    if (fs::exists(walletFile)) return true;
-
 	if (CheckIfWalletDatExists()) return true;
 
     StartOptionsMain dlg(nullptr);
