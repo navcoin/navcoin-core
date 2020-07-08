@@ -3575,10 +3575,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (fDaoTx)
                 {
                     const CTransaction &txRead = tx;
+                    bool fValid = true;
 
                     if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
                     {
-                        return error("%s: Could not find %s to read voter script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
+                        fValid = false;
+                    }
+
+                    if (!fValid)
+                    {
+                        bool fFoundInTheSameBlock = false;
+
+                        for (unsigned int i_ = 0; i_ < block.vtx.size(); i_++)
+                        {
+                            if (txRead.vin[0].prevout.hash == block.vtx[i_].hash)
+                            {
+                                txPrev = block.vtx[i_];
+                                fFoundInTheSameBlock = true;
+                                break;
+                            }
+                        }
+
+                        if (!fFoundInTheSameBlock)
+                            return error("%s: Could not find %s to read voter script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
                     }
 
                     if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(voterScript))
