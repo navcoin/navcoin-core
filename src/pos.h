@@ -15,6 +15,8 @@ double GetPoWMHashPS();
 
 double GetPoSKernelPS();
 
+std::pair<CAmount, std::pair<CAmount, CAmount>> GetStakingCoins();
+
 extern uint64_t nLastCoinStakeSearchInterval;
 
 #endif // NAVCOIN_POS_H

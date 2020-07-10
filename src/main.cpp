@@ -1885,6 +1885,19 @@ bool HashOnchainActive(const uint256 &hash)
     return true;
 }
 
+bool GetAddressHistory(uint160 addressHash, uint160 addressHash2,
+                     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > &addressHistory,
+                     AddressHistoryFilter filter, int start, int end)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!pblocktree->ReadAddressHistory(addressHash, addressHash2, addressHistory, filter, start, end))
+        return error("unable to get history for address");
+
+    return true;
+}
+
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
 {
@@ -2518,6 +2531,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         return error("DisconnectBlock(): block and undo data inconsistent");
 
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
+    std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
@@ -2568,48 +2583,92 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 const CTxOut &out = tx.vout[k];
 
                 if (out.scriptPubKey.IsPayToScriptHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
+                    vector<unsigned char> hashBytes_(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
+
+                    uint160 hashBytes(hashBytes_);
 
                     // undo receiving activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(2, hashBytes, pindex->nHeight, i, hash, k, false), out.nValue));
 
                     // undo unspent index
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), hash, k), CAddressUnspentValue()));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, hashBytes, hash, k), CAddressUnspentValue()));
 
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
-                }  else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+
+                }  else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsPayToPublicKeyHash()) {
                     uint160 hashBytes;
+                    uint160 hashBytesStaking;
+                    uint160 hashBytesVoting;
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2())
-                        address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, true), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, false), out.nValue));
 
                     // restore unspent index
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
-                } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    uint160 hashBytes;
-                    CTxDestination destination;
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+
+                } else if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
+                    CNavCoinAddress addressStaking, addressVoting, addressSpending;
+                    uint160 hashBytes, hashBytesSpending, hashBytesStaking, hashBytesVoting;
                     int type = 0;
 
+                    CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-
                     address.GetIndexKey(hashBytes, type);
+                    address.GetSpendingAddress(addressSpending);
+                    addressSpending.GetIndexKey(hashBytesSpending, type);
 
-                    // undo receiving activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                    // undo spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, false), out.nValue));
 
-                    // undo unspent index
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, uint160(hashBytes), hash, k), CAddressUnspentValue()));
+                    // restore unspent index
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+
+                    if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue()));
+
+                    if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2())
+                    {
+                        address.GetStakingAddress(addressStaking);
+                        addressStaking.GetIndexKey(hashBytesStaking, type);
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime);
+                        if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue()));
+                        if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue()));
+                    }
+
+                    if (out.scriptPubKey.IsColdStakingv2())
+                    {
+                        address.GetVotingAddress(addressVoting);
+                        addressVoting.GetIndexKey(hashBytesVoting, type);
+                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime);
+                        if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue()));
+                        if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting2, CAddressHistoryValue()));
+                    }
                 } else {
                     continue;
                 }
@@ -2659,7 +2718,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 if (fAddressIndex) {
                     const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
                     if (prevout.scriptPubKey.IsPayToScriptHash()) {
-                        vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
+                        vector<unsigned char> hashBytes_(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
+                        uint160 hashBytes(hashBytes_);
 
                         // undo spending activity
                         addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
@@ -2667,15 +2727,18 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
-                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+                    }
+                    else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsPayToPublicKeyHash())
+                    {
                         uint160 hashBytes;
                         int type = 0;
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
-                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
-                            address.GetSpendingAddress(address);
                         address.GetIndexKey(hashBytes, type);
 
                         // undo spending activity
@@ -2684,23 +2747,66 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, hash, tx.nTime);
 
-                    } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
-                        uint160 hashBytes;
-                        CTxDestination destination;
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+                    }
+                    else if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
+                    {
+                        CNavCoinAddress addressStaking, addressVoting, addressSpending;
+
+                        uint160 hashBytes, hashBytesSpending, hashBytesStaking, hashBytesVoting;
+
                         int type = 0;
+                        CTxDestination destination;
 
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
 
+                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
+                            address.GetSpendingAddress(addressSpending);
                         address.GetIndexKey(hashBytes, type);
+                        addressSpending.GetIndexKey(hashBytesSpending, type);
 
                         // undo spending activity
-                        addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
 
                         // restore unspent index
-                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
+                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
+                        CAddressHistoryKey addressHistoryKey(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, hash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, hash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+
+                        if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue()));
+
+                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
+                        {
+                            address.GetStakingAddress(addressStaking);
+                            addressStaking.GetIndexKey(hashBytesStaking, type);
+                            CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, hash, tx.nTime);
+                            CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, hash, tx.nTime);
+                            if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                                addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue()));
+                            if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                                addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue()));
+                        }
+
+                        if (prevout.scriptPubKey.IsColdStakingv2())
+                        {
+                            address.GetVotingAddress(addressVoting);
+                            addressVoting.GetIndexKey(hashBytesVoting, type);
+                            CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, hash, tx.nTime);
+                            CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, hash, tx.nTime);
+                            if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
+                                addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue()));
+                            if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
+                                addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting2, CAddressHistoryValue()));
+                        }
                     } else {
                         continue;
                     }
@@ -2855,6 +2961,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {
             return AbortNode(state, "Failed to delete address index");
+        }
+        for (auto &it: addressHistoryMap)
+        {
+            addressHistory.push_back(std::make_pair(it.first, it.second));
+        }
+        if (!pblocktree->EraseAddressHistory(addressHistory)) {
+            return AbortNode(state, "Failed to delete address history");
         }
         if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             return AbortNode(state, "Failed to write address unspent index");
@@ -3389,6 +3502,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     vPos.reserve(block.vtx.size());
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
+    std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
@@ -3460,10 +3575,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (fDaoTx)
                 {
                     const CTransaction &txRead = tx;
+                    bool fValid = true;
 
                     if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
                     {
-                        return error("%s: Could not find %s to read voter script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
+                        fValid = false;
+                    }
+
+                    if (!fValid)
+                    {
+                        bool fFoundInTheSameBlock = false;
+
+                        for (unsigned int i_ = 0; i_ < block.vtx.size(); i_++)
+                        {
+                            if (txRead.vin[0].prevout.hash == block.vtx[i_].hash)
+                            {
+                                txPrev = block.vtx[i_];
+                                fFoundInTheSameBlock = true;
+                                break;
+                            }
+                        }
+
+                        if (!fFoundInTheSameBlock)
+                            return error("%s: Could not find %s to read voter script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
                     }
 
                     if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(voterScript))
@@ -3668,24 +3802,132 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     const CTxIn input = tx.vin[j];
                     const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
                     uint160 hashBytes;
-                    int addressType;
+                    int addressType, dummyType;
 
                     if (prevout.scriptPubKey.IsPayToScriptHash()) {
-                        hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22));
+                        vector<unsigned char> hashBytes_(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
+                        uint160 hashBytes(hashBytes_);
                         addressType = 2;
-                    } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
+
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKey].spendable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey].stakable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey].voting_weight += prevout.nValue * -1;
+                    } else if (prevout.scriptPubKey.IsPayToPublicKeyHash() || prevout.scriptPubKey.IsPayToPublicKey()) {
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
                         address.GetIndexKey(hashBytes, addressType);
-                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
+
+                        CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKey].spendable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey].stakable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey].voting_weight += prevout.nValue * -1;
+                    } else if (prevout.scriptPubKey.IsColdStaking())
+                    {
                         CTxDestination destination;
+                        uint160 hashBytesSpending, hashBytesStaking;
+                        CNavCoinAddress addressStaking, addresssSpending;
+
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
-                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
-                            address.GetSpendingAddress(address);
+                        address.GetSpendingAddress(addresssSpending);
                         address.GetIndexKey(hashBytes, addressType);
-                    } else {
+                        addresssSpending.GetIndexKey(hashBytesSpending, addressType);
+
+                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKey].spendable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey2].spendable += prevout.nValue * -1;
+
+                        address.GetStakingAddress(addressStaking);
+                        addressStaking.GetIndexKey(hashBytesStaking, dummyType);
+
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKeyStaking].stakable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKeyStaking].voting_weight += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKeyStaking2].stakable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKeyStaking2].voting_weight += prevout.nValue * -1;
+                    }
+                    else if (prevout.scriptPubKey.IsColdStakingv2())
+                    {
+                        CTxDestination destination;
+                        uint160 hashBytesStaking, hashBytesVoting, hashBytesSpending;
+                        CNavCoinAddress addressStaking, addressVoting, addresssSpending;
+
+                        ExtractDestination(prevout.scriptPubKey, destination);
+                        CNavCoinAddress address(destination);
+                        address.GetSpendingAddress(addresssSpending);
+                        address.GetIndexKey(hashBytes, addressType);
+                        addresssSpending.GetIndexKey(hashBytesSpending, addressType);
+
+                        CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKey) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKey].spendable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKey2].spendable += prevout.nValue * -1;
+
+                        address.GetStakingAddress(addressStaking);
+                        addressStaking.GetIndexKey(hashBytesStaking, dummyType);
+
+                        CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKeyStaking].stakable += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKeyStaking2].stakable += prevout.nValue * -1;
+
+                        address.GetVotingAddress(addressVoting);
+                        addressVoting.GetIndexKey(hashBytesVoting, dummyType);
+
+                        CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime);
+                        CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime);
+
+                        if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
+                            addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                        addressHistoryMap[addressHistoryKeyVoting].voting_weight += prevout.nValue * -1;
+                        addressHistoryMap[addressHistoryKeyVoting2].voting_weight += prevout.nValue * -1;
+                    }
+                    else
+                    {
                         hashBytes.SetNull();
                         addressType = 0;
                     }
@@ -3781,7 +4023,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 const CTxOut &out = tx.vout[k];
 
                 if (out.scriptPubKey.IsPayToScriptHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
+                    vector<unsigned char> hashBytes_(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
+                    uint160 hashBytes(hashBytes_);
 
                     // record receiving activity
                     addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
@@ -3789,14 +4032,72 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
-                } else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
-                    uint160 hashBytes;
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
+
+                    addressHistoryMap[addressHistoryKey].spendable += out.nValue;
+                    addressHistoryMap[addressHistoryKey].stakable += out.nValue;
+                    addressHistoryMap[addressHistoryKey].voting_weight += out.nValue;
+                } else if (out.scriptPubKey.IsColdStaking())
+                {
+                    uint160 hashBytes, hashBytesStaking, hashBytesSpending;
+                    CNavCoinAddress addressSpending, addressStaking;
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2())
-                        address.GetSpendingAddress(address);
+                    address.GetSpendingAddress(addressSpending);
+                    address.GetIndexKey(hashBytes, type);
+                    addressSpending.GetIndexKey(hashBytesSpending, type);
+
+                    // record spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
+
+                    // record unspent output
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKey].spendable += out.nValue;
+                    addressHistoryMap[addressHistoryKey2].spendable += out.nValue;
+
+                    address.GetStakingAddress(addressStaking);
+                    addressStaking.GetIndexKey(hashBytesStaking, type);
+
+                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKeyStaking].stakable += out.nValue;
+                    addressHistoryMap[addressHistoryKeyStaking].voting_weight += out.nValue;
+
+                    addressHistoryMap[addressHistoryKeyStaking2].stakable += out.nValue;
+                    addressHistoryMap[addressHistoryKeyStaking2].voting_weight += out.nValue;
+                }
+                else if (out.scriptPubKey.IsColdStakingv2())
+                {
+                    uint160 hashBytes, hashBytesStaking, hashBytesVoting, hashBytesSpending;
+                    CNavCoinAddress addressSpending, addressStaking, addressVoting;
+
+                    int type = 0;
+                    CTxDestination destination;
+                    ExtractDestination(out.scriptPubKey, destination);
+                    CNavCoinAddress address(destination);
+                    address.GetSpendingAddress(addressSpending);
+                    addressSpending.GetIndexKey(hashBytesSpending, type);
                     address.GetIndexKey(hashBytes, type);
 
                     // record spending activity
@@ -3804,22 +4105,73 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    CAddressHistoryKey addressHistoryKey(uint160(hashBytes), uint160(hashBytesSpending), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKey2(hashBytesSpending, hashBytesSpending, pindex->nHeight, i, txhash, tx.nTime);
 
-                } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKey].spendable += out.nValue;
+
+                    if (addressHistoryMap.count(addressHistoryKey2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKey2].spendable += out.nValue;
+
+                    address.GetVotingAddress(addressVoting);
+                    addressVoting.GetIndexKey(hashBytesVoting, type);
+
+                    CAddressHistoryKey addressHistoryKeyVoting(uint160(hashBytes), uint160(hashBytesVoting), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyVoting2(hashBytesVoting, hashBytesVoting, pindex->nHeight, i, txhash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKeyVoting) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKeyVoting].voting_weight += out.nValue;
+
+                    if (addressHistoryMap.count(addressHistoryKeyVoting2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyVoting2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKeyVoting2].voting_weight += out.nValue;
+
+                    address.GetStakingAddress(addressStaking);
+                    addressStaking.GetIndexKey(hashBytesStaking, type);
+
+                    CAddressHistoryKey addressHistoryKeyStaking(uint160(hashBytes), uint160(hashBytesStaking), pindex->nHeight, i, txhash, tx.nTime);
+                    CAddressHistoryKey addressHistoryKeyStaking2(hashBytesStaking, hashBytesStaking, pindex->nHeight, i, txhash, tx.nTime);
+
+                    if (addressHistoryMap.count(addressHistoryKeyStaking) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKeyStaking].stakable += out.nValue;
+
+                    if (addressHistoryMap.count(addressHistoryKeyStaking2) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKeyStaking2, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKeyStaking2].stakable += out.nValue;
+                }
+                else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsPayToPublicKeyHash())
+                {
                     uint160 hashBytes;
-                    CTxDestination destination;
                     int type = 0;
-
+                    CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-
                     address.GetIndexKey(hashBytes, type);
-                    // record receiving activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, txhash, k, false), out.nValue));
+
+                    // record spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
 
                     // record unspent output
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
 
+                    if (addressHistoryMap.count(addressHistoryKey) == 0)
+                        addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue(0, 0, 0, tx.IsCoinBase() || tx.IsCoinStake())));
+
+                    addressHistoryMap[addressHistoryKey].spendable += out.nValue;
+                    addressHistoryMap[addressHistoryKey].stakable += out.nValue;
+                    addressHistoryMap[addressHistoryKey].voting_weight += out.nValue;
                 } else {
                     continue;
                 }
@@ -4140,7 +4492,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!pblocktree->WriteAddressIndex(addressIndex)) {
             return AbortNode(state, "Failed to write address index");
         }
-
+        for (auto &it: addressHistoryMap)
+        {
+            addressHistory.push_back(std::make_pair(it.first, it.second));
+        }
+        if (!pblocktree->WriteAddressHistory(addressHistory)) {
+            return AbortNode(state, "Failed to write address history");
+        }
         if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             return AbortNode(state, "Failed to write address unspent index");
         }
