@@ -190,6 +190,10 @@ private:
     CAppNapInhibitor* appNapInhibitor = nullptr;
 #endif
 
+#ifdef ENABLE_WALLET
+    bool fStaking = false;
+#endif // ENABLE_WALLET
+
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;

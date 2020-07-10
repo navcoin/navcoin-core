@@ -984,11 +984,20 @@ void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmou
 
 void NavCoinGUI::onDaoEntriesChanged(int count)
 {
+    // If we are not staking, no need to show the notification
+    if (!fStaking)
+    {
+        // Turn off the notification
+        showHideNotification(false, 0);
+    }
+    else
+    {
+        // New daos? SHOW notification
+        showHideNotification(count > 0, 0);
+    }
+
     // Update the bubble
     setMenuBubble(4, count);
-
-    // New daos? SHOW notification
-    showHideNotification(count > 0, 0);
 }
 
 void NavCoinGUI::setMenuBubble(int index, int drak)
@@ -2071,11 +2080,17 @@ void NavCoinGUI::updateStakingStatus()
 
     if (!GetStaking())
     {
+        // Make sure to update the staking flag
+        fStaking = false;
+
         labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
     }
     else if (nLastCoinStakeSearchInterval && nWeight)
     {
+        // Make sure to update the staking flag
+        fStaking = true;
+
         uint64_t nWeight = this->nWeight;
         uint64_t nNetworkWeight = GetPoSKernelPS();
         int nBestHeight = pindexBestHeader->nHeight;
@@ -2108,6 +2123,9 @@ void NavCoinGUI::updateStakingStatus()
     }
     else
     {
+        // Make sure to update the staking flag
+        fStaking = false;
+
         QString text = tr("Not staking, please wait");
 
         if (pwalletMain && pwalletMain->IsLocked())
