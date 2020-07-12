@@ -62,7 +62,7 @@ GetAddressesPage::GetAddressesPage(QWidget *parent)
     votingAddressLineEdit = new QLineEdit;
     votingAddressLabel->setBuddy(votingAddressLineEdit);
 
-    descriptionLabel = new QLabel(tr("Your Spending address and Staking address must be different."));
+    descriptionLabel = new QLabel(tr("Your spending address and staking address must be different. Specifying a voting address is optional."));
     errorLabel = new QLabel();
     errorLabel->setStyleSheet("QLabel { color : red }");
 
