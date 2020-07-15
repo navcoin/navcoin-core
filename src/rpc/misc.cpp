@@ -1227,6 +1227,10 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VARR);
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
+        spending += (*it).second.spendable;
+        stakable += (*it).second.stakable;
+        voting_weight += (*it).second.voting_weight;
+        
         if (!(!range || (range && (*it).first.blockHeight >= start && (*it).first.blockHeight <= end)))
             continue;
         UniValue entry(UniValue::VOBJ);
@@ -1246,10 +1250,6 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         entry.pushKV("changes", changes);
 
         UniValue balance(UniValue::VOBJ);
-
-        spending += (*it).second.spendable;
-        stakable += (*it).second.stakable;
-        voting_weight += (*it).second.voting_weight;
 
         balance.pushKV("balance", spending);
         balance.pushKV("stakable", stakable);
