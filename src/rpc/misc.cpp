@@ -1222,7 +1222,7 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
     
     struct balStruct 
     {
-        CAmount spending;
+        CAmount spendable;
         CAmount stakable;
         CAmount voting_weight;
     };
@@ -1256,11 +1256,11 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
             balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
         }
        
-        balance[address].spending += (*it).second.spendable;
+        balance[address].spendable += (*it).second.spendable;
         balance[address].stakable += (*it).second.stakable;
         balance[address].voting_weight += (*it).second.voting_weight;
 
-        balanceObj.pushKV("balance", balance[address].spending);
+        balanceObj.pushKV("balance", balance[address].spendable);
         balanceObj.pushKV("stakable", balance[address].stakable);
         balanceObj.pushKV("voting_weight", balance[address].voting_weight);
         entry.pushKV("result", balanceObj);
