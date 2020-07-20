@@ -1219,10 +1219,15 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
             return a_.blockHeight < b_.blockHeight;
         }
     });
-
-    CAmount spending = 0;
-    CAmount stakable = 0;
-    CAmount voting_weight = 0;
+    
+    struct balStruct 
+    {
+        CAmount spending;
+        CAmount stakable;
+        CAmount voting_weight;
+    };
+    
+    std::map<CNavCoinAddress, balStruct> balance;
 
     UniValue result(UniValue::VARR);
 
@@ -1245,16 +1250,20 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         changes.pushKV("flags", (*it).second.flags);
         entry.pushKV("changes", changes);
 
-        UniValue balance(UniValue::VOBJ);
+        UniValue balanceObj(UniValue::VOBJ);
+        
+        if (balance.count(address) == 0) {
+            balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
+        }
+       
+        balance[address].spending += (*it).second.spendable;
+        balance[address].stakable += (*it).second.stakable;
+        balance[address].voting_weight += (*it).second.voting_weight;
 
-        spending += (*it).second.spendable;
-        stakable += (*it).second.stakable;
-        voting_weight += (*it).second.voting_weight;
-
-        balance.pushKV("balance", spending);
-        balance.pushKV("stakable", stakable);
-        balance.pushKV("voting_weight", voting_weight);
-        entry.pushKV("result", balance);
+        balanceObj.pushKV("balance", balance[address].spending);
+        balanceObj.pushKV("stakable", balance[address].stakable);
+        balanceObj.pushKV("voting_weight", balance[address].voting_weight);
+        entry.pushKV("result", balanceObj);
 
         result.push_back(entry);
     }
