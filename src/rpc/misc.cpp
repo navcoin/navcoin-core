@@ -1232,6 +1232,9 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VARR);
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
+        CNavCoinAddress address;
+        address.Set(CKeyID((*it).first.hashBytes2));
+
         if (balance.count(address) == 0) {
             balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
         }
@@ -1248,8 +1251,6 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         entry.pushKV("txindex", (uint64_t)(*it).first.txindex);
         entry.pushKV("time", (uint64_t)(*it).first.time);
         entry.pushKV("txid", (*it).first.txhash.ToString());
-        CNavCoinAddress address;
-        address.Set(CKeyID((*it).first.hashBytes2));
         entry.pushKV("address", address.ToString());
 
         UniValue changes(UniValue::VOBJ);
