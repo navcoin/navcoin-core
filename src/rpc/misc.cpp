@@ -1232,8 +1232,17 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VARR);
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
+        if (balance.count(address) == 0) {
+            balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
+        }
+       
+        balance[address].spendable += (*it).second.spendable;
+        balance[address].stakable += (*it).second.stakable;
+        balance[address].voting_weight += (*it).second.voting_weight;
+        
         if (!(!range || (range && (*it).first.blockHeight >= start && (*it).first.blockHeight <= end)))
             continue;
+
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("block", (*it).first.blockHeight);
         entry.pushKV("txindex", (uint64_t)(*it).first.txindex);
@@ -1251,15 +1260,6 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         entry.pushKV("changes", changes);
 
         UniValue balanceObj(UniValue::VOBJ);
-        
-        if (balance.count(address) == 0) {
-            balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
-        }
-       
-        balance[address].spendable += (*it).second.spendable;
-        balance[address].stakable += (*it).second.stakable;
-        balance[address].voting_weight += (*it).second.voting_weight;
-
         balanceObj.pushKV("balance", balance[address].spendable);
         balanceObj.pushKV("stakable", balance[address].stakable);
         balanceObj.pushKV("voting_weight", balance[address].voting_weight);
