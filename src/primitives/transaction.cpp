@@ -88,7 +88,7 @@ std::string CTxOut::ToString() const
 }
 
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nTime(0), nLockTime(0) {
-  // *const_cast<unsigned int*>(&nTime) = GetTime();
+    // *const_cast<unsigned int*>(&nTime) = GetTime();
 }
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), wit(tx.wit), nLockTime(tx.nLockTime), strDZeel(tx.strDZeel), vchTxSig(tx.vchTxSig), vchBalanceSig(tx.vchBalanceSig) {}
 
@@ -183,19 +183,19 @@ unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
 
 std::string CTransaction::ToString() const
 {
-      std::string str;
-      str += IsCoinBase()? "Coinbase" : (IsCoinStake()? "Coinstake" : "CTransaction");
-      str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s, vchTxSig=%s vchBalanceSig=%s)\n",
-                       GetHash().ToString(),
-                       nTime,
-                       nVersion,
-                       vin.size(),
-                       vout.size(),
-                       nLockTime,
-                       strDZeel.substr(0,30).c_str(),
-                       HexStr(vchTxSig).substr(0,30).c_str(),
-                       HexStr(vchBalanceSig).substr(0,30).c_str()
-                       );
+    std::string str;
+    str += IsCoinBase()? "Coinbase" : (IsCoinStake()? "Coinstake" : "CTransaction");
+    str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s, vchTxSig=%s vchBalanceSig=%s)\n",
+                     GetHash().ToString(),
+                     nTime,
+                     nVersion,
+                     vin.size(),
+                     vout.size(),
+                     nLockTime,
+                     strDZeel.substr(0,30).c_str(),
+                     HexStr(vchTxSig).substr(0,30).c_str(),
+                     HexStr(vchBalanceSig).substr(0,30).c_str()
+                     );
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
     for (unsigned int i = 0; i < vout.size(); i++)
@@ -203,30 +203,20 @@ std::string CTransaction::ToString() const
     return str;
 }
 
-bls::Signature CTransaction::GetBalanceSignature() const
-{
-    return bls::Signature::FromBytes(vchBalanceSig.data());
-}
-
-bls::PrependSignature CTransaction::GetTxSignature() const
-{
-    return bls::PrependSignature::FromBytes(vchTxSig.data());
-}
-
 std::string CMutableTransaction::ToString() const
 {
-      std::string str;
-      str += "Mutable";
-      str += IsCoinBase()? "Coinbase" : (IsCoinStake()? "Coinstake" : "CTransaction");
-      str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s)\n",
-          GetHash().ToString(),
-          nTime,
-          nVersion,
-          vin.size(),
-          vout.size(),
-          nLockTime,
-          strDZeel.substr(0,30).c_str()
-  	);
+    std::string str;
+    str += "Mutable";
+    str += IsCoinBase()? "Coinbase" : (IsCoinStake()? "Coinstake" : "CTransaction");
+    str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s)\n",
+                     GetHash().ToString(),
+                     nTime,
+                     nVersion,
+                     vin.size(),
+                     vout.size(),
+                     nLockTime,
+                     strDZeel.substr(0,30).c_str()
+                     );
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
     for (unsigned int i = 0; i < wit.vtxinwit.size(); i++)
@@ -234,16 +224,6 @@ std::string CMutableTransaction::ToString() const
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;
-}
-
-bls::Signature CMutableTransaction::GetBalanceSignature() const
-{
-    return bls::Signature::FromBytes(vchBalanceSig.data());
-}
-
-bls::PrependSignature CMutableTransaction::GetTxSignature() const
-{
-    return bls::PrependSignature::FromBytes(vchTxSig.data());
 }
 
 void CMutableTransaction::SetBalanceSignature(const bls::Signature& sig)

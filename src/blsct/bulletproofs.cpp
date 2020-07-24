@@ -679,6 +679,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
     size_t inv_offset = 0, j = 0;
     std::vector<Scalar> to_invert;
 
+    vData.clear();
+
     for (auto& p: proofs)
     {
         BulletproofsRangeproof proof = p.second;

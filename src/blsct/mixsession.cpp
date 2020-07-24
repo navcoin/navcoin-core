@@ -188,12 +188,7 @@ bool MixSession::Join() const
     Scalar spendingKey =  Scalar(Point(secret1).Hash(0)) * Scalar(s.GetKey());
     bls::PrivateKey signingKey = bls::PrivateKey::FromBN(spendingKey.bn);
 
-    CHashWriter ss(SER_GETHASH, 0);
-    ss << candidate.vin[0];
-    uint256 txInHash = ss.GetHash();
-
-    bls::PrependSignature sig = signingKey.SignPrependPrehashed((unsigned char*)(&txInHash));
-    vBLSSignatures.push_back(sig);
+    SignBLSInput(signingKey, candidate.vin[0], vBLSSignatures);
 
     // Output
     CTxOut newTxOut(0, CScript());

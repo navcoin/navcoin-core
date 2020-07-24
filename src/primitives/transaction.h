@@ -606,9 +606,6 @@ public:
 
     void UpdateHash() const;
 
-    bls::Signature GetBalanceSignature() const;
-    bls::PrependSignature GetTxSignature() const;
-
     friend CWalletTx;
     friend CMerkleTx;
 };
@@ -646,9 +643,6 @@ struct CMutableTransaction
         // ppcoin: the coin stake transaction is marked with the first output empty
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
-
-    bls::Signature GetBalanceSignature() const;
-    bls::PrependSignature GetTxSignature() const;
 
     void SetBalanceSignature(const bls::Signature& sig);
     void SetTxSignature(const bls::PrependSignature& sig);

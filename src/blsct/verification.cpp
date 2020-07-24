@@ -122,18 +122,40 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     if (fCheckBalance)
     {
         bls::PublicKey balanceKey = bls::PublicKey::FromG1(&(balKey.g1));
-        bls::Signature sig = tx.GetBalanceSignature();
-        sig.SetAggregationInfo(bls::AggregationInfo::FromMsg(balanceKey, balanceMsg, sizeof(balanceMsg)));
 
-        if (!sig.Verify())
-            return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
+        if (tx.vchBalanceSig.size() == 0)
+            return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-read-balanceproof"));
+
+        try
+        {
+            bls::Signature sig = bls::Signature::FromBytes(tx.vchBalanceSig.data());
+            sig.SetAggregationInfo(bls::AggregationInfo::FromMsg(balanceKey, balanceMsg, sizeof(balanceMsg)));
+
+            if (!sig.Verify())
+                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
+        }
+        catch(std::exception& e)
+        {
+            return state.DoS(100, false, REJECT_INVALID, strprintf("caught-balanceproof-exception"));
+        }
     }
 
     if (fCheckBLSSignature)
     {
-        bls::PrependSignature txsig = tx.GetTxSignature();
-        if (!txsig.Verify(vMessages, txSigningKeys))
-            return state.DoS(100, false, REJECT_INVALID, "invalid-bls-signature");
+        if (tx.vchTxSig.size() == 0)
+            return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-read-blstxsig"));
+
+        try
+        {
+            bls::PrependSignature txsig = bls::PrependSignature::FromBytes(tx.vchTxSig.data());
+
+            if (!txsig.Verify(vMessages, txSigningKeys))
+                return state.DoS(100, false, REJECT_INVALID, "invalid-bls-signature");
+        }
+        catch(std::exception& e)
+        {
+            return state.DoS(100, false, REJECT_INVALID, strprintf("caught-blstxsig-exception"));
+        }
     }
 
     return true;
@@ -145,7 +167,7 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
     std::set<CTxOut> setOutputs;
 
     std::vector<bls::InsecureSignature> balanceSigs;
-    std::vector<bls::PrependSignature> txSigs;
+    std::vector<bls::InsecureSignature> txSigs;
 
     if (vTx.size() == 0)
         return state.DoS(100, false, REJECT_INVALID, strprintf("empty-vector-combine-blsct"));
@@ -191,8 +213,17 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
             setOutputs.insert(out);
         }
 
-        balanceSigs.push_back(tx.GetBalanceSignature().GetInsecureSig());
-        txSigs.push_back(tx.GetTxSignature());
+        if (tx.vchBalanceSig.size() > 0)
+        {
+            bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchBalanceSig.data());
+            balanceSigs.push_back(sig);
+        }
+
+        if (tx.vchTxSig.size() > 0)
+        {
+            bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchTxSig.data());
+            txSigs.push_back(sig);
+        }
     }
 
     CMutableTransaction mutOutTx;
@@ -215,7 +246,7 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
 
     mutOutTx.vout.push_back(CTxOut(nFee, CScript(OP_RETURN)));
     mutOutTx.SetBalanceSignature(bls::Signature::FromInsecureSig(bls::InsecureSignature::Aggregate(balanceSigs)));
-    mutOutTx.SetTxSignature(bls::PrependSignature::Aggregate(txSigs));
+    mutOutTx.SetTxSignature(bls::PrependSignature::FromInsecureSig(bls::InsecureSignature::Aggregate(txSigs)));
 
     outTx = mutOutTx;
 

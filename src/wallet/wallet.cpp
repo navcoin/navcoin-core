@@ -3617,12 +3617,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                                 return false;
                             }
 
-                            CHashWriter ss(SER_GETHASH, 0);
-                            ss << txNewConst.vin[nIn];
-                            uint256 txInHash = ss.GetHash();
-
-                            bls::PrependSignature sig = signingKey.SignPrependPrehashed((unsigned char*)(&txInHash));
-                            vBLSSignatures.push_back(sig);
+                            SignBLSInput(signingKey, txNewConst.vin[nIn], vBLSSignatures);
 
                             signSuccess = true;
                         }

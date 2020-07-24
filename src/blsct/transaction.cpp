@@ -60,5 +60,16 @@ bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::ve
     return true;
 }
 
+bool SignBLSInput(const bls::PrivateKey& signingKey, CTxIn& newTxIn, std::vector<bls::PrependSignature>& vBLSSignatures)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << newTxIn;
+    uint256 txInHash = ss.GetHash();
+    bls::PrependSignature sig = signingKey.SignPrependPrehashed((unsigned char*)(&txInHash));
+    vBLSSignatures.push_back(sig);
+
+    return true;
+}
+
 CandidateTransaction::CandidateTransaction() : fee(0) {
 }
