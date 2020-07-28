@@ -91,8 +91,8 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
-        consensus.BIP34Height = 900000;
-        consensus.BIP34Hash = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");// uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
+        consensus.BIP34Height = 0;
+        consensus.BIP34Hash = uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
         consensus.nPowTargetTimespan = 10; // время, для перепроверки 30 => 10
         consensus.nPowTargetSpacing = 10;  // время блока
