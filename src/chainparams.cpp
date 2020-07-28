@@ -92,7 +92,7 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
         consensus.BIP34Height = 900000;
-        consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
+        consensus.BIP34Hash = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");// uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
         consensus.nPowTargetTimespan = 10; // время, для перепроверки 30 => 10
         consensus.nPowTargetSpacing = 10;  // время блока
@@ -107,7 +107,7 @@ public:
         consensus.nDailyBlockCount = (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
-        consensus.nLastPOWBlock = 140; // last PoW then PoS 
+        consensus.nLastPOWBlock = 140; // last PoW block then PoS
         consensus.nCoinbaseTimeActivationHeight = 140;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
@@ -124,7 +124,7 @@ public:
         consensus.fDaoClientActivated = true;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
-        consensus.nCoinbaseMaturity = 50;
+        consensus.nCoinbaseMaturity = 6;
         consensus.nConsensusChangeMinAccept = 7500;
 
         consensus.vParameters[Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH].value = 2880 * 7; // 7 Days
@@ -152,7 +152,6 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
 
-        
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
