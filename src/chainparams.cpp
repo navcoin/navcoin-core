@@ -123,9 +123,6 @@ public:
         consensus.nHeightv452Fork = 2882875;
         consensus.fDaoClientActivated = true;
 
-        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
-        consensus.nCoinbaseMaturity = 6;
-        consensus.nConsensusChangeMinAccept = 7500;
 
         consensus.vParameters[Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH].value = 2880 * 7; // 7 Days
         consensus.vParameters[Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM].value = 5000;
@@ -152,6 +149,10 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
 
+
+        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+        consensus.nCoinbaseMaturity = 6;
+        consensus.nConsensusChangeMinAccept = 7500;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
