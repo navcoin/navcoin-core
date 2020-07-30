@@ -55,7 +55,7 @@
         </size>
        </property>
        <property name="pixmap">
-        <pixmap>:/icons/navcoin</pixmap>
+        <pixmap>../res/icons/bcs-removebg-preview.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -102,8 +102,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>718</width>
-          <height>111</height>
+          <width>638</width>
+          <height>130</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
