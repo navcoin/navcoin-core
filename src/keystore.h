@@ -12,6 +12,7 @@
 #include <script/script.h>
 #include <script/standard.h>
 #include <sync.h>
+#include <util.h>
 
 #include <boost/signals2/signal.hpp>
 #include <boost/variant.hpp>
@@ -28,8 +29,9 @@ public:
     //! Add a key to the store.
     virtual bool AddKeyPubKey(const CKey &key, const CPubKey &pubkey) =0;
     virtual bool AddKey(const CKey &key);
-    virtual bool AddBLSCTKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey) =0;
-    virtual bool AddBLSCTKey(const blsctKey &key) = 0;
+    virtual bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey) =0;
+    virtual bool AddBLSCTBlindingKey(const blsctKey &key) = 0;
+    virtual bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index) =0;
 
     //! Check whether a key corresponding to a given address is present in the store.
     virtual bool HaveKey(const CKeyID &address) const =0;
@@ -37,8 +39,19 @@ public:
     virtual void GetKeys(std::set<CKeyID> &setAddress) const =0;
     virtual bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const =0;
 
-    virtual bool HaveBLSCTKey(const blsctPublicKey &pk) const =0;
-    virtual bool GetBLSCTKey(const blsctPublicKey &pk, blsctKey &k) const =0;
+    virtual bool HaveBLSCTBlindingKey(const blsctPublicKey &pk) const =0;
+    virtual bool GetBLSCTHashId(const Point& outputKey, const Point& spendingKey, CKeyID& hashId) const =0;
+    virtual bool HaveBLSCTSubAddress(const CKeyID &hashId) const =0;
+    virtual bool HaveBLSCTSubAddress(const Point& outputKey, const Point& spendingKey) const =0;
+    virtual bool GetBLSCTBlindingKey(const blsctPublicKey &pk, blsctKey &k) const =0;
+    virtual bool GetBLSCTSubAddressIndex(const CKeyID &hashId, std::pair<uint64_t, uint64_t>& index) const =0;
+    virtual bool GetBLSCTSubAddressIndex(const Point& outputKey, const Point& spendingKey, std::pair<uint64_t, uint64_t>& index) const =0;
+    virtual bool GetBLSCTSubAddressPublicKeys(const Point& outputKey, const Point& spendingKey, blsctDoublePublicKey& pk) const =0;
+    virtual bool GetBLSCTSubAddressPublicKeys(const CKeyID &hashId, blsctDoublePublicKey& pk) const =0;
+    virtual bool GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint64_t>& index, blsctDoublePublicKey& pk) const =0;
+    virtual bool GetBLSCTSubAddressSpendingKeyForOutput(const Point& outputKey, const Point& spendingKey, blsctKey& k) const =0;
+    virtual bool GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const Point& outputKey, blsctKey& k) const =0;
+    virtual bool GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const Point& outputKey,blsctKey& k) const =0;
 
     //! Support for BIP 0013 : see https://github.com/navcoin/bips/blob/master/bip-0013.mediawiki
     virtual bool AddCScript(const CScript& redeemScript) =0;
@@ -55,15 +68,16 @@ public:
     virtual bool GetBLSCTViewKey(blsctKey& k) const =0;
     virtual bool GetBLSCTSpendKey(blsctKey& k) const =0;
     virtual bool GetBLSCTDoublePublicKey(blsctDoublePublicKey& k) const =0;
-    virtual bool GetBLSCTBlindingKey(blsctExtendedKey& k) const =0;
+    virtual bool GetBLSCTBlindingMasterKey(blsctExtendedKey& k) const =0;
     virtual bool SetBLSCTViewKey(const blsctKey& v) =0;
     virtual bool SetBLSCTSpendKey(const blsctKey& v) =0;
     virtual bool SetBLSCTDoublePublicKey(const blsctDoublePublicKey& k) =0;
-    virtual bool SetBLSCTBlindingKey(const blsctExtendedKey& k) =0;
+    virtual bool SetBLSCTBlindingMasterKey(const blsctExtendedKey& k) =0;
 };
 
 typedef std::map<CKeyID, CKey> KeyMap;
-typedef std::map<blsctPublicKey, blsctKey> BLSCTKeyMap;
+typedef std::map<blsctPublicKey, blsctKey> BLSCTBlindingKeyMap;
+typedef std::map<CKeyID, std::pair<uint64_t, uint64_t>> BLSCTSubAddressMap;
 typedef std::map<CKeyID, CPubKey> WatchKeyMap;
 typedef std::map<CScriptID, CScript > ScriptMap;
 typedef std::set<CScript> WatchOnlySet;
@@ -73,7 +87,8 @@ class CBasicKeyStore : public CKeyStore
 {
 protected:
     KeyMap mapKeys;
-    BLSCTKeyMap mapBLSCTKeys;
+    BLSCTBlindingKeyMap mapBLSCTBlindingKeys;
+    BLSCTSubAddressMap mapBLSCTSubAddresses;
     WatchKeyMap mapWatchKeys;
     ScriptMap mapScripts;
     WatchOnlySet setWatchOnly;
@@ -85,8 +100,9 @@ protected:
 
 public:
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool AddBLSCTKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
-    bool AddBLSCTKey(const blsctKey &key);
+    bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
+    bool AddBLSCTBlindingKey(const blsctKey &key);
+    bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
     bool HaveKey(const CKeyID &address) const
     {
@@ -98,17 +114,40 @@ public:
         return result;
     }
 
-    bool HaveBLSCTKey(const blsctPublicKey &address) const
+    bool HaveBLSCTBlindingKey(const blsctPublicKey &address) const
     {
         {
             LOCK(cs_KeyStore);
-            for(auto& it: mapBLSCTKeys)
+            for(auto& it: mapBLSCTBlindingKeys)
             {
                 if (it.first == address) return true;
             }
         }
         return false;
     }
+
+    bool HaveBLSCTSubAddress(const CKeyID &hashId) const
+    {
+        {
+            LOCK(cs_KeyStore);
+            for(auto& it: mapBLSCTSubAddresses)
+            {
+                if (it.first == hashId) return true;
+            }
+        }
+        return false;
+    }
+
+    bool HaveBLSCTSubAddress(const Point& outputKey, const Point& spendingKey) const
+    {
+        CKeyID hashId;
+        if (!GetBLSCTHashId(outputKey, spendingKey, hashId))
+            return false;
+
+        return HaveBLSCTSubAddress(hashId);
+    }
+
+    bool GetBLSCTHashId(const Point& outputKey, const Point& spendingKey, CKeyID& hashId) const;
 
     void GetKeys(std::set<CKeyID> &setAddress) const
     {
@@ -138,11 +177,11 @@ public:
         return false;
     }
 
-    bool GetBLSCTKey(const blsctPublicKey &address, blsctKey &keyOut) const
+    bool GetBLSCTBlindingKey(const blsctPublicKey &address, blsctKey &keyOut) const
     {
         {
             LOCK(cs_KeyStore);
-            for(auto& mi: mapBLSCTKeys)
+            for(auto& mi: mapBLSCTBlindingKeys)
             {
                 if (mi.first == address)
                 {
@@ -154,6 +193,100 @@ public:
         return false;
     }
 
+    bool GetBLSCTSubAddressIndex(const Point& outputKey, const Point& spendingKey, std::pair<uint64_t, uint64_t>& index) const
+    {
+        CKeyID hashId;
+        if (!GetBLSCTHashId(outputKey, spendingKey, hashId))
+            return false;
+
+        return GetBLSCTSubAddressIndex(hashId, index);
+    }
+
+    bool GetBLSCTSubAddressIndex(const CKeyID &hashId, std::pair<uint64_t, uint64_t>& index) const
+    {
+        {
+            LOCK(cs_KeyStore);
+            for(auto& mi: mapBLSCTSubAddresses)
+            {
+                if (mi.first == hashId)
+                {
+                    index = mi.second;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const Point& outputKey, const Point& spendingKey, blsctKey& k) const
+    {
+        CKeyID hashId;
+
+        if (!GetBLSCTHashId(outputKey, spendingKey, hashId))
+            return false;
+
+        return GetBLSCTSubAddressSpendingKeyForOutput(hashId, outputKey, k);
+    }
+
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const Point& outputKey, blsctKey& k) const
+    {
+        std::pair<uint64_t, uint64_t> index;
+
+        if (!GetBLSCTSubAddressIndex(hashId, index))
+            return false;
+
+        return GetBLSCTSubAddressSpendingKeyForOutput(index, outputKey, k);
+    }
+
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const Point& outputKey, blsctKey& k) const
+    {
+        if(!privateBlsViewKey.IsValid())
+            return false;
+
+        if(!privateBlsSpendKey.IsValid())
+            return false;
+
+        CHashWriter string(SER_GETHASH, 0);
+
+        string << std::vector<unsigned char>(subAddressHeader.begin(), subAddressHeader.end());
+        string << privateBlsViewKey;
+        string << index.first;
+        string << index.second;
+
+        try
+        {
+            // Hs(a*R) + b + Hs("SubAddress\0" || a || acc || index)
+            k = blsctKey(bls::PrivateKey::FromBN((Scalar((privateBlsViewKey.GetScalar()*outputKey).Hash(0)) + privateBlsSpendKey.GetScalar() + Scalar(string.GetHash())).bn));
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool GetBLSCTSubAddressPublicKeys(const Point& outputKey, const Point& spendingKey, blsctDoublePublicKey& pk) const
+    {
+        CKeyID hashId;
+        if (!GetBLSCTHashId(outputKey, spendingKey, hashId))
+            return false;
+
+        return GetBLSCTSubAddressPublicKeys(hashId, pk);
+    }
+
+    bool GetBLSCTSubAddressPublicKeys(const CKeyID &hashId, blsctDoublePublicKey& pk) const
+    {
+        std::pair<uint64_t, uint64_t> index;
+
+        if (!GetBLSCTSubAddressIndex(hashId, index))
+            return false;
+
+        return GetBLSCTSubAddressPublicKeys(index, pk);
+    }
+
+    bool GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint64_t>& index, blsctDoublePublicKey& pk) const;
+
     bool GetBLSCTViewKey(blsctKey& zk) const {
         if(!privateBlsViewKey.IsValid())
             return false;
@@ -162,7 +295,7 @@ public:
         return true;
     }
 
-    bool GetBLSCTBlindingKey(blsctExtendedKey& zk) const {
+    bool GetBLSCTBlindingMasterKey(blsctExtendedKey& zk) const {
         if(!privateBlsBlindingKey.IsValid())
             return false;
 
@@ -193,7 +326,7 @@ public:
         return true;
     }
 
-    bool SetBLSCTBlindingKey(const blsctExtendedKey& v) {
+    bool SetBLSCTBlindingMasterKey(const blsctExtendedKey& v) {
         if(!v.IsValid())
             return false;
         privateBlsBlindingKey = v;

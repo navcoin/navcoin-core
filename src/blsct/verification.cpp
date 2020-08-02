@@ -64,9 +64,17 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
                 }
             }
 
-            if (prevOut.spendingKey.size() > 0 && fCheckBLSSignature)
+            if (fCheckBLSSignature)
             {
-                txSigningKeys.push_back(prevOut.GetSpendingKey());
+                try
+                {
+                    txSigningKeys.push_back(bls::PublicKey::FromBytes(prevOut.spendingKey.data()));
+                }
+                catch(std::exception& e)
+                {
+                    return state.DoS(100, false, REJECT_INVALID, strprintf("caught-spendingkey-exception %s", e.what()));
+                }
+
                 CHashWriter hasher(0,0);
                 hasher << tx.vin[j];
                 uint256 hash = hasher.GetHash();
@@ -82,10 +90,22 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     {
         if (tx.vout[j].HasRangeProof())
         {
+            if (tx.vout[j].ephemeralKey.size() == 0)
+            {
+                return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
+            }
             if (fCheckRange)
             {
                 proofs.push_back(std::make_pair(j, tx.vout[j].bp));
-                nonces.push_back(bls::BLS::DHKeyExchange(viewKey, tx.vout[j].GetBlindingKey()));
+                // Shared key v*R - Used as nonce for bulletproof
+                try
+                {
+                    nonces.push_back(bls::BLS::DHKeyExchange(viewKey, bls::PublicKey::FromBytes(tx.vout[j].ephemeralKey.data())));
+                }
+                catch(std::exception& e)
+                {
+                    return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
+                }
             }
             if (fCheckBalance)
             {
@@ -102,7 +122,18 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
 
         if (fCheckBLSSignature && !tx.vout[j].scriptPubKey.IsFee())
         {
-            txSigningKeys.push_back(tx.vout[j].GetBlindingKey());
+            if (tx.vout[j].ephemeralKey.size() == 0)
+            {
+                return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
+            }
+            try
+            {
+                txSigningKeys.push_back(bls::PublicKey::FromBytes(tx.vout[j].ephemeralKey.data()));
+            }
+            catch(std::exception& e)
+            {
+                return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
+            }
             uint256 hash = tx.vout[j].GetHash();
             unsigned char *h;
             h = new unsigned char [32];
@@ -129,6 +160,7 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
         try
         {
             bls::Signature sig = bls::Signature::FromBytes(tx.vchBalanceSig.data());
+
             sig.SetAggregationInfo(bls::AggregationInfo::FromMsg(balanceKey, balanceMsg, sizeof(balanceMsg)));
 
             if (!sig.Verify())
@@ -215,14 +247,28 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
 
         if (tx.vchBalanceSig.size() > 0)
         {
-            bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchBalanceSig.data());
-            balanceSigs.push_back(sig);
+            try
+            {
+                bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchBalanceSig.data());
+                balanceSigs.push_back(sig);
+            }
+            catch(std::exception& e)
+            {
+                return state.DoS(100, false, REJECT_INVALID, strprintf("caught-balancesig-exception"));
+            }
         }
 
         if (tx.vchTxSig.size() > 0)
         {
-            bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchTxSig.data());
-            txSigs.push_back(sig);
+            try
+            {
+                bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchTxSig.data());
+                txSigs.push_back(sig);
+            }
+            catch(std::exception& e)
+            {
+                return state.DoS(100, false, REJECT_INVALID, strprintf("caught-txsig-exception"));
+            }
         }
     }
 
@@ -255,5 +301,12 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
     if (!MoneyRange(nMixFee))
         return state.DoS(100, false, REJECT_INVALID, strprintf("%s: Can't combine transactions with incorrect fee %d\n", __func__, nMixFee));
 
-    return VerifyBLSCT(outTx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false, nMixFee);
+    try
+    {
+        return VerifyBLSCT(outTx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false, nMixFee);
+    }
+    catch(...)
+    {
+        return state.DoS(100, false, REJECT_INVALID, strprintf("%s: catched exception", __func__));
+    }
 }

@@ -535,13 +535,13 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     }
     vecSend.push_back(recipient);
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     if (fBLSCT || fPrivate)
     {
         for (unsigned int i = 0; i < vecSend.size()+2; i++)
         {
-            shared_ptr<CReserveBLSCTKey> rk(new CReserveBLSCTKey(pwalletMain));
+            shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
             reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
         }
     }
@@ -553,6 +553,60 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     }
     if (!fDoNotSend && !pwalletMain->CommitTransaction(wtxNew, reservekey, reserveBLSCTKey))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+}
+
+UniValue generateblsctkeys(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp)
+        throw runtime_error(
+                "generateblsctkeys\n"
+                "\nGenerates the BLSCT keys.\n"
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    if (pwalletMain->HasValidBLSCTKey())
+        throw JSONRPCError(RPC_MISC_ERROR, "This wallet already owns BLSCT keys");
+
+    EnsureWalletIsUnlocked();
+
+    uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
+
+    CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
+    CKey key;
+
+    if (!pwalletMain->GetKey(masterKeyID, key))
+    {
+        throw JSONRPCError(RPC_MISC_ERROR, "Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet.");
+    }
+
+    CHashWriter h(0, 0);
+    std::vector<unsigned char> vKey(key.begin(), key.end());
+
+    h << vKey;
+
+    uint256 hash = h.GetHash();
+    unsigned char h_[32];
+    memcpy(h_, &hash, 32);
+
+    bls::ExtendedPrivateKey masterBLSKey = bls::ExtendedPrivateKey::FromSeed(h_, 32);
+    bls::ExtendedPrivateKey childBLSKey = masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130);
+    bls::ExtendedPrivateKey transactionBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::ExtendedPrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
+    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT).GetPrivateKey();
+    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1).GetPrivateKey();
+
+    pwalletMain->SetBLSCTKeys(viewKey, spendKey, blindingBLSKey);
+
+    pwalletMain->NewBLSCTBlindingKeyPool();
+    pwalletMain->NewBLSCTSubAddressKeyPool(0);
+
+    LogPrintf("Generated BLSCT parameters.\n");
+
+    return true;
 }
 
 UniValue sendtoaddress(const UniValue& params, bool fHelp)
@@ -2119,13 +2173,13 @@ UniValue sendmany(const UniValue& params, bool fHelp)
     CAmount nFeeRequired = 0;
     int nChangePosRet = -1;
     string strFailReason;
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     if (fAnyBLSCT || fPrivate)
     {
         for (unsigned int i = 0; i < vecSend.size()+2; i++)
         {
-            shared_ptr<CReserveBLSCTKey> rk(new CReserveBLSCTKey(pwalletMain));
+            shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
             reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
         }
     }
@@ -2139,18 +2193,49 @@ UniValue sendmany(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
-UniValue getprivateaddress(const UniValue& params, bool fHelp)
+UniValue getnewprivateaddress(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "getnewprivateaddress ( account_id )\n"
+                "\nReturns a new NavCoin private address for receiving payments.\n"
+                "If 'account_id' is specified, it is associated with the account \n"
+                "with the given index.\n"
+                "\nArguments:\n"
+                "1. \"account_id\"     (int, optional, default=0) The account id for the address to be linked to. If not provided, the default account 0 is used. It can also be set to 0 to represent the default account. The account does not need to exist before, it will be created if there is no account by the given id.\n"
+                "\nResult:\n"
+                "\"navcoinaddress\"    (string) The new navcoin address\n"
+                "\nExamples:\n"
+                + HelpExampleCli("getnewprivateaddress", "")
+                + HelpExampleRpc("getnewprivateaddress", "")
+                );
+
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
+    // Parse the account first so we don't generate a key if there's an error
+    uint64_t account = 0;
+    if (params.size() > 0)
+        account = params[0].get_int64();
+
+    if (!pwalletMain->IsLocked())
+        pwalletMain->TopUpBLSCTSubAddressKeyPool(account);
+
+    // Generate a new key that is added to wallet
+    CKeyID keyID;
+    if (!pwalletMain->GetBLSCTSubAddressKeyFromPool(account, keyID))
+        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
+
     blsctDoublePublicKey k;
-    if (pwalletMain->GetBLSCTDoublePublicKey(k))
-        return CNavCoinAddress(k).ToString();
-    else
-        return NullUniValue;
+
+    if (!pwalletMain->GetBLSCTSubAddressPublicKeys(keyID, k))
+        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Could not calculate public key");
+
+    //pwalletMain->SetAddressBook(keyID, strAccount, "blsct receive");
+
+    return CNavCoinAddress(k).ToString();
 }
 
 // Defined in rpc/misc.cpp
@@ -3097,7 +3182,9 @@ UniValue keypoolrefill(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
     pwalletMain->TopUpKeyPool(kpSize);
-    pwalletMain->TopUpBLSCTKeyPool(kpSize);
+    pwalletMain->TopUpBLSCTBlindingKeyPool(kpSize);
+    for (auto&it: pwalletMain->mapBLSCTSubAddressKeyPool)
+        pwalletMain->TopUpBLSCTSubAddressKeyPool(it.first, kpSize);
 
     if (pwalletMain->GetKeyPoolSize() < kpSize)
         throw JSONRPCError(RPC_WALLET_ERROR, "Error refreshing keypool.");
@@ -3164,7 +3251,9 @@ UniValue walletpassphrase(const UniValue& params, bool fHelp)
                 "Stores the wallet decryption key in memory for <timeout> seconds.");
 
     pwalletMain->TopUpKeyPool();
-    pwalletMain->TopUpBLSCTKeyPool();
+    pwalletMain->TopUpBLSCTBlindingKeyPool();
+    for (auto&it: pwalletMain->mapBLSCTSubAddressKeyPool)
+        pwalletMain->TopUpBLSCTSubAddressKeyPool(it.first);
 
     int64_t nSleepTime = params[1].get_int64();
     LOCK(cs_nWalletUnlockTime);
@@ -4767,7 +4856,7 @@ extern UniValue removeprunedfunds(const UniValue& params, bool fHelp);
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
   //  --------------------- ------------------------    -----------------------    ----------
-    { "wallet",             "getprivateaddress",        &getprivateaddress,        true  },
+    { "wallet",             "getnewprivateaddress",     &getnewprivateaddress,     true  },
     { "wallet",             "listprivateunspent",       &listprivateunspent,       false },
     { "wallet",             "privatesendtoaddress",     &privatesendtoaddress,     false },
     { "wallet",             "privatesendmixtoaddress",  &privatesendmixtoaddress,  false },
@@ -4838,6 +4927,7 @@ static const CRPCCommand commands[] =
     { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
     { "communityfund",      "proposalvote",             &proposalvote,             false },
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+    { "wallet",             "generateblsctkeys",        &generateblsctkeys,        true  },
     { "wallet",             "setaccount",               &setaccount,               true  },
     { "wallet",             "settxfee",                 &settxfee,                 true  },
     { "wallet",             "signmessage",              &signmessage,              true  },

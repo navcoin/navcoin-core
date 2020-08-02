@@ -83,6 +83,14 @@ Point::Point(const Point& n)
     CheckRelicErrorsBLSCT();
 }
 
+Point::Point(const std::vector<uint8_t>& v)
+{
+    g1_new(g1);
+    g1_set_infty(g1);
+    SetVch(v);
+    CheckRelicErrorsBLSCT();
+}
+
 Point::Point(const g1_t& n)
 {
     g1_new(g1);
@@ -119,10 +127,8 @@ uint256 Point::Hash(const int& n) const
 
 std::vector<uint8_t> Point::GetVch() const
 {
-    size_t size = g1_size_bin(this->g1, 1);
-    uint8_t buffer[size];
-    g1_write_bin(buffer, size, this->g1, 1);
-    std::vector<uint8_t> ret(buffer, buffer+size);
+    std::vector<uint8_t> ret(bls::PublicKey::PUBLIC_KEY_SIZE);
+    g1_write_bin(ret.data(), size, this->g1, 1);
     return ret;
 }
 
@@ -331,11 +337,8 @@ bool Scalar::operator==(const Scalar &b) const
 
 std::vector<uint8_t> Scalar::GetVch() const
 {
-    size_t size = bn_size_bin(this->bn);
-    uint8_t buffer[size];
-    bn_write_bin(buffer, size, this->bn);
-    std::vector<uint8_t> ret(buffer, buffer+size);
-
+    std::vector<uint8_t> ret(bls::PrivateKey::PRIVATE_KEY_SIZE);
+    bn_write_bin(ret.data(), bls::PrivateKey::PRIVATE_KEY_SIZE, this->bn);
     return ret;
 }
 

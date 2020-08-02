@@ -382,8 +382,14 @@ CTxDestination CNavCoinAddress::Get() const
 
         memcpy(&vData[0], &vchData[0], bls::PublicKey::PUBLIC_KEY_SIZE);
         memcpy(&sData[0], &vchData[bls::PublicKey::PUBLIC_KEY_SIZE], bls::PublicKey::PUBLIC_KEY_SIZE);
-        blsctDoublePublicKey ret(bls::PublicKey::FromBytes(vData), bls::PublicKey::FromBytes(sData));
-        return ret;
+        try
+        {
+            return blsctDoublePublicKey(bls::PublicKey::FromBytes(vData), bls::PublicKey::FromBytes(sData));
+        }
+        catch(...)
+        {
+            return CNoDestination();
+        }
     }
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
@@ -492,6 +498,24 @@ CKey CNavCoinSecret::GetKey()
 
 bool CNavCoinSecret::IsValid() const
 {
+    if (vchVersion == Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+    {
+        uint8_t vData[bls::PublicKey::PUBLIC_KEY_SIZE];
+        uint8_t sData[bls::PublicKey::PUBLIC_KEY_SIZE];
+
+        memcpy(&vData[0], &vchData[0], bls::PublicKey::PUBLIC_KEY_SIZE);
+        memcpy(&sData[0], &vchData[bls::PublicKey::PUBLIC_KEY_SIZE], bls::PublicKey::PUBLIC_KEY_SIZE);
+        try
+        {
+            blsctDoublePublicKey test = blsctDoublePublicKey(bls::PublicKey::FromBytes(vData), bls::PublicKey::FromBytes(sData));
+            return true;
+        }
+        catch(...)
+        {
+            return false;
+        }
+    }
+
     bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
     bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
     return fExpectedFormat && fCorrectVersion;

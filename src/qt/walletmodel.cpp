@@ -319,14 +319,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         std::vector<CRecipient> vec;
         vec.push_back(rcp);
         transaction.newPossibleKeyChange(wallet);
-        transaction.newPossibleBLSCTKeyChange(wallet);
+        transaction.newPossibleBLSCTBlindingKey(wallet);
 
         CAmount nFeeRequired = 0;
         int nChangePosRet = -1;
         std::string strFailReason;
         bool fCreated;
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
-        std::vector<shared_ptr<CReserveBLSCTKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTKeyChange();
+        std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
 
         CWalletTx *newTx;
         newTx = new CWalletTx();
@@ -387,7 +387,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           int nChangePosRet = -1;
           std::string strFailReason;
           CReserveKey *keyChange = transaction.getPossibleKeyChange();
-          std::vector<shared_ptr<CReserveBLSCTKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTKeyChange();
+          std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
 
           CWalletTx *wTx;
           wTx = new CWalletTx();

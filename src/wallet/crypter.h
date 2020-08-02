@@ -199,6 +199,10 @@ public:
         }
     }
 
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const Point& outputKey, const Point& spendingKey, blsctKey& k) const;
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const Point& outputKey, blsctKey& k) const;
+    bool GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const Point& outputKey, blsctKey& k) const;
+
     bool GetBLSCTSpendKey(blsctKey& zk) const;
     bool GetCryptedBLSCTSpendKey(std::vector<unsigned char>& k) const;
     bool SetBLSCTSpendKey(const blsctKey& zk);

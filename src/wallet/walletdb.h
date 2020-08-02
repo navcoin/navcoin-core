@@ -23,7 +23,8 @@ static const bool DEFAULT_FLUSHWALLET = true;
 class CAccount;
 class CAccountingEntry;
 struct CBlockLocator;
-class CBLSCTKeyPool;
+class CBLSCTBlindingKeyPool;
+class CBLSCTSubAddressKeyPool;
 class CKeyPool;
 class CMasterKey;
 class CScript;
@@ -49,6 +50,7 @@ class CHDChain
 public:
     uint32_t nExternalChainCounter;
     uint32_t nExternalBLSCTChainCounter;
+    std::map<uint64_t, uint64_t> nExternalBLSCTSubAddressCounter;
     CKeyID masterKeyID; //!< master key hash160
 
     static const int CURRENT_VERSION = 1;
@@ -68,17 +70,19 @@ public:
             {
                 READWRITE(nExternalChainCounter);
                 READWRITE(nExternalBLSCTChainCounter);
+                READWRITE(nExternalBLSCTSubAddressCounter);
             }
             READWRITE(masterKeyID);
         }
         else
         {
-            if (nExternalBLSCTChainCounter > 0)
+            if (nExternalBLSCTChainCounter > 0 || nExternalBLSCTSubAddressCounter.size() > 0)
             {
                 uint32_t nMarker = ~(uint32_t)0;
                 READWRITE(nMarker);
                 READWRITE(nExternalChainCounter);
                 READWRITE(nExternalBLSCTChainCounter);
+                READWRITE(nExternalBLSCTSubAddressCounter);
             }
             else
             {
@@ -93,6 +97,7 @@ public:
         nVersion = CHDChain::CURRENT_VERSION;
         nExternalChainCounter = 0;
         nExternalBLSCTChainCounter = 0;
+        nExternalBLSCTSubAddressCounter.clear();
         masterKeyID.SetNull();
     }
 };
@@ -141,19 +146,19 @@ public:
     }
 };
 
-class CBLSCTKeyMetadata
+class CBLSCTBlindingKeyMetadata
 {
 public:
-    static const int VERSION_CURRENT=1;
+    static const int CURRENT_VERSION=1;
     int nVersion;
     int64_t nCreateTime; // 0 means unknown
     std::string hdKeypath; //optional HD/bip32 keypath
 
-    CBLSCTKeyMetadata()
+    CBLSCTBlindingKeyMetadata()
     {
         SetNull();
     }
-    CBLSCTKeyMetadata(int64_t nCreateTime_)
+    CBLSCTBlindingKeyMetadata(int64_t nCreateTime_)
     {
         SetNull();
         nCreateTime = nCreateTime_;
@@ -171,7 +176,7 @@ public:
 
     void SetNull()
     {
-        nVersion = CKeyMetadata::CURRENT_VERSION;
+        nVersion = CBLSCTBlindingKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
         hdKeypath.clear();
     }
@@ -214,9 +219,13 @@ public:
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
     bool ErasePool(int64_t nPool);
 
-    bool ReadBLSCTPool(int64_t nPool, CBLSCTKeyPool& keypool);
-    bool WriteBLSCTPool(int64_t nPool, const CBLSCTKeyPool& keypool);
-    bool EraseBLSCTPool(int64_t nPool);
+    bool ReadBLSCTBlindingPool(int64_t nPool, CBLSCTBlindingKeyPool& keypool);
+    bool WriteBLSCTBlindingPool(int64_t nPool, const CBLSCTBlindingKeyPool& keypool);
+    bool EraseBLSCTBlindingPool(int64_t nPool);
+
+    bool ReadBLSCTSubAddressPool(uint64_t account, uint64_t nPool, CBLSCTSubAddressKeyPool& keypool);
+    bool WriteBLSCTSubAddressPool(uint64_t account, uint64_t nPool, const CBLSCTSubAddressKeyPool& keypool);
+    bool EraseBLSCTSubAddressPool(uint64_t account, uint64_t nPool);
 
     bool WriteMinVersion(int nVersion);
 
@@ -228,11 +237,12 @@ public:
 
     bool WriteBLSCTSpendKey(const blsctKey& key);
     bool WriteBLSCTViewKey(const blsctKey& key);
-    bool WriteblsctDoublePublicKey(const blsctDoublePublicKey& key);
-    bool WriteBLSCTBlindingKey(const blsctExtendedKey& key);
+    bool WriteBLSCTDoublePublicKey(const blsctDoublePublicKey& key);
+    bool WriteBLSCTBlindingMasterKey(const blsctExtendedKey& key);
     bool WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck);
     bool WriteBLSCTKey(const CWallet* pwallet);
-    bool WriteBLSCTChildKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTKeyMetadata& keyMeta);
+    bool WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta);
+    bool WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

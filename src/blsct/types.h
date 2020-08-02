@@ -42,6 +42,7 @@ public:
     static const size_t POINT_SIZE = 48;
 
     Point();
+    Point(const std::vector<uint8_t>& v);
     Point(const Point& n);
     Point(const bls::PublicKey& n);
     Point(const uint256 &b);

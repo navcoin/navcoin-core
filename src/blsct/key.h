@@ -21,6 +21,8 @@
 #include <uint256.h>
 #include <version.h>
 
+static const std::string subAddressHeader = "SubAddress\0";
+
 class blsctDoublePublicKey
 {
 public:
@@ -52,6 +54,11 @@ public:
         ss << vk;
         ss << sk;
         return ss.GetHash();
+    }
+
+    CKeyID GetID() const
+    {
+        return CKeyID(Hash160(sk.data(), sk.data() + sk.size()));
     }
 
     bls::PublicKey GetViewKey() const {
@@ -118,6 +125,11 @@ public:
         CHashWriter ss(SER_GETHASH, 0);
         ss << vk;
         return ss.GetHash();
+    }
+
+    CKeyID GetID() const
+    {
+        return CKeyID(Hash160(vk.data(), vk.data() + vk.size()));
     }
 
     bls::PublicKey GetPublicKey() const {
@@ -202,6 +214,10 @@ public:
         return bls::PrivateKey::FromBytes(&k.front());
     }
 
+    Scalar GetScalar() const {
+        return Scalar(GetKey());
+    }
+
     bool IsValid() const {
         return k.size() > 0;
     }
@@ -211,6 +227,7 @@ public:
     }
 
     friend class CCryptoKeyStore;
+    friend class CBasicKeyStore;
 };
 
 class blsctExtendedKey

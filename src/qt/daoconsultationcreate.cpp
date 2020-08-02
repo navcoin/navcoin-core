@@ -278,7 +278,7 @@ void DaoConsultationCreate::onCreate()
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     bool created = true;
 
@@ -443,7 +443,7 @@ void DaoConsultationCreate::onCreateConsensus()
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     bool created = true;
 

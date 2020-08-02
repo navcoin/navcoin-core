@@ -25,7 +25,7 @@
 #include <boost/thread/lock_guard.hpp>
 
 static const size_t maxN = 64;
-static const size_t maxMessageSize = 20;
+static const size_t maxMessageSize = 24;
 static const size_t maxM = 16;
 static const size_t maxMN = maxM*maxN;
 

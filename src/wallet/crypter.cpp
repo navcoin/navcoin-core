@@ -336,6 +336,53 @@ bool CCryptoKeyStore::GetBLSCTSpendKey(blsctKey& k) const
     return true;
 }
 
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const Point& outputKey, const Point& spendingKey, blsctKey& k) const
+{
+    CKeyID hashId;
+
+    if (!CBasicKeyStore::GetBLSCTHashId(outputKey, spendingKey, hashId))
+        return false;
+
+    return GetBLSCTSubAddressSpendingKeyForOutput(hashId, outputKey, k);
+}
+
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const Point& outputKey, blsctKey& k) const
+{
+    std::pair<uint64_t, uint64_t> index;
+
+    if (!CBasicKeyStore::GetBLSCTSubAddressIndex(hashId, index))
+        return false;
+
+    return GetBLSCTSubAddressSpendingKeyForOutput(index, outputKey, k);
+}
+
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const Point& outputKey, blsctKey& k) const
+{
+    blsctKey s;
+
+    if (!GetBLSCTSpendKey(s))
+        return false;
+
+    CHashWriter string(SER_GETHASH, 0);
+
+    string << std::vector<unsigned char>(subAddressHeader.begin(), subAddressHeader.end());
+    string << privateBlsViewKey;
+    string << index.first;
+    string << index.second;
+
+    try
+    {
+        // Hs(a*R) + b + Hs("SubAddress\0" || a || acc || index)
+        k = blsctKey(bls::PrivateKey::FromBN((Scalar((privateBlsViewKey.GetScalar()*outputKey).Hash(0)) + s.GetScalar() + Scalar(string.GetHash())).bn));
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool CCryptoKeyStore::GetCryptedBLSCTSpendKey(std::vector<unsigned char>& k) const
 {
     if (!IsCrypted() || privateCryptedBlsKey.empty())

@@ -140,7 +140,7 @@ void DaoProposeAnswer::onPropose()
 
     bool created = true;
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {

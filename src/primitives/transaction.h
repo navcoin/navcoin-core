@@ -154,7 +154,8 @@ public:
     CAmount nValue;
     CScript scriptPubKey;
     BulletproofsRangeproof bp;
-    std::vector<uint8_t> blindingKey;
+    std::vector<uint8_t> ephemeralKey;
+    std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
 
     CTxOut()
@@ -163,7 +164,7 @@ public:
     }
 
     CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn);
-    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& blindingKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn);
+    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& ephemeralKeyIn, const bls::PublicKey& outputKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -175,7 +176,8 @@ public:
             if (nValue == ~(uint64_t)0)
             {
                 READWRITE(nValue);
-                READWRITE(blindingKey);
+                READWRITE(ephemeralKey);
+                READWRITE(outputKey);
                 READWRITE(spendingKey);
                 READWRITE(bp);
             }
@@ -188,7 +190,8 @@ public:
                 CAmount nMarker = ~(uint64_t)0;
                 READWRITE(nMarker);
                 READWRITE(nValue);
-                READWRITE(blindingKey);
+                READWRITE(ephemeralKey);
+                READWRITE(outputKey);
                 READWRITE(spendingKey);
                 READWRITE(bp);
             }
@@ -204,16 +207,14 @@ public:
     {
         nValue = -1;
         scriptPubKey.clear();
-        blindingKey.clear();
+        ephemeralKey.clear();
+        outputKey.clear();
         spendingKey.clear();
     }
 
-    bls::PublicKey GetBlindingKey() const;
-    bls::PublicKey GetSpendingKey() const;
-
     bool IsBLSCT() const
     {
-        return blindingKey.size() > 0 || spendingKey.size() > 0;
+        return ephemeralKey.size() > 0 || spendingKey.size() > 0 || outputKey.size() > 0;
     }
 
     bool HasRangeProof() const
@@ -223,12 +224,12 @@ public:
 
     bool IsNull() const
     {
-        return (nValue == -1 && scriptPubKey.empty() && spendingKey.empty() && blindingKey.empty());
+        return (nValue == -1 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty());
     }
 
     bool IsEmpty() const
     {
-        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && blindingKey.empty());
+        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty());
     }
 
     bool IsCommunityFundContribution() const
@@ -304,7 +305,8 @@ public:
     {
         return (a.nValue       == b.nValue &&
                 a.scriptPubKey == b.scriptPubKey &&
-                a.blindingKey  == b.blindingKey &&
+                a.ephemeralKey == b.ephemeralKey &&
+                a.outputKey    == b.outputKey &&
                 a.spendingKey  == b.spendingKey &&
                 a.bp           == b.bp);
     }

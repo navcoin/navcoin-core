@@ -636,10 +636,17 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
         if (!tx.IsBLSInput())
             continue;
 
-        if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
-            vToCombine.push_back(tx);
-        else
-            LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+        try
+        {
+            if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
+                vToCombine.push_back(tx);
+            else
+                LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+        }
+        catch(...)
+        {
+            continue;
+        }
     }
 
     if (vToCombine.size() == 0)

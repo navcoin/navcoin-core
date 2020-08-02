@@ -120,7 +120,8 @@ public:
                 READWRITE(VARINT(nMarker));
                 uint64_t nVal = CompressAmount(txout.nValue);
                 READWRITE(VARINT(nVal));
-                READWRITE(txout.blindingKey);
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
                 READWRITE(txout.bp);
             }
@@ -136,7 +137,7 @@ public:
             {
                 READWRITE(VARINT(nVal));
                 txout.nValue = DecompressAmount(nVal);
-                READWRITE(txout.blindingKey);
+                READWRITE(txout.ephemeralKey);
                 READWRITE(txout.spendingKey);
                 READWRITE(txout.bp);
             }

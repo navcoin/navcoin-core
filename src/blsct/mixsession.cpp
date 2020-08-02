@@ -79,9 +79,16 @@ bool MixSession::AddCandidateTransaction(const std::vector<unsigned char>& v)
 
     std::vector<RangeproofEncodedData> blsctData;
 
-    if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
+    try
     {
-        return error("MixSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+        if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
+        {
+            return error("MixSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+        }
+    }
+    catch(...)
+    {
+        return error("MixSession::%s: Catched VerifyBLSCT exception.\n", __func__);
     }
 
     setTransactionCandidates.insert(tx);
@@ -148,13 +155,12 @@ bool MixSession::Join() const
     CMutableTransaction candidate;
     candidate.nVersion = TX_BLS_INPUT_FLAG | TX_BLS_CT_FLAG;
 
-    bls::PrivateKey blindingKey = bls::PrivateKey::FromBN(Scalar::Rand().bn);
-    blsctDoublePublicKey k;
+    blsctDoublePublicKey k, vs;
     blsctPublicKey pk;
     blsctKey bk, v, s;
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
-    shared_ptr<CReserveBLSCTKey> rk(new CReserveBLSCTKey(pwalletMain));
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+    shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
     reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
 
     reserveBLSCTKey[0]->GetReservedKey(pk);
@@ -162,40 +168,44 @@ bool MixSession::Join() const
     {
         LOCK(pwalletMain->cs_wallet);
 
-        if (!pwalletMain->GetBLSCTKey(pk, bk))
+        if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
         {
             return error("MixSession::%s: Could not get private key from blsct pool.\n",__func__);
         }
 
-        blindingKey = bk.GetKey();
+        bls::PrivateKey ephemeralKey = bk.GetKey();
 
-        if (!pwalletMain->GetBLSCTDoublePublicKey(k))
+        if (!pwalletMain->GetBLSCTSubAddressPublicKeys(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, vs))
         {
-            return error("MixSession::%s: BLSCT not supported in your wallet\n",__func__);
+            return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
         }
 
-        if (!(pwalletMain->GetBLSCTViewKey(v)  && pwalletMain->GetBLSCTSpendKey(s)))
+        if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
         {
-            return error("MixSession::%s: BLSCT keys not available\n", __func__);
+            return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
+        }
+
+        if (!pwalletMain->GetBLSCTViewKey(v))
+        {
+            return error("AggregationSesion::%s: BLSCT keys not available when getting view key\n", __func__);
         }
     }
 
     // Input
     candidate.vin.push_back(CTxIn(prevcoin->GetHash(), prevout, CScript(),
                               std::numeric_limits<unsigned int>::max()-1));
-    bls::PublicKey secret1 = bls::BLS::DHKeyExchange(v.GetKey(), prevcoin->vout[prevout].GetBlindingKey());
 
-    Scalar spendingKey =  Scalar(Point(secret1).Hash(0)) * Scalar(s.GetKey());
-    bls::PrivateKey signingKey = bls::PrivateKey::FromBN(spendingKey.bn);
+    if (prevcoin->vout[prevout].ephemeralKey.size() == 0)
+        return error("MixSession::%s: prevout ephemeralkey length is 0\n", __func__);
 
-    SignBLSInput(signingKey, candidate.vin[0], vBLSSignatures);
+    SignBLSInput(s.GetKey(), candidate.vin[0], vBLSSignatures);
 
     // Output
     CTxOut newTxOut(0, CScript());
 
     std::string strFailReason;
 
-    if (!CreateBLSCTOutput(blindingKey, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mix Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+    if (!CreateBLSCTOutput(ephemeralKey, newTxOut, vs, prevcoin->vAmounts[prevout]+nAddedFee, "Mix Reward", gammaOuts, strFailReason, true, vBLSSignatures))
     {
         return error("MixSession::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
     }
@@ -204,7 +214,14 @@ bool MixSession::Join() const
 
     // Balance Sig
     Scalar diff = gammaIns-gammaOuts;
-    bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
+    try
+    {
+        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
+    }
+    catch(...)
+    {
+        return error("MixSession::%s: Catched balanceSigningKey exception.\n", __func__);
+    }
 
     candidate.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
 

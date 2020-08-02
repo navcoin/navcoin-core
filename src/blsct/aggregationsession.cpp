@@ -78,8 +78,16 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
 
     while (i < nSelect && i < vTransactionCandidates.size())
     {
-        if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
+        try
+        {
+            if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
+                continue;
+        }
+        catch(...)
+        {
             continue;
+        }
+
         vTransactionsToCombine.push_back(vTransactionCandidates[i].tx);
         nFee += vTransactionCandidates[i].fee;
         i++;
@@ -136,10 +144,18 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
 
     CValidationState state;
 
-    if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
+    try
     {
-        return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+        if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
+        {
+            return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+        }
     }
+    catch(...)
+    {
+        return error("AggregationSesion::%s: Failed validation of transaction candidate %s. Catched exception.\n", __func__, state.GetRejectReason());
+    }
+
 
     vTransactionCandidates.push_back(tx);
 
@@ -211,68 +227,93 @@ bool AggregationSesion::Join() const
     CMutableTransaction candidate;
     candidate.nVersion = TX_BLS_INPUT_FLAG | TX_BLS_CT_FLAG;
 
-    bls::PrivateKey blindingKey = bls::PrivateKey::FromBN(Scalar::Rand().bn);
     blsctDoublePublicKey k;
     blsctPublicKey pk;
     blsctKey bk, v, s;
 
-    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
-    shared_ptr<CReserveBLSCTKey> rk(new CReserveBLSCTKey(pwalletMain));
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+    shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
     reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
 
     reserveBLSCTKey[0]->GetReservedKey(pk);
 
+    std::vector<unsigned char> ephemeralKey;
+
     {
         LOCK(pwalletMain->cs_wallet);
 
-        if (!pwalletMain->GetBLSCTKey(pk, bk))
+        if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
         {
             return error("AggregationSesion::%s: Could not get private key from blsct pool.\n",__func__);
         }
 
-        blindingKey = bk.GetKey();
+        ephemeralKey = bk.GetKey().Serialize();
 
-        if (!pwalletMain->GetBLSCTDoublePublicKey(k))
-        {
-            return error("AggregationSesion::%s: BLSCT not supported in your wallet\n",__func__);
-        }
-
-        if (!(pwalletMain->GetBLSCTViewKey(v)  && pwalletMain->GetBLSCTSpendKey(s)))
+        if (!pwalletMain->GetBLSCTSubAddressPublicKeys(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, k))
         {
             return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
+        }
+
+        if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
+        {
+            return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
+        }
+
+        if (!pwalletMain->GetBLSCTViewKey(v))
+        {
+            return error("AggregationSesion::%s: BLSCT keys not available when getting view key\n", __func__);
         }
     }
 
     // Input
     candidate.vin.push_back(CTxIn(prevcoin->GetHash(), prevout, CScript(),
                               std::numeric_limits<unsigned int>::max()-1));
-    bls::PublicKey secret1 = bls::BLS::DHKeyExchange(v.GetKey(), prevcoin->vout[prevout].GetBlindingKey());
 
-    Scalar spendingKey =  Scalar(Point(secret1).Hash(0)) * Scalar(s.GetKey());
-    bls::PrivateKey signingKey = bls::PrivateKey::FromBN(spendingKey.bn);
+    if (prevcoin->vout[prevout].ephemeralKey.size() == 0)
+        return error("MixSession::%s: prevout ephemeralkey length is 0\n", __func__);
 
-    SignBLSInput(signingKey, candidate.vin[0], vBLSSignatures);
+    try
+    {
+        SignBLSInput(s.GetKey(), candidate.vin[0], vBLSSignatures);
+    }
+    catch(...)
+    {
+        return error("MixSession::%s: Catched signing key exception.\n", __func__);
+    }
 
     // Output
     CTxOut newTxOut(0, CScript());
 
     std::string strFailReason;
 
-    if (!CreateBLSCTOutput(blindingKey, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+    try
     {
-        return error("AggregationSesion::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
+        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+        {
+            return error("AggregationSesion::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
+        }
     }
+    catch(...)
+    {
+        return error("AggregationSesion::%s: Catched CreateBLSCTOutput exception.\n", __func__);
+    }
+
 
     candidate.vout.push_back(newTxOut);
 
-    // Balance Sig
-    Scalar diff = gammaIns-gammaOuts;
-    bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-
-    candidate.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
-
-    // Tx Sig
-    candidate.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    try
+    {
+        // Balance Sig
+        Scalar diff = gammaIns-gammaOuts;
+        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
+        candidate.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+        // Tx Sig
+        candidate.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    }
+    catch(...)
+    {
+        return error("AggregationSesion::%s: Catched balanceSigningKey exception.\n", __func__);
+    }
 
     CValidationState state;
 

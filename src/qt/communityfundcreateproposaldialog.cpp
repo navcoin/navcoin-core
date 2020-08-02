@@ -219,7 +219,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
                 bool created_proposal = true;
 
-                std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+                std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
                 if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {

@@ -2372,15 +2372,22 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
     }
     else
     {
-        blsctKey v;
+        try
+        {
+            blsctKey v;
 
-        if (pwalletMain)
-            pwalletMain->GetBLSCTViewKey(v);
-        else
-            v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
+            if (pwalletMain)
+                pwalletMain->GetBLSCTViewKey(v);
+            else
+                v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
 
-        if (!VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state))
+            if (!VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state))
+                return false;
+        }
+        catch(...)
+        {
             return false;
+        }
 
         nFees += tx.GetFee();
     }

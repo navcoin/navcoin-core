@@ -365,7 +365,7 @@ void BulletproofsRangeproof::Prove(const std::vector<Scalar>& v, const std::vect
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
 
-    if (message.size() > maxMessageSize)
+    if (message.size() >= maxMessageSize)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): message size is too big");
 
     if (v.size() != gamma.size() || v.empty() || v.size() > maxM)
@@ -425,7 +425,7 @@ try_again:
     // Commitment to aL and aR (obfuscated with alpha)
     Scalar alpha;
     Scalar sM = message;
-    sM = sM << 144;
+    sM = sM << 8*8;
 
     alpha = nonce.Hash(1);
     alpha = alpha + (v[0] | sM);
@@ -759,7 +759,7 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             RangeproofEncodedData data;
             data.index = p.first;
             data.amount = amount.GetUint64();
-            data.message = (excess>>144).GetVch();
+            data.message = (excess>>8*8).GetVch();
             data.valid = true;
 
             Scalar gamma = (proof.taux - (tau2*pd.x*pd.x) - (tau1*pd.x)) * (pd.z*pd.z).Invert();

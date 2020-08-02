@@ -76,7 +76,7 @@ extern const char * DEFAULT_WALLET_DAT;
 class CBlockIndex;
 class CCoinControl;
 class COutput;
-class CReserveBLSCTKey;
+class CReserveBLSCTBlindingKey;
 class CReserveKey;
 class CScript;
 class CTxMemPool;
@@ -118,15 +118,15 @@ public:
     }
 };
 
-/** A key pool entry */
-class CBLSCTKeyPool
+/** A BLSCT Blinding Key pool entry */
+class CBLSCTBlindingKeyPool
 {
 public:
     int64_t nTime;
     blsctPublicKey vchPubKey;
 
-    CBLSCTKeyPool();
-    CBLSCTKeyPool(const blsctPublicKey& vchPubKeyIn);
+    CBLSCTBlindingKeyPool();
+    CBLSCTBlindingKeyPool(const blsctPublicKey& vchPubKeyIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -136,6 +136,27 @@ public:
             READWRITE(nVersion);
         READWRITE(nTime);
         READWRITE(vchPubKey);
+    }
+};
+
+/** A BLSCT Sub Address Key pool entry */
+class CBLSCTSubAddressKeyPool
+{
+public:
+    int64_t nTime;
+    CKeyID hashId;
+
+    CBLSCTSubAddressKeyPool();
+    CBLSCTSubAddressKeyPool(const CKeyID& hashIdIn);
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        if (!(nType & SER_GETHASH))
+            READWRITE(nVersion);
+        READWRITE(nTime);
+        READWRITE(hashId);
     }
 };
 
@@ -750,9 +771,10 @@ public:
     std::string strWalletFile;
 
     std::set<int64_t> setKeyPool;
-    std::set<int64_t> setBLSCTKeyPool;
+    std::set<int64_t> setBLSCTBlindingKeyPool;
+    std::map<uint64_t, std::set<uint64_t>> mapBLSCTSubAddressKeyPool;
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
-    std::map<blsctPublicKey, CBLSCTKeyMetadata> mapBLSCTKeyMetadata;
+    std::map<blsctPublicKey, CBLSCTBlindingKeyMetadata> mapBLSCTBlindingKeyMetadata;
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
@@ -854,16 +876,19 @@ public:
      * Generate a new key
      */
     CPubKey GenerateNewKey();
-    blsctPublicKey GenerateNewBLSCTKey();
+    blsctPublicKey GenerateNewBlindingKey();
+    bool GenerateNewSubAddress(const uint64_t& account, blsctDoublePublicKey& pk);
     //! Adds a key to the store, and saves it to disk.
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool AddBLSCTKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
+    bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
+    bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     //! Adds a key to the store, without saving it to disk (used by LoadWallet)
     bool LoadKey(const CKey& key, const CPubKey &pubkey) { return CCryptoKeyStore::AddKeyPubKey(key, pubkey); }
-    bool LoadBLSCTKey(const blsctKey& key, const blsctPublicKey &pubkey) { return CBasicKeyStore::AddBLSCTKeyPubKey(key, pubkey); }
+    bool LoadBLSCTBlindingKey(const blsctKey& key, const blsctPublicKey &pubkey) { return CBasicKeyStore::AddBLSCTBlindingKeyPubKey(key, pubkey); }
+    bool LoadBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index) { return CBasicKeyStore::AddBLSCTSubAddress(hashId, index); }
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CPubKey &pubkey, const CKeyMetadata &metadata);
-    bool LoadBLSCTKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTKeyMetadata &metadata);
+    bool LoadBLSCTBlindingKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTBlindingKeyMetadata &metadata);
 
     bool LoadMinVersion(int nVersion) { AssertLockHeld(cs_wallet); nWalletVersion = nVersion; nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion); return true; }
 
@@ -922,6 +947,10 @@ public:
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
 
+    bool HasValidBLSCTKey() const {
+        return publicBlsKey.IsValid();
+    }
+
     /**
      * Insert additional inputs into the transaction by
      * calling CreateTransaction();
@@ -933,9 +962,9 @@ public:
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0);
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey);
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0);
+    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
 
@@ -961,14 +990,23 @@ public:
     int64_t GetOldestKeyPoolTime();
     void GetAllReserveKeys(std::set<CKeyID>& setAddress) const;
 
-    bool NewBLSCTKeyPool();
-    bool TopUpBLSCTKeyPool(unsigned int kpSize = 0);
-    void ReserveBLSCTKeyFromKeyPool(int64_t& nIndex, CBLSCTKeyPool& keypool);
-    void KeepBLSCTKey(int64_t nIndex);
-    void ReturnBLSCTKey(int64_t nIndex);
-    bool GetBLSCTKeyFromPool(blsctPublicKey &key);
-    int64_t GetOldestBLSCTKeyPoolTime();
-    void GetAllReserveBLSCTKeys(std::set<blsctPublicKey>& setAddress) const;
+    bool NewBLSCTBlindingKeyPool();
+    bool TopUpBLSCTBlindingKeyPool(unsigned int kpSize = 0);
+    void ReserveBLSCTBlindingKeyFromKeyPool(int64_t& nIndex, CBLSCTBlindingKeyPool& keypool);
+    void KeepBLSCTBlindingKey(int64_t nIndex);
+    void ReturnBLSCTBlindingKey(int64_t nIndex);
+    bool GetBLSCTBlindingKeyFromPool(blsctPublicKey &key);
+    int64_t GetOldestBLSCTBlindingKeyPoolTime();
+    void GetAllReserveBLSCTBlindingKeys(std::set<blsctPublicKey>& setAddress) const;
+
+    bool NewBLSCTSubAddressKeyPool(const uint64_t& account);
+    bool TopUpBLSCTSubAddressKeyPool(const uint64_t& account, unsigned int kpSize = 0);
+    void ReserveBLSCTSubAddressKeyFromKeyPool(const uint64_t& account, int64_t& nIndex, CBLSCTSubAddressKeyPool& keypool);
+    void KeepBLSCTSubAddressKey(const uint64_t& account, int64_t nIndex);
+    void ReturnBLSCTSubAddressKey(const uint64_t& account, int64_t nIndex);
+    bool GetBLSCTSubAddressKeyFromPool(const uint64_t& account, CKeyID &result);
+    int64_t GetOldestBLSCTSubAddressKeyPoolTime(const uint64_t& account);
+    void GetAllReserveBLSCTSubAddressKeys(const uint64_t& account, std::set<blsctPublicKey>& setAddress) const;
 
     std::set< std::set<CTxDestination> > GetAddressGroupings();
     std::map<CTxDestination, CAmount> GetAddressBalances();
@@ -1125,20 +1163,20 @@ public:
     void KeepScript() { KeepKey(); }
 };
 
-class CReserveBLSCTKey : public CReserveScript
+class CReserveBLSCTBlindingKey : public CReserveScript
 {
 protected:
     CWallet* pwallet;
     int64_t nIndex;
     blsctPublicKey vchPubKey;
 public:
-    CReserveBLSCTKey(CWallet* pwalletIn)
+    CReserveBLSCTBlindingKey(CWallet* pwalletIn)
     {
         nIndex = -1;
         pwallet = pwalletIn;
     }
 
-    ~CReserveBLSCTKey()
+    ~CReserveBLSCTBlindingKey()
     {
         ReturnKey();
     }

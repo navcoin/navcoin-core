@@ -48,11 +48,12 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
     scriptPubKey = scriptPubKeyIn;
 }
 
-CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& blindingKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn)
+CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& ephemeralKeyIn, const bls::PublicKey& outputKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
-    blindingKey = blindingKeyIn.Serialize();
+    ephemeralKey = ephemeralKeyIn.Serialize();
+    outputKey = outputKeyIn.Serialize();
     spendingKey = spendingKeyIn.Serialize();
     bp = bpIn;
 }
@@ -62,16 +63,6 @@ uint256 CTxOut::GetHash() const
     return SerializeHash(*this);
 }
 
-bls::PublicKey CTxOut::GetBlindingKey() const
-{
-    return bls::PublicKey::FromBytes(blindingKey.data());
-}
-
-bls::PublicKey CTxOut::GetSpendingKey() const
-{
-    return bls::PublicKey::FromBytes(spendingKey.data());
-}
-
 std::string CTxOut::ToString() const
 {
     if (IsEmpty()) return "CTxOut(empty)";
@@ -79,10 +70,11 @@ std::string CTxOut::ToString() const
         return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
     else
     {
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
                          scriptPubKey.ToString(),
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
-                         blindingKey.size()>0 ? strprintf(" blindingKey=%s",HexStr(spendingKey)):"",
+                         outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
+                         ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(spendingKey)):"",
                          bp.V.size()>0 ? " rangeProof=1":"");
     }
 }

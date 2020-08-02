@@ -1874,7 +1874,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-    LogPrintf("setBLSCTKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setBLSCTKeyPool.size() : 0);
+    LogPrintf("setBLSCTBlindingKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setBLSCTBlindingKeyPool.size() : 0);
+    LogPrintf("mapBLSCTSubAddressKeyPool.size() = %u\n",    pwalletMain ? pwalletMain->mapBLSCTSubAddressKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %u\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif

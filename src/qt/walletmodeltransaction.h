@@ -12,7 +12,7 @@
 
 class SendCoinsRecipient;
 
-class CReserveBLSCTKey;
+class CReserveBLSCTBlindingKey;
 class CReserveKey;
 class CWallet;
 class CWalletTx;
@@ -39,8 +39,8 @@ public:
     void newPossibleKeyChange(CWallet *wallet);
     CReserveKey *getPossibleKeyChange();
 
-    void newPossibleBLSCTKeyChange(CWallet *wallet);
-    std::vector<shared_ptr<CReserveBLSCTKey>> *getPossibleBLSCTKeyChange();
+    void newPossibleBLSCTBlindingKey(CWallet *wallet);
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *getPossibleBLSCTBlindingKey();
 
     void reassignAmounts(int nChangePosRet, CWalletTx* wTx, int index); // needed for the subtract-fee-from-amount feature
     QList<SendCoinsRecipient> recipients;
@@ -50,7 +50,7 @@ public:
 private:
     CWalletTx *walletTransaction;
     CReserveKey *keyChange;
-    std::vector<shared_ptr<CReserveBLSCTKey>> *blsctKeyChange;
+    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *blsctBlindingKey;
     CAmount fee;
 };
 
