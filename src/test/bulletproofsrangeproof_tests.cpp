@@ -12,10 +12,10 @@
 
 BOOST_FIXTURE_TEST_SUITE(bulletproofsrangeproof, BasicTestingSetup)
 
-bool TestRange(std::vector<Scalar> values, Point nonce)
+bool TestRange(std::vector<Scalar> values, bls::G1Element nonce)
 {
     std::vector<Scalar> gamma;
-    std::vector<Point> nonces;
+    std::vector<bls::G1Element> nonces;
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
@@ -62,10 +62,10 @@ bool TestRange(std::vector<Scalar> values, Point nonce)
     return true;
 }
 
-bool TestRangeBatch(std::vector<Scalar> values, Point nonce)
+bool TestRangeBatch(std::vector<Scalar> values, bls::G1Element nonce)
 {
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-    std::vector<Point> nonces;
+    std::vector<bls::G1Element> nonces;
     std::vector<Scalar> gamma;
 
     for (unsigned int i = 0; i < values.size(); i++)
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(RangeProofTest)
     std::vector<Scalar> vInRange;
     std::vector<Scalar> vOutOfRange;
 
-    Point nonce = Point::Rand();
+    bls::G1Element nonce = bls::G1Element::Unity();
 
     // Admited range is (0, 2**64)
     Scalar one;

@@ -48,7 +48,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
     scriptPubKey = scriptPubKeyIn;
 }
 
-CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& ephemeralKeyIn, const bls::PublicKey& outputKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn)
+CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Element& ephemeralKeyIn, const bls::G1Element& outputKeyIn, const bls::G1Element& spendingKeyIn, const BulletproofsRangeproof& bpIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
@@ -218,12 +218,12 @@ std::string CMutableTransaction::ToString() const
     return str;
 }
 
-void CMutableTransaction::SetBalanceSignature(const bls::Signature& sig)
+void CMutableTransaction::SetBalanceSignature(const bls::G2Element& sig)
 {
     vchBalanceSig = sig.Serialize();
 }
 
-void CMutableTransaction::SetTxSignature(const bls::PrependSignature& sig)
+void CMutableTransaction::SetTxSignature(const bls::G2Element& sig)
 {
     vchTxSig = sig.Serialize();
 }

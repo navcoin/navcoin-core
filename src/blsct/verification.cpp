@@ -4,13 +4,13 @@
 
 #include "verification.h"
 
-bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
+bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-    std::vector<Point> nonces;
+    std::vector<bls::G1Element> nonces;
 
-    Point balKey;
-    bool fPointZero = true;
+    bls::G1Element balKey;
+    bool fElementZero = true;
 
     bool fCheckRange = tx.IsCTOutput();
     bool fCheckBLSSignature = tx.IsBLSInput();
@@ -25,8 +25,8 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     if (!(fCheckRange || fCheckBalance || fCheckBLSSignature))
         return true;
 
-    std::vector<bls::PublicKey> txSigningKeys;
-    std::vector<const uint8_t*> vMessages;
+    std::vector<bls::G1Element> txSigningKeys;
+    std::vector<std::vector<uint8_t>> vMessages;
 
     CAmount valIn = 0;
     CAmount valOut = 0;
@@ -38,9 +38,11 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
         if (nMixFee < 0)
             sMixFee = sMixFee.Negate();
 
-        balKey = fPointZero ? (BulletproofsRangeproof::H*sMixFee) : balKey + (BulletproofsRangeproof::H*sMixFee);
+        Scalar s = Scalar(sMixFee).bn;
+        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        balKey = fElementZero ? t : balKey + t;
         valIn += nMixFee;
-        fPointZero = false;
+        fElementZero = false;
     }
 
     for (size_t j = 0; j < tx.vin.size(); j++)
@@ -53,14 +55,16 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
             {
                 if (prevOut.HasRangeProof())
                 {
-                    balKey = fPointZero ? prevOut.bp.GetValueCommitments()[0] : balKey + prevOut.bp.GetValueCommitments()[0];
-                    fPointZero = false;
+                    balKey = fElementZero ? prevOut.bp.GetValueCommitments()[0] : balKey + prevOut.bp.GetValueCommitments()[0];
+                    fElementZero = false;
                 }
                 else
                 {
-                    balKey = fPointZero ? (BulletproofsRangeproof::H*Scalar(prevOut.nValue)) : balKey + (BulletproofsRangeproof::H*Scalar(prevOut.nValue));
+                    Scalar s = Scalar(prevOut.nValue).bn;
+                    bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+                    balKey = fElementZero ? t : balKey + t;
                     valIn += prevOut.nValue;
-                    fPointZero = false;
+                    fElementZero = false;
                 }
             }
 
@@ -68,7 +72,7 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
             {
                 try
                 {
-                    txSigningKeys.push_back(bls::PublicKey::FromBytes(prevOut.spendingKey.data()));
+                    txSigningKeys.push_back(bls::G1Element::FromBytes(prevOut.spendingKey.data()));
                 }
                 catch(std::exception& e)
                 {
@@ -78,10 +82,7 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
                 CHashWriter hasher(0,0);
                 hasher << tx.vin[j];
                 uint256 hash = hasher.GetHash();
-                unsigned char *h;
-                h = new unsigned char [32];
-                memcpy(h, hash.begin(), 32);
-                vMessages.push_back(h);
+                vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
             }
         }
     }
@@ -100,7 +101,9 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
-                    nonces.push_back(bls::BLS::DHKeyExchange(viewKey, bls::PublicKey::FromBytes(tx.vout[j].ephemeralKey.data())));
+                    bls::G1Element t = bls::G1Element::FromBytes(tx.vout[j].ephemeralKey.data());
+                    t = t * viewKey;
+                    nonces.push_back(t);
                 }
                 catch(std::exception& e)
                 {
@@ -109,15 +112,34 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
             }
             if (fCheckBalance)
             {
-                balKey = fPointZero ? tx.vout[j].bp.GetValueCommitments()[0] : balKey - tx.vout[j].bp.GetValueCommitments()[0];
-                fPointZero = false;
+                if (fElementZero)
+                {
+                    balKey = tx.vout[j].bp.GetValueCommitments()[0];
+                }
+                else
+                {
+                    bls::G1Element t = tx.vout[j].bp.GetValueCommitments()[0].Inverse();
+                    balKey = balKey + t;
+                }
+                fElementZero = false;
             }
         }
         else if (fCheckBalance)
         {
-            balKey = fPointZero ? (BulletproofsRangeproof::H*Scalar(tx.vout[j].nValue)) : balKey - (BulletproofsRangeproof::H*Scalar(tx.vout[j].nValue));
+            if (fElementZero)
+            {
+                Scalar s = Scalar(tx.vout[j].nValue);
+                balKey = BulletproofsRangeproof::H*s.bn;
+            }
+            else
+            {
+                Scalar s = Scalar(tx.vout[j].nValue);
+                bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+                t = t.Inverse();
+                balKey = balKey + t;
+            }
             valOut += tx.vout[j].nValue;
-            fPointZero = false;
+            fElementZero = false;
         }
 
         if (fCheckBLSSignature && !tx.vout[j].scriptPubKey.IsFee())
@@ -128,17 +150,14 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
             }
             try
             {
-                txSigningKeys.push_back(bls::PublicKey::FromBytes(tx.vout[j].ephemeralKey.data()));
+                txSigningKeys.push_back(bls::G1Element::FromBytes(tx.vout[j].ephemeralKey.data()));
             }
             catch(std::exception& e)
             {
                 return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
             }
             uint256 hash = tx.vout[j].GetHash();
-            unsigned char *h;
-            h = new unsigned char [32];
-            memcpy(h, hash.begin(), 32);
-            vMessages.push_back(h);
+            vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
         }
     }
 
@@ -152,18 +171,14 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
 
     if (fCheckBalance)
     {
-        bls::PublicKey balanceKey = bls::PublicKey::FromG1(&(balKey.g1));
-
         if (tx.vchBalanceSig.size() == 0)
             return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-read-balanceproof"));
 
         try
         {
-            bls::Signature sig = bls::Signature::FromBytes(tx.vchBalanceSig.data());
+            bls::G2Element sig = bls::G2Element::FromBytes(tx.vchBalanceSig.data());
 
-            sig.SetAggregationInfo(bls::AggregationInfo::FromMsg(balanceKey, balanceMsg, sizeof(balanceMsg)));
-
-            if (!sig.Verify())
+            if (!bls::AugSchemeMPL::Verify(balKey, balanceMsg, sig))
                 return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
         }
         catch(std::exception& e)
@@ -179,9 +194,9 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
 
         try
         {
-            bls::PrependSignature txsig = bls::PrependSignature::FromBytes(tx.vchTxSig.data());
+            bls::G2Element txsig = bls::G2Element::FromBytes(tx.vchTxSig.data());
 
-            if (!txsig.Verify(vMessages, txSigningKeys))
+            if (!bls::AugSchemeMPL::AggregateVerify(txSigningKeys, vMessages, txsig))
                 return state.DoS(100, false, REJECT_INVALID, "invalid-bls-signature");
         }
         catch(std::exception& e)
@@ -198,8 +213,8 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
     std::set<CTxIn> setInputs;
     std::set<CTxOut> setOutputs;
 
-    std::vector<bls::InsecureSignature> balanceSigs;
-    std::vector<bls::InsecureSignature> txSigs;
+    std::vector<bls::G2Element> balanceSigs;
+    std::vector<bls::G2Element> txSigs;
 
     if (vTx.size() == 0)
         return state.DoS(100, false, REJECT_INVALID, strprintf("empty-vector-combine-blsct"));
@@ -249,7 +264,7 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
         {
             try
             {
-                bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchBalanceSig.data());
+                bls::G2Element sig = bls::G2Element::FromByteVector(tx.vchBalanceSig);
                 balanceSigs.push_back(sig);
             }
             catch(std::exception& e)
@@ -262,7 +277,7 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
         {
             try
             {
-                bls::InsecureSignature sig = bls::InsecureSignature::FromBytes(tx.vchTxSig.data());
+                bls::G2Element sig = bls::G2Element::FromByteVector(tx.vchTxSig);
                 txSigs.push_back(sig);
             }
             catch(std::exception& e)
@@ -291,8 +306,8 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
     }
 
     mutOutTx.vout.push_back(CTxOut(nFee, CScript(OP_RETURN)));
-    mutOutTx.SetBalanceSignature(bls::Signature::FromInsecureSig(bls::InsecureSignature::Aggregate(balanceSigs)));
-    mutOutTx.SetTxSignature(bls::PrependSignature::FromInsecureSig(bls::InsecureSignature::Aggregate(txSigs)));
+    mutOutTx.SetBalanceSignature(bls::AugSchemeMPL::Aggregate(balanceSigs));
+    mutOutTx.SetTxSignature(bls::AugSchemeMPL::Aggregate(txSigs));
 
     outTx = mutOutTx;
 

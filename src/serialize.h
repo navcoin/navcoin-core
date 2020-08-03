@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <bls.hpp>
 #include <ios>
 #include <limits>
 #include <map>
@@ -537,6 +538,23 @@ inline void Unserialize(Stream& s, Consensus::ConsensusParamsPos& a, int nType, 
     a = static_cast<Consensus::ConsensusParamsPos>(f);
 }
 
+// Serialization for bls::G1Element
+inline unsigned int GetSerializedSize(bls::G1Element a, int, int = 0) { return bls::G1Element::SIZE; }
+template <typename Stream>
+inline void Serialize(Stream& s, bls::G1Element a, int nType, int nVersion = 0)
+{
+    std::vector<uint8_t> f = a.Serialize();
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, bls::G1Element & a, int nType, int nVersion = 0)
+{
+    std::vector<uint8_t> f(bls::G1Element::SIZE);
+    Unserialize(s, f, nType, nVersion);
+    a = bls::G1Element::FromByteVector(f);
+}
+
 /**
  *  string
  */
@@ -830,8 +848,6 @@ inline void Unserialize(Stream& is, std::vector<T, A>& v, int nType, int nVersio
 {
     Unserialize_impl(is, v, nType, nVersion, T());
 }
-
-
 
 /**
  * pair

@@ -148,7 +148,7 @@ bool MixSession::Join() const
 
     CAmount nAddedFee = GetDefaultFee();
 
-    std::vector<bls::PrependSignature> vBLSSignatures;
+    std::vector<bls::G2Element> vBLSSignatures;
     Scalar gammaIns = prevcoin->vGammas[prevout];
     Scalar gammaOuts = 0;
 
@@ -226,7 +226,7 @@ bool MixSession::Join() const
     candidate.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
 
     // Tx Sig
-    candidate.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    candidate.vchTxSig = bls::G2Element::Aggregate(vBLSSignatures).Serialize();
 
     CValidationState state;
 

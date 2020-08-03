@@ -336,7 +336,7 @@ bool CCryptoKeyStore::GetBLSCTSpendKey(blsctKey& k) const
     return true;
 }
 
-bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const Point& outputKey, const Point& spendingKey, blsctKey& k) const
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::vector<uint8_t>& outputKey, const std::vector<uint8_t>& spendingKey, blsctKey& k) const
 {
     CKeyID hashId;
 
@@ -346,7 +346,7 @@ bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const Point& output
     return GetBLSCTSubAddressSpendingKeyForOutput(hashId, outputKey, k);
 }
 
-bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const Point& outputKey, blsctKey& k) const
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const std::vector<uint8_t>& outputKey, blsctKey& k) const
 {
     std::pair<uint64_t, uint64_t> index;
 
@@ -356,7 +356,7 @@ bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashI
     return GetBLSCTSubAddressSpendingKeyForOutput(index, outputKey, k);
 }
 
-bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const Point& outputKey, blsctKey& k) const
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const std::vector<uint8_t>& outputKey, blsctKey& k) const
 {
     blsctKey s;
 
@@ -373,7 +373,10 @@ bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uin
     try
     {
         // Hs(a*R) + b + Hs("SubAddress\0" || a || acc || index)
-        k = blsctKey(bls::PrivateKey::FromBN((Scalar((privateBlsViewKey.GetScalar()*outputKey).Hash(0)) + s.GetScalar() + Scalar(string.GetHash())).bn));
+        bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
+        Scalar s_ = privateBlsViewKey.GetScalar();
+        t = t * s_.bn;
+        k = blsctKey(bls::PrivateKey::FromBN((Scalar(HashG1Element(t, 0)) + s.GetScalar() + Scalar(string.GetHash())).bn));
     }
     catch(...)
     {

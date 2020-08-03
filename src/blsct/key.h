@@ -13,8 +13,9 @@
 #endif
 
 #include <bls.hpp>
-#include <blsct/types.h>
+#include <blsct/scalar.h>
 #include <hash.h>
+#include <hdkeys.hpp>
 #include <key.h>
 #include <serialize.h>
 #include <streams.h>
@@ -27,7 +28,7 @@ class blsctDoublePublicKey
 {
 public:
     blsctDoublePublicKey() { vk.clear(); sk.clear(); }
-    blsctDoublePublicKey(const bls::PublicKey& vk_, const bls::PublicKey& sk_) : vk(vk_.Serialize()), sk(sk_.Serialize()) {}
+    blsctDoublePublicKey(const bls::G1Element& vk_, const bls::G1Element& sk_) : vk(vk_.Serialize()), sk(sk_.Serialize()) {}
     blsctDoublePublicKey(const std::vector<uint8_t>& vk_, const std::vector<uint8_t>& sk_) : vk(vk_), sk(sk_) {}
 
     unsigned int GetSerializeSize(int nType=0, int nVersion=PROTOCOL_VERSION) const
@@ -61,19 +62,21 @@ public:
         return CKeyID(Hash160(sk.data(), sk.data() + sk.size()));
     }
 
-    bls::PublicKey GetViewKey() const {
-        return bls::PublicKey::FromBytes(&vk.front());
+    bls::G1Element GetViewKey() const {
+        bls::G1Element ret = bls::G1Element::FromBytes(&vk.front());
+        return ret;
     }
 
-    bls::PublicKey GetSpendKey() const {
-        return bls::PublicKey::FromBytes(&sk.front());
+    bls::G1Element GetSpendKey() const {
+        bls::G1Element ret = bls::G1Element::FromBytes(&sk.front());
+        return ret;
     }
 
     bool operator<(const blsctDoublePublicKey& rhs) const {
-        Point l, r;
-        l = bls::PublicKey::FromBytes(&vk.front());
-        r = bls::PublicKey::FromBytes(&(rhs.vk).front());
-        return g1_cmp(l.g1, r.g1);
+        bls::G1Element l, r;
+        l = bls::G1Element::FromBytes(&vk.front());
+        r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        return g1_cmp(l.p, r.p);
     }
 
     bool operator==(const blsctDoublePublicKey& rhs) const {
@@ -101,7 +104,7 @@ class blsctPublicKey
 {
 public:
     blsctPublicKey() { vk.clear(); }
-    blsctPublicKey(const bls::PublicKey& vk_) : vk(vk_.Serialize()) {}
+    blsctPublicKey(const bls::G1Element& vk_) : vk(vk_.Serialize()) {}
     blsctPublicKey(const std::vector<uint8_t>& vk_) : vk(vk_) {}
 
     unsigned int GetSerializeSize(int nType=0, int nVersion=PROTOCOL_VERSION) const
@@ -132,15 +135,15 @@ public:
         return CKeyID(Hash160(vk.data(), vk.data() + vk.size()));
     }
 
-    bls::PublicKey GetPublicKey() const {
-        return bls::PublicKey::FromBytes(&vk.front());
+    bls::G1Element GetG1Element() const {
+        return bls::G1Element::FromBytes(&vk.front());
     }
 
     bool operator<(const blsctPublicKey& rhs) const {
-        Point l, r;
-        l = bls::PublicKey::FromBytes(&vk.front());
-        r = bls::PublicKey::FromBytes(&(rhs.vk).front());
-        return g1_cmp(l.g1, r.g1);
+        bls::G1Element l, r;
+        l = bls::G1Element::FromBytes(&vk.front());
+        r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        return g1_cmp(l.p, r.p);
     }
 
     bool operator==(const blsctPublicKey& rhs) const {
@@ -206,8 +209,8 @@ public:
         return k==rhs.k;
     }
 
-    bls::PublicKey GetPublicKey() const {
-        return bls::PrivateKey::FromBytes(&k.front()).GetPublicKey();
+    bls::G1Element GetG1Element() const {
+        return bls::PrivateKey::FromBytes(&k.front()).GetG1Element();
     }
 
     bls::PrivateKey GetKey() const {
@@ -216,6 +219,16 @@ public:
 
     Scalar GetScalar() const {
         return Scalar(GetKey());
+    }
+
+    bls::PrivateKey PrivateChild(uint32_t i) const {
+        bls::PrivateKey buf = bls::PrivateKey::FromBytes(&k.front());
+        return bls::HDKeys::DeriveChildSk(buf, i);
+    }
+
+    bls::G1Element PublicChild(uint32_t i) const {
+        bls::PrivateKey buf = bls::PrivateKey::FromBytes(&k.front());
+        return bls::HDKeys::DeriveChildSk(buf, i).GetG1Element();
     }
 
     bool IsValid() const {
@@ -228,80 +241,6 @@ public:
 
     friend class CCryptoKeyStore;
     friend class CBasicKeyStore;
-};
-
-class blsctExtendedKey
-{
-private:
-    std::vector<uint8_t> k;
-
-public:
-    blsctExtendedKey() { k.clear(); }
-
-    blsctExtendedKey(bls::ExtendedPrivateKey k_) {
-        k.resize(bls::ExtendedPrivateKey::EXTENDED_PRIVATE_KEY_SIZE);
-        std::vector<uint8_t> v = k_.Serialize();
-        memcpy(k.data(), &v.front(), k.size());
-    }
-
-    blsctExtendedKey(std::vector<uint8_t> k_) {
-        k.resize(bls::ExtendedPrivateKey::EXTENDED_PRIVATE_KEY_SIZE);
-        memcpy(k.data(), &k_.front(), k.size());
-    }
-
-    unsigned int GetSerializeSize(int nType=0, int nVersion=PROTOCOL_VERSION) const
-    {
-        return ::GetSerializeSize(k, nType, nVersion);
-    }
-
-    template<typename Stream>
-    void Serialize(Stream& s, int nType=0, int nVersion=PROTOCOL_VERSION) const
-    {
-        ::Serialize(s, k, nType, nVersion);
-    }
-
-    template<typename Stream>
-    void Unserialize(Stream& s, int nType=0, int nVersion=PROTOCOL_VERSION)
-    {
-        ::Unserialize(s, k, nType, nVersion);
-    }
-
-    bool operator<(const blsctExtendedKey& rhs) const {
-        Scalar l, r;
-        l = bls::ExtendedPrivateKey::FromBytes(&k.front()).GetPrivateKey();
-        r = bls::ExtendedPrivateKey::FromBytes(&(rhs.k).front()).GetPrivateKey();
-        return bn_cmp(l.bn, r.bn);
-    }
-
-    bool operator==(const blsctExtendedKey& rhs) const {
-        return k==rhs.k;
-    }
-
-    bls::ExtendedPrivateKey PrivateChild(uint32_t i) const {
-        return bls::ExtendedPrivateKey::FromBytes(&k.front()).PrivateChild(i);
-    }
-
-    bls::ExtendedPublicKey PublicChild(uint32_t i) const {
-        return bls::ExtendedPublicKey::FromBytes(&k.front()).PublicChild(i);
-    }
-
-    bls::PublicKey GetPublicKey() const {
-        return bls::ExtendedPrivateKey::FromBytes(&k.front()).GetPublicKey();
-    }
-
-    bls::PrivateKey GetPrivateKey() const {
-        return bls::ExtendedPrivateKey::FromBytes(&k.front()).GetPrivateKey();
-    }
-
-    bool IsValid() const {
-        return k.size() > 0;
-    }
-
-    void SetToZero() {
-        k.clear();
-    }
-
-    friend class CCryptoKeyStore;
 };
 
 #endif // KEY_H

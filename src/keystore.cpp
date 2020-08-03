@@ -14,7 +14,7 @@ bool CKeyStore::AddKey(const CKey &key) {
 }
 
 bool CBasicKeyStore::AddBLSCTBlindingKey(const blsctKey &key) {
-    return AddBLSCTBlindingKeyPubKey(key, blsctPublicKey(key.GetPublicKey()));
+    return AddBLSCTBlindingKeyPubKey(key, blsctPublicKey(key.GetG1Element()));
 }
 
 bool CBasicKeyStore::GetPubKey(const CKeyID &address, CPubKey &vchPubKeyOut) const
@@ -55,7 +55,7 @@ bool CBasicKeyStore::AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<ui
     return true;
 }
 
-bool CBasicKeyStore::GetBLSCTHashId(const Point& outputKey, const Point& spendingKey, CKeyID& hashId) const
+bool CBasicKeyStore::GetBLSCTHashId(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, CKeyID& hashId) const
 {
     if(!privateBlsViewKey.IsValid())
         return false;
@@ -63,12 +63,14 @@ bool CBasicKeyStore::GetBLSCTHashId(const Point& outputKey, const Point& spendin
     try
     {
         // D' = P - Hs(a*R)*G
-        Point dh = bls::PrivateKey::FromBN(Scalar(Point(bls::BLS::DHKeyExchange(privateBlsViewKey.GetKey(), bls::PublicKey::FromBytes(outputKey.GetVch().data()))).Hash(0)).bn).GetPublicKey();
-        Point D_prime = spendingKey - dh;
-        std::cout << strprintf("%s: dh: %s\n", __func__, HexStr(bls::BLS::DHKeyExchange(privateBlsViewKey.GetKey(), bls::PublicKey::FromBytes(outputKey.GetVch().data())).Serialize()));
-        std::cout << strprintf("%s: sk: %s\n", __func__, HexStr(bls::PublicKey::FromBytes(spendingKey.GetVch().data()).Serialize()));
-        std::cout << strprintf("%s: ok: %s\n", __func__, HexStr(outputKey.GetVch()));
-        hashId = blsctPublicKey(D_prime.GetVch()).GetID();
+        bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
+        bls::PrivateKey k = privateBlsViewKey.GetKey();
+        t = t * k;
+        bls::G1Element dh = bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn).GetG1Element();
+        dh = dh.Inverse();
+        t = bls::G1Element::FromByteVector(spendingKey);
+        bls::G1Element D_prime = t + dh;
+        hashId = blsctPublicKey(D_prime).GetID();
     }
     catch(...)
     {
@@ -100,12 +102,11 @@ bool CBasicKeyStore::GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint
         // D = B + M
         // C = a*D
         Scalar m = string.GetHash();
-        std::vector<bls::PublicKey> keys;
-        bls::PublicKey M = bls::PrivateKey::FromBN(m.bn).GetPublicKey();
-        keys.push_back(M);
-        keys.push_back(publicBlsKey.GetSpendKey());
-        bls::PublicKey D = bls::PublicKey::AggregateInsecure(keys);
-        bls::PublicKey C = bls::BLS::DHKeyExchange(privateBlsViewKey.GetKey(), D);
+        bls::G1Element M = bls::PrivateKey::FromBN(m.bn).GetG1Element();
+        bls::G1Element t = publicBlsKey.GetSpendKey();
+        bls::G1Element D = M + t;
+        Scalar s = privateBlsViewKey.GetKey();
+        bls::G1Element C = s.bn*D;
         pk = blsctDoublePublicKey(C, D);
     }
     catch(...)
@@ -116,6 +117,36 @@ bool CBasicKeyStore::GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint
     return true;
 }
 
+bool CBasicKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const std::vector<unsigned char>& outputKey, blsctKey& k) const
+{
+    if(!privateBlsViewKey.IsValid())
+        return false;
+
+    if(!privateBlsSpendKey.IsValid())
+        return false;
+
+    CHashWriter string(SER_GETHASH, 0);
+
+    string << std::vector<unsigned char>(subAddressHeader.begin(), subAddressHeader.end());
+    string << privateBlsViewKey;
+    string << index.first;
+    string << index.second;
+
+    try
+    {
+        // Hs(a*R) + b + Hs("SubAddress\0" || a || acc || index)
+        Scalar s = privateBlsViewKey.GetScalar();
+        bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
+        t = t*s.bn;
+        k = blsctKey(bls::PrivateKey::FromBN((Scalar(HashG1Element(t, 0)) + privateBlsSpendKey.GetScalar() + Scalar(string.GetHash())).bn));
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+    return true;
+}
 
 bool CBasicKeyStore::AddCScript(const CScript& redeemScript)
 {

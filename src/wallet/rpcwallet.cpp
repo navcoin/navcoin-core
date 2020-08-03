@@ -592,12 +592,12 @@ UniValue generateblsctkeys(const UniValue& params, bool fHelp)
     unsigned char h_[32];
     memcpy(h_, &hash, 32);
 
-    bls::ExtendedPrivateKey masterBLSKey = bls::ExtendedPrivateKey::FromSeed(h_, 32);
-    bls::ExtendedPrivateKey childBLSKey = masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130);
-    bls::ExtendedPrivateKey transactionBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
-    bls::ExtendedPrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT).GetPrivateKey();
-    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1).GetPrivateKey();
+    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+    blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
+    blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
+    bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
+    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
     pwalletMain->SetBLSCTKeys(viewKey, spendKey, blindingBLSKey);
 

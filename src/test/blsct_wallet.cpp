@@ -41,17 +41,17 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
     unsigned char h_[32];
     memcpy(h_, &hash, 32);
 
-    bls::ExtendedPrivateKey masterBLSKey = bls::ExtendedPrivateKey::FromSeed(h_, 32);
-    bls::ExtendedPrivateKey childBLSKey = masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130);
-    bls::ExtendedPrivateKey transactionBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
-    bls::ExtendedPrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT).GetPrivateKey();
-    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1).GetPrivateKey();
+    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+    blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
+    blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
+    blsctKey blindingBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1));
+    bls::PrivateKey viewKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::PrivateKey spendKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
-    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(blsctDoublePublicKey(viewKey.GetPublicKey(), spendKey.GetPublicKey())));
+    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element())));
     BOOST_CHECK(pwalletMain->SetBLSCTViewKey(blsctKey(viewKey)));
     BOOST_CHECK(pwalletMain->SetBLSCTSpendKey(blsctKey(spendKey)));
-    BOOST_CHECK(pwalletMain->SetBLSCTBlindingMasterKey(blsctExtendedKey(blindingBLSKey)));
+    BOOST_CHECK(pwalletMain->SetBLSCTBlindingMasterKey(blindingBLSKey));
 
     BOOST_CHECK(pwalletMain->NewBLSCTBlindingKeyPool());
     BOOST_CHECK(pwalletMain->NewBLSCTSubAddressKeyPool(0));
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
 
     Scalar gamma;
     std::string strFailReason;
-    std::vector<bls::PrependSignature> vBLSSignatures;
+    std::vector<bls::G2Element> vBLSSignatures;
     CTxOut txout;
 
     BOOST_CHECK(CreateBLSCTOutput(b.GetKey(), txout, destKey, 10*COIN, "", gamma, strFailReason, false, vBLSSignatures));

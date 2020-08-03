@@ -290,7 +290,7 @@ tor_tls_cert_get_key(tor_x509_cert_t *cert)
   if (pub == NULL)
     return NULL;
 
-  if (SECKEY_GetPublicKeyType(pub) != rsaKey) {
+  if (SECKEY_GetG1ElementType(pub) != rsaKey) {
     SECKEY_DestroyPublicKey(pub);
     return NULL;
   }
@@ -334,14 +334,14 @@ tor_tls_cert_is_valid(int severity,
 
   if (check_rsa_1024) {
     /* We require that this is a 1024-bit RSA key, for legacy reasons .:p */
-    if (SECKEY_GetPublicKeyType(pk) != rsaKey ||
+    if (SECKEY_GetG1ElementType(pk) != rsaKey ||
         SECKEY_PublicKeyStrengthInBits(pk) != 1024) {
       log_fn(severity, LD_CRYPTO, "Invalid certificate: Key is not RSA1024.");
       goto fail;
     }
   } else {
     /* We require that this key is at least minimally strong. */
-    unsigned min_bits = (SECKEY_GetPublicKeyType(pk) == ecKey) ? 128: 1024;
+    unsigned min_bits = (SECKEY_GetG1ElementType(pk) == ecKey) ? 128: 1024;
     if (SECKEY_PublicKeyStrengthInBits(pk) < min_bits) {
       log_fn(severity, LD_CRYPTO, "Invalid certificate: Key is too weak.");
       goto fail;

@@ -17,8 +17,9 @@
 #include <coins.h>
 #include <consensus/validation.h>
 #include <primitives/transaction.h>
+#include <schemes.hpp>
 #include <utiltime.h>
 
-bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover = false, CAmount nMixFee = 0);
+bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover = false, CAmount nMixFee = 0);
 bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CStateViewCache& inputs, CValidationState& state, CAmount nMixFee = 0);
 #endif // BLSCT_VERIFICATION_H

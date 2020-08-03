@@ -123,13 +123,17 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
         return error("AggregationSesion::%s: Received transaction is not BLSCT mix compliant\n", __func__);
 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-    std::vector<Point> nonces;
+    std::vector<bls::G1Element> nonces;
     std::vector<RangeproofEncodedData> blsctData;
 
     for (unsigned int i = 0; i < tx.tx.vout.size(); i++)
     {
-        if (!(tx.tx.vout[i].bp.V[0]-BulletproofsRangeproof::H*tx.minAmount == tx.minAmountProofs.V[i]))
-            return error ("AggregationSesion::%s: Failed verification of output %d amount\n", __func__, i);
+        Scalar s = tx.minAmount;
+        bls::G1Element l = BulletproofsRangeproof::H*s.bn;
+        bls::G1Element r = tx.tx.vout[i].bp.V[0].Inverse();
+        l = l + r;
+        if (!(l == tx.minAmountProofs.V[i]))
+            return error ("AggregationSesion::%s: Failed verification from output's amount %d\n", __func__, i);
         proofs.push_back(std::make_pair(i, tx.minAmountProofs));
     }
 
@@ -220,7 +224,7 @@ bool AggregationSesion::Join() const
 
     CAmount nAddedFee = GetDefaultFee();
 
-    std::vector<bls::PrependSignature> vBLSSignatures;
+    std::vector<bls::G2Element> vBLSSignatures;
     Scalar gammaIns = prevcoin->vGammas[prevout];
     Scalar gammaOuts = 0;
 
@@ -306,9 +310,9 @@ bool AggregationSesion::Join() const
         // Balance Sig
         Scalar diff = gammaIns-gammaOuts;
         bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-        candidate.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+        candidate.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
         // Tx Sig
-        candidate.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+        candidate.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
     }
     catch(...)
     {
@@ -325,8 +329,8 @@ bool AggregationSesion::Join() const
     std::vector<Scalar> value;
     value.push_back(prevcoin->vAmounts[prevout]+nAddedFee-DEFAULT_MIN_OUTPUT_AMOUNT);
 
-    Point nonce = bls::PrivateKey::FromBN(Scalar::Rand().bn).GetPublicKey();
-    std::vector<Point> nonces;
+    bls::G1Element nonce = bls::PrivateKey::FromBN(Scalar::Rand().bn).GetG1Element();
+    std::vector<bls::G1Element> nonces;
     nonces.push_back(nonce);
 
     std::vector<Scalar> gammas;

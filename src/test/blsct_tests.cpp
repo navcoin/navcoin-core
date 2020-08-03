@@ -41,14 +41,14 @@ BOOST_AUTO_TEST_CASE(blsct)
     unsigned char h_[32];
     memcpy(h_, &hash, 32);
 
-    bls::ExtendedPrivateKey masterBLSKey = bls::ExtendedPrivateKey::FromSeed(h_, 32);
-    bls::ExtendedPrivateKey childBLSKey = masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130);
-    bls::ExtendedPrivateKey transactionBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
-    bls::ExtendedPrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT).GetPrivateKey();
-    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1).GetPrivateKey();
+    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+    blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
+    blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
+    blsctKey blindingBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1));
+    bls::PrivateKey viewKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::PrivateKey spendKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
-    blsctDoublePublicKey destKey = blsctDoublePublicKey(viewKey.GetPublicKey(), spendKey.GetPublicKey());
+    blsctDoublePublicKey destKey = blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element());
 
     CMutableTransaction prevTx;
 
@@ -56,10 +56,10 @@ BOOST_AUTO_TEST_CASE(blsct)
     prevTx.vout[0].nValue = 10*COIN;
     prevTx.vout[0].scriptPubKey << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
 
-    bls::PrivateKey bk = blindingBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT).GetPrivateKey();
+    bls::PrivateKey bk = blindingBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
     Scalar gammaIns, gammaOuts, gammaPrevOut;
     std::string strFailReason;
-    std::vector<bls::PrependSignature> vBLSSignatures;
+    std::vector<bls::G2Element> vBLSSignatures;
 
     BOOST_CHECK(CreateBLSCTOutput(bk, prevTx.vout[1], destKey, 10*COIN, "", gammaPrevOut, strFailReason, false, vBLSSignatures));
 
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     Scalar diff = gammaIns-gammaOuts;
     bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
 
     // Public to Private. Different amount. Balance signature correct. Tx signature empty.
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
 
     // Public to Private. Same amount. Balance signature correct. Tx signature empty.
     state = CValidationState();
@@ -154,14 +154,14 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-    spendingTx.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
 
     // Private to Private. Same amount. Balance signature correct. Tx signature empty.
     state = CValidationState();
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "could-not-read-blstxsig");
 
-    spendingTx.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
     // Private to Private. Same amount. Balance signature correct. Tx signature incomplete.
     state = CValidationState();
@@ -170,14 +170,16 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     std::vector<bls::PrivateKey> keys;
     keys.push_back(spendKey);
-    keys.push_back(bls::PrivateKey::FromBN(Scalar(Point(bls::BLS::DHKeyExchange(viewKey, bk.GetPublicKey())).Hash(0)).bn));
-    bls::PrivateKey sk_  = bls::PrivateKey::AggregateInsecure(keys);
+    bls::G1Element t = bk.GetG1Element();
+    t = t * viewKey;
+    keys.push_back(bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn));
+    bls::PrivateKey sk_ = bls::PrivateKey::Aggregate(keys);
 
-    BOOST_CHECK(sk_.GetPublicKey() == bls::PublicKey::FromBytes(prevTx.vout[1].spendingKey.data()));
+    BOOST_CHECK(sk_.GetG1Element() == bls::G1Element::FromBytes(prevTx.vout[1].spendingKey.data()));
 
     SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
 
-    spendingTx.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
     // Private to Private. Same amount. Balance signature correct. Tx signature complete.
     state = CValidationState();
@@ -204,13 +206,13 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-    spendingTx.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
 
     // Private to Private. Different amount. Balance signature complete but incorrect due different amount. Tx signature empty.
     state = CValidationState();
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "invalid-balanceproof");
-    spendingTx.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
     // Private to Private. Different amount. Balance signature complete but incorrect due different amount. Tx signature empty.
     state = CValidationState();
@@ -219,7 +221,7 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
 
-    spendingTx.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
     // Private to Private. Different amount. Balance signature correct. Tx signature complete.
     state = CValidationState();
@@ -233,7 +235,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     spendingTx.vout[0] = CTxOut();
     spendingTx.vout[0].nValue = 10*COIN;
     spendingTx.vout[0].scriptPubKey << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
-    spendingTx.vout[0].ephemeralKey = bk.GetPublicKey().Serialize();
+    spendingTx.vout[0].ephemeralKey = bk.GetG1Element().Serialize();
 
     vBLSSignatures.clear();
     spendingTx.vchTxSig.clear();
@@ -250,7 +252,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
     SignBLSOutput(bk, spendingTx.vout[0], vBLSSignatures);
 
-    spendingTx.vchTxSig = bls::PrependSignature::Aggregate(vBLSSignatures).Serialize();
+    spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
     // Private to Public. Same amount. Balance signature empty. Tx signature complete.
     state = CValidationState();
@@ -260,7 +262,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = balanceSigningKey.Sign(balanceMsg, sizeof(balanceMsg)).Serialize();
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
 
     // Private to Public. Same amount. Balance signature correct. Tx signature complete.
     state = CValidationState();

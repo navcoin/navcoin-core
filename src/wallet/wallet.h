@@ -1063,7 +1063,7 @@ public:
     }
 
     bool SetDefaultKey(const CPubKey &vchPubKey);
-    bool SetBLSCTKeys(const bls::PrivateKey& v, const bls::PrivateKey& s, const bls::ExtendedPrivateKey& b);
+    bool SetBLSCTKeys(const bls::PrivateKey& v, const bls::PrivateKey& s, const bls::PrivateKey& b);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
     bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = NULL, bool fExplicit = false);

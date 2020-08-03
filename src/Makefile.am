@@ -18,7 +18,7 @@ endif
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/contrib/relic/include/ -I$(srcdir)/bls/contrib/relic/include/
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/chia-relic-build/include -I$(srcdir)/bls/build/_deps/chia-relic-src/include
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -143,8 +143,8 @@ NAVCOIN_CORE_H = \
   blsct/key.h \
   blsct/aggregationsession.h \
   blsct/rpc.h \
+  blsct/scalar.h \
   blsct/transaction.h \
-  blsct/types.h \
   blsct/verification.h \
   chain.h \
   chainparams.h \
@@ -365,8 +365,8 @@ libnavcoin_consensus_a_SOURCES = \
   arith_uint256.cpp \
   arith_uint256.h \
   blsct/bulletproofs.cpp \
+  blsct/scalar.cpp \
   blsct/transaction.cpp \
-  blsct/types.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -410,7 +410,6 @@ libnavcoin_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/navcoinconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -432,8 +431,8 @@ libnavcoin_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
   blsct/bulletproofs.cpp \
+  blsct/scalar.cpp \
   blsct/transaction.cpp \
-  blsct/types.cpp \
   blsct/verification.cpp \
   chainparams.cpp \
   coins.cpp \
@@ -584,7 +583,7 @@ endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
 libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS)
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src  -I$(srcdir)/bls/build/contrib/relic/include/ -I$(srcdir)/bls/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/chia-relic-build/include -I$(srcdir)/bls/build/_deps/chia-relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif

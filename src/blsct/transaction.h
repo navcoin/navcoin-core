@@ -13,20 +13,20 @@
 #endif
 
 #include <bls.hpp>
+#include <schemes.hpp>
 #include <blsct/bulletproofs.h>
 #include <blsct/key.h>
-#include <blsct/types.h>
 #include <blsct/verification.h>
 #include <primitives/transaction.h>
 
 #define BLSCT_TX_INPUT_FEE 200000
 #define BLSCT_TX_OUTPUT_FEE 200000
 
-bool CreateBLSCTOutput(const bls::PrivateKey& ephemeralKey, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
-                  Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::PrependSignature>& vBLSSignatures, bool fVerify = true);
-bool GenTxOutputKeys(const bls::PrivateKey& blindingKey, const blsctDoublePublicKey& destKey, std::vector<unsigned char>& spendingKey, std::vector<unsigned char>& outputKey, std::vector<unsigned char>& ephemeralKey);
-bool SignBLSOutput(const bls::PrivateKey& ephemeralKey, CTxOut& newTxOut, std::vector<bls::PrependSignature>& vBLSSignatures);
-bool SignBLSInput(const bls::PrivateKey& ephemeralKey, CTxIn& newTxOut, std::vector<bls::PrependSignature>& vBLSSignatures);
+bool CreateBLSCTOutput(bls::PrivateKey ephemeralKey, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
+                  Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify = true);
+bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& destKey, std::vector<unsigned char>& spendingKey, std::vector<unsigned char>& outputKey, std::vector<unsigned char>& ephemeralKey);
+bool SignBLSOutput(const bls::PrivateKey& ephemeralKey, CTxOut& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);
+bool SignBLSInput(const bls::PrivateKey& ephemeralKey, CTxIn& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);
 
 class CandidateTransaction
 {

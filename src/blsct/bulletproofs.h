@@ -6,8 +6,8 @@
 // inspired by https://github.com/b-g-goodell/research-lab/blob/master/source-code/StringCT-java/src/how/monero/hodl/bulletproof/Bulletproof.java
 // and https://github.com/monero-project/monero/blob/master/src/ringct/bulletproofs.cc
 
-#ifndef NAVCOIN_blsct_OPERATIONS_H
-#define NAVCOIN_blsct_OPERATIONS_H
+#ifndef NAVCOIN_BLSCT_BULLETPROOFS_H
+#define NAVCOIN_BLSCT_BULLETPROOFS_H
 
 #ifdef _WIN32
 /* Avoid redefinition warning. */
@@ -17,8 +17,8 @@
 #endif
 
 #include <amount.h>
+#include <blsct/scalar.h>
 #include <bls.hpp>
-#include <blsct/types.h>
 #include <utilstrencodings.h>
 
 #include <boost/thread/mutex.hpp>
@@ -29,7 +29,16 @@ static const size_t maxMessageSize = 24;
 static const size_t maxM = 16;
 static const size_t maxMN = maxM*maxN;
 
-static const uint8_t balanceMsg[12] = {'B', 'L', 'S', 'C', 'T', 'B', 'A', 'L', 'A', 'N', 'C', 'E'};
+static const std::vector<uint8_t> balanceMsg = {'B', 'L', 'S', 'C', 'T', 'B', 'A', 'L', 'A', 'N', 'C', 'E'};
+
+class MultiexpData {
+public:
+    bls::G1Element base;
+    Scalar exp;
+
+    MultiexpData() {}
+    MultiexpData(bls::G1Element base_, Scalar exp_) : base(base_), exp(exp_){}
+};
 
 class BulletproofsRangeproof
 {
@@ -38,7 +47,7 @@ public:
 
     static bool Init();
 
-    void Prove(const std::vector<Scalar> &v, const std::vector<Scalar> &gamma, Point nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
+    void Prove(std::vector<Scalar> v, std::vector<Scalar> gamma, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
 
     bool operator==(const BulletproofsRangeproof& rh) const {
         return (V == rh.V &&
@@ -55,46 +64,92 @@ public:
                 t == rh.t);
     }
 
-    ADD_SERIALIZE_METHODS;
-    template <typename Stream, typename Operation>  inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(V);
-        READWRITE(L);
-        READWRITE(R);
-        READWRITE(A);
-        READWRITE(S);
-        READWRITE(T1);
-        READWRITE(T2);
-        READWRITE(taux);
-        READWRITE(mu);
-        READWRITE(a);
-        READWRITE(b);
-        READWRITE(t);
+    template <typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const
+    {
+        ::WriteCompactSize(s, V.size());
+        for (auto&it: V){
+            ::Serialize(s, it, nType, nVersion);
+        }
+        ::WriteCompactSize(s, L.size());
+        for (auto&it: L){
+            ::Serialize(s, it, nType, nVersion);
+        }
+        ::WriteCompactSize(s, R.size());
+        for (auto&it: R){
+            ::Serialize(s, it, nType, nVersion);
+        }
+        ::Serialize(s, A, nType, nVersion);
+        ::Serialize(s, S, nType, nVersion);
+        ::Serialize(s, T1, nType, nVersion);
+        ::Serialize(s, T2, nType, nVersion);
+        ::Serialize(s, taux, nType, nVersion);
+        ::Serialize(s, mu, nType, nVersion);
+        ::Serialize(s, a, nType, nVersion);
+        ::Serialize(s, b, nType, nVersion);
+        ::Serialize(s, t, nType, nVersion);
     }
 
-    std::vector<Point> GetValueCommitments() const { return V; }
+    template <typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion)
+    {
+            size_t v_size, l_size, r_size;
+            v_size=::ReadCompactSize(s);
+            for (auto i=0; i<v_size; i++)
+            {
+                bls::G1Element n;
+                ::Unserialize(s, n, nType, nVersion);
+                V.push_back(n);
+            }
+            l_size=::ReadCompactSize(s);
+            for (auto i=0; i<l_size; i++)
+            {
+                bls::G1Element n;
+                ::Unserialize(s, n, nType, nVersion);
+                L.push_back(n);
+            }
+            r_size=::ReadCompactSize(s);
+            for (auto i=0; i<r_size; i++)
+            {
+                bls::G1Element n;
+                ::Unserialize(s, n, nType, nVersion);
+                R.push_back(n);
+            }
+            ::Unserialize(s, A, nType, nVersion);
+            ::Unserialize(s, S, nType, nVersion);
+            ::Unserialize(s, T1, nType, nVersion);
+            ::Unserialize(s, T2, nType, nVersion);
+            ::Unserialize(s, taux, nType, nVersion);
+            ::Unserialize(s, mu, nType, nVersion);
+            ::Unserialize(s, a, nType, nVersion);
+            ::Unserialize(s, b, nType, nVersion);
+            ::Unserialize(s, t, nType, nVersion);
+    }
+
+    std::vector<bls::G1Element> GetValueCommitments() const { return V; }
 
     static const size_t logN = 6;
 
-    static Point G;
-    static Point H;
+    static bls::G1Element G;
+    static bls::G1Element H;
 
     static Scalar one;
     static Scalar two;
 
-    static std::vector<Point> Hi, Gi;
+    static std::vector<bls::G1Element> Hi, Gi;
     static std::vector<Scalar> oneN;
     static std::vector<Scalar> twoN;
     static Scalar ip12;
 
     static boost::mutex init_mutex;
 
-    std::vector<Point> V;
-    std::vector<Point> L;
-    std::vector<Point> R;
-    Point A;
-    Point S;
-    Point T1;
-    Point T2;
+    std::vector<bls::G1Element> V;
+    std::vector<bls::G1Element> L;
+    std::vector<bls::G1Element> R;
+    bls::G1Element A;
+    bls::G1Element S;
+    bls::G1Element T1;
+    bls::G1Element T2;
     Scalar taux;
     Scalar mu;
     Scalar a;
@@ -111,6 +166,6 @@ struct RangeproofEncodedData
     bool valid = false;
 };
 
-bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<Point>& nonces, const bool &fOnlyRecover = false);
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover = false);
 
-#endif // NAVCOIN_blsct_OPERATIONS_H
+#endif // NAVCOIN_BLSCT_BULLETPROOFS_H

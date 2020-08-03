@@ -183,7 +183,7 @@ bool CWalletDB::WriteBLSCTViewKey(const blsctKey& key)
     return Write(std::string("blsctviewkey"), key);
 }
 
-bool CWalletDB::WriteBLSCTBlindingMasterKey(const blsctExtendedKey& key)
+bool CWalletDB::WriteBLSCTBlindingMasterKey(const blsctKey& key)
 {
     nWalletDBUpdated++;
     return Write(std::string("blsctblindingmasterkey"), key);
@@ -207,7 +207,7 @@ bool CWalletDB::WriteBLSCTKey(const CWallet* pwallet)
     std::vector<unsigned char> vchCk;
     blsctKey v, s;
     blsctDoublePublicKey p;
-    blsctExtendedKey b;
+    blsctKey b;
 
     if (!pwallet->GetCryptedBLSCTSpendKey(vchCk))
         if (!pwallet->GetBLSCTSpendKey(s))
@@ -729,7 +729,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         }
         else if (strType == "blsctblindingmasterkey")
         {
-            blsctExtendedKey v;
+            blsctKey v;
             ssValue >> v;
             pwallet->SetBLSCTBlindingMasterKey(v);
         }

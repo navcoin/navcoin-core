@@ -238,7 +238,7 @@ public:
     bool WriteBLSCTSpendKey(const blsctKey& key);
     bool WriteBLSCTViewKey(const blsctKey& key);
     bool WriteBLSCTDoublePublicKey(const blsctDoublePublicKey& key);
-    bool WriteBLSCTBlindingMasterKey(const blsctExtendedKey& key);
+    bool WriteBLSCTBlindingMasterKey(const blsctKey& key);
     bool WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck);
     bool WriteBLSCTKey(const CWallet* pwallet);
     bool WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta);

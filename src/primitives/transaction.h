@@ -164,7 +164,7 @@ public:
     }
 
     CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn);
-    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& ephemeralKeyIn, const bls::PublicKey& outputKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn);
+    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Element& ephemeralKeyIn, const bls::G1Element& outputKeyIn, const bls::G1Element& spendingKeyIn, const BulletproofsRangeproof& bpIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -646,8 +646,8 @@ struct CMutableTransaction
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
 
-    void SetBalanceSignature(const bls::Signature& sig);
-    void SetTxSignature(const bls::PrependSignature& sig);
+    void SetBalanceSignature(const bls::G2Element& sig);
+    void SetTxSignature(const bls::G2Element& sig);
 
     /** Compute the hash of this CMutableTransaction. This is computed on the
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
