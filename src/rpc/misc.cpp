@@ -1219,27 +1219,38 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
             return a_.blockHeight < b_.blockHeight;
         }
     });
-
-    CAmount spending = 0;
-    CAmount stakable = 0;
-    CAmount voting_weight = 0;
+    
+    struct balStruct 
+    {
+        CAmount spendable;
+        CAmount stakable;
+        CAmount voting_weight;
+    };
+    
+    std::map<CNavCoinAddress, balStruct> balance;
 
     UniValue result(UniValue::VARR);
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
-        spending += (*it).second.spendable;
-        stakable += (*it).second.stakable;
-        voting_weight += (*it).second.voting_weight;
+        CNavCoinAddress address;
+        address.Set(CKeyID((*it).first.hashBytes2));
+
+        if (balance.count(address) == 0) {
+            balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
+        }
+       
+        balance[address].spendable += (*it).second.spendable;
+        balance[address].stakable += (*it).second.stakable;
+        balance[address].voting_weight += (*it).second.voting_weight;
         
         if (!(!range || (range && (*it).first.blockHeight >= start && (*it).first.blockHeight <= end)))
             continue;
+
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("block", (*it).first.blockHeight);
         entry.pushKV("txindex", (uint64_t)(*it).first.txindex);
         entry.pushKV("time", (uint64_t)(*it).first.time);
         entry.pushKV("txid", (*it).first.txhash.ToString());
-        CNavCoinAddress address;
-        address.Set(CKeyID((*it).first.hashBytes2));
         entry.pushKV("address", address.ToString());
 
         UniValue changes(UniValue::VOBJ);
@@ -1249,12 +1260,11 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         changes.pushKV("flags", (*it).second.flags);
         entry.pushKV("changes", changes);
 
-        UniValue balance(UniValue::VOBJ);
-
-        balance.pushKV("balance", spending);
-        balance.pushKV("stakable", stakable);
-        balance.pushKV("voting_weight", voting_weight);
-        entry.pushKV("result", balance);
+        UniValue balanceObj(UniValue::VOBJ);
+        balanceObj.pushKV("balance", balance[address].spendable);
+        balanceObj.pushKV("stakable", balance[address].stakable);
+        balanceObj.pushKV("voting_weight", balance[address].voting_weight);
+        entry.pushKV("result", balanceObj);
 
         result.push_back(entry);
     }
