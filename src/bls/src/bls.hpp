@@ -1,4 +1,4 @@
-// Copyright 2018 Chia Network Inc
+// Copyright 2020 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,8 +28,14 @@
 
 #include "privatekey.hpp"
 #include "util.hpp"
+#include "schemes.hpp"
+#include "elements.hpp"
+#include "hkdf.hpp"
+#include "hdkeys.hpp"
 
+extern "C" {
 #include "relic.h"
+}
 #include "relic_test.h"
 
 namespace bls {
@@ -48,17 +54,6 @@ class BLS {
     static bool Init();
 
     static void SetSecureAllocator(Util::SecureAllocCallback allocCb, Util::SecureFreeCallback freeCb);
-    
-    /*
-    // Used for secure aggregation
-    static void HashPubKeys(
-            bn_t* output,
-            size_t numOutputs,
-            std::vector<uint8_t*> const &serPubKeys,
-            std::vector<size_t> const &sortedIndices);
-
-    static PublicKey DHKeyExchange(const PrivateKey& privKey, const PublicKey& pubKey);
-    */
 
     static void CheckRelicErrors();
     static void CheckRelicErrorsInvalidArgument();

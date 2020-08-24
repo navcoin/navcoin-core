@@ -1,4 +1,4 @@
-// Copyright 2018 Chia Network Inc
+// Copyright 2020 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,14 +79,6 @@ PYBIND11_MODULE(blspy, m)
             "PRIVATE_KEY_SIZE",
             [](py::object self) { return PrivateKey::PRIVATE_KEY_SIZE; })
         .def(
-            "from_seed",
-            [](const py::bytes &b) {
-                std::string str(b);
-                const uint8_t *input =
-                    reinterpret_cast<const uint8_t *>(str.data());
-                return PrivateKey::FromSeed(input, len(b));
-            })
-        .def(
             "from_bytes",
             [](py::buffer const b) {
                 py::buffer_info info = b.request();
@@ -114,34 +106,12 @@ PYBIND11_MODULE(blspy, m)
                 return ret;
             })
         .def(
-            "serialize",
-            [](const PrivateKey &k) {
-                uint8_t *output =
-                    Util::SecAlloc<uint8_t>(PrivateKey::PRIVATE_KEY_SIZE);
-                k.Serialize(output);
-                py::bytes ret = py::bytes(
-                    reinterpret_cast<char *>(output),
-                    PrivateKey::PRIVATE_KEY_SIZE);
-                Util::SecFree(output);
-                return ret;
-            })
-        .def(
             "__deepcopy__",
             [](const PrivateKey &k, const py::object &memo) {
                 return PrivateKey(k);
             })
         .def("get_g1", [](const PrivateKey &k) { return k.GetG1Element(); })
-        .def(
-            "__deepcopy__",
-            [](const PrivateKey &k, const py::object &memo) {
-                return PrivateKey(k);
-            })
-        .def(
-            "derive_child",
-            [](PrivateKey &k, uint32_t index) {
-                return HDKeys::DeriveChildSk(k, index);
-            })
-
+        .def("aggregate", &PrivateKey::Aggregate)
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("__repr__", [](const PrivateKey &k) {
@@ -167,6 +137,18 @@ PYBIND11_MODULE(blspy, m)
     py::class_<BasicSchemeMPL>(m, "BasicSchemeMPL")
         .def("sk_to_g1", &BasicSchemeMPL::SkToG1)
         .def(
+            "key_gen",
+            [](const py::bytes &b) {
+                std::string str(b);
+                const uint8_t *input =
+                    reinterpret_cast<const uint8_t *>(str.data());
+                const vector<uint8_t> inputVec(input, input + len(b));
+                return BasicSchemeMPL::KeyGen(inputVec);
+            })
+        .def("derive_child_sk", &BasicSchemeMPL::DeriveChildSk)
+        .def("derive_child_sk_unhardened", &BasicSchemeMPL::DeriveChildSkUnhardened)
+        .def("derive_child_pk_unhardened", &BasicSchemeMPL::DeriveChildPkUnhardened)
+        .def(
             "aggregate",
             overload_cast_<const vector<G2Element> &>()(
                 &BasicSchemeMPL::Aggregate))
@@ -175,7 +157,7 @@ PYBIND11_MODULE(blspy, m)
             [](const PrivateKey &pk, const py::bytes &msg) {
                 std::string s(msg);
                 vector<uint8_t> v(s.begin(), s.end());
-                return BasicSchemeMPL::SignNative(pk, v);
+                return BasicSchemeMPL::Sign(pk, v);
             })
         .def(
             "verify",
@@ -187,7 +169,7 @@ PYBIND11_MODULE(blspy, m)
                 return BasicSchemeMPL::Verify(pk, v, sig);
             })
         .def(
-            "agg_verify",
+            "aggregate_verify",
             [](const vector<G1Element> &pks,
                const vector<py::bytes> &msgs,
                const G2Element &sig) {
@@ -203,6 +185,18 @@ PYBIND11_MODULE(blspy, m)
     py::class_<AugSchemeMPL>(m, "AugSchemeMPL")
         .def("sk_to_g1", &AugSchemeMPL::SkToG1)
         .def(
+            "key_gen",
+            [](const py::bytes &b) {
+                std::string str(b);
+                const uint8_t *input =
+                    reinterpret_cast<const uint8_t *>(str.data());
+                const vector<uint8_t> inputVec(input, input + len(b));
+                return AugSchemeMPL::KeyGen(inputVec);
+            })
+        .def("derive_child_sk", &AugSchemeMPL::DeriveChildSk)
+        .def("derive_child_sk_unhardened", &AugSchemeMPL::DeriveChildSkUnhardened)
+        .def("derive_child_pk_unhardened", &AugSchemeMPL::DeriveChildPkUnhardened)
+        .def(
             "aggregate",
             overload_cast_<const vector<G2Element> &>()(
                 &AugSchemeMPL::Aggregate))
@@ -211,7 +205,7 @@ PYBIND11_MODULE(blspy, m)
             [](const PrivateKey &pk, const py::bytes &msg) {
                 std::string s(msg);
                 vector<uint8_t> v(s.begin(), s.end());
-                return AugSchemeMPL::SignNative(pk, v);
+                return AugSchemeMPL::Sign(pk, v);
             })
         .def(
             "sign",
@@ -220,7 +214,7 @@ PYBIND11_MODULE(blspy, m)
                const G1Element &prepend_pk) {
                 std::string s(msg);
                 vector<uint8_t> v(s.begin(), s.end());
-                return AugSchemeMPL::SignNative(pk, v, prepend_pk);
+                return AugSchemeMPL::Sign(pk, v, prepend_pk);
             })
         .def(
             "verify",
@@ -232,7 +226,7 @@ PYBIND11_MODULE(blspy, m)
                 return AugSchemeMPL::Verify(pk, v, sig);
             })
         .def(
-            "agg_verify",
+            "aggregate_verify",
             [](const vector<G1Element> &pks,
                const vector<py::bytes> &msgs,
                const G2Element &sig) {
@@ -248,6 +242,18 @@ PYBIND11_MODULE(blspy, m)
     py::class_<PopSchemeMPL>(m, "PopSchemeMPL")
         .def("sk_to_g1", &PopSchemeMPL::SkToG1)
         .def(
+            "key_gen",
+            [](const py::bytes &b) {
+                std::string str(b);
+                const uint8_t *input =
+                    reinterpret_cast<const uint8_t *>(str.data());
+                const vector<uint8_t> inputVec(input, input + len(b));
+                return PopSchemeMPL::KeyGen(inputVec);
+            })
+        .def("derive_child_sk", &PopSchemeMPL::DeriveChildSk)
+        .def("derive_child_sk_unhardened", &PopSchemeMPL::DeriveChildSkUnhardened)
+        .def("derive_child_pk_unhardened", &PopSchemeMPL::DeriveChildPkUnhardened)
+        .def(
             "aggregate",
             overload_cast_<const vector<vector<uint8_t>> &>()(
                 &PopSchemeMPL::Aggregate))
@@ -260,7 +266,7 @@ PYBIND11_MODULE(blspy, m)
             [](const PrivateKey &pk, const py::bytes &msg) {
                 std::string s(msg);
                 vector<uint8_t> v(s.begin(), s.end());
-                return PopSchemeMPL::SignNative(pk, v);
+                return PopSchemeMPL::Sign(pk, v);
             })
         .def(
             "verify",
@@ -272,7 +278,7 @@ PYBIND11_MODULE(blspy, m)
                 return PopSchemeMPL::Verify(pk, v, sig);
             })
         .def(
-            "agg_verify",
+            "aggregate_verify",
             [](const vector<G1Element> &pks,
                const vector<py::bytes> &msgs,
                const G2Element &sig) {
@@ -284,19 +290,19 @@ PYBIND11_MODULE(blspy, m)
 
                 return PopSchemeMPL::AggregateVerify(pks, vecs, sig);
             })
-        .def("pop_prove", &PopSchemeMPL::PopProveNative)
+        .def("pop_prove", &PopSchemeMPL::PopProve)
         .def(
             "pop_verify",
             overload_cast_<const G1Element &, const G2Element &>()(
                 &PopSchemeMPL::PopVerify))
         .def(
-            "fast_agg_verify",
+            "fast_aggregate_verify",
             overload_cast_<
                 const vector<G1Element> &,
                 const vector<uint8_t> &,
                 const G2Element &>()(&PopSchemeMPL::FastAggregateVerify))
         .def(
-            "fast_agg_verify",
+            "fast_aggregate_verify",
             [](const vector<G1Element> &pks,
                const py::bytes &msg,
                const G2Element &sig) {
@@ -308,7 +314,6 @@ PYBIND11_MODULE(blspy, m)
     py::class_<G1Element>(m, "G1Element")
         .def_property_readonly_static(
             "SIZE", [](py::object self) { return G1Element::SIZE; })
-        .def(py::init<>())
         .def(py::init(&G1Element::FromByteVector))
         .def(py::init([](py::int_ pyint) {
             std::vector<uint8_t> buffer(G1Element::SIZE, 0);
@@ -353,8 +358,9 @@ PYBIND11_MODULE(blspy, m)
             })
         .def("generator", &G1Element::Generator)
         .def("from_message", &G1Element::FromMessage)
-        .def("pair", &G1Element::pair)
-        .def("inverse", &G1Element::Inverse)
+        .def("pair", &G1Element::Pair)
+        .def("negate", &G1Element::Negate)
+        .def("infinity", &G1Element::Infinity)
         .def("get_fingerprint", &G1Element::GetFingerprint)
 
         .def(py::self == py::self)
@@ -367,27 +373,6 @@ PYBIND11_MODULE(blspy, m)
         .def(
             "__add__",
             [](G1Element &self, G1Element &other) { return self + other; },
-            py::is_operator())
-        .def(
-            "__iadd__",
-            [](G1Element &self, G1Element &other) {
-                self += other;
-                return self;
-            },
-            py::is_operator())
-        .def(
-            "__imul__",
-            [](G1Element &self, bn_t other) {
-                self *= (*(bn_t *)&other);
-                return self;
-            },
-            py::is_operator())
-        .def(
-            "__imul__",
-            [](G1Element &self, BNWrapper other) {
-                self *= (*other.b);
-                return self;
-            },
             py::is_operator())
         .def(
             "__mul__",
@@ -430,11 +415,9 @@ PYBIND11_MODULE(blspy, m)
         .def(
             "__bytes__",
             [](const G1Element &ele) {
-                uint8_t *out = new uint8_t[G1Element::SIZE];
-                ele.Serialize(out);
+                vector<uint8_t> out = ele.Serialize();
                 py::bytes ans = py::bytes(
-                    reinterpret_cast<const char *>(out), G1Element::SIZE);
-                delete[] out;
+                    reinterpret_cast<const char *>(out.data()), G1Element::SIZE);
                 return ans;
             })
         .def("__deepcopy__", [](const G1Element &ele, const py::object &memo) {
@@ -444,7 +427,6 @@ PYBIND11_MODULE(blspy, m)
     py::class_<G2Element>(m, "G2Element")
         .def_property_readonly_static(
             "SIZE", [](py::object self) { return G2Element::SIZE; })
-        .def(py::init<>())
         .def(py::init(&G2Element::FromByteVector))
         .def(py::init([](py::buffer const b) {
             py::buffer_info info = b.request();
@@ -489,8 +471,9 @@ PYBIND11_MODULE(blspy, m)
             })
         .def("generator", &G2Element::Generator)
         .def("from_message", &G2Element::FromMessage)
-        .def("pair", &G2Element::pair)
-        .def("inverse", &G2Element::Inverse)
+        .def("pair", &G2Element::Pair)
+        .def("negate", &G2Element::Negate)
+        .def("infinity", &G2Element::Infinity)
         .def(
             "__deepcopy__",
             [](const G2Element &g2, const py::object &memo) {
@@ -503,28 +486,6 @@ PYBIND11_MODULE(blspy, m)
             "__add__",
             [](G2Element &self, G2Element &other) { return self + other; },
             py::is_operator())
-        .def(
-            "__iadd__",
-            [](G2Element &self, G2Element &other) {
-                self += other;
-                return self;
-            },
-            py::is_operator())
-        .def(
-            "__imul__",
-            [](G2Element &self, bn_t other) {
-                self *= (*(bn_t *)&other);
-                return self;
-            },
-            py::is_operator())
-        .def(
-            "__imul__",
-            [](G2Element &self, BNWrapper other) {
-                self *= (*other.b);
-                return self;
-            },
-            py::is_operator())
-
         .def(
             "__mul__",
             [](G2Element &self, bn_t other) {
@@ -563,11 +524,9 @@ PYBIND11_MODULE(blspy, m)
         .def(
             "__bytes__",
             [](const G2Element &ele) {
-                uint8_t *out = new uint8_t[G2Element::SIZE];
-                ele.Serialize(out);
+                vector<uint8_t> out = ele.Serialize();
                 py::bytes ans = py::bytes(
-                    reinterpret_cast<const char *>(out), G2Element::SIZE);
-                delete[] out;
+                    reinterpret_cast<const char *>(out.data()), G2Element::SIZE);
                 return ans;
             })
         .def("__deepcopy__", [](const G2Element &ele, const py::object &memo) {
@@ -577,7 +536,6 @@ PYBIND11_MODULE(blspy, m)
     py::class_<GTElement>(m, "GTElement")
         .def_property_readonly_static(
             "SIZE", [](py::object self) { return GTElement::SIZE; })
-        .def(py::init<>())
         .def(py::init(&GTElement::FromByteVector))
         .def(py::init([](py::buffer const b) {
             py::buffer_info info = b.request();
@@ -620,6 +578,7 @@ PYBIND11_MODULE(blspy, m)
                 auto data_ptr = reinterpret_cast<const uint8_t *>(info.ptr);
                 return GTElement::FromBytes(data_ptr);
             })
+        .def("unity", &GTElement::Unity)
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def(
