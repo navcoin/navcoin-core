@@ -75,7 +75,7 @@ void getAddressToReceive::showPrivateAddress()
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         blsctDoublePublicKey k;
-        if (pwalletMain->GetBLSCTDoublePublicKey(k))
+        if (pwalletMain->GetBLSCTSubAddressPublicKeys(std::make_pair(0, 0), k))
             address = QString::fromStdString(CNavCoinAddress(k).ToString());
         else
             address = "Unavailable";

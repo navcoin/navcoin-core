@@ -74,7 +74,7 @@ std::string CTxOut::ToString() const
                          scriptPubKey.ToString(),
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
-                         ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(spendingKey)):"",
+                         ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
                          bp.V.size()>0 ? " rangeProof=1":"");
     }
 }

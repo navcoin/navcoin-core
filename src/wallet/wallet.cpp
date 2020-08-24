@@ -1776,9 +1776,10 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
             try
             {
                 proofs.push_back(std::make_pair(0,txout.bp));
-                bls::G1Element t = bls::G1Element::FromByteVector(txout.ephemeralKey);
+                bls::G1Element t = bls::G1Element::FromByteVector(txout.outputKey);
                 bls::PrivateKey k = v.GetKey();
                 t = t * k;
+
                 nonces.push_back(t);
                 bool fValidBP = VerifyBulletproof(proofs, blsctData, nonces, true);
                 bool fHaveSubAddressKey = HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
@@ -2949,7 +2950,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                 if (pcoin->vout[i].spendingKey.size() == 0)
                     continue;
 
-                std::vector<unsigned char> memo = pcoin->vMemos[i];
+                std::string memo = pcoin->vMemos[i];
                 CAmount amount = pcoin->vAmounts[i];
                 Scalar gamma = pcoin->vGammas[i];
 

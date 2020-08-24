@@ -119,7 +119,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 else if(txout.HasRangeProof())
                 {
                     sub.type = TransactionRecord::AnonTxRecv;
-                    sub.memo = std::string(wtx.vMemos[i].begin(), wtx.vMemos[i].end());
+                    sub.memo = wtx.vMemos[i];
                     sub.credit = wtx.vAmounts[i];
                     if (sub.memo == "Mixing Reward")
                         sub.credit += nReward;
@@ -220,7 +220,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if(txout.HasRangeProof())
                 {
                     sub.type = TransactionRecord::AnonTxSend;
-                    sub.memo = std::string(wtx.vMemos[nOut].begin(), wtx.vMemos[nOut].end());
+                    sub.memo = wtx.vMemos[nOut];
                     sub.debit = nPrivateDebit;
                 }
 

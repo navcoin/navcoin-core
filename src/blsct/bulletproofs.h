@@ -161,7 +161,7 @@ struct RangeproofEncodedData
 {
     CAmount amount;
     Scalar gamma;
-    std::vector<uint8_t> message;
+    std::string message;
     int index;
     bool valid = false;
 };

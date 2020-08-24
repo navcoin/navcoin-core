@@ -6,6 +6,8 @@
 // inspired by https://github.com/b-g-goodell/research-lab/blob/master/source-code/StringCT-java/src/how/monero/hodl/bulletproof/Bulletproof.java
 // and https://github.com/monero-project/monero/blob/master/src/ringct/bulletproofs.cc
 
+#include <boost/algorithm/string.hpp>
+
 #include <blsct/bulletproofs.h>
 #include <tinyformat.h>
 
@@ -778,7 +780,21 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             RangeproofEncodedData data;
             data.index = p.first;
             data.amount = amount.GetUint64();
-            data.message = (excess>>8*8).GetVch();
+
+            std::vector<unsigned char> vMsg = (excess>>8*8).GetVch();
+            std::vector<unsigned char> vMsgTrimmed(0);
+
+            bool fFoundNonZero = false;
+
+            for (auto&it: vMsg)
+            {
+                if (it != '\0')
+                    fFoundNonZero = true;
+                if (fFoundNonZero)
+                    vMsgTrimmed.push_back(it);
+            }
+
+            data.message = std::string(vMsgTrimmed.begin(), vMsgTrimmed.end());
             data.valid = true;
 
             Scalar gamma = (proof.taux - (tau2*pd.x*pd.x) - (tau1*pd.x)) * (pd.z*pd.z).Invert();

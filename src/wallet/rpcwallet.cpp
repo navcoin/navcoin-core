@@ -529,8 +529,15 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, fBLSCT};
     if (fBLSCT)
     {
-        recipient.sk = boost::get<blsctDoublePublicKey>(address).GetSpendKey().Serialize();
-        recipient.vk = boost::get<blsctDoublePublicKey>(address).GetViewKey().Serialize();
+        bls::G1Element vk, sk;
+        blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(address);
+
+        if (!dk.GetSpendKey(sk) || !dk.GetViewKey(vk))
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid address");
+        }
+        recipient.sk = sk.Serialize();
+        recipient.vk = vk.Serialize();
         recipient.sMemo = wtxNew.mapValue["comment"];
     }
     vecSend.push_back(recipient);
@@ -666,9 +673,6 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
 
-    if (address.IsPrivateAddress(Params()) && params.size() < 3)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Private addresses require memo field");
-
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
     if (nAmount <= 0)
@@ -752,9 +756,6 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
     CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
-
-    if (address.IsPrivateAddress(Params()) && params.size() < 3)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Private addresses require memo field");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -845,9 +846,6 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
     CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
-
-    if (address.IsPrivateAddress(Params()) && params.size() < 3)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Private addresses require memo field");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -2153,8 +2151,16 @@ UniValue sendmany(const UniValue& params, bool fHelp)
         CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, fBLSCT};
         if (fBLSCT)
         {
-            recipient.sk = boost::get<blsctDoublePublicKey>(address.Get()).GetSpendKey().Serialize();
-            recipient.vk = boost::get<blsctDoublePublicKey>(address.Get()).GetViewKey().Serialize();
+            bls::G1Element vk, sk;
+            blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(address.Get());
+
+            if (!dk.GetSpendKey(sk) || !dk.GetViewKey(vk))
+            {
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid address");
+            }
+
+            recipient.sk = sk.Serialize();
+            recipient.vk = vk.Serialize();
             recipient.sMemo = wtx.mapValue["comment"];
             fAnyBLSCT |= fBLSCT;
         }
@@ -2667,7 +2673,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
             }
 
             entry.pushKV("category", s.amount == nFee ? "fee" : (fCFund ? "cfund contribution" : "send"));
-            entry.pushKV("memo", wtx.vMemos.size() > s.vout ? std::string(wtx.vMemos[s.vout].begin(), wtx.vMemos[s.vout].end()) : "");
+            entry.pushKV("memo", wtx.vMemos.size() > s.vout ? wtx.vMemos[s.vout] : "");
             entry.pushKV("amount", ValueFromAmount(-s.amount));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.pushKV("label", pwalletMain->mapAddressBook[s.destination].name);

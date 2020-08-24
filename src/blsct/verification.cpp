@@ -101,7 +101,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
-                    bls::G1Element t = bls::G1Element::FromBytes(tx.vout[j].ephemeralKey.data());
+                    bls::G1Element t = bls::G1Element::FromBytes(tx.vout[j].outputKey.data());
                     t = t * viewKey;
                     nonces.push_back(t);
                 }
@@ -178,7 +178,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         {
             bls::G2Element sig = bls::G2Element::FromBytes(tx.vchBalanceSig.data());
 
-            if (!bls::AugSchemeMPL::Verify(balKey, balanceMsg, sig))
+            if (!bls::BasicSchemeMPL::Verify(balKey, balanceMsg, sig))
                 return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
         }
         catch(std::exception& e)

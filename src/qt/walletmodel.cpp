@@ -288,8 +288,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         fAnyBLSCT |= fBLSCT;
         if (fBLSCT)
         {
-            recipient.sk = boost::get<blsctDoublePublicKey>(address).GetSpendKey().Serialize();
-            recipient.vk = boost::get<blsctDoublePublicKey>(address).GetViewKey().Serialize();
+            bls::G1Element vk, sk;
+
+            if (!boost::get<blsctDoublePublicKey>(address).GetSpendKey(sk) || !boost::get<blsctDoublePublicKey>(address).GetViewKey(vk))
+            {
+                return InvalidAddress;
+            }
+            recipient.sk = sk.Serialize();
+            recipient.vk = vk.Serialize();
             recipient.sMemo = rcp.message.toStdString();
         }
         vecSend.push_back(recipient);

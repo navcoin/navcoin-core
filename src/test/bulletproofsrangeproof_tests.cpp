@@ -31,7 +31,6 @@ bool TestRange(std::vector<Scalar> values, bls::G1Element nonce)
 
     std::vector<uint64_t> amounts;
     std::vector<Scalar> gammas;
-    std::vector<std::vector<uint8_t>> messages;
 
     std::vector<RangeproofEncodedData> data;
 
@@ -88,7 +87,6 @@ bool TestRangeBatch(std::vector<Scalar> values, bls::G1Element nonce)
 
     std::vector<uint64_t> amounts;
     std::vector<Scalar> gammas;
-    std::vector<std::vector<uint8_t>> messages;
 
     std::vector<RangeproofEncodedData> data;
 

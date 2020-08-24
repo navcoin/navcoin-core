@@ -103,7 +103,11 @@ bool CBasicKeyStore::GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint
         // C = a*D
         Scalar m = string.GetHash();
         bls::G1Element M = bls::PrivateKey::FromBN(m.bn).GetG1Element();
-        bls::G1Element t = publicBlsKey.GetSpendKey();
+        bls::G1Element t;
+        if (!publicBlsKey.GetSpendKey(t))
+        {
+            return false;
+        }
         bls::G1Element D = M + t;
         Scalar s = privateBlsViewKey.GetKey();
         bls::G1Element C = s.bn*D;

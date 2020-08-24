@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>537</width>
-    <height>244</height>
+    <height>305</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -242,7 +242,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Payment ID:</string>
+       <string>Encrypted message:</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

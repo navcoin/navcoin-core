@@ -282,7 +282,7 @@ public:
     std::vector<std::pair<std::string, std::string> > vOrderForm;
     std::vector<CAmount> vAmounts;
     std::vector<Scalar> vGammas;
-    std::vector<std::vector<uint8_t>> vMemos;
+    std::vector<std::string> vMemos;
 
     unsigned int fTimeReceivedIsTxTime;
     unsigned int nTimeReceived; //!< time received by this node
@@ -578,16 +578,16 @@ public:
     int nDepth;
     bool fSpendable;
     bool fSolvable;
-    std::vector<unsigned char> vMemo;
+    std::string vMemo;
     CAmount nAmount;
     Scalar gamma;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::vector<unsigned char> vMemoIn = std::vector<unsigned char>(), CAmount nAmountIn = 0, Scalar gammaIn = 0)
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0)
     {
         tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::vector<unsigned char> vMemoIn = std::vector<unsigned char>(), CAmount nAmountIn = 0, Scalar gammaIn = 0)
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0)
     {
         tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
     }

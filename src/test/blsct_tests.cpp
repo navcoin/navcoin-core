@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     // Public to Private. Different amount. Balance signature empty. Tx signature empty.
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
-    BOOST_CHECK(std::string(vData[0].message.begin(), vData[0].message.end()) == "test");
+    BOOST_CHECK(vData[0].message == "test");
     BOOST_CHECK(vData[0].amount == 10);
 
     Scalar diff = gammaIns-gammaOuts;
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     // Public to Private. Same amount. Balance signature correct. Tx signature empty.
     state = CValidationState();
     BOOST_CHECK(VerifyBLSCT(spendingTx, viewKey, vData, view, state));
-    BOOST_CHECK(std::string(vData[0].message.begin(), vData[0].message.end()) == "testtesttesttesttest");
+    BOOST_CHECK(vData[0].message == "testtesttesttesttest");
     BOOST_CHECK(vData[0].amount == 10*COIN);
 
     vBLSSignatures.clear();
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     // Private to Private. Same amount. Balance signature correct. Tx signature complete.
     state = CValidationState();
     BOOST_CHECK(VerifyBLSCT(spendingTx, viewKey, vData, view, state));
-    BOOST_CHECK(std::string(vData[0].message.begin(), vData[0].message.end()) == "test2test2test2test2tes");
+    BOOST_CHECK(vData[0].message == "test2test2test2test2tes");
     BOOST_CHECK(vData[0].amount == 10*COIN);
 
     vBLSSignatures.clear();
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     state = CValidationState();
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "invalid-balanceproof");
-    BOOST_CHECK(std::string(vData[0].message.begin(), vData[0].message.end()) == "test2");
+    BOOST_CHECK(vData[0].message == "test2");
     BOOST_CHECK(vData[0].amount == 10);
 
     spendingTx.nVersion &= ~TX_BLS_CT_FLAG;

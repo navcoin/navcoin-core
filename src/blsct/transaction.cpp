@@ -15,7 +15,13 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
 
     // Shared key H(r*V) - Used as nonce for bulletproof
     std::vector<bls::G1Element> nonces;
-    bls::G1Element vk =destKey.GetViewKey();
+    bls::G1Element vk;
+    if (!destKey.GetViewKey(vk))
+    {
+        strFailReason = "Could not read view key from address";
+        return false;
+    }
+
     bls::G1Element nonce = blindingKey*vk;
     nonces.push_back(nonce);
 
@@ -49,16 +55,10 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
         return false;
     }
 
-    std::cout << strprintf("%s: sk: %s\n", __func__, HexStr(newTxOut.spendingKey));
-    std::cout << strprintf("%s: ok: %s\n", __func__, HexStr(newTxOut.outputKey));
-
     if (fBLSSign)
     {
         SignBLSOutput(blindingKey, newTxOut, vBLSSignatures);
     }
-
-    std::cout << strprintf("%s: sk: %s\n", __func__, HexStr(newTxOut.spendingKey));
-    std::cout << strprintf("%s: ok: %s\n", __func__, HexStr(newTxOut.outputKey));
 
     return true;
 }
@@ -92,19 +92,27 @@ bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& de
         ephemeralKey = blindingKey.GetG1Element().Serialize();
 
         // R = r*S
-        bls::G1Element t = destKey.GetSpendKey();
-        t = blindingKey*t;
+        bls::G1Element S, R;
 
-        outputKey = t.Serialize();
+        if(!destKey.GetSpendKey(S))
+        {
+            return false;
+        }
+        R = blindingKey*S;
+
+        outputKey = R.Serialize();
 
         // P = H(r*V)*G + S
-        bls::G1Element t_ = destKey.GetViewKey();
-        t_ = blindingKey*t_;
-        t_ = bls::PrivateKey::FromBN(Scalar(HashG1Element(t_,0)).bn).GetG1Element();
-        t = destKey.GetSpendKey();
-        t_ = t + t_;
+        bls::G1Element V;
+        if(!destKey.GetViewKey(V))
+        {
+            return false;
+        }
+        bls::G1Element rV = blindingKey*V;
+        bls::G1Element P = bls::PrivateKey::FromBN(Scalar(HashG1Element(rV,0)).bn).GetG1Element();
+        P = S + P;
 
-        spendingKey = t_.Serialize();
+        spendingKey = P.Serialize();
     }
     catch(...)
     {

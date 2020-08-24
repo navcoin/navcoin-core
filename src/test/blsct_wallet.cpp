@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
     BOOST_CHECK(pwalletMain->NewBLSCTBlindingKeyPool());
     BOOST_CHECK(pwalletMain->NewBLSCTSubAddressKeyPool(0));
     BOOST_CHECK(!pwalletMain->IsLocked());
+
     BOOST_CHECK(pwalletMain->TopUpBLSCTBlindingKeyPool());
     BOOST_CHECK(pwalletMain->TopUpBLSCTSubAddressKeyPool(0));
 
@@ -63,8 +64,9 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
     BOOST_CHECK(pwalletMain->GetBLSCTSubAddressKeyFromPool(0, keyID));
 
     blsctPublicKey bpk;
-    blsctKey b;
     BOOST_CHECK(pwalletMain->GetBLSCTBlindingKeyFromPool(bpk));
+
+    blsctKey b;
     BOOST_CHECK(pwalletMain->GetBLSCTBlindingKey(bpk, b));
 
     blsctDoublePublicKey destKey;
@@ -74,11 +76,9 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
     std::string strFailReason;
     std::vector<bls::G2Element> vBLSSignatures;
     CTxOut txout;
-
     BOOST_CHECK(CreateBLSCTOutput(b.GetKey(), txout, destKey, 10*COIN, "", gamma, strFailReason, false, vBLSSignatures));
 
     BOOST_CHECK(pwalletMain->IsMine(txout));
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

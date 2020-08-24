@@ -62,20 +62,43 @@ public:
         return CKeyID(Hash160(sk.data(), sk.data() + sk.size()));
     }
 
-    bls::G1Element GetViewKey() const {
-        bls::G1Element ret = bls::G1Element::FromBytes(&vk.front());
-        return ret;
+    bool GetViewKey(bls::G1Element &ret) const {
+        try
+        {
+            ret = bls::G1Element::FromBytes(&vk.front());
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    bls::G1Element GetSpendKey() const {
-        bls::G1Element ret = bls::G1Element::FromBytes(&sk.front());
-        return ret;
+    bool GetSpendKey(bls::G1Element &ret) const {
+        try
+        {
+            ret = bls::G1Element::FromBytes(&sk.front());
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     bool operator<(const blsctDoublePublicKey& rhs) const {
         bls::G1Element l, r;
-        l = bls::G1Element::FromBytes(&vk.front());
-        r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        try
+        {
+            l = bls::G1Element::FromBytes(&vk.front());
+            r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        }
+        catch(...)
+        {
+            return false;
+        }
         return g1_cmp(l.p, r.p);
     }
 
@@ -135,14 +158,29 @@ public:
         return CKeyID(Hash160(vk.data(), vk.data() + vk.size()));
     }
 
-    bls::G1Element GetG1Element() const {
-        return bls::G1Element::FromBytes(&vk.front());
+    bool GetG1Element(bls::G1Element& ret) const {
+        try
+        {
+            ret = bls::G1Element::FromBytes(&vk.front());
+        }
+        catch(...)
+        {
+            return false;
+        }
+        return true;
     }
 
     bool operator<(const blsctPublicKey& rhs) const {
         bls::G1Element l, r;
-        l = bls::G1Element::FromBytes(&vk.front());
-        r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        try
+        {
+            l = bls::G1Element::FromBytes(&vk.front());
+            r = bls::G1Element::FromBytes(&(rhs.vk).front());
+        }
+        catch(...)
+        {
+            return false;
+        }
         return g1_cmp(l.p, r.p);
     }
 
