@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(RangeProofTest)
     std::vector<Scalar> vInRange;
     std::vector<Scalar> vOutOfRange;
 
-    bls::G1Element nonce = bls::G1Element::Unity();
+    bls::G1Element nonce = bls::G1Element::Infinity();
 
     // Admited range is (0, 2**64)
     Scalar one;

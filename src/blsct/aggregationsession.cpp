@@ -80,7 +80,7 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
     {
         try
         {
-            if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
+            if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
                 continue;
         }
         catch(...)
@@ -130,7 +130,7 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     {
         Scalar s = tx.minAmount;
         bls::G1Element l = BulletproofsRangeproof::H*s.bn;
-        bls::G1Element r = tx.tx.vout[i].bp.V[0].Inverse();
+        bls::G1Element r = InverseG1Element(tx.tx.vout[i].bp.V[0]);
         l = l + r;
         if (!(l == tx.minAmountProofs.V[i]))
             return error ("AggregationSesion::%s: Failed verification from output's amount %d\n", __func__, i);
@@ -150,7 +150,7 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
 
     try
     {
-        if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
+        if(!VerifyBLSCT(tx.tx, bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)), blsctData, *inputs, state, false, tx.fee))
         {
             return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
         }
@@ -309,8 +309,8 @@ bool AggregationSesion::Join() const
     {
         // Balance Sig
         Scalar diff = gammaIns-gammaOuts;
-        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-        candidate.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromByteVector(diff.GetVch());
+        candidate.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
         // Tx Sig
         candidate.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
     }
@@ -329,7 +329,7 @@ bool AggregationSesion::Join() const
     std::vector<Scalar> value;
     value.push_back(prevcoin->vAmounts[prevout]+nAddedFee-DEFAULT_MIN_OUTPUT_AMOUNT);
 
-    bls::G1Element nonce = bls::PrivateKey::FromBN(Scalar::Rand().bn).GetG1Element();
+    bls::G1Element nonce = bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)).GetG1Element();
     std::vector<bls::G1Element> nonces;
     nonces.push_back(nonce);
 

@@ -89,17 +89,24 @@ public:
     }
 
     bool operator<(const blsctDoublePublicKey& rhs) const {
-        bls::G1Element l, r;
+        g1_t l, r;
         try
         {
-            l = bls::G1Element::FromBytes(&vk.front());
-            r = bls::G1Element::FromBytes(&(rhs.vk).front());
+            g1_new(l);
+            g1_set_infty(l);
+
+            g1_new(r);
+            g1_set_infty(r);
+
+            g1_read_bin(l, &vk.front(), vk.size());
+            g1_read_bin(r, &(rhs.vk).front(), rhs.vk.size());
         }
         catch(...)
         {
             return false;
         }
-        return g1_cmp(l.p, r.p);
+
+        return g1_cmp(l, r);
     }
 
     bool operator==(const blsctDoublePublicKey& rhs) const {
@@ -171,17 +178,23 @@ public:
     }
 
     bool operator<(const blsctPublicKey& rhs) const {
-        bls::G1Element l, r;
+        g1_t l, r;
         try
         {
-            l = bls::G1Element::FromBytes(&vk.front());
-            r = bls::G1Element::FromBytes(&(rhs.vk).front());
+            g1_new(l);
+            g1_set_infty(l);
+
+            g1_new(r);
+            g1_set_infty(r);
+
+            g1_read_bin(l, &vk.front(), vk.size());
+            g1_read_bin(r, &(rhs.vk).front(), rhs.vk.size());
         }
         catch(...)
         {
             return false;
         }
-        return g1_cmp(l.p, r.p);
+        return g1_cmp(l, r);
     }
 
     bool operator==(const blsctPublicKey& rhs) const {

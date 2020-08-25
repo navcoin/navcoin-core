@@ -214,6 +214,7 @@ blsctPublicKey CWallet::GenerateNewBlindingKey()
     // use HD key derivation if HD was enabled during wallet creation
     if (GetBLSCTBlindingMasterKey(ephemeralKey)) {
         blsctKey childKey;
+        bls::G1Element pubKey = bls::G1Element::Infinity();
         // derive child key at next index, skip keys already known to the wallet
         do
         {
@@ -221,18 +222,19 @@ blsctPublicKey CWallet::GenerateNewBlindingKey()
             metadata.hdKeypath     = "m/130'/1'/"+std::to_string(hdChain.nExternalBLSCTChainCounter)+"'";
             // increment childkey index
             hdChain.nExternalBLSCTChainCounter++;
-        } while(HaveBLSCTBlindingKey(childKey.GetG1Element()));
-
+            pubKey = bls::BasicSchemeMPL::SkToG1(childKey.GetKey());
+        } while(HaveBLSCTBlindingKey(pubKey));
         secret = childKey;
 
         // update the chain model in the database
         if (!CWalletDB(strWalletFile).WriteHDChain(hdChain))
             throw std::runtime_error("CWallet::GenerateNewBlindingKey(): Writing HD chain model failed");
     } else {
-        CPrivKey rand;
+        std::vector<unsigned char> rand;
         rand.reserve(32);
         GetRandBytes(rand.data(), 32);
-        secret = blsctKey(bls::PrivateKey::FromSeed(rand.data(), 32));
+        secret = blsctKey(bls::BasicSchemeMPL::KeyGen(rand));
+        memset(&rand[0], 0, rand.size() * sizeof rand[0]);
     }
 
     blsctPublicKey pubkey = secret.GetG1Element();
@@ -241,7 +243,6 @@ blsctPublicKey CWallet::GenerateNewBlindingKey()
 
     if (!AddBLSCTBlindingKeyPubKey(secret, pubkey))
         throw std::runtime_error("CWallet::GenerateNewBlindingKey(): AddBLSCTKey failed");
-
     return pubkey;
 }
 
@@ -3639,8 +3640,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     Scalar diff = gammaIns-gammaOuts;
                     try
                     {
-                        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-                        txNew.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+                        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromByteVector(diff.GetVch());
+                        txNew.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
                     }
                     catch(...)
                     {
@@ -3741,7 +3742,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     try
                     {
-                        if (!(coinsToMix && coinsToMix->tx.vin.size() > 0) && !VerifyBLSCT(txNew, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false))
+                        if (!(coinsToMix && coinsToMix->tx.vin.size() > 0) && !VerifyBLSCT(txNew, bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)), blsctData, inputs, state, false))
                         {
                             strFailReason = FormatStateMessage(state);
                             return false;
@@ -5215,10 +5216,8 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
             h << vKey;
 
             uint256 hash = h.GetHash();
-            unsigned char h_[32];
-            memcpy(h_, &hash, 32);
 
-            blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+            blsctKey masterBLSKey = blsctKey(bls::BasicSchemeMPL::KeyGen(std::vector<unsigned char>(hash.begin(), hash.end())));
             blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
             blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
             bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);

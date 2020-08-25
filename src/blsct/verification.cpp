@@ -9,7 +9,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
 
-    bls::G1Element balKey;
+    bls::G1Element balKey = bls::G1Element::Infinity();
     bool fElementZero = true;
 
     bool fCheckRange = tx.IsCTOutput();
@@ -118,7 +118,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 }
                 else
                 {
-                    bls::G1Element t = tx.vout[j].bp.GetValueCommitments()[0].Inverse();
+                    bls::G1Element t = InverseG1Element(tx.vout[j].bp.GetValueCommitments()[0]);
                     balKey = balKey + t;
                 }
                 fElementZero = false;
@@ -135,7 +135,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
                 bls::G1Element t = BulletproofsRangeproof::H*s.bn;
-                t = t.Inverse();
+                t = InverseG1Element(t);
                 balKey = balKey + t;
             }
             valOut += tx.vout[j].nValue;
@@ -318,7 +318,7 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
 
     try
     {
-        return VerifyBLSCT(outTx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false, nMixFee);
+        return VerifyBLSCT(outTx, bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)), blsctData, inputs, state, false, nMixFee);
     }
     catch(...)
     {

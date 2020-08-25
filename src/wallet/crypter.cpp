@@ -376,7 +376,7 @@ bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uin
         bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
         Scalar s_ = privateBlsViewKey.GetScalar();
         t = t * s_.bn;
-        k = blsctKey(bls::PrivateKey::FromBN((Scalar(HashG1Element(t, 0)) + s.GetScalar() + Scalar(string.GetHash())).bn));
+        k = blsctKey(bls::PrivateKey::FromByteVector((Scalar(HashG1Element(t, 0)) + s.GetScalar() + Scalar(string.GetHash())).GetVch()));
     }
     catch(...)
     {

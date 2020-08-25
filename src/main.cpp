@@ -2379,7 +2379,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
             if (pwalletMain)
                 pwalletMain->GetBLSCTViewKey(v);
             else
-                v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
+                v = blsctKey(bls::PrivateKey::FromByteVector(Scalar::Rand().GetVch()));
 
             if (!VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state))
                 return false;

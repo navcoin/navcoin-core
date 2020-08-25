@@ -529,7 +529,8 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, fBLSCT};
     if (fBLSCT)
     {
-        bls::G1Element vk, sk;
+        bls::G1Element vk = bls::G1Element::Infinity();
+        bls::G1Element sk = bls::G1Element::Infinity();
         blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(address);
 
         if (!dk.GetSpendKey(sk) || !dk.GetViewKey(vk))
@@ -596,10 +597,8 @@ UniValue generateblsctkeys(const UniValue& params, bool fHelp)
     h << vKey;
 
     uint256 hash = h.GetHash();
-    unsigned char h_[32];
-    memcpy(h_, &hash, 32);
 
-    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+    blsctKey masterBLSKey = blsctKey(bls::BasicSchemeMPL::KeyGen(std::vector<unsigned char>(hash.begin(), hash.end())));
     blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
     blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
     bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
@@ -2151,7 +2150,9 @@ UniValue sendmany(const UniValue& params, bool fHelp)
         CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, fBLSCT};
         if (fBLSCT)
         {
-            bls::G1Element vk, sk;
+            bls::G1Element vk = bls::G1Element::Infinity();
+            bls::G1Element sk = bls::G1Element::Infinity();
+
             blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(address.Get());
 
             if (!dk.GetSpendKey(sk) || !dk.GetViewKey(vk))

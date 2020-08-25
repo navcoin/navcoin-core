@@ -59,6 +59,7 @@ public:
     friend G1Element operator*(const bn_t &k, const G1Element &a);
     friend GTElement operator&(const G1Element &a, const G2Element &b);
 
+
 private:
     g1_t p;
     G1Element() {

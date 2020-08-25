@@ -288,7 +288,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         fAnyBLSCT |= fBLSCT;
         if (fBLSCT)
         {
-            bls::G1Element vk, sk;
+            bls::G1Element vk = bls::G1Element::Infinity();
+            bls::G1Element sk = bls::G1Element::Infinity();
 
             if (!boost::get<blsctDoublePublicKey>(address).GetSpendKey(sk) || !boost::get<blsctDoublePublicKey>(address).GetViewKey(vk))
             {

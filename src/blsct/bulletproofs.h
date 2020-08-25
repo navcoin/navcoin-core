@@ -36,14 +36,14 @@ public:
     bls::G1Element base;
     Scalar exp;
 
-    MultiexpData() {}
-    MultiexpData(bls::G1Element base_, Scalar exp_) : base(base_), exp(exp_){}
+    MultiexpData() : base(bls::G1Element::Infinity()) {}
+    MultiexpData(const bls::G1Element base_, Scalar exp_) : base(base_), exp(exp_){}
 };
 
 class BulletproofsRangeproof
 {
 public:
-    BulletproofsRangeproof() {}
+    BulletproofsRangeproof() : A(bls::G1Element::Infinity()), S(bls::G1Element::Infinity()), T1(bls::G1Element::Infinity()), T2(bls::G1Element::Infinity()){}
 
     static bool Init();
 
@@ -97,21 +97,21 @@ public:
             v_size=::ReadCompactSize(s);
             for (auto i=0; i<v_size; i++)
             {
-                bls::G1Element n;
+                bls::G1Element n = bls::G1Element::Infinity();
                 ::Unserialize(s, n, nType, nVersion);
                 V.push_back(n);
             }
             l_size=::ReadCompactSize(s);
             for (auto i=0; i<l_size; i++)
             {
-                bls::G1Element n;
+                bls::G1Element n = bls::G1Element::Infinity();
                 ::Unserialize(s, n, nType, nVersion);
                 L.push_back(n);
             }
             r_size=::ReadCompactSize(s);
             for (auto i=0; i<r_size; i++)
             {
-                bls::G1Element n;
+                bls::G1Element n = bls::G1Element::Infinity();
                 ::Unserialize(s, n, nType, nVersion);
                 R.push_back(n);
             }

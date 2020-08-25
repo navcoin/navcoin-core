@@ -66,8 +66,8 @@ bool CBasicKeyStore::GetBLSCTHashId(const std::vector<unsigned char>& outputKey,
         bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
         bls::PrivateKey k = privateBlsViewKey.GetKey();
         t = t * k;
-        bls::G1Element dh = bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn).GetG1Element();
-        dh = dh.Inverse();
+        bls::G1Element dh = bls::PrivateKey::FromByteVector(Scalar(HashG1Element(t, 0)).GetVch()).GetG1Element();
+        dh = InverseG1Element(dh);
         t = bls::G1Element::FromByteVector(spendingKey);
         bls::G1Element D_prime = t + dh;
         hashId = blsctPublicKey(D_prime).GetID();
@@ -102,8 +102,8 @@ bool CBasicKeyStore::GetBLSCTSubAddressPublicKeys(const std::pair<uint64_t, uint
         // D = B + M
         // C = a*D
         Scalar m = string.GetHash();
-        bls::G1Element M = bls::PrivateKey::FromBN(m.bn).GetG1Element();
-        bls::G1Element t;
+        bls::G1Element M = bls::PrivateKey::FromByteVector(m.GetVch()).GetG1Element();
+        bls::G1Element t = bls::G1Element::Infinity();
         if (!publicBlsKey.GetSpendKey(t))
         {
             return false;
@@ -142,7 +142,7 @@ bool CBasicKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint
         Scalar s = privateBlsViewKey.GetScalar();
         bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
         t = t*s.bn;
-        k = blsctKey(bls::PrivateKey::FromBN((Scalar(HashG1Element(t, 0)) + privateBlsSpendKey.GetScalar() + Scalar(string.GetHash())).bn));
+        k = blsctKey(bls::PrivateKey::FromByteVector((Scalar(HashG1Element(t, 0)) + privateBlsSpendKey.GetScalar() + Scalar(string.GetHash())).GetVch()));
     }
     catch(...)
     {
