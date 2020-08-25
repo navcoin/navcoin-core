@@ -9,7 +9,7 @@
 #include <key.h>
 #include <random.h>
 #include <uint256.h>
-#include <test/test_navcoin.h>
+#include <wallet/test/wallet_test_fixture.h>
 #include <main.h>
 
 #include <vector>
@@ -19,7 +19,7 @@
 
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
-BOOST_FIXTURE_TEST_SUITE(blsct_tests, TestingSetup)
+BOOST_FIXTURE_TEST_SUITE(blsct_tests, WalletTestingSetup)
 
 BOOST_AUTO_TEST_CASE(blsct)
 {
@@ -48,7 +48,29 @@ BOOST_AUTO_TEST_CASE(blsct)
     bls::PrivateKey viewKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT);
     bls::PrivateKey spendKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
-    blsctDoublePublicKey destKey = blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element());
+    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element())));
+    BOOST_CHECK(pwalletMain->SetBLSCTViewKey(blsctKey(viewKey)));
+    BOOST_CHECK(pwalletMain->SetBLSCTSpendKey(blsctKey(spendKey)));
+    BOOST_CHECK(pwalletMain->SetBLSCTBlindingMasterKey(blindingBLSKey));
+
+    BOOST_CHECK(pwalletMain->NewBLSCTBlindingKeyPool());
+    BOOST_CHECK(pwalletMain->NewBLSCTSubAddressKeyPool(0));
+    BOOST_CHECK(!pwalletMain->IsLocked());
+
+    BOOST_CHECK(pwalletMain->TopUpBLSCTBlindingKeyPool());
+    BOOST_CHECK(pwalletMain->TopUpBLSCTSubAddressKeyPool(0));
+
+    CKeyID keyID;
+    BOOST_CHECK(pwalletMain->GetBLSCTSubAddressKeyFromPool(0, keyID));
+
+    blsctPublicKey bpk;
+    BOOST_CHECK(pwalletMain->GetBLSCTBlindingKeyFromPool(bpk));
+
+    blsctKey b;
+    BOOST_CHECK(pwalletMain->GetBLSCTBlindingKey(bpk, b));
+
+    blsctDoublePublicKey destKey;
+    BOOST_CHECK(pwalletMain->GetBLSCTSubAddressPublicKeys(keyID, destKey));
 
     CMutableTransaction prevTx;
 
@@ -56,7 +78,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     prevTx.vout[0].nValue = 10*COIN;
     prevTx.vout[0].scriptPubKey << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
 
-    bls::PrivateKey bk = blindingBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::PrivateKey bk = b.GetKey();
     Scalar gammaIns, gammaOuts, gammaPrevOut;
     std::string strFailReason;
     std::vector<bls::G2Element> vBLSSignatures;
@@ -168,16 +190,12 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "invalid-bls-signature");
 
-    std::vector<bls::PrivateKey> keys;
-    keys.push_back(spendKey);
-    bls::G1Element t = bk.GetG1Element();
-    t = t * viewKey;
-    keys.push_back(bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn));
-    bls::PrivateKey sk_ = bls::PrivateKey::Aggregate(keys);
+    blsctKey sk_;
 
+    BOOST_CHECK(pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(keyID, prevTx.vout[1].outputKey, sk_));
     BOOST_CHECK(sk_.GetG1Element() == bls::G1Element::FromBytes(prevTx.vout[1].spendingKey.data()));
 
-    SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
+    SignBLSInput(sk_.GetKey(), spendingTx.vin[0], vBLSSignatures);
 
     spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
@@ -219,7 +237,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "invalid-balanceproof");
 
-    SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
+    SignBLSInput(sk_.GetKey(), spendingTx.vin[0], vBLSSignatures);
 
     spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
 
@@ -249,7 +267,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "could-not-read-balanceproof");
 
-    SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
+    SignBLSInput(sk_.GetKey(), spendingTx.vin[0], vBLSSignatures);
     SignBLSOutput(bk, spendingTx.vout[0], vBLSSignatures);
 
     spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
