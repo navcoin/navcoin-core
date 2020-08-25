@@ -103,6 +103,7 @@ namespace boost {
 
 using namespace std;
 
+const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
@@ -592,7 +593,7 @@ bool CheckIfWalletDatExists(bool fNetSpecific) {
 
     namespace fs = boost::filesystem;
 
-    boost::filesystem::path path("wallet.dat");
+    boost::filesystem::path path(GetArg("-wallet", DEFAULT_WALLET_DAT));
     if (!path.is_complete())
         path = GetDataDir(fNetSpecific) / path;
 

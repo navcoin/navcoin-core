@@ -45,7 +45,6 @@ unsigned int nTxConfirmTarget = DEFAULT_TX_CONFIRM_TARGET;
 bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
 bool fSendFreeTransactions = DEFAULT_SEND_FREE_TRANSACTIONS;
 
-const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
 int64_t StakeCombineThreshold = 1000 * COIN;
@@ -5186,7 +5185,7 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
         walletInstance->SetBestChain(chainActive.GetLocator());
     }
     else if (GetArg("-importmnemonic","") != "") {
-        return InitError(strprintf(_("You are trying to import a new mnemonic but a wallet already exists. Please rename the existing wallet.dat before trying to import again.")));
+        return InitError(strprintf(_("You are trying to import a new mnemonic but a wallet already exists. Please rename the existing %s before trying to import again."), GetArg("-wallet", DEFAULT_WALLET_DAT)));
     }
     else if (mapArgs.count("-usehd")) {
         bool useHD = GetBoolArg("-usehd", DEFAULT_USE_HD_WALLET);

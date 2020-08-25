@@ -10,6 +10,7 @@
 
 class OptionsModel;
 class QValidatedLineEdit;
+class PlatformStyle;
 
 QT_BEGIN_NAMESPACE
 class QDataWidgetMapper;
@@ -37,7 +38,7 @@ class OptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(QWidget *parent, bool enableWallet);
+    explicit OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~OptionsDialog();
 
     void setModel(OptionsModel *model);
@@ -59,11 +60,14 @@ private Q_SLOTS:
     void updateProxyValidationState();
     /* query the networks, for which the default proxy is used */
     void updateDefaultProxyNets();
+    void markModelDirty();
 
 Q_SIGNALS:
     void proxyIpChecks(QValidatedLineEdit *pUiProxyIp, int nProxyPort);
 
 private:
+
+    const PlatformStyle *platformStyle;
     Ui::OptionsDialog *ui;
     OptionsModel *model;
     QDataWidgetMapper *mapper;

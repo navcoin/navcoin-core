@@ -29,9 +29,9 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     setPrequestLabels();
 
     auto fLastState = prequest.GetLastState();
-        
+
     ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
-        
+
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
     if (fLastState == DAOFlags::NIL && prequest.GetState(coins).find("expired") == string::npos) {
@@ -129,7 +129,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestProposalHash->setText(QString::fromStdString(prequest.proposalhash.ToString()));
 
     // Link
-    ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/payment-request/" + prequest.hash.ToString()));
+    ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/dao/payment-request/" + prequest.hash.ToString()));
 
     // Hide ability to vote is the status is expired
     std::string status = ui->labelPrequestStatus->text().toStdString();

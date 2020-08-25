@@ -1723,7 +1723,7 @@ void DaoPage::onDetails() {
             type = "payment-request";
         else if (nCurrentView == VIEW_CONSULTATIONS)
             type = "consultation";
-        QString link = "https://www.navexplorer.com/community-fund/" + type + "/" + contextHash;
+        QString link = "https://www.navexplorer.com/dao/" + type + "/" + contextHash;
         QDesktopServices::openUrl(QUrl(link));
     }
 }
