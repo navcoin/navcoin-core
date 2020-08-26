@@ -6,7 +6,6 @@
 export LC_ALL=C
 set -e
 srcdir="$(dirname "$0")"
-mkdir -p "$srcdir/src/bls/build/"
 cd "$srcdir"
 if [ -z "${LIBTOOLIZE}" ] && GLIBTOOLIZE="$(command -v glibtoolize)"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
