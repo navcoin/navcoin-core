@@ -30,6 +30,7 @@ packages:
 - "python3-distutils"
 - "python3-setuptools"
 - "libtinfo5"
+- "libgmp-dev"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
