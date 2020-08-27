@@ -27,7 +27,7 @@ packages:
 - "rename"
 - "zip"
 - "libcap-dev"
-- "libtinfo-dev"
+- "libtinfo5"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
