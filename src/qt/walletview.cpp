@@ -2,28 +2,30 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "walletview.h"
+#include <qt/walletview.h>
 
-#include "addressbookpage.h"
-#include "askpassphrasedialog.h"
-#include "navcoingui.h"
-#include "clientmodel.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "overviewpage.h"
-#include "daopage.h"
-#include "platformstyle.h"
-#include "getaddresstoreceive.h"
-#include "receivecoinsdialog.h"
-#include "sendcoinsdialog.h"
-#include "signverifymessagedialog.h"
-#include "transactiontablemodel.h"
-#include "transactionview.h"
-#include "walletmodel.h"
+#include <qt/addressbookpage.h>
+#include <qt/askpassphrasedialog.h>
+#include <qt/clientmodel.h>
+#include <qt/communityfundpage.h>
+#include <qt/daopage.h>
+#include <qt/getaddresstoreceive.h>
+#include <qt/guiutil.h>
+#include <qt/navcoingui.h>
+#include <qt/optionsdialog.h>
+#include <qt/optionsmodel.h>
+#include <qt/overviewpage.h>
+#include <qt/platformstyle.h>
+#include <qt/receivecoinsdialog.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/signverifymessagedialog.h>
+#include <qt/transactiontablemodel.h>
+#include <qt/transactionview.h>
+#include <qt/walletmodel.h>
 
-#include "ui_interface.h"
+#include <ui_interface.h>
 
-#include "main.h"
+#include <main.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -42,6 +44,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
+
+    settingsPage = new OptionsDialog(platformStyle);
 
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
@@ -66,6 +70,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
 
     addWidget(overviewPage);
+    addWidget(settingsPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
@@ -123,6 +128,8 @@ void WalletView::setClientModel(ClientModel *clientModel)
     overviewPage->setClientModel(clientModel);
     sendCoinsPage->setClientModel(clientModel);
     daoPage->setClientModel(clientModel);
+
+    settingsPage->setModel(clientModel->getOptionsModel());
 }
 
 void WalletView::requestAddressHistory()
@@ -196,6 +203,17 @@ void WalletView::gotoOverviewPage()
 void WalletView::gotoHistoryPage()
 {
     setCurrentWidget(transactionsPage);
+    daoPage->setActive(false);
+}
+
+void WalletView::gotoSettingsPage()
+{
+    // We need to update the settings if it was modified externally
+    // This fixes a bug where coin control was enabled on the send page
+    // but was not shown as enabled on the setting spage
+    settingsPage->setModel(this->clientModel->getOptionsModel());
+
+    setCurrentWidget(settingsPage);
     daoPage->setActive(false);
 }
 

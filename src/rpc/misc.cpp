@@ -597,6 +597,7 @@ bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &addr
     return true;
 }
 
+
 bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint160, int> > &addresses)
 {
     if (params[0].isStr()) {
@@ -625,6 +626,153 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
             }
             addresses.push_back(std::make_pair(hashBytes, type));
+        }
+    } else {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    return true;
+}
+
+bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>> &addresses)
+{
+    if (params[0].isStr()) {
+        CNavCoinAddress address(params[0].get_str());
+        if (address.IsColdStakingv2Address(Params()))
+        {
+            CNavCoinAddress addressVoting, addressStaking, addressSpending;
+            uint160 hashBytes, hashBytesSpending, hashBytesVoting, hashBytesStaking;
+            int type = 0;
+
+            address.GetStakingAddress(addressStaking);
+            address.GetVotingAddress(addressVoting);
+            address.GetSpendingAddress(addressSpending);
+
+            if (!address.GetIndexKey(hashBytes, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+
+            if (!addressStaking.GetIndexKey(hashBytesStaking, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesStaking), AddressHistoryFilter::STAKABLE));
+
+            if (!addressVoting.GetIndexKey(hashBytesVoting, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesVoting), AddressHistoryFilter::VOTING_WEIGHT));
+
+            if (!addressSpending.GetIndexKey(hashBytesSpending, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesSpending), AddressHistoryFilter::SPENDABLE));
+        }
+        else if (address.IsColdStakingAddress(Params()))
+        {
+            CNavCoinAddress addressStaking, addressSpending;
+            uint160 hashBytes, hashBytesStaking, hashBytesSpending;
+            int type = 0;
+
+            if (!address.GetIndexKey(hashBytes, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+
+            address.GetStakingAddress(addressStaking);
+            address.GetSpendingAddress(addressSpending);
+
+            if (!addressStaking.GetIndexKey(hashBytesStaking, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesStaking), AddressHistoryFilter::STAKABLE_VOTING_WEIGHT));
+
+            if (!addressSpending.GetIndexKey(hashBytesSpending, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesSpending), AddressHistoryFilter::SPENDABLE));
+        }
+        else
+        {
+            uint160 hashBytes;
+            int type = 0;
+            if (!address.GetIndexKey(hashBytes, type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+            }
+            addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytes), AddressHistoryFilter::ALL));
+        }
+    } else if (params[0].isObject()) {
+
+        UniValue addressValues = find_value(params[0].get_obj(), "addresses");
+        if (!addressValues.isArray()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Addresses is expected to be an array");
+        }
+
+        std::vector<UniValue> values = addressValues.getValues();
+
+        for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
+
+            CNavCoinAddress address(it->get_str());
+            if (address.IsColdStakingv2Address(Params()))
+            {
+                CNavCoinAddress addressSpending, addressVoting, addressStaking;
+                uint160 hashBytes, hashBytesSpending, hashBytesVoting, hashBytesStaking;
+                int type = 0;
+
+                if (!address.GetIndexKey(hashBytes, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+
+                address.GetStakingAddress(addressStaking);
+                address.GetVotingAddress(addressVoting);
+                address.GetSpendingAddress(addressSpending);
+
+                if (!addressStaking.GetIndexKey(hashBytesStaking, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesStaking), AddressHistoryFilter::STAKABLE));
+
+                if (!addressVoting.GetIndexKey(hashBytesVoting, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesVoting), AddressHistoryFilter::VOTING_WEIGHT));
+
+                if (!addressSpending.GetIndexKey(hashBytesSpending, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesSpending), AddressHistoryFilter::SPENDABLE));
+            }
+            else if (address.IsColdStakingAddress(Params()))
+            {
+                CNavCoinAddress addressStaking, addressSpending;
+                uint160 hashBytes, hashBytesStaking, hashBytesSpending;
+                int type = 0;
+
+                if (!address.GetIndexKey(hashBytes, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+
+                address.GetStakingAddress(addressStaking);
+                address.GetSpendingAddress(addressSpending);
+
+                if (!addressStaking.GetIndexKey(hashBytesStaking, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesStaking), AddressHistoryFilter::STAKABLE_VOTING_WEIGHT));
+
+                if (!addressSpending.GetIndexKey(hashBytesSpending, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytesSpending), AddressHistoryFilter::SPENDABLE));
+            }
+            else
+            {
+                uint160 hashBytes;
+                int type = 0;
+                if (!address.GetIndexKey(hashBytes, type)) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+                }
+                addresses.push_back(std::make_pair(std::make_pair(hashBytes, hashBytes), AddressHistoryFilter::ALL));
+            }
+
         }
     } else {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
@@ -949,39 +1097,185 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
             + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}")
         );
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>> addresses;
 
-    if (!getAddressesFromParams(params, addresses)) {
+    if (!getAddressesFromParamsForHistory(params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
 
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
-        if (!GetAddressIndex((*it).first, (*it).second, addressIndex)) {
+    for (std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (!GetAddressHistory((*it).first.first, (*it).first.second, addressHistory, (*it).second)) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
         }
     }
 
-    CAmount balance = 0;
+    CAmount spending = 0;
+    CAmount stakable = 0;
+    CAmount voting_weight = 0;
     CAmount received = 0;
     CAmount staked = 0;
 
-    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
-        if (it->second > 0) {
-            received += it->second;
-        }
-        if (it->first.blockHeight > Params().GetConsensus().nLastPOWBlock && it->first.txindex == 1)
-        {
-            staked += it->second;
-        }
-        balance += it->second;
+    for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
+        spending += (*it).second.spendable;
+        stakable += (*it).second.stakable;
+        voting_weight += (*it).second.voting_weight;
+        if ((*it).second.spendable > 0)
+            received += (*it).second.spendable;
     }
 
+
     UniValue result(UniValue::VOBJ);
-    result.pushKV("balance", balance);
+    result.pushKV("balance", spending);
+    result.pushKV("stakable", stakable);
+    result.pushKV("voting_weight", voting_weight);
     result.pushKV("received", received);
     result.pushKV("staked", staked);
+
+    return result;
+
+}
+
+UniValue getaddresshistory(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getaddresshistory\n"
+            "\nReturns the history for an address(es) (requires addressindex to be enabled).\n"
+            "\nArguments:\n"
+            "{\n"
+            "  \"addresses\"\n"
+            "    [\n"
+            "      \"address\"  (string) The base58check encoded address\n"
+            "      ,...\n"
+            "    ]\n"
+            "  \"start\" (number, optional) The start block height\n"
+            "  \"end\" (number, optional) The end block height\n"
+            "}\n"
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"block\": (integer) the block height when this entry was seen\n"
+            "    \"txindex\": (integer) the index of the transaction inside of the block\n"
+            "    \"time\": (integer) timestamp when this entry happened\n"
+            "    \"txid\": (string) hash of the transaction\n"
+            "    \"txout\": (integer) the index of the output inside of the transaction\n"
+            "    \"address\": (string) the address affected\n"
+            "    \"changes\": {\n"
+            "      \"balance\": (signed integer) the change in spendable balance\n"
+            "      \"stakable\": (signed integer) the change in stakable balance\n"
+            "      \"voting_weight\": (signed integer) the change in voting weight\n"
+            "      \"flags\": (integer) 1 if is a coinstake or coinbase transaction, 0 otherwise\n"
+            "    },\n"
+            "    \"result\": {\n"
+            "      \"balance\": (integer) the spendable balance after the change\n"
+            "      \"stakable\": (integer) the stakable balance after the change\n"
+            "      \"voting_weight\": (integer) the voting weight after the change\n"
+            "    }\n"
+            "  }\n"
+            "]\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getaddresshistory", "'{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}'")
+            + HelpExampleRpc("getaddresshistory", "{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}")
+        );
+
+
+    UniValue startValue = find_value(params[0].get_obj(), "start");
+    UniValue endValue = find_value(params[0].get_obj(), "end");
+
+    int start = 0;
+    int end = 0;
+
+    bool range = false;
+
+    if (startValue.isNum() && endValue.isNum()) {
+        start = startValue.get_int();
+        end = endValue.get_int();
+        if (start <= 0 || end <= 0) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Start and end is expected to be greater than zero");
+        }
+        if (end < start) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "End value is expected to be greater than start");
+        }
+
+        range = true;
+    }
+
+    std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>> addresses;
+
+    if (!getAddressesFromParamsForHistory(params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
+
+    for (std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (!GetAddressHistory((*it).first.first, (*it).first.second, addressHistory, (*it).second)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+        }
+    }
+
+    std::sort(addressHistory.begin(), addressHistory.end(), [](const std::pair<CAddressHistoryKey, CAddressHistoryValue> &a, const std::pair<CAddressHistoryKey, CAddressHistoryValue> &b) -> bool
+    {
+        auto a_ = a.first;
+        auto b_ = b.first;
+
+        if (a_.blockHeight == b_.blockHeight) {
+            return a_.time < b_.time;
+        } else {
+            return a_.blockHeight < b_.blockHeight;
+        }
+    });
+    
+    struct balStruct 
+    {
+        CAmount spendable;
+        CAmount stakable;
+        CAmount voting_weight;
+    };
+    
+    std::map<CNavCoinAddress, balStruct> balance;
+
+    UniValue result(UniValue::VARR);
+
+    for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
+        CNavCoinAddress address;
+        address.Set(CKeyID((*it).first.hashBytes2));
+
+        if (balance.count(address) == 0) {
+            balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
+        }
+       
+        balance[address].spendable += (*it).second.spendable;
+        balance[address].stakable += (*it).second.stakable;
+        balance[address].voting_weight += (*it).second.voting_weight;
+        
+        if (!(!range || (range && (*it).first.blockHeight >= start && (*it).first.blockHeight <= end)))
+            continue;
+
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("block", (*it).first.blockHeight);
+        entry.pushKV("txindex", (uint64_t)(*it).first.txindex);
+        entry.pushKV("time", (uint64_t)(*it).first.time);
+        entry.pushKV("txid", (*it).first.txhash.ToString());
+        entry.pushKV("address", address.ToString());
+
+        UniValue changes(UniValue::VOBJ);
+        changes.pushKV("balance", (*it).second.spendable);
+        changes.pushKV("stakable", (*it).second.stakable);
+        changes.pushKV("voting_weight", (*it).second.voting_weight);
+        changes.pushKV("flags", (*it).second.flags);
+        entry.pushKV("changes", changes);
+
+        UniValue balanceObj(UniValue::VOBJ);
+        balanceObj.pushKV("balance", balance[address].spendable);
+        balanceObj.pushKV("stakable", balance[address].stakable);
+        balanceObj.pushKV("voting_weight", balance[address].voting_weight);
+        entry.pushKV("result", balanceObj);
+
+        result.push_back(entry);
+    }
 
     return result;
 
@@ -1134,6 +1428,7 @@ static const CRPCCommand commands[] =
     { "addressindex",       "getaddressdeltas",       &getaddressdeltas,       false },
     { "addressindex",       "getaddresstxids",        &getaddresstxids,        false },
     { "addressindex",       "getaddressbalance",      &getaddressbalance,      false },
+    { "addressindex",       "getaddresshistory",      &getaddresshistory,      false },
 
     /* Blockchain */
     { "blockchain",         "getspentinfo",           &getspentinfo,           false },

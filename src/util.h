@@ -58,6 +58,7 @@ extern bool fLogIPs;
 extern std::atomic<bool> fReopenLogFiles;
 extern CTranslationInterface translationInterface;
 
+extern const char * DEFAULT_WALLET_DAT;
 extern const char * const NAVCOIN_CONF_FILENAME;
 extern const char * const NAVCOIN_PID_FILENAME;
 

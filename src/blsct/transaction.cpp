@@ -23,6 +23,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
     }
 
     bls::G1Element nonce = blindingKey*vk;
+
     nonces.push_back(nonce);
 
     // Masking key - Used for bulletproof

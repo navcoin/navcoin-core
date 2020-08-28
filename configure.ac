@@ -864,11 +864,24 @@ fi
 
 fi
 
+AC_CHECK_HEADER(gmp.h,[
+  AC_CHECK_LIB(gmp, __gmpz_init,[
+    has_gmp=yes;
+    LIBS="$LIBS -lgmp";
+    AC_DEFINE(HAVE_LIBGMP, 1, [Define this symbol if libgmp is installed])
+  ])
+])
+
+if test x"$has_gmp" != x"yes"; then
+  AC_MSG_ERROR([libgmp is not available. Use depends or install libgmp-dev])
+fi
+
 if test x$use_pkgconfig = xyes; then
   : dnl
   m4_ifdef(
     [PKG_CHECK_MODULES],
     [
+      PKG_CHECK_MODULES([SODIUM], [libsodium],, [AC_MSG_ERROR(sodium  not found.)])
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
       PKG_CHECK_MODULES([ZLIB], [zlib],, [AC_MSG_ERROR(zlib  not found.)])
       if test x$TARGET_OS = xlinux; then
@@ -903,6 +916,7 @@ if test x$use_pkgconfig = xyes; then
 else
   AC_CHECK_HEADER([openssl/crypto.h],,AC_MSG_ERROR(libcrypto headers missing))
   AC_CHECK_LIB([crypto],      [main],CRYPTO_LIBS=-lcrypto, AC_MSG_ERROR(libcrypto missing))
+  AC_CHECK_LIB([sodium],      [main],CRYPTO_LIBS=-lsodium, AC_MSG_ERROR(libsodium missing))
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
@@ -1313,6 +1327,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                    [rm -rf src/bls/build/* || true && \
                     mkdir -p src/bls/build || true && \
                     CC=$CC \
+                    CMAKE_PREFIX_PATH=$prefix \
                     CXX=$CXX \
                     CFLAGS=$CFLAGS \
                     CXXFLAGS=$CXXFLAGS \
@@ -1329,7 +1344,8 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     printf 'check:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
-                   [CC=$BLS_CC_RAW
+                   [prefix=$prefix
+                    CC=$BLS_CC_RAW
                     CXX=$BLS_CXX_RAW
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS

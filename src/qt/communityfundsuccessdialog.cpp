@@ -13,7 +13,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *pa
 
     // Generate label for proposal
     ui->label->setTextFormat(Qt::RichText);
-    ui->label->setText(QString::fromStdString("You can now view your proposal in the core wallet or <a href=\"https://www.navexplorer.com/community-fund/proposals/pending\">on the navexplorer</a> once the next block has been broadcast"));
+    ui->label->setText(QString::fromStdString("You can now view your proposal in the core wallet or <a href=\"https://www.navexplorer.com/dao/proposals/pending\">on the navexplorer</a> once the next block has been broadcast"));
     ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->label->setOpenExternalLinks(true);
 }
@@ -30,7 +30,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *pa
     // Generate label for payment request
     ui->labelTitle->setText(QString("Created Payment Request Successfully"));
     ui->label->setTextFormat(Qt::RichText);
-    ui->label->setText(QString::fromStdString("You can now view your payment request in the core wallet or <a href=\"https://www.navexplorer.com/community-fund/payment-requests/pending\">on the navexplorer</a> once the next block has been broadcast"));
+    ui->label->setText(QString::fromStdString("You can now view your payment request in the core wallet or <a href=\"https://www.navexplorer.com/dao/payment-requests/pending\">on the navexplorer</a> once the next block has been broadcast"));
     ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->label->setOpenExternalLinks(true);
 }

@@ -142,6 +142,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getspentinfo", 0},
     { "getaddresstxids", 0},
     { "getaddressbalance", 0},
+    { "getaddresshistory", 0},
     { "getaddressdeltas", 0},
     { "getaddressutxos", 0},
     { "getaddressmempool", 0},

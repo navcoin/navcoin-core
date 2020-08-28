@@ -5,8 +5,10 @@
 
 export LC_ALL=C
 set -e
-srcdir="$(dirname "$0")"
+git submodule update --init --recursive
+srcdir="$(dirname $0)"
 cd "$srcdir"
+mkdir -p src/bls/build
 if [ -z "${LIBTOOLIZE}" ] && GLIBTOOLIZE="$(command -v glibtoolize)"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
   export LIBTOOLIZE
