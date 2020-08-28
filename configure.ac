@@ -1338,6 +1338,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DSEED=$BLS_SEED \
                     -DWSIZE=$BLS_WSIZE \
                     -DCMAKE_CXX_COMPILER=$BLS_CXX \
+                    -DEMSCRIPTEN=1 \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
