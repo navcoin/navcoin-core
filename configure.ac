@@ -52,6 +52,7 @@ unset FAKETIME
 
 dnl Automake init set-up and checks
 AM_INIT_AUTOMAKE([1.13 no-define subdir-objects foreign])
+AM_INIT_AUTOMAKE([1.9 tar-pax])
 
 dnl faketime messes with timestamps and causes configure to be re-run.
 dnl --disable-maintainer-mode can be used to bypass this.
