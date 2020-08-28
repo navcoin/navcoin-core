@@ -7,8 +7,8 @@ export LC_ALL=C
 set -e
 git submodule update --init --recursive
 srcdir="$(dirname $0)"
-mkdir -p src/bls/build
 cd "$srcdir"
+mkdir -p src/bls/build
 if [ -z "${LIBTOOLIZE}" ] && GLIBTOOLIZE="$(command -v glibtoolize)"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
   export LIBTOOLIZE
