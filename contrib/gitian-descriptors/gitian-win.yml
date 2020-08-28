@@ -3,7 +3,7 @@ name: "navcoin-osx-5.0.1"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "amd64"
 packages:
@@ -27,6 +27,8 @@ packages:
 - "rename"
 - "zip"
 - "libcap-dev"
+- "libtinfo5"
+- "libgmp-dev"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
