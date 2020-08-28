@@ -1322,6 +1322,12 @@ BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
 BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS'"
 BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS'"
 
+BLS_DEPENDS="${depends_prefix}"
+
+if test "x${BLS_DEPENDS}" = "x"; then
+  BLS_DEPENDS="${prefix}"
+fi
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
                    [rm -rf src/bls/build/* || true && \
@@ -1339,13 +1345,14 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DWSIZE=$BLS_WSIZE \
                     -DCMAKE_CXX_COMPILER=$BLS_CXX \
                     -DEMSCRIPTEN=1 \
+                    -DGMP_INCLUDES=$prefix/include \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
                     printf 'check:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
-                   [prefix="$depends_prefix;$prefix"
+                   [prefix="$BLS_DEPENDS"
                     CC=$BLS_CC_RAW
                     CXX=$BLS_CXX_RAW
                     CFLAGS=$BLS_CFLAGS
