@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     bls::PrivateKey viewKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT);
     bls::PrivateKey spendKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
-    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(doubleKey));
+    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element())));
     BOOST_CHECK(pwalletMain->SetBLSCTViewKey(blsctKey(viewKey)));
     BOOST_CHECK(pwalletMain->SetBLSCTSpendKey(blsctKey(spendKey)));
     BOOST_CHECK(pwalletMain->SetBLSCTBlindingMasterKey(blindingBLSKey));

@@ -250,10 +250,6 @@ bool SendCoinsEntry::validate()
         retval = false;
     }
 
-    if (CNavCoinAddress(ui->payTo->text().toStdString()).IsPrivateAddress(Params()) && ui->memo->text().isEmpty()){
-        retval = false;
-    }
-
     return retval;
 }
 
