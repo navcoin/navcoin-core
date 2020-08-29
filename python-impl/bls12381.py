@@ -45,9 +45,7 @@ n = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001
 
 # Cofactor used to generate r torsion points
 h = 0x396C8C005555E1568C00AAAB0000AAAB
-
-# https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-8.8.2
-h_eff = 0xBC69F08F2EE75B3584C6A0EA91B352888E2A8E9145AD7689986FF031508FFE1329C2F178731DB956D82BF015D1212B02EC0EC69D7477C1AE954CBC06689F6A359894C0ADEBBF6B4E8020005AAA95551
+h_twist = 0x5D543A95414E7F1091D50792876A202CD91DE4547085ABAA68A205B2E5A7DDFA628F1CB4D9E82EF21537E293A6691AE1616EC6E786F0C70CF1C38E31C7238E5
 
 # Embedding degree
 k = 12
@@ -76,7 +74,7 @@ def parameters_twist():
         g2x,
         g2y,
         n,
-        h_eff,
+        h_twist,
         x,
         k,
         sqrt_n3,
@@ -85,7 +83,7 @@ def parameters_twist():
 
 
 """
-Copyright 2020 Chia Network Inc
+Copyright 2018 Chia Network Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

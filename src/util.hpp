@@ -1,4 +1,4 @@
-// Copyright 2020 Chia Network Inc
+// Copyright 2018 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,9 +27,7 @@
 #include <gmp.h>
 #endif
 
-extern "C" {
 #include "relic.h"
-}
 #include "relic_test.h"
 
 namespace bls {
@@ -45,6 +43,19 @@ class Util {
                         size_t messageLen) {
         md_map_sh256(output, message, messageLen);
     }
+
+    template<size_t S>
+    struct BytesCompare {
+        bool operator() (const uint8_t* lhs, const uint8_t* rhs) const {
+            for (size_t i = 0; i < S; i++) {
+                if (lhs[i] < rhs[i]) return true;
+                if (lhs[i] > rhs[i]) return false;
+            }
+            return false;
+        }
+    };
+    typedef struct BytesCompare<32> BytesCompare32;
+    typedef struct BytesCompare<80> BytesCompare80;
 
     static std::string HexStr(const uint8_t* data, size_t len) {
         std::stringstream s;
