@@ -28,6 +28,13 @@ packages:
 - "zip"
 - "libcap-dev"
 - "libtinfo5"
+repositories:
+- "distribution": "bionic"
+  "source": "deb https://apt.kitware.com/ubuntu/ bionic main"
+  "key": "https://apt.kitware.com/keys/kitware-archive-latest.asc"
+  "name": "kitware"
+  packages:
+  - "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
