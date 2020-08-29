@@ -190,16 +190,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "invalid-bls-signature");
 
-<<<<<<< HEAD
     blsctKey sk_;
-=======
-    std::vector<bls::PrivateKey> keys;
-    keys.push_back(spendKey);
-    bls::G1Element t = bk.GetG1Element();
-    t = t * viewKey;
-    keys.push_back(bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn));
-    bls::PrivateKey sk_ = bls::PrivateKey::Aggregate(keys);
->>>>>>> parent of 69f06e38... update 25/08/2020 2
 
     BOOST_CHECK(pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(keyID, prevTx.vout[1].outputKey, sk_));
     BOOST_CHECK(sk_.GetG1Element() == bls::G1Element::FromBytes(prevTx.vout[1].spendingKey.data()));
@@ -276,11 +267,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     BOOST_CHECK(state.GetRejectReason() == "could-not-read-balanceproof");
 
-<<<<<<< HEAD
     SignBLSInput(sk_.GetKey(), spendingTx.vin[0], vBLSSignatures);
-=======
-    SignBLSInput(sk_, spendingTx.vin[0], vBLSSignatures);
->>>>>>> parent of 69f06e38... update 25/08/2020 2
     SignBLSOutput(bk, spendingTx.vout[0], vBLSSignatures);
 
     spendingTx.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
