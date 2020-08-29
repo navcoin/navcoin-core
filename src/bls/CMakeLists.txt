@@ -79,4 +79,5 @@ set(QUIET 1 CACHE INTEGER "")
 set(PP_EXT "LAZYR" CACHE STRING "")
 set(PP_METHD "LAZYR;OATEP" CACHE STRING "")
 
+#add_subdirectory(contrib/relic)
 add_subdirectory(src)

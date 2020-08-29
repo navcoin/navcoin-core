@@ -1,4 +1,4 @@
-// Copyright 2020 Chia Network Inc
+// Copyright 2018 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,12 +42,9 @@ void endStopwatch(string testName,
          << " ms" << endl;
 }
 
-std::vector<uint8_t> getRandomSeed() {
-    uint8_t buf[32];
+void getRandomSeed(uint8_t* seed) {
     bn_t r;
     bn_new(r);
     bn_rand(r, RLC_POS, 256);
-    bn_write_bin(buf, 32, r);
-    std::vector<uint8_t> ret(buf, buf + 32);
-    return ret;
+    bn_write_bin(seed, 32, r);
 }

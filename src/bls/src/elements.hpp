@@ -1,4 +1,4 @@
-// Copyright 2020 Chia Network Inc
+// Copyright 2018 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
 #ifndef SRC_BLSELEMENTS_HPP_
 #define SRC_BLSELEMENTS_HPP_
 
-extern "C" {
 #include "relic.h"
-}
 #include "relic_conf.h"
 #include "util.hpp"
 
@@ -37,34 +35,38 @@ public:
     static G1Element FromBytes(const uint8_t *bytes);
     static G1Element FromByteVector(const std::vector<uint8_t> &bytevec);
     static G1Element FromNative(const g1_t *element);
+    static G1Element FromBN(const bn_t n);
+    static G1Element Generator();
+    static G1Element Unity();
     static G1Element FromMessage(
         const std::vector<uint8_t> &message,
         const uint8_t *dst,
         int dst_len);
-    static G1Element Generator();
-    static G1Element Infinity();  // infinity / unity
 
-    void CheckValid() const;
-    void ToNative(g1_t* output) const;
-    G1Element Negate() const;
-    GTElement Pair(const G2Element &b) const;
-    uint32_t GetFingerprint() const;
+    g1_t p;
+    G1Element();  // unity
+    G1Element(const G1Element &element);
+    friend bool operator==(G1Element const &a, G1Element const &b);
+    friend bool operator!=(G1Element const &a, G1Element const &b);
+    friend std::ostream &operator<<(std::ostream &os, G1Element const &s);
+    friend G1Element &operator+=(G1Element &a, G1Element &b);
+    friend G1Element operator+(G1Element &a, G1Element &b);
+    friend G1Element &operator*=(G1Element &a, bn_t &k);
+    friend G1Element operator*(G1Element &a, bn_t &k);
+    friend G1Element operator*(bn_t &k, G1Element &a);
+    G1Element &operator=(const G1Element &pubKey);
+
+    GTElement pair(G2Element &b);
+    friend GTElement operator&(G1Element &a, G2Element &b);
+
+    G1Element Inverse();
+    void Serialize(uint8_t *buffer) const;
     std::vector<uint8_t> Serialize() const;
-
-    friend bool operator==(const G1Element &a, const G1Element &b);
-    friend bool operator!=(const G1Element &a, const G1Element &b);
-    friend std::ostream &operator<<(std::ostream &os, const G1Element &s);
-    friend G1Element operator+(const G1Element &a, const G1Element &b);
-    friend G1Element operator*(const G1Element &a, const bn_t &k);
-    friend G1Element operator*(const bn_t &k, const G1Element &a);
-    friend GTElement operator&(const G1Element &a, const G2Element &b);
+    uint32_t GetFingerprint() const;
 
 
 private:
-    g1_t p;
-    G1Element() {
-        g1_set_infty(p);
-    }
+    static void CompressPoint(uint8_t *result, const g1_t *point);
 };
 
 class G2Element {
@@ -73,32 +75,35 @@ public:
     static G2Element FromBytes(const uint8_t *data);
     static G2Element FromByteVector(const std::vector<uint8_t> &bytevec);
     static G2Element FromNative(const g2_t *element);
+    static G2Element FromBN(const bn_t n);
+    static G2Element Generator();
     static G2Element FromMessage(
         const std::vector<uint8_t> &message,
         const uint8_t *dst,
         int dst_len);
-    static G2Element Generator();
-    static G2Element Infinity();  // infinity/unity
 
-    void CheckValid() const;
-    void ToNative(g2_t* output) const;
-    G2Element Negate() const;
-    GTElement Pair(const G1Element &a) const;
+    g2_t q;
+    G2Element();  // unity
+    G2Element(const G2Element &element);
+    void Serialize(uint8_t *buffer) const;
     std::vector<uint8_t> Serialize() const;
 
     friend bool operator==(G2Element const &a, G2Element const &b);
     friend bool operator!=(G2Element const &a, G2Element const &b);
-    friend std::ostream &operator<<(std::ostream &os, const G2Element &s);
-    friend G2Element operator+(const G2Element &a, const G2Element &b);
-    friend G2Element operator*(const G2Element &a, const bn_t &k);
-    friend G2Element operator*(const bn_t &k, const G2Element &a);
+    friend std::ostream &operator<<(std::ostream &os, G2Element const &s);
+    friend G2Element &operator+=(G2Element &a, G2Element &b);
+    friend G2Element operator+(G2Element &a, G2Element &b);
+    friend G2Element &operator*=(G2Element &a, bn_t &k);
+    friend G2Element operator*(G2Element &a, bn_t &k);
+    friend G2Element operator*(bn_t &k, G2Element &a);
 
+    G2Element Inverse();
+    GTElement pair(G1Element &a);
+    // friend GTElement operator&(G1Element &a, G2Element &b);
+    G2Element &operator=(const G2Element &rhs);
 
 private:
-    g2_t q;
-    G2Element() {
-        g2_set_infty(q);
-    }
+    static void CompressPoint(uint8_t *result, const g2_t *point);
 };
 
 class GTElement {
@@ -107,19 +112,21 @@ public:
     static GTElement FromBytes(const uint8_t *bytes);
     static GTElement FromByteVector(const std::vector<uint8_t> &bytevec);
     static GTElement FromNative(const gt_t *element);
-    static GTElement Unity();  // unity
+    GTElement(const GTElement &element);
+
+    gt_t r;
+    GTElement();  // unity
 
     void Serialize(uint8_t *buffer) const;
     std::vector<uint8_t> Serialize() const;
 
     friend bool operator==(GTElement const &a, GTElement const &b);
     friend bool operator!=(GTElement const &a, GTElement const &b);
-    friend std::ostream &operator<<(std::ostream &os, const GTElement &s);
+    friend std::ostream &operator<<(std::ostream &os, GTElement const &s);
     GTElement &operator=(const GTElement &rhs);
 
 private:
-    gt_t r;
-    GTElement() {}
+    static void CompressPoint(uint8_t *result, const gt_t *point);
 };
 
 class BNWrapper {

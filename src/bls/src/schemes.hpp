@@ -27,28 +27,31 @@
 #include "elements.hpp"
 #include "privatekey.hpp"
 #include "util.hpp"
+// #include "publickey.hpp"
 
 using std::vector;
 
 // These are all MPL schemes
 namespace bls {
 
-class CoreMPL {
+class Core {
     friend class BasicSchemeMPL;
     friend class AugSchemeMPL;
     friend class PopSchemeMPL;
 
 public:
-    // Generates a private key from a seed, similar to HD key generation
-    // (hashes the seed), and reduces it mod the group order
-    static PrivateKey KeyGen(const vector<uint8_t> seed);
-
-    // Generates a public key from a secret key
+    // static PrivateKey KeyGen(... ikm);  TODO
     static vector<uint8_t> SkToPk(const PrivateKey &seckey);
 
     static G1Element SkToG1(const PrivateKey &seckey);
 
-    static G2Element Sign(
+    static vector<uint8_t> Sign(
+        const PrivateKey &seckey,
+        const vector<uint8_t> &message,
+        const uint8_t *dst,
+        int dst_len);
+
+    static G2Element SignNative(
         const PrivateKey &seckey,
         const vector<uint8_t> &message,
         const uint8_t *dst,
@@ -68,9 +71,9 @@ public:
         const uint8_t *dst,
         int dst_len);
 
-    static vector<uint8_t> Aggregate(const vector<vector<uint8_t>> &signatures);
+    static vector<uint8_t> Aggregate(vector<vector<uint8_t>> const &signatures);
 
-    static G2Element Aggregate(const vector<G2Element> &signatures);
+    static G2Element Aggregate(vector<G2Element> const &signatures);
 
     static bool AggregateVerify(
         const vector<vector<uint8_t>> &pubkeys,
@@ -85,45 +88,45 @@ public:
         const G2Element &signature,
         const uint8_t *dst,
         int dst_len);
-    static PrivateKey DeriveChildSk(const PrivateKey& sk, uint32_t index);
-    static PrivateKey DeriveChildSkUnhardened(const PrivateKey& sk, uint32_t index);
-    static G1Element DeriveChildPkUnhardened(const G1Element& sk, uint32_t index);
 
 private:
     static bool NativeVerify(g1_t *pubKeys, g2_t *mappedHashes, size_t length);
 };
 
 class BasicSchemeMPL {
-    friend class CoreMPL;
+    friend class Core;
 
 public:
     static const uint8_t *CIPHERSUITE_ID;
     static const int CIPHERSUITE_ID_LEN;
-    static PrivateKey KeyGen(const vector<uint8_t> seed) {
-        return CoreMPL::KeyGen(seed);
-    }
 
     static vector<uint8_t> SkToPk(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToPk(seckey);
+        return Core::SkToPk(seckey);
     }
 
     static G1Element SkToG1(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToG1(seckey);
+        return Core::SkToG1(seckey);
     }
 
-    static vector<uint8_t> Aggregate(const vector<vector<uint8_t>> &signatures)
+    static vector<uint8_t> Aggregate(vector<vector<uint8_t>> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Aggregate(const vector<G2Element> &signatures)
+    static G2Element Aggregate(vector<G2Element> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Sign(
+    //
+
+    static vector<uint8_t> Sign(
+        const PrivateKey &seckey,
+        const vector<uint8_t> &message);
+
+    static G2Element SignNative(
         const PrivateKey &seckey,
         const vector<uint8_t> &message);
 
@@ -146,55 +149,47 @@ public:
         const vector<G1Element> &pubkeys,
         const vector<vector<uint8_t>> &messages,
         const G2Element &signature);
-
-    static PrivateKey DeriveChildSk(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSk(sk, index);
-    }
-    static PrivateKey DeriveChildSkUnhardened(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSkUnhardened(sk, index);
-    }
-    static G1Element DeriveChildPkUnhardened(const G1Element& pk, uint32_t index) {
-        return CoreMPL::DeriveChildPkUnhardened(pk, index);
-    }
 };
 
 class AugSchemeMPL {
-    friend class CoreMPL;
+    friend class Core;
 
 public:
     static const uint8_t *CIPHERSUITE_ID;
     static const int CIPHERSUITE_ID_LEN;
 
-    static PrivateKey KeyGen(const vector<uint8_t> seed) {
-        return CoreMPL::KeyGen(seed);
-    }
-
     static vector<uint8_t> SkToPk(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToPk(seckey);
+        return Core::SkToPk(seckey);
     }
 
     static G1Element SkToG1(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToG1(seckey);
+        return Core::SkToG1(seckey);
     }
 
-    static vector<uint8_t> Aggregate(const vector<vector<uint8_t>> &signatures)
+    static vector<uint8_t> Aggregate(vector<vector<uint8_t>> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Aggregate(const vector<G2Element> &signatures)
+    static G2Element Aggregate(vector<G2Element> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Sign(
+    //
+
+    static vector<uint8_t> Sign(
+        const PrivateKey &seckey,
+        const vector<uint8_t> &message);
+
+    static G2Element SignNative(
         const PrivateKey &seckey,
         const vector<uint8_t> &message);
 
     // Custom prepended pk
-    static G2Element Sign(
+    static G2Element SignNative(
         const PrivateKey &seckey,
         const vector<uint8_t> &message,
         const G1Element &prepend_pk);
@@ -218,52 +213,42 @@ public:
         const vector<G1Element> &pubkeys,
         const vector<vector<uint8_t>> &messages,
         const G2Element &signature);
-
-    static PrivateKey DeriveChildSk(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSk(sk, index);
-    }
-    static PrivateKey DeriveChildSkUnhardened(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSkUnhardened(sk, index);
-    }
-    static G1Element DeriveChildPkUnhardened(const G1Element& pk, uint32_t index) {
-        return CoreMPL::DeriveChildPkUnhardened(pk, index);
-    }
 };
 
 class PopSchemeMPL {
-    friend class CoreMPL;
+    friend class Core;
 
 public:
     static const uint8_t *CIPHERSUITE_ID;
     static const int CIPHERSUITE_ID_LEN;
-    static const uint8_t *POP_CIPHERSUITE_ID;
-    static const int POP_CIPHERSUITE_ID_LEN;
-
-    static PrivateKey KeyGen(const vector<uint8_t> seed) {
-        return CoreMPL::KeyGen(seed);
-    }
 
     static vector<uint8_t> SkToPk(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToPk(seckey);
+        return Core::SkToPk(seckey);
     }
 
     static G1Element SkToG1(const PrivateKey &seckey)
     {
-        return CoreMPL::SkToG1(seckey);
+        return Core::SkToG1(seckey);
     }
 
-    static vector<uint8_t> Aggregate(const vector<vector<uint8_t>> &signatures)
+    static vector<uint8_t> Aggregate(vector<vector<uint8_t>> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Aggregate(const vector<G2Element> &signatures)
+    static G2Element Aggregate(vector<G2Element> const &signatures)
     {
-        return CoreMPL::Aggregate(signatures);
+        return Core::Aggregate(signatures);
     }
 
-    static G2Element Sign(
+    //
+
+    static vector<uint8_t> Sign(
+        const PrivateKey &seckey,
+        const vector<uint8_t> &message);
+
+    static G2Element SignNative(
         const PrivateKey &seckey,
         const vector<uint8_t> &message);
 
@@ -287,7 +272,8 @@ public:
         const vector<vector<uint8_t>> &messages,
         const G2Element &signature);
 
-    static G2Element PopProve(const PrivateKey &seckey);
+    static vector<uint8_t> PopProve(const PrivateKey &seckey);
+    static G2Element PopProveNative(const PrivateKey &seckey);
 
     static bool PopVerify(
         const G1Element &pubkey,
@@ -306,16 +292,6 @@ public:
         const vector<vector<uint8_t>> &pubkeys,
         const vector<uint8_t> &message,
         const vector<uint8_t> &signature);
-
-    static PrivateKey DeriveChildSk(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSk(sk, index);
-    }
-    static PrivateKey DeriveChildSkUnhardened(const PrivateKey& sk, uint32_t index) {
-        return CoreMPL::DeriveChildSkUnhardened(sk, index);
-    }
-    static G1Element DeriveChildPkUnhardened(const G1Element& pk, uint32_t index) {
-        return CoreMPL::DeriveChildPkUnhardened(pk, index);
-    }
 };
 
 }  // end namespace bls
