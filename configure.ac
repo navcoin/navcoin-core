@@ -1317,16 +1317,16 @@ if test "x$use_ccache" != "xno"; then
     BLS_CCACHE_CMAKE=-DCMAKE_CXX_COMPILER_LAUNCHER=$BLS_CCACHE
 fi
 
-BLS_CFLAGS=`echo $BLS_CFLAGS $CFLAGS | awk '{ print $0 }'`
-BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
-BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS'"
-BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS'"
-
 BLS_DEPENDS="${depends_prefix}"
 
 if test "x${BLS_DEPENDS}" = "x"; then
   BLS_DEPENDS="${prefix}"
 fi
+
+BLS_CFLAGS=`echo $BLS_CFLAGS $CFLAGS | awk '{ print $0 }'`
+BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
+BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
+BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
