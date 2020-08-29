@@ -32,7 +32,7 @@ packages:
 repositories:
 - "distribution": "bionic"
   "source": "deb https://apt.kitware.com/ubuntu/ bionic main"
-  "key": "https://apt.kitware.com/keys/kitware-archive-latest.asc"
+  "key": "--no-check-certificate https://apt.kitware.com/keys/kitware-archive-latest.asc"
   "name": "kitware"
   packages:
   - "cmake"
