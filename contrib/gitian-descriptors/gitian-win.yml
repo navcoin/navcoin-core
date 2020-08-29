@@ -28,8 +28,6 @@ packages:
 - "zip"
 - "libcap-dev"
 - "libtinfo5"
-- "libgmp-dev"
-- "npm"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
