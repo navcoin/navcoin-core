@@ -27,8 +27,8 @@ Scalar BulletproofsRangeproof::ip12;
 
 boost::mutex BulletproofsRangeproof::init_mutex;
 
-bls::G1Element BulletproofsRangeproof::G = bls::G1Element::Infinity();
-bls::G1Element BulletproofsRangeproof::H = bls::G1Element::Infinity();
+bls::G1Element BulletproofsRangeproof::G;
+bls::G1Element BulletproofsRangeproof::H;
 
 // Calculate base point
 static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx)
@@ -46,7 +46,7 @@ static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx)
 
     bls::G1Element e = bls::G1Element::FromMessage(std::vector<unsigned char>(hash.begin(), hash.end()), dest, 1);
 
-    CHECK_AND_ASSERT_THROW_MES(e != bls::G1Element::Infinity(), "Exponent is point at infinity");
+    CHECK_AND_ASSERT_THROW_MES(e != bls::G1Element::Unity(), "Exponent is point at infinity");
 
     return e;
 }
@@ -67,8 +67,8 @@ bool BulletproofsRangeproof::Init()
     BulletproofsRangeproof::G = bls::G1Element::Generator();
     BulletproofsRangeproof::H = GetBaseG1Element(BulletproofsRangeproof::G, 0);
 
-    BulletproofsRangeproof::Hi.resize(maxMN, bls::G1Element::Infinity());
-    BulletproofsRangeproof::Gi.resize(maxMN, bls::G1Element::Infinity());
+    BulletproofsRangeproof::Hi.resize(maxMN);
+    BulletproofsRangeproof::Gi.resize(maxMN);
 
     for (size_t i = 0; i < maxMN; ++i)
     {
@@ -88,7 +88,7 @@ bool BulletproofsRangeproof::Init()
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
 {
-    bls::G1Element result = bls::G1Element::Infinity();
+    bls::G1Element result;
 
     for (size_t i = 0; i < multiexp_data.size(); i++)
     {
@@ -96,7 +96,7 @@ bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
             result = multiexp_data[i].base * multiexp_data[i].exp.bn;
         else
         {
-            bls::G1Element temp = multiexp_data[i].base * multiexp_data[i].exp.bn;
+            bls::G1Element temp = bls::G1Element(multiexp_data[i].base * multiexp_data[i].exp.bn);
             result = result + temp;
         }
     }
@@ -292,7 +292,7 @@ static std::vector<bls::G1Element> HadamardFold(const std::vector<bls::G1Element
         throw std::runtime_error("HadamardFold(): vector argument size is not even");
 
     const size_t sz = vec.size() / 2;
-    std::vector<bls::G1Element> out(sz, bls::G1Element::Infinity());
+    std::vector<bls::G1Element> out(sz);
 
     for (size_t n = 0; n < sz; ++n)
     {
@@ -391,7 +391,7 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, std::vector<Scalar> ga
     const size_t MN = M * N;
 
     // V is a vector with commitments in the form g2^v g^gamma
-    this->V.resize(v.size(), bls::G1Element::Infinity());
+    this->V.resize(v.size());
 
     // This hash is updated for Fiat-Shamir throughout the proof
     CHashWriter hasher(0,0);
@@ -400,9 +400,8 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, std::vector<Scalar> ga
     {
         bls::G1Element gammaElement = G*gamma[j].bn;
         bls::G1Element valueElement = H*v[j].bn;
-        bls::G1Element V_e  = gammaElement + valueElement;
-        this->V[j] = V_e;
-        hasher << V_e;
+        this->V[j] = gammaElement + valueElement;
+        hasher << this->V[j];
     }
 
     // PAPER LINES 41-42
@@ -439,10 +438,10 @@ try_again:
     alpha = HashG1Element(nonce, 1);
     alpha = alpha + (v[0] | sM);
 
+    this->A = VectorCommitment(aL, aR);
     {
-        this->A = VectorCommitment(aL, aR);
-        bls::G1Element alphaElement = G*alpha.bn;
-        this->A = this->A + alphaElement;
+    bls::G1Element alphaElement = G*alpha.bn;
+    this->A = this->A + alphaElement;
     }
 
     // PAPER LINES 45-47
@@ -459,10 +458,10 @@ try_again:
     Scalar rho;
     rho = HashG1Element(nonce, 2);
 
+    this->S = VectorCommitment(sL, sR);
     {
-        this->S = VectorCommitment(sL, sR);
-        bls::G1Element rhoElement = G*rho.bn;
-        this->S = this->S + rhoElement;
+    bls::G1Element rhoElement = G*rho.bn;
+    this->S = this->S + rhoElement;
     }
 
     // PAPER LINES 48-50
@@ -530,14 +529,15 @@ try_again:
     bls::G1Element t2Element = H*t2.bn;
     bls::G1Element tau1Element = G*tau1.bn;
     bls::G1Element tau2Element = G*tau2.bn;
+
     this->T1 = t1Element + tau1Element;
     this->T2 = t2Element + tau2Element;
+    }
 
     // PAPER LINES 54-56
     hasher << z;
     hasher << this->T1;
     hasher << this->T2;
-    }
 
     Scalar x;
     x = hasher.GetHash();
@@ -583,8 +583,8 @@ try_again:
     // These are used in the inner product rounds
     unsigned int nprime = MN;
 
-    std::vector<bls::G1Element> gprime(nprime, bls::G1Element::Infinity());
-    std::vector<bls::G1Element> hprime(nprime, bls::G1Element::Infinity());
+    std::vector<bls::G1Element> gprime(nprime);
+    std::vector<bls::G1Element> hprime(nprime);
     std::vector<Scalar> aprime(nprime);
     std::vector<Scalar> bprime(nprime);
 
@@ -607,8 +607,8 @@ try_again:
         bprime[i] = r[i];
     }
 
-    this->L.resize(logMN, bls::G1Element::Infinity());
-    this->R.resize(logMN, bls::G1Element::Infinity());
+    this->L.resize(logMN);
+    this->R.resize(logMN);
 
     unsigned int round = 0;
 
@@ -993,5 +993,5 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
     bls::G1Element mexp = MultiExp(multiexpdata);
 
-    return mexp == bls::G1Element::Infinity();
+    return mexp == bls::G1Element::Unity();
 }

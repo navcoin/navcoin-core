@@ -36,8 +36,8 @@ GENERATED_TEST_FILES = $(JSON_TEST_FILES:.json=.json.h) $(RAW_TEST_FILES:.raw=.r
 
 
 NAVCOIN_TESTS =\
-  test/blsct_wallet.cpp \
   test/blsct_tests.cpp \
+  test/blsct_wallet.cpp \
   test/bulletproofsrangeproof_tests.cpp \
   test/cfund_tests.cpp \
   test/cfunddb_tests.cpp \

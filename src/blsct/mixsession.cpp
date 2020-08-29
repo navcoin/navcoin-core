@@ -81,7 +81,7 @@ bool MixSession::AddCandidateTransaction(const std::vector<unsigned char>& v)
 
     try
     {
-        if(!VerifyBLSCT(tx.tx, bls::BasicSchemeMPL::KeyGen(std::vector<uint8_t>(32, 0)), blsctData, *inputs, state, false, tx.fee))
+        if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
         {
             return error("MixSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
         }
@@ -216,7 +216,7 @@ bool MixSession::Join() const
     Scalar diff = gammaIns-gammaOuts;
     try
     {
-        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromByteVector(diff.GetVch());
+        bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
     }
     catch(...)
     {

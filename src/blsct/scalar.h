@@ -100,7 +100,6 @@ public:
     bn_t bn;
 };
 
-uint256 HashG1Element(const bls::G1Element& g1, const uint64_t& n);
-bls::G1Element InverseG1Element(const bls::G1Element& element);
+uint256 HashG1Element(bls::G1Element g1, uint64_t n);
 
 #endif // NAVCOIN_BLSCT_SCALAR_H

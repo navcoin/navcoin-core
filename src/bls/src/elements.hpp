@@ -64,7 +64,6 @@ public:
     std::vector<uint8_t> Serialize() const;
     uint32_t GetFingerprint() const;
 
-
 private:
     static void CompressPoint(uint8_t *result, const g1_t *point);
 };

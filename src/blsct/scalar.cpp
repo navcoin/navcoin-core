@@ -323,19 +323,10 @@ void Scalar::SetPow2(const int& n)
     bn_set_2b(this->bn, n);
 }
 
-uint256 HashG1Element(const bls::G1Element& g1, const uint64_t& n)
+uint256 HashG1Element(bls::G1Element g1, uint64_t n)
 {
     CHashWriter hasher(0,0);
     hasher << g1.Serialize();
     hasher << n;
     return hasher.GetHash();
-}
-
-bls::G1Element InverseG1Element(const bls::G1Element &element)
-{
-    bn_t ordMinus1;
-    bn_new(ordMinus1);
-    g1_get_ord(ordMinus1);
-    bn_sub_dig(ordMinus1, ordMinus1, 1);
-    return element * ordMinus1;
 }

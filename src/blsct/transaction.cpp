@@ -15,7 +15,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
 
     // Shared key H(r*V) - Used as nonce for bulletproof
     std::vector<bls::G1Element> nonces;
-    bls::G1Element vk = bls::G1Element::Infinity();
+    bls::G1Element vk;
     if (!destKey.GetViewKey(vk))
     {
         strFailReason = "Could not read view key from address";
@@ -68,7 +68,7 @@ bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::ve
 {
     newTxOut.ephemeralKey = blindingKey.GetG1Element().Serialize();
     uint256 txOutHash = newTxOut.GetHash();
-    bls::G2Element sig = bls::AugSchemeMPL::Sign(blindingKey, std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
+    bls::G2Element sig = bls::AugSchemeMPL::SignNative(blindingKey, std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
     vBLSSignatures.push_back(sig);
 
     return true;
@@ -79,7 +79,7 @@ bool SignBLSInput(const bls::PrivateKey& signingKey, CTxIn& newTxIn, std::vector
     CHashWriter ss(SER_GETHASH, 0);
     ss << newTxIn;
     uint256 txInHash = ss.GetHash();
-    bls::G2Element sig = bls::AugSchemeMPL::Sign(signingKey, std::vector<unsigned char>(txInHash.begin(), txInHash.end()));
+    bls::G2Element sig = bls::AugSchemeMPL::SignNative(signingKey, std::vector<unsigned char>(txInHash.begin(), txInHash.end()));
     vBLSSignatures.push_back(sig);
 
     return true;
@@ -93,24 +93,24 @@ bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& de
         ephemeralKey = blindingKey.GetG1Element().Serialize();
 
         // R = r*S
-        bls::G1Element S = bls::G1Element::Infinity();
+        bls::G1Element S, R;
 
         if(!destKey.GetSpendKey(S))
         {
             return false;
         }
-        bls::G1Element R = blindingKey*S;
+        R = blindingKey*S;
 
         outputKey = R.Serialize();
 
         // P = H(r*V)*G + S
-        bls::G1Element V = bls::G1Element::Infinity();
+        bls::G1Element V;
         if(!destKey.GetViewKey(V))
         {
             return false;
         }
         bls::G1Element rV = blindingKey*V;
-        bls::G1Element P = bls::PrivateKey::FromByteVector(Scalar(HashG1Element(rV,0)).GetVch()).GetG1Element();
+        bls::G1Element P = bls::PrivateKey::FromBN(Scalar(HashG1Element(rV,0)).bn).GetG1Element();
         P = S + P;
 
         spendingKey = P.Serialize();
