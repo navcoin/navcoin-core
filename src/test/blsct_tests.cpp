@@ -9,7 +9,7 @@
 #include <key.h>
 #include <random.h>
 #include <uint256.h>
-#include <test/test_navcoin.h>
+#include <wallet/test/wallet_test_fixture.h>
 #include <main.h>
 
 #include <vector>
@@ -19,7 +19,7 @@
 
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
-BOOST_FIXTURE_TEST_SUITE(blsct_tests, TestingSetup)
+BOOST_FIXTURE_TEST_SUITE(blsct_tests, WalletTestingSetup)
 
 BOOST_AUTO_TEST_CASE(blsct)
 {
@@ -48,7 +48,9 @@ BOOST_AUTO_TEST_CASE(blsct)
     bls::PrivateKey viewKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT);
     bls::PrivateKey spendKey = blsctKey(transactionBLSKey).PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
 
-    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(blsctDoublePublicKey(viewKey.GetG1Element(), spendKey.GetG1Element())));
+    blsctDoublePublicKey doubleKey(viewKey.GetG1Element(), spendKey.GetG1Element());
+
+    BOOST_CHECK(pwalletMain->SetBLSCTDoublePublicKey(doubleKey));
     BOOST_CHECK(pwalletMain->SetBLSCTViewKey(blsctKey(viewKey)));
     BOOST_CHECK(pwalletMain->SetBLSCTSpendKey(blsctKey(spendKey)));
     BOOST_CHECK(pwalletMain->SetBLSCTBlindingMasterKey(blindingBLSKey));
