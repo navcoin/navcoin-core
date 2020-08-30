@@ -39,7 +39,7 @@ from typing import List, Optional, Tuple
 #
 MAX_VERSIONS = {
 'GCC':       (4,8,0),
-'GLIBC':     (2,17),
+'GLIBC':     (2,27),
 'LIBATOMIC': (1,0)
 }
 # See here for a description of _IO_stdin_used:
