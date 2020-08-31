@@ -1279,11 +1279,9 @@ BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
 BLS_AR=""
 BLS_RANLIB=""
-BLS_MSC_VER=""
 if test "x$TARGET_OS" = "xwindows"; then
     BLS_OPSYS="Windows"
     BLS_SEED="WCGR"
-    BLS_MSC_VER="-D_MSC_VER=1"
 fi
 if test "x$TARGET_OS" = "xdarwin"; then
     BLS_OPSYS="Darwin"
@@ -1350,7 +1348,6 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DGMP_INCLUDES=$prefix/include \
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
-                    $BLS_MSC_VER \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
@@ -1369,8 +1366,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     BLS_RANLIB=$BLS_RANLIB
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
-                    BLS_WSIZE=$BLS_WSIZE
-                    BLS_MSC_VER=$BLS_MSC_VER])
+                    BLS_WSIZE=$BLS_WSIZE])
 
 AC_OUTPUT
 
