@@ -5,7 +5,9 @@ $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e46636c1
 $(package)_dependencies=
 $(package)_patches=1.0.15-pubkey-validation.diff 1.0.15-signature-validation.diff
-$(package)_config_opts=
+$(package)_config_opts=--enable-static --disable-shared
+$(package)_config_opts_linux=--with-pic
+$(package)_config_opts_darwin=--with-pic
 
 define $(package)_preprocess_cmds
   patch -p1 < $($(package)_patch_dir)/1.0.15-pubkey-validation.diff && \
@@ -15,7 +17,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  $($(package)_autoconf) --enable-static --disable-shared --with-pic=yes
+  $($(package)_autoconf)
 endef
 
 define $(package)_build_cmds
