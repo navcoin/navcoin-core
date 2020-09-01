@@ -47,8 +47,11 @@ script: |
   CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"
   FAKETIME_HOST_PROGS="ar ranlib nm windres strip objcopy"
   FAKETIME_PROGS="date makensis zip"
-  HOST_CFLAGS="-O2 -g -I/usr/include"
-  HOST_CXXFLAGS="-O2 -g -I/usr/include"
+  HOST_CFLAGS="-O2 -g"
+  HOST_CXXFLAGS="-O2 -g"
+
+  cp /usr/include/malloc.h /usr/i686-w64-mingw32/include/alloca.h
+  cp /usr/include/malloc.h /usr/x86_64-w64-mingw32/include/alloca.h
 
   export QT_RCC_TEST=1
   export QT_RCC_SOURCE_DATE_OVERRIDE=1
