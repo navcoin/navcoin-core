@@ -6,6 +6,7 @@
 export LC_ALL=C
 set -e
 git submodule update --init --recursive
+git apply contrib/relic.patch
 srcdir="$(dirname $0)"
 cd "$srcdir"
 mkdir -p src/bls/build
