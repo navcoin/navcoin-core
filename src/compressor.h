@@ -138,6 +138,7 @@ public:
                 READWRITE(VARINT(nVal));
                 txout.nValue = DecompressAmount(nVal);
                 READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
                 READWRITE(txout.bp);
             }
