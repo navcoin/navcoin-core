@@ -8,7 +8,7 @@ $(package)_config_opts=
 
 define $(package)_preprocess_cmds
   cd $($(package)_build_subdir); ./autogen.sh && \
-  sed -i 's/libsodium 1.0.18/libsodium1018/' configure
+  sed -i 's/libsodium 1.0.17/libsodium1017/' configure
 endef
 
 define $(package)_config_cmds
