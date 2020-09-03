@@ -135,7 +135,7 @@ script: |
 
   # Create the release tarball using (arbitrarily) the first host
   ./autogen.sh
-  cat /home/ubuntu/build/navcoin-core/distsrc-i686-w64-mingw32/src/bls/contrib/relic/include/relic_alloc.h
+  cat src/bls/contrib/relic/include/relic_alloc.h
   CONFIG_SITE=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`/share/config.site ./configure --prefix=/
   make dist
   SOURCEDIST=`echo navcoin-*.tar.gz`
@@ -169,7 +169,7 @@ script: |
     cp ../src/obj/build.h src/obj/
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
-    cat /home/ubuntu/build/navcoin-core/distsrc-i686-w64-mingw32/src/bls/contrib/relic/include/relic_alloc.h
+    cat src/bls/contrib/relic/include/relic_alloc.h
     make ${MAKEOPTS}
     make deploy
     make install DESTDIR=${INSTALLPATH}
