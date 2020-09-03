@@ -1,6 +1,7 @@
 ---
 name: "navcoin-win-5.0.1"
 enable_cache: true
+sudo: true
 distro: "ubuntu"
 suites:
 - "bionic"
