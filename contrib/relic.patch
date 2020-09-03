@@ -20,7 +20,7 @@ index b8c0f254..502d17bb 100644
 
  #include <windows.h>
 +
-+#ifdef __MINGW32__
++#if defined(__MINGW32__) || defined(__MINGW64__)
 +#include <wincrypt.h>
 +#else
  #include <Wincrypt.h>
