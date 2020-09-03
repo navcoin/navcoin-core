@@ -119,6 +119,32 @@ script: |
   create_per-host_linker_wrapper "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
+  EXTRA_INCLUDES_BASE=$WRAP_DIR/extra_includes
+  mkdir -p $EXTRA_INCLUDES_BASE
+
+  # x86 needs /usr/include/i386-linux-gnu/asm pointed to /usr/include/x86_64-linux-gnu/asm,
+  # but we can't write there. Instead, create a link here and force it to be included in the
+  # search paths by wrapping gcc/g++.
+  for i in $HOSTS; do
+    mkdir -p $EXTRA_INCLUDES_BASE/$i
+    rm -f $WRAP_DIR/extra_includes/$i/alloca.h
+    rm -f $WRAP_DIR/extra_includes/$i/Wincrypt.h
+    ln -s /usr/include/$i/malloc.h $EXTRA_INCLUDES_BASE/$i/alloca.h
+    ln -s /usr/include/$i/wincrypt.h $EXTRA_INCLUDES_BASE/$i/Wincrypt.h
+
+    for prog in $i-gcc $i-g++; do
+    rm -f ${WRAP_DIR}/${prog}
+    cat << EOF > ${WRAP_DIR}/${prog}
+    #!/usr/bin/env bash
+    REAL="`which -a ${prog}-8 | grep -v ${WRAP_DIR}/${prog} | head -1`"
+    export C_INCLUDE_PATH="$EXTRA_INCLUDES_BASE/$i"
+    export CPLUS_INCLUDE_PATH="$EXTRA_INCLUDES_BASE/$i"
+    \$REAL \$@
+    EOF
+    chmod +x ${WRAP_DIR}/${prog}
+    done
+  done
+
   cd navcoin-core
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
@@ -135,7 +161,6 @@ script: |
 
   # Create the release tarball using (arbitrarily) the first host
   ./autogen.sh
-  cat src/bls/contrib/relic/include/relic_alloc.h
   CONFIG_SITE=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`/share/config.site ./configure --prefix=/
   make dist
   SOURCEDIST=`echo navcoin-*.tar.gz`
@@ -169,7 +194,6 @@ script: |
     cp ../src/obj/build.h src/obj/
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
-    cat src/bls/contrib/relic/include/relic_alloc.h
     make ${MAKEOPTS}
     make deploy
     make install DESTDIR=${INSTALLPATH}
