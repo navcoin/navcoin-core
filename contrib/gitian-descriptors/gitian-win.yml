@@ -136,6 +136,7 @@ script: |
     rm -f /home/ubuntu/build/navcoin-core/depends/$i/include/Wincrypt.h
     ln -s /usr/include/$i/malloc.h /home/ubuntu/build/navcoin-core/depends/$i/include/alloca.h
     ln -s /usr/include/$i/wincrypt.h /home/ubuntu/build/navcoin-core/depends/$i/include/Wincrypt.h
+    ls -al /home/ubuntu/build/navcoin-core/depends/$i/include/
   done
 
   # Faketime for binaries
