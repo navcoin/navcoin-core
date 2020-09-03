@@ -132,11 +132,8 @@ script: |
   # mingw32 needs alloca.h and Wincrypt.h for building relic
   # but we can't write there. Instead, create a link here
   for i in $HOSTS; do
-    rm -f /home/ubuntu/build/navcoin-core/depends/$i/include/alloca.h
-    rm -f /home/ubuntu/build/navcoin-core/depends/$i/include/Wincrypt.h
-    ln -s /usr/include/$i/malloc.h /home/ubuntu/build/navcoin-core/depends/$i/include/alloca.h
-    ln -s /usr/include/$i/wincrypt.h /home/ubuntu/build/navcoin-core/depends/$i/include/Wincrypt.h
-    ls -al /home/ubuntu/build/navcoin-core/depends/$i/include/
+    sudo cp /usr/$i/include/malloc.h /usr/$i/include/alloca.h
+    sudo cp /usr/$i/include/wincrypt.h /usr/$i/include/Wincrypt.h
   done
 
   # Faketime for binaries
