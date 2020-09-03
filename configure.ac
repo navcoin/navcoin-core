@@ -1413,6 +1413,7 @@ echo "  bls CXX       = $BLS_CXX"
 echo "  bls CXX_RAW   = $BLS_CXX_RAW"
 echo "  bls CFLAGS    = $BLS_CFLAGS"
 echo "  bls CXXFLAGS  = $BLS_CXXFLAGS"
+echo "  bls DEPENDS   = $BLS_DEPENDS"
 echo
 echo "  target os     = $TARGET_OS"
 echo "  build os      = $BUILD_OS"
