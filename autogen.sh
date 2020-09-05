@@ -4,9 +4,9 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 export LC_ALL=C
-set -e
 git submodule update --init --recursive
 git apply contrib/relic.patch
+set -e
 srcdir="$(dirname $0)"
 cd "$srcdir"
 mkdir -p src/bls/build
