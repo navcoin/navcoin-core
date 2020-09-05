@@ -774,7 +774,7 @@ public:
     std::set<int64_t> setBLSCTBlindingKeyPool;
     std::map<uint64_t, std::set<uint64_t>> mapBLSCTSubAddressKeyPool;
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
-    std::map<blsctPublicKey, CBLSCTBlindingKeyMetadata> mapBLSCTBlindingKeyMetadata;
+    std::map<CKeyID, CBLSCTBlindingKeyMetadata> mapBLSCTBlindingKeyMetadata;
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;

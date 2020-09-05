@@ -777,7 +777,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             // If no metadata exists yet, create a default with the pool key's
             // creation time. Note that this may be overwritten by actually
             // stored metadata for that key later, which is fine.
-            blsctPublicKey keyid = keypool.vchPubKey;
+            CKeyID keyid = keypool.vchPubKey.GetID();
             if (pwallet->mapBLSCTBlindingKeyMetadata.count(keyid) == 0)
                 pwallet->mapBLSCTBlindingKeyMetadata[keyid] = CBLSCTBlindingKeyMetadata(keypool.nTime);
         }
