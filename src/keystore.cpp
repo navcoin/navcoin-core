@@ -43,7 +43,7 @@ bool CBasicKeyStore::AddKeyPubKey(const CKey& key, const CPubKey &pubkey)
 bool CBasicKeyStore::AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey)
 {
     LOCK(cs_KeyStore);
-    mapBLSCTBlindingKeys[pubkey] = key;
+    mapBLSCTBlindingKeys[pubkey.GetID()] = key;
     return true;
 }
 
@@ -53,6 +53,12 @@ bool CBasicKeyStore::AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<ui
     mapBLSCTSubAddresses[hashId] = index;
 
     return true;
+}
+
+bool CBasicKeyStore::HaveBLSCTBlindingKey(const blsctPublicKey &address) const
+{
+    LOCK(cs_KeyStore);
+    return mapBLSCTBlindingKeys.count(address.GetID()) > 0;
 }
 
 bool CBasicKeyStore::GetBLSCTHashId(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, CKeyID& hashId) const

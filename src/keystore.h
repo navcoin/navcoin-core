@@ -76,7 +76,7 @@ public:
 };
 
 typedef std::map<CKeyID, CKey> KeyMap;
-typedef std::map<blsctPublicKey, blsctKey> BLSCTBlindingKeyMap;
+typedef std::map<CKeyID, blsctKey> BLSCTBlindingKeyMap;
 typedef std::map<CKeyID, std::pair<uint64_t, uint64_t>> BLSCTSubAddressMap;
 typedef std::map<CKeyID, CPubKey> WatchKeyMap;
 typedef std::map<CScriptID, CScript > ScriptMap;
@@ -114,17 +114,7 @@ public:
         return result;
     }
 
-    bool HaveBLSCTBlindingKey(const blsctPublicKey &address) const
-    {
-        {
-            LOCK(cs_KeyStore);
-            for(auto& it: mapBLSCTBlindingKeys)
-            {
-                if (it.first == address) return true;
-            }
-        }
-        return false;
-    }
+    bool HaveBLSCTBlindingKey(const blsctPublicKey &address) const;
 
     bool HaveBLSCTSubAddress(const CKeyID &hashId) const
     {
@@ -181,13 +171,11 @@ public:
     {
         {
             LOCK(cs_KeyStore);
-            for(auto& mi: mapBLSCTBlindingKeys)
+            BLSCTBlindingKeyMap::const_iterator mi = mapBLSCTBlindingKeys.find(address.GetID());
+            if (mi != mapBLSCTBlindingKeys.end())
             {
-                if (mi.first == address)
-                {
-                    keyOut = mi.second;
-                    return true;
-                }
+                keyOut = mi->second;
+                return true;
             }
         }
         return false;
