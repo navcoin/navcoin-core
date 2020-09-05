@@ -30,6 +30,7 @@ packages:
 - "zip"
 - "libcap-dev"
 - "libtinfo5"
+- 'libattr1-dev'
 repositories:
 - "distribution": "bionic"
   "source": "deb https://apt.kitware.com/ubuntu/ bionic main"

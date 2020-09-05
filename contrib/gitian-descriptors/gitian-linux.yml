@@ -36,6 +36,7 @@ packages:
 - "python3-dev"
 - "python3-setuptools"
 - "libtinfo5"
+- 'libattr1-dev'
 repositories:
 - "distribution": "bionic"
   "source": "deb https://apt.kitware.com/ubuntu/ bionic main"
