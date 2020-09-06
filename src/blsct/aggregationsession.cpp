@@ -129,8 +129,8 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     for (unsigned int i = 0; i < tx.tx.vout.size(); i++)
     {
         Scalar s = tx.minAmount;
-        bls::G1Element l = BulletproofsRangeproof::H*s.bn;
-        bls::G1Element r = tx.tx.vout[i].bp.V[0].Inverse();
+        bls::G1Element l = (BulletproofsRangeproof::H*s.bn).Inverse();
+        bls::G1Element r = tx.tx.vout[i].bp.V[0];
         l = l + r;
         if (!(l == tx.minAmountProofs.V[i]))
             return error ("AggregationSesion::%s: Failed verification from output's amount %d\n", __func__, i);
