@@ -243,6 +243,14 @@ if test "x$enable_debug" = xyes; then
     if test "x$GXX" = xyes; then
         CXXFLAGS="$CXXFLAGS -g3 -O0"
     fi
+else
+    if test "x$GCC" = xyes; then
+        CFLAGS="$CFLAGS -O0"
+    fi
+
+    if test "x$GXX" = xyes; then
+        CXXFLAGS="$CXXFLAGS -O0"
+    fi
 fi
 
 if test "x$CXXFLAGS_overridden" = "xno"; then
