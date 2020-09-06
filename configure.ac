@@ -245,7 +245,7 @@ if test "x$enable_debug" = xyes; then
     fi
 else
     if test "x$GCC" = xyes; then
-        CFLAGS="$CFLAGS -O0"
+        CFLAGS="$CFLAGS -O1"
     fi
 
     if test "x$GXX" = xyes; then
