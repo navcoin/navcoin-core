@@ -249,13 +249,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Mixed debit transaction, can't break down payees
             //
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-            parts.last().involvesWatchAddress = involvesWatchAddress;
-
             if (nPrivateDebit > nPrivateCredit + wtx.GetFee())
             {
                 CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
+            }
+            else
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+                parts.last().involvesWatchAddress = involvesWatchAddress;
             }
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
