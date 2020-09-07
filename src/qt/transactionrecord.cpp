@@ -179,6 +179,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             // Debit
             //
             CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
+            CAmount nSentToOthersPublic = 0;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -219,18 +220,28 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
                 if(txout.HasRangeProof())
                 {
-                    sub.type = TransactionRecord::AnonTxSend;
+                    if (wtx.vAmounts[nOut] == 0)
+                        continue;
+                    sub.type = TransactionRecord::AnonTxRecv;
                     sub.memo = wtx.vMemos[nOut];
-                    sub.debit = nPrivateDebit;
+                    sub.credit = wtx.vAmounts[nOut];
                 }
 
                 else if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
 
                 else if (txout.scriptPubKey.IsFee())
-                    sub.type = TransactionRecord::Fee;
+                    continue;
+
+                if (sub.type == TransactionRecord::SendToAddress)
+                    nSentToOthersPublic -= sub.debit;
 
                 parts.append(sub);
+            }
+
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + nTxFee)
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthers-nPrivateDebit, 0));
             }
         }
         else
@@ -240,6 +251,37 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
             parts.last().involvesWatchAddress = involvesWatchAddress;
+
+            if (nPrivateDebit > nPrivateCredit + wtx.GetFee())
+            {
+                CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
+            }
+
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
+            {
+                const CTxOut& txout = wtx.vout[nOut];
+                TransactionRecord sub(hash, nTime);
+                sub.idx = parts.size();
+                sub.involvesWatchAddress = involvesWatchAddress;
+
+                if(wallet->IsMine(txout))
+                {
+                    // Ignore parts sent to self, as this is usually the change
+                    // from a transaction sent back to our own address.
+                    continue;
+                }
+
+                if(txout.HasRangeProof())
+                {
+                    if (wtx.vAmounts[nOut] == 0)
+                        continue;
+                    sub.type = TransactionRecord::AnonTxSend;
+                    sub.memo = wtx.vMemos[nOut];
+                    sub.credit = wtx.vAmounts[nOut];
+                    parts.append(sub);
+                }
+            }
         }
     }
 
