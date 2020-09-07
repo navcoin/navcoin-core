@@ -182,7 +182,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     if (fPrivate) {
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Increase privacy level"),
             tr("Would you like to increase the privacy level of your transaction by mixing it with other coins in exchange of a fee?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
         if(btnRetVal == QMessageBox::Yes)
         {
