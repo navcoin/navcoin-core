@@ -104,7 +104,8 @@ void AggregationSesionDialog::CheckStatus()
             }
         }
         this->done(ret);
-        fReady = true;
+        fReady = ret;
+        return;
     }
     else if (nCount > 0)
     {
