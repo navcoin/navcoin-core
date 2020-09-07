@@ -24,6 +24,15 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
             return false;
         }
     }
+
+    if (wtx.IsBLSCT())
+    {
+        if (wtx.isAbandoned())
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
