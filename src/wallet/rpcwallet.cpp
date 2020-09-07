@@ -892,7 +892,7 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
         }
     }
 
-    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true, false, true, &selectedCoins);
+    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, true, false, false, &selectedCoins);
 
     return wtx.GetHash().GetHex();
 }
