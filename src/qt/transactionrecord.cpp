@@ -182,7 +182,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                  parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
                                                 0, nPrivateCredit));
         }
-        else if (fAllFromMe)
+        else if (fAllFromMe && !wtx.IsBLSInput())
         {
             //
             // Debit
@@ -229,14 +229,76 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
                 if(txout.HasRangeProof())
                 {
-                    if (wtx.vAmounts[nOut] == 0)
-                        continue;
-                    sub.type = TransactionRecord::AnonTxRecv;
+                    sub.type = TransactionRecord::AnonTxSend;
                     sub.memo = wtx.vMemos[nOut];
-                    sub.credit = wtx.vAmounts[nOut];
+                    sub.debit = -nNet;
+                    parts.append(sub);
+                    break;
                 }
 
                 else if (txout.scriptPubKey.IsCommunityFundContribution())
+                    sub.type = TransactionRecord::CFund;
+
+                else if (txout.scriptPubKey.IsFee())
+                    continue;
+
+                if (sub.type == TransactionRecord::SendToAddress)
+                    nSentToOthersPublic -= sub.debit;
+
+                parts.append(sub);
+            }
+
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + nTxFee)
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit, 0));
+            }
+        }
+        else if (fAllFromMe && wtx.IsBLSInput())
+        {
+            //
+            // Debit
+            //
+            CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
+            CAmount nSentToOthersPublic = 0;
+
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
+            {
+                const CTxOut& txout = wtx.vout[nOut];
+                TransactionRecord sub(hash, nTime);
+                sub.idx = parts.size();
+                sub.involvesWatchAddress = involvesWatchAddress;
+
+                if(wallet->IsMine(txout))
+                {
+                    // Ignore parts sent to self, as this is usually the change
+                    // from a transaction sent back to our own address.
+                    continue;
+                }
+
+                CTxDestination address;
+                if (ExtractDestination(txout.scriptPubKey, address))
+                {
+                    // Sent to NavCoin Address
+                    sub.type = TransactionRecord::SendToAddress;
+                    sub.address = CNavCoinAddress(address).ToString();
+                }
+                else
+                {
+                    // Sent to IP, or other non-address transaction like OP_EVAL
+                    sub.type = TransactionRecord::SendToOther;
+                    sub.address = mapValue["to"];
+                }
+
+                CAmount nValue = txout.nValue;
+                /* Add fee to first output */
+                if (nTxFee > 0)
+                {
+                    nValue += nTxFee;
+                    nTxFee = 0;
+                }
+                sub.debit = -nValue;
+
+                if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
 
                 else if (txout.scriptPubKey.IsFee())
