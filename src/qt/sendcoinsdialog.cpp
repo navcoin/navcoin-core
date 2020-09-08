@@ -192,7 +192,11 @@ void SendCoinsDialog::on_sendButton_clicked()
             if (!msd.exec())
                 QMessageBox::critical(this, tr("Something failed"), tr("The mixing process failed, if you continue, the transaction would be sent with limited privacy and the source could be easily identified by an observer. Transaction amount and recipient would be perfectly obfuscated."));
             else
+            {
                 selectedCoins = msd.GetSelectedCoins();
+                if (selectedCoins.size() == 0)
+                    QMessageBox::critical(this, tr("No coins for mixing"), tr("We could not find any candidate coin, if you continue, the transaction would be sent with limited privacy and the source could be easily identified by an observer. Transaction amount and recipient would be perfectly obfuscated."));
+            }
         }
     }
 

@@ -66,7 +66,7 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
     size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)DEFAULT_TX_MIXCOINS);
 
     if (nSelect == 0)
-        return false;
+        return true;
 
     CAmount nFee = 0;
 
@@ -78,6 +78,17 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
 
     while (i < nSelect && i < vTransactionCandidates.size())
     {
+        if (!inputs->HaveInputs(vTransactionCandidates[i].tx))
+            continue;
+
+        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InMempool()) {
+            continue;
+        }
+
+        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InStempool()) {
+            continue;
+        }
+
         try
         {
             if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
@@ -125,6 +136,17 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
     std::vector<RangeproofEncodedData> blsctData;
+
+    if (!inputs->HaveInputs(tx.tx))
+        return error ("AggregationSesion::%s: Received spent inputs\n", __func__);
+
+    if (CWalletTx(NULL, tx.tx).InMempool()) {
+        return error ("AggregationSesion::%s: Received transaction in mempool\n", __func__);
+    }
+
+    if (CWalletTx(NULL, tx.tx).InStempool()) {
+        return error ("AggregationSesion::%s: Received transaction in stempool\n", __func__);
+    }
 
     for (unsigned int i = 0; i < tx.tx.vout.size(); i++)
     {
