@@ -80,7 +80,7 @@ public:
 
     VersionBitsTester& TestDefined() {
         for (int i = 0; i < CHECKERS; i++) {
-            if ((insecure_rand() & ((1 << i) - 1)) == 0) {
+            if ((GetRand() & ((1 << i) - 1)) == 0) {
                 BOOST_CHECK_MESSAGE(checker[i].GetStateFor(vpblock.empty() ? NULL : vpblock.back()) == THRESHOLD_DEFINED, strprintf("Test %i for DEFINED", num));
             }
         }
@@ -90,7 +90,7 @@ public:
 
     VersionBitsTester& TestStarted() {
         for (int i = 0; i < CHECKERS; i++) {
-            if ((insecure_rand() & ((1 << i) - 1)) == 0) {
+            if ((GetRand() & ((1 << i) - 1)) == 0) {
                 BOOST_CHECK_MESSAGE(checker[i].GetStateFor(vpblock.empty() ? NULL : vpblock.back()) == THRESHOLD_STARTED, strprintf("Test %i for STARTED", num));
             }
         }
@@ -100,7 +100,7 @@ public:
 
     VersionBitsTester& TestLockedIn() {
         for (int i = 0; i < CHECKERS; i++) {
-            if ((insecure_rand() & ((1 << i) - 1)) == 0) {
+            if ((GetRand() & ((1 << i) - 1)) == 0) {
                 BOOST_CHECK_MESSAGE(checker[i].GetStateFor(vpblock.empty() ? NULL : vpblock.back()) == THRESHOLD_LOCKED_IN, strprintf("Test %i for LOCKED_IN", num));
             }
         }
@@ -110,7 +110,7 @@ public:
 
     VersionBitsTester& TestActive() {
         for (int i = 0; i < CHECKERS; i++) {
-            if ((insecure_rand() & ((1 << i) - 1)) == 0) {
+            if ((GetRand() & ((1 << i) - 1)) == 0) {
                 BOOST_CHECK_MESSAGE(checker[i].GetStateFor(vpblock.empty() ? NULL : vpblock.back()) == THRESHOLD_ACTIVE, strprintf("Test %i for ACTIVE", num));
             }
         }
@@ -120,7 +120,7 @@ public:
 
     VersionBitsTester& TestFailed() {
         for (int i = 0; i < CHECKERS; i++) {
-            if ((insecure_rand() & ((1 << i) - 1)) == 0) {
+            if ((GetRand() & ((1 << i) - 1)) == 0) {
                 BOOST_CHECK_MESSAGE(checker[i].GetStateFor(vpblock.empty() ? NULL : vpblock.back()) == THRESHOLD_FAILED, strprintf("Test %i for FAILED", num));
             }
         }

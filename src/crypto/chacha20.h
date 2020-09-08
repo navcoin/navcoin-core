@@ -29,6 +29,8 @@ public:
      *  Used for encryption and decryption (XOR)
      */
     void Crypt(const unsigned char* input, unsigned char* output, size_t bytes);
+
+    void Output(uint8_t *c, size_t bytes);
 };
 
 #endif // BITCOIN_CRYPTO_CHACHA20_H

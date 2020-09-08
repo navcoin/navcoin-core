@@ -38,8 +38,6 @@
 #include <vector>
 
 #include <boost/unordered_map.hpp>
-#include <openssl/rsa.h>
-#include <openssl/pem.h>
 
 #define START_INODE_PAYMENTS_TESTNET 1429456427
 #define START_INODE_PAYMENTS 1429456427
