@@ -194,7 +194,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             else
             {
                 selectedCoins = msd.GetSelectedCoins();
-                if (selectedCoins.size() == 0)
+                if (selectedCoins.tx.vout.size() == 0)
                     QMessageBox::critical(this, tr("No coins for mixing"), tr("We could not find any candidate coin, if you continue, the transaction would be sent with limited privacy and the source could be easily identified by an observer. Transaction amount and recipient would be perfectly obfuscated."));
             }
         }
