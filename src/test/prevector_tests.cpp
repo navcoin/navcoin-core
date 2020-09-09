@@ -165,59 +165,59 @@ public:
 //    for (int j = 0; j < 64; j++) {
 //        prevector_tester<8, int> test;
 //        for (int i = 0; i < 2048; i++) {
-//            int r = insecure_rand();
+//            int r = GetRand();
 //            if ((r % 4) == 0) {
-//                test.insert(insecure_rand() % (test.size() + 1), insecure_rand());
+//                test.insert(GetRand() % (test.size() + 1), GetRand());
 //            }
 //            if (test.size() > 0 && ((r >> 2) % 4) == 1) {
-//                test.erase(insecure_rand() % test.size());
+//                test.erase(GetRand() % test.size());
 //            }
 //            if (((r >> 4) % 8) == 2) {
-//                int new_size = std::max<int>(0, std::min<int>(30, test.size() + (insecure_rand() % 5) - 2));
+//                int new_size = std::max<int>(0, std::min<int>(30, test.size() + (GetRand() % 5) - 2));
 //                test.resize(new_size);
 //            }
 //            if (((r >> 7) % 8) == 3) {
-//                test.insert(insecure_rand() % (test.size() + 1), 1 + (insecure_rand() % 2), insecure_rand());
+//                test.insert(GetRand() % (test.size() + 1), 1 + (GetRand() % 2), GetRand());
 //            }
 //            if (((r >> 10) % 8) == 4) {
-//                int del = std::min<int>(test.size(), 1 + (insecure_rand() % 2));
-//                int beg = insecure_rand() % (test.size() + 1 - del);
+//                int del = std::min<int>(test.size(), 1 + (GetRand() % 2));
+//                int beg = GetRand() % (test.size() + 1 - del);
 //                test.erase(beg, beg + del);
 //            }
 //            if (((r >> 13) % 16) == 5) {
-//                test.push_back(insecure_rand());
+//                test.push_back(GetRand());
 //            }
 //            if (test.size() > 0 && ((r >> 17) % 16) == 6) {
 //                test.pop_back();
 //            }
 //            if (((r >> 21) % 32) == 7) {
 //                int values[4];
-//                int num = 1 + (insecure_rand() % 4);
+//                int num = 1 + (GetRand() % 4);
 //                for (int k = 0; k < num; k++) {
-//                    values[k] = insecure_rand();
+//                    values[k] = GetRand();
 //                }
-//                test.insert_range(insecure_rand() % (test.size() + 1), values, values + num);
+//                test.insert_range(GetRand() % (test.size() + 1), values, values + num);
 //            }
 //            if (((r >> 26) % 32) == 8) {
-//                int del = std::min<int>(test.size(), 1 + (insecure_rand() % 4));
-//                int beg = insecure_rand() % (test.size() + 1 - del);
+//                int del = std::min<int>(test.size(), 1 + (GetRand() % 4));
+//                int beg = GetRand() % (test.size() + 1 - del);
 //                test.erase(beg, beg + del);
 //            }
-//            r = insecure_rand();
+//            r = GetRand();
 //            if (r % 32 == 9) {
-//                test.reserve(insecure_rand() % 32);
+//                test.reserve(GetRand() % 32);
 //            }
 //            if ((r >> 5) % 64 == 10) {
 //                test.shrink_to_fit();
 //            }
 //            if (test.size() > 0) {
-//                test.update(insecure_rand() % test.size(), insecure_rand());
+//                test.update(GetRand() % test.size(), GetRand());
 //            }
 //            if (((r >> 11) % 1024) == 11) {
 //                test.clear();
 //            }
 //            if (((r >> 21) % 512) == 12) {
-//                test.assign(insecure_rand() % 32, insecure_rand());
+//                test.assign(GetRand() % 32, GetRand());
 //            }
 //            if (((r >> 15) % 64) == 3) {
 //                test.swap();

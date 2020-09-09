@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(cfunddb_state)
         BOOST_CHECK(mapPaymentRequests.size()==1*(i+1));
 
         // flip a coin to decide if a proposal should be removed before flushing the base view
-        if (insecure_rand() % 5 == 0)
+        if (GetRand() % 5 == 0)
         {
             view.RemoveProposal(hash2);
             view.Flush();

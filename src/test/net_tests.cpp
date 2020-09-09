@@ -22,7 +22,6 @@ public:
     void MakeDeterministic()
     {
         nKey.SetNull();
-        seed_insecure_rand(true);
     }
 };
 
