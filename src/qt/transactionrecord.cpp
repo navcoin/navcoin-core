@@ -187,7 +187,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Debit
             //
-            CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
+            CAmount blsFee = wtx.GetFee();
+            CAmount nTxFee = wtx.IsBLSCT() ? blsFee : nDebit - wtx.GetValueOut();
             CAmount nSentToOthersPublic = 0;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
@@ -248,9 +249,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + nTxFee)
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit+blsFee, 0));
             }
         }
         else if (fAllFromMe && wtx.IsBLSInput())
@@ -258,7 +259,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Debit
             //
-            CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
+            CAmount blsFee = wtx.GetFee();
+            CAmount nTxFee = wtx.IsBLSCT() ? blsFee : nDebit - wtx.GetValueOut();
             CAmount nSentToOthersPublic = 0;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
@@ -310,9 +312,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + nTxFee)
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit+blsFee, 0));
             }
         }
         else
@@ -322,8 +324,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             if (nPrivateDebit > nPrivateCredit + wtx.GetFee())
             {
-                CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
+                CAmount nTxFee = wtx.GetFee();
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit+nTxFee, 0));
             }
             else
             {
