@@ -635,6 +635,7 @@ qt_navcoin_qt_LDADD += \
                        $(EVENT_PTHREADS_LIBS) \
                        $(EVENT_LIBS) \
                        $(LIBBLS) \
+                       $(SODIUM_LIBS) \
                        $(CHARTS_LIBS) \
                        $(LIBEVENT_LIBS) \
                        $(LIBSECCOMP_LIBS) \
