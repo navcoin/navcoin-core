@@ -2449,6 +2449,9 @@ CAmount CWalletTx::GetAvailablePrivateCredit(bool fLocked) const
         if (vout[i].spendingKey.size() == 0)
             continue;
 
+        if (i >= vAmounts.size())
+            continue;
+
         CAmount amount = vAmounts[i];
 
         if (!pwallet->IsSpent(hashTx, i) && IsOutputLocked(hashTx, i) == fLocked)
