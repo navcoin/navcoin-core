@@ -16,7 +16,7 @@ LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) -lsodium
+NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) $(SODIUM_CFLAGS)
 
 NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/chia-relic-build/include -I$(srcdir)/bls/build/_deps/chia-relic-src/include
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
@@ -29,7 +29,7 @@ LIBNAVCOIN_UTIL=libnavcoin_util.a
 LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
-LIBBLS=bls/build/libbls.a -lsodium
+LIBBLS=bls/build/libbls.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -527,6 +527,7 @@ navcoind_LDADD += \
                   $(EVENT_LIBS) \
                   $(ZMQ_LIBS) \
                   $(LIBBLS) \
+                  $(SODIUM_LIBS) \
                   $(LIBEVENT_LDFLAGS) \
                   $(LIBSECCOMP_LDFLAGS) \
                   $(LIBCAP_LDFLAGS) \
@@ -548,7 +549,7 @@ navcoin_cli_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CRYPTO)
 
-navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(SODIUM_LIBS) $(EVENT_LIBS)
 #
 
 # navcoin-tx binary #
@@ -569,7 +570,7 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBBLS)
+navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBBLS) $(SODIUM_LIBS)
 #
 
 # navcoinconsensus library #
@@ -581,8 +582,8 @@ if GLIBC_BACK_COMPAT
   libnavcoinconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) -lsodium
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) 
+libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) $(SODIUM_LIBS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) $(SODIUM_LIBS)
 libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/chia-relic-build/include -I$(srcdir)/bls/build/_deps/chia-relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 

@@ -924,7 +924,7 @@ if test x$use_pkgconfig = xyes; then
 else
   AC_CHECK_HEADER([openssl/crypto.h],,AC_MSG_ERROR(libcrypto headers missing))
   AC_CHECK_LIB([crypto],      [main],CRYPTO_LIBS=-lcrypto, AC_MSG_ERROR(libcrypto missing))
-  AC_CHECK_LIB([sodium],      [main],CRYPTO_LIBS=-lsodium, AC_MSG_ERROR(libsodium missing))
+  AC_CHECK_LIB([sodium],      [main],SODIUM_LIBS=-lsodium, AC_MSG_ERROR(libsodium missing))
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
@@ -1022,7 +1022,7 @@ AC_SUBST(UNIVALUE_LIBS)
 CXXFLAGS_TEMP="$CXXFLAGS"
 LIBS_TEMP="$LIBS"
 CXXFLAGS="$CXXFLAGS $SSL_CFLAGS $CRYPTO_CFLAGS"
-LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS $ZLIB_LIBS"
+LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $SODIUM_LIBS $UNBOUND_LIBS $ZLIB_LIBS"
 AC_CHECK_HEADER([openssl/ec.h],, AC_MSG_ERROR(OpenSSL ec header missing),)
 CXXFLAGS="$CXXFLAGS_TEMP"
 LIBS="$LIBS_TEMP"
@@ -1230,6 +1230,7 @@ AC_SUBST(LEVELDB_TARGET_FLAGS)
 AC_SUBST(MINIUPNPC_CPPFLAGS)
 AC_SUBST(MINIUPNPC_LIBS)
 AC_SUBST(CRYPTO_LIBS)
+AC_SUBST(SODIUM_LIBS)
 AC_SUBST(SSL_LIBS)
 AC_SUBST(ZLIB_LIBS)
 AC_SUBST(UNBOUND_LIBS)
