@@ -45,6 +45,9 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         fElementZero = false;
     }
 
+    if (!view.HaveInputs(tx))
+        return state.DoS(100, false, REJECT_INVALID, strprintf("inputs-not-available"));
+
     for (size_t j = 0; j < tx.vin.size(); j++)
     {
         if (fCheckBalance || fCheckBLSSignature)

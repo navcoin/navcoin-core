@@ -79,23 +79,32 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
     while (i < nSelect && i < vTransactionCandidates.size())
     {
         if (!inputs->HaveInputs(vTransactionCandidates[i].tx))
+        {
+            i++;
             continue;
+        }
 
         if (CWalletTx(NULL, vTransactionCandidates[i].tx).InMempool()) {
+            i++;
             continue;
         }
 
         if (CWalletTx(NULL, vTransactionCandidates[i].tx).InStempool()) {
+            i++;
             continue;
         }
 
         try
         {
             if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
+            {
+                i++;
                 continue;
+            }
         }
         catch(...)
         {
+            i++;
             continue;
         }
 
