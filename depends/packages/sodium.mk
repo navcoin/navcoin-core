@@ -8,6 +8,7 @@ $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
 define $(package)_set_vars
 $(package)_config_opts=--enable-static --disable-shared --with-pic
 $(package)_config_opts+=--prefix=$(host_prefix)
+$(package)_config_opts_darwin=AR="$($(package)_ar)" RANLIB="$($(package)_ranlib)" CC="$($(package)_cc)"
 endef
 
 define $(package)_config_cmds
