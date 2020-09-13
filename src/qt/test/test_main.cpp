@@ -13,7 +13,7 @@
 #include <QObject>
 #include <QTest>
 
-#include <sodium/core.h>
+#include <openssl/ssl.h>
 
 // This is all you need to run all the tests
 int main(int argc, char *argv[])
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     app.setApplicationName("NavCoin-Qt-test");
 
-    if (sodium_init() < 0) { throw std::string("Libsodium initialization failed."); }
+    SSL_library_init();
 
     URITests test1;
     if (QTest::qExec(&test1) != 0)

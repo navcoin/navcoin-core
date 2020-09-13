@@ -33,7 +33,7 @@ public:
             return false;
         }
         coins = it->second;
-        if (coins.IsPruned() && GetRand() % 2 == 0) {
+        if (coins.IsPruned() && insecure_rand() % 2 == 0) {
             // Randomly return false in case of an empty entry.
             return false;
         }
@@ -57,7 +57,7 @@ public:
             if (it->second.flags & CCoinsCacheEntry::DIRTY) {
                 // Same optimization used in CStateViewDB is to only write dirty entries.
                 map_[it->first] = it->second.coins;
-                if (it->second.coins.IsPruned() && GetRand() % 3 == 0) {
+                if (it->second.coins.IsPruned() && insecure_rand() % 3 == 0) {
                     // Randomly delete empty entries on write.
                     map_.erase(it->first);
                 }
@@ -131,19 +131,19 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
     for (unsigned int i = 0; i < NUM_SIMULATION_ITERATIONS; i++) {
         // Do a random modification.
         {
-            uint256 txid = txids[GetRand() % txids.size()]; // txid we're going to modify in this iteration.
+            uint256 txid = txids[insecure_rand() % txids.size()]; // txid we're going to modify in this iteration.
             CCoins& coins = result[txid];
             CCoinsModifier entry = stack.back()->ModifyCoins(txid);
             BOOST_CHECK(coins == *entry);
-            if (GetRand() % 5 == 0 || coins.IsPruned()) {
+            if (insecure_rand() % 5 == 0 || coins.IsPruned()) {
                 if (coins.IsPruned()) {
                     added_an_entry = true;
                 } else {
                     updated_an_entry = true;
                 }
-                coins.nVersion = GetRand();
+                coins.nVersion = insecure_rand();
                 coins.vout.resize(1);
-                coins.vout[0].nValue = GetRand();
+                coins.vout[0].nValue = insecure_rand();
                 *entry = coins;
             } else {
                 coins.Clear();
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
         }
 
         // Once every 1000 iterations and at the end, verify the full cache.
-        if (GetRand() % 1000 == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
+        if (insecure_rand() % 1000 == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
             for (std::map<uint256, CCoins>::iterator it = result.begin(); it != result.end(); it++) {
                 const CCoins* coins = stack.back()->AccessCoins(it->first);
                 if (coins) {
@@ -169,22 +169,22 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
             }
         }
 
-        if (GetRand() % 100 == 0) {
+        if (insecure_rand() % 100 == 0) {
             // Every 100 iterations, flush an intermediate cache
-            if (stack.size() > 1 && GetRand() % 2 == 0) {
-                unsigned int flushIndex = GetRand() % (stack.size() - 1);
+            if (stack.size() > 1 && insecure_rand() % 2 == 0) {
+                unsigned int flushIndex = insecure_rand() % (stack.size() - 1);
                 stack[flushIndex]->Flush();
             }
         }
-        if (GetRand() % 100 == 0) {
+        if (insecure_rand() % 100 == 0) {
             // Every 100 iterations, change the cache stack.
-            if (stack.size() > 0 && GetRand() % 2 == 0) {
+            if (stack.size() > 0 && insecure_rand() % 2 == 0) {
                 //Remove the top cache
                 stack.back()->Flush();
                 delete stack.back();
                 stack.pop_back();
             }
-            if (stack.size() == 0 || (stack.size() < 4 && GetRand() % 2)) {
+            if (stack.size() == 0 || (stack.size() < 4 && insecure_rand() % 2)) {
                 //Add a new cache
                 CStateView* tip = &base;
                 if (stack.size() > 0) {
@@ -243,12 +243,12 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
             tx.vin.resize(1);
             tx.vout.resize(1);
             tx.vout[0].nValue = i; //Keep txs unique unless intended to duplicate
-            unsigned int height = GetRand();
+            unsigned int height = insecure_rand();
 
             // 1/10 times create a coinbase
-            if (GetRand() % 10 == 0 || coinbaseids.size() < 10) {
+            if (insecure_rand() % 10 == 0 || coinbaseids.size() < 10) {
                 // 1/100 times create a duplicate coinbase
-                if (GetRand() % 10 == 0 && coinbaseids.size()) {
+                if (insecure_rand() % 10 == 0 && coinbaseids.size()) {
                     std::map<uint256, CAmount>::iterator coinbaseIt = coinbaseids.lower_bound(GetRandHash());
                     if (coinbaseIt == coinbaseids.end()) {
                         coinbaseIt = coinbaseids.begin();
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
         }
 
         // Once every 1000 iterations and at the end, verify the full cache.
-        if (GetRand() % 1000 == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
+        if (insecure_rand() % 1000 == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
             for (std::map<uint256, CCoins>::iterator it = result.begin(); it != result.end(); it++) {
                 const CCoins* coins = stack.back()->AccessCoins(it->first);
                 if (coins) {
@@ -317,21 +317,21 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
             }
         }
 
-        if (GetRand() % 100 == 0) {
+        if (insecure_rand() % 100 == 0) {
             // Every 100 iterations, flush an intermediate cache
-            if (stack.size() > 1 && GetRand() % 2 == 0) {
-                unsigned int flushIndex = GetRand() % (stack.size() - 1);
+            if (stack.size() > 1 && insecure_rand() % 2 == 0) {
+                unsigned int flushIndex = insecure_rand() % (stack.size() - 1);
                 stack[flushIndex]->Flush();
             }
         }
-        if (GetRand() % 100 == 0) {
+        if (insecure_rand() % 100 == 0) {
             // Every 100 iterations, change the cache stack.
-            if (stack.size() > 0 && GetRand() % 2 == 0) {
+            if (stack.size() > 0 && insecure_rand() % 2 == 0) {
                 stack.back()->Flush();
                 delete stack.back();
                 stack.pop_back();
             }
-            if (stack.size() == 0 || (stack.size() < 4 && GetRand() % 2)) {
+            if (stack.size() == 0 || (stack.size() < 4 && insecure_rand() % 2)) {
                 CStateView* tip = &base;
                 if (stack.size() > 0) {
                     tip = stack.back();

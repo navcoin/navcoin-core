@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(passphrase) {
     std::string hash(GetRandHash().ToString());
     std::vector<unsigned char> vchSalt(8);
     GetRandBytes(&vchSalt[0], vchSalt.size());
-    uint32_t rounds = GetRand();
+    uint32_t rounds = insecure_rand();
     if (rounds > 30000)
         rounds = 30000;
     TestCrypter::TestPassphrase(vchSalt, SecureString(hash.begin(), hash.end()), rounds);

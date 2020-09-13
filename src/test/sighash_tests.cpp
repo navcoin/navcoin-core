@@ -90,30 +90,30 @@ uint256 static SignatureHashOld(CScript scriptCode, const CTransaction& txTo, un
 void static RandomScript(CScript &script) {
     static const opcodetype oplist[] = {OP_FALSE, OP_1, OP_2, OP_3, OP_CHECKSIG, OP_IF, OP_VERIF, OP_RETURN, OP_CODESEPARATOR};
     script = CScript();
-    int ops = (GetRand() % 10);
+    int ops = (insecure_rand() % 10);
     for (int i=0; i<ops; i++)
-        script << oplist[GetRand() % (sizeof(oplist)/sizeof(oplist[0]))];
+        script << oplist[insecure_rand() % (sizeof(oplist)/sizeof(oplist[0]))];
 }
 
 void static RandomTransaction(CMutableTransaction &tx, bool fSingle) {
-    tx.nVersion = GetRand();
+    tx.nVersion = insecure_rand();
     tx.vin.clear();
     tx.vout.clear();
-    tx.nLockTime = (GetRand() % 2) ? GetRand() : 0;
-    int ins = (GetRand() % 4) + 1;
-    int outs = fSingle ? ins : (GetRand() % 4) + 1;
+    tx.nLockTime = (insecure_rand() % 2) ? insecure_rand() : 0;
+    int ins = (insecure_rand() % 4) + 1;
+    int outs = fSingle ? ins : (insecure_rand() % 4) + 1;
     for (int in = 0; in < ins; in++) {
         tx.vin.push_back(CTxIn());
         CTxIn &txin = tx.vin.back();
         txin.prevout.hash = GetRandHash();
-        txin.prevout.n = GetRand() % 4;
+        txin.prevout.n = insecure_rand() % 4;
         RandomScript(txin.scriptSig);
-        txin.nSequence = (GetRand() % 2) ? GetRand() : (unsigned int)-1;
+        txin.nSequence = (insecure_rand() % 2) ? insecure_rand() : (unsigned int)-1;
     }
     for (int out = 0; out < outs; out++) {
         tx.vout.push_back(CTxOut());
         CTxOut &txout = tx.vout.back();
-        txout.nValue = GetRand() % 100000000;
+        txout.nValue = insecure_rand() % 100000000;
         RandomScript(txout.scriptPubKey);
     }
 }
@@ -122,6 +122,8 @@ BOOST_FIXTURE_TEST_SUITE(sighash_tests, BasicTestingSetup)
 
 BOOST_AUTO_TEST_CASE(sighash_test)
 {
+    seed_insecure_rand(false);
+
     #if defined(PRINT_SIGHASH_JSON)
     std::cout << "[\n";
     std::cout << "\t[\"raw_transaction, script, input_index, hashType, signature_hash (result)\"],\n";
@@ -132,12 +134,12 @@ BOOST_AUTO_TEST_CASE(sighash_test)
     nRandomTests = 500;
     #endif
     for (int i=0; i<nRandomTests; i++) {
-        int nHashType = GetRand();
+        int nHashType = insecure_rand();
         CMutableTransaction txTo;
         RandomTransaction(txTo, (nHashType & 0x1f) == SIGHASH_SINGLE);
         CScript scriptCode;
         RandomScript(scriptCode);
-        int nIn = GetRand() % txTo.vin.size();
+        int nIn = insecure_rand() % txTo.vin.size();
 
         uint256 sh, sho;
         sho = SignatureHashOld(scriptCode, txTo, nIn, nHashType);

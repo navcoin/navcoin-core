@@ -63,6 +63,10 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <curl/curl.h>
+#include <openssl/crypto.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/aes.h>
 
 #if ENABLE_ZMQ
 #include <zmq/zmqnotificationinterface.h>

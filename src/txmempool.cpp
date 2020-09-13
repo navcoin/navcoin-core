@@ -826,7 +826,7 @@ void CTxMemPool::check(const CStateViewCache *pcoins) const
     if (nCheckFrequency == 0)
         return;
 
-    if (GetRand() >= nCheckFrequency)
+    if (insecure_rand() >= nCheckFrequency)
         return;
 
     LogPrint("mempool", "Checking mempool with %u transactions and %u inputs\n", (unsigned int)mapTx.size(), (unsigned int)mapNextTx.size());
