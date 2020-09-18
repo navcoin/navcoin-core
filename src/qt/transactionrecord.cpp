@@ -232,7 +232,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     sub.type = TransactionRecord::AnonTxSend;
                     sub.memo = wtx.vMemos[nOut];
-                    sub.debit = -nNet;
+                    sub.debit = nNet;
                     parts.append(sub);
                     break;
                 }
@@ -298,7 +298,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     nValue += nTxFee;
                     nTxFee = 0;
                 }
+
                 sub.debit = -nValue;
+
+                if (sub.type == TransactionRecord::SendToAddress)
+                    nSentToOthersPublic -= sub.debit;
 
                 if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
@@ -306,15 +310,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 else if (txout.scriptPubKey.IsFee())
                     continue;
 
-                if (sub.type == TransactionRecord::SendToAddress)
-                    nSentToOthersPublic -= sub.debit;
-
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit+blsFee, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit, 0));
             }
         }
         else
@@ -322,10 +323,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Mixed debit transaction, can't break down payees
             //
-            if (nPrivateDebit > nPrivateCredit + wtx.GetFee())
+            if (nPrivateDebit > nPrivateCredit)
             {
                 CAmount nTxFee = wtx.GetFee();
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit+nTxFee, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
             }
             else
             {
