@@ -62,6 +62,16 @@ OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent
     ui->proxyPortTor->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
+    ui->mixingDefaultBox->addItem("Always ask");
+    ui->mixingDefaultBox->addItem("Yes");
+    ui->mixingDefaultBox->addItem("No");
+
+    connect(ui->mixingDefaultBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) {
+        QSettings settings;
+
+        settings.setValue("defaultPrivacy", ix == -1 ? 2 : (ix == 1 ? 1 : 0));
+    });
+
     connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyIp, SLOT(setEnabled(bool)));
     connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyPort, SLOT(setEnabled(bool)));
     connect(ui->connectSocks, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
@@ -152,6 +162,21 @@ void OptionsDialog::setModel(OptionsModel *model)
 
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
     ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
+
+    int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
+
+    if (defaultPrivacy == 1)
+    {
+        ui->mixingDefaultBox->setCurrentIndex(1);
+    }
+    else if (defaultPrivacy == -1)
+    {
+        ui->mixingDefaultBox->setCurrentIndex(2);
+    }
+    else
+    {
+        ui->mixingDefaultBox->setCurrentIndex(0);
+    }
 
     if(model)
     {

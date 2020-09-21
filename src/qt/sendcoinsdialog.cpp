@@ -180,11 +180,35 @@ void SendCoinsDialog::on_sendButton_clicked()
     CandidateTransaction selectedCoins;
 
     if (fPrivate) {
-        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Increase privacy level"),
-            tr("Would you like to increase the privacy level of your transaction by mixing it with other coins in exchange of a fee?"),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        QSettings settings;
 
-        if(btnRetVal == QMessageBox::Yes)
+        int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
+
+        if (defaultPrivacy == 0)
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Increase privacy level"));
+            msgBox.setText(tr("Would you like to increase the privacy level of your transaction by mixing it with other coins in exchange of a fee?"));
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.addButton(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            QCheckBox dontShowCheckBox("Remember as default choice");
+            dontShowCheckBox.blockSignals(true);
+            msgBox.addButton(&dontShowCheckBox, QMessageBox::ResetRole);
+            int32_t userReply = msgBox.exec();
+            if (userReply == QMessageBox::Yes)
+            {
+                defaultPrivacy = 1;
+            }
+
+            if (dontShowCheckBox.checkState() == Qt::Checked)
+            {
+                settings.setValue("defaultPrivacy", userReply == QMessageBox::Yes ? 1 : -1);
+            }
+        }
+
+        if(defaultPrivacy == 1)
         {
             AggregationSesionDialog msd(this);
             msd.setWalletModel(model);
