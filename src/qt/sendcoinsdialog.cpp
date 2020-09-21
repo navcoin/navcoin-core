@@ -397,6 +397,9 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
     connect(entry, SIGNAL(removeEntry(SendCoinsEntry*)), this, SLOT(removeEntry(SendCoinsEntry*)));
     connect(entry, SIGNAL(payAmountChanged()), this, SLOT(coinControlUpdateLabels()));
     connect(entry, SIGNAL(subtractFeeFromAmountChanged()), this, SLOT(coinControlUpdateLabels()));
+    connect(entry, SIGNAL(privateOrPublicChanged(bool)), this, SLOT(updatePrivateOrPublic(bool)));
+
+    updatePrivateOrPublic(entry->fPrivate);
 
     // Focus the field, so that entry can start immediately
     entry->clear();
@@ -776,6 +779,7 @@ void SendCoinsDialog::coinControlUpdateLabels()
         }
     }
 
+    CoinControlDialog::fPrivate = fPrivate;
     CCoinControl* coinControl = fPrivate?CoinControlDialog::blscctCoinControl:CoinControlDialog::coinControl;
 
     if (coinControl->HasSelected())
