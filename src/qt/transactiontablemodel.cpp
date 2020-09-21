@@ -574,6 +574,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
 
     switch(role)
     {
+    case PrivateRole:
+        return rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate;
     case RawDecorationRole:
         switch(index.column())
         {

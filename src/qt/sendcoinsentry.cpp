@@ -60,6 +60,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 
     ui->sendPublic->setChecked(!fDefaultPrivate);
     ui->sendPrivate->setChecked(fDefaultPrivate);
+    ui->amountLabel->setText(fDefaultPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
     ui->memo->setVisible(false);
     ui->memoLabel->setVisible(false);
     fPrivate = fDefaultPrivate;
@@ -78,6 +79,7 @@ void SendCoinsEntry::sendPublicChanged()
     fPrivate = !((bool)ui->sendPublic->isChecked() && ui->sendPublic->isCheckable());
     QSettings settings;
     settings.setValue("defaultprivate", !ui->sendPublic->isChecked());
+    ui->amountLabel->setText(fPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
     Q_EMIT privateOrPublicChanged(false);
 }
 
@@ -86,6 +88,7 @@ void SendCoinsEntry::sendPrivateChanged()
     fPrivate = (bool)ui->sendPrivate->isChecked() && ui->sendPrivate->isCheckable();
     QSettings settings;
     settings.setValue("defaultprivate", ui->sendPrivate->isChecked());
+    ui->amountLabel->setText(fPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
     Q_EMIT privateOrPublicChanged(true);
 }
 

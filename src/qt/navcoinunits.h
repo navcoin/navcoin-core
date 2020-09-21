@@ -113,7 +113,7 @@ public:
     //! Is unit ID valid?
     static bool valid(int unit);
     //! Short name
-    static QString name(int unit);
+    static QString name(int unit, bool fPrivate = false);
     //! Longer description
     static QString description(int unit);
     //! Number of Satoshis (1e-8) per unit
@@ -125,11 +125,11 @@ public:
     //! Format as string with auto adjusting decimals depending on amount
     static QString pretty(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
     //! Format as string (with unit)
-    static QString formatWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString formatWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard, bool fPrivate=false);
     //! Format as string with auto adjusting decimals depending on amount (with unit)
-    static QString prettyWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString prettyWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard, bool fPrivate=false);
     //! Format as HTML string (with unit)
-    static QString formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard, bool removeTrailing=false);
+    static QString formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard, bool removeTrailing=false, bool fPrivate=false);
     //! Parse string to coin amount
     static bool parse(int unit, const QString &value, CAmount *val_out);
     //! Gets title for amount column including current display unit if optionsModel reference available */

@@ -55,6 +55,7 @@ public:
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
+        bool fPrivate = index.data(TransactionTableModel::PrivateRole).toBool();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
@@ -88,7 +89,7 @@ public:
             foreground = COLOR_POSITIVE;
         }
         painter->setPen(foreground);
-        QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways);
+        QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways, fPrivate);
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
@@ -189,9 +190,9 @@ void OverviewPage::setBalance(
     currentWatchImmatureBalance = watchImmatureBalance;
     currentWatchOnlyTotalBalance = watchOnlyBalance + watchUnconfBalance + watchImmatureBalance;
     ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
-    ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(unit, privateBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelPrivateBalancePending->setText(NavCoinUnits::formatWithUnit(unit, privPending, false, NavCoinUnits::separatorAlways));
-    ui->labelPrivateBalanceLocked->setText(NavCoinUnits::formatWithUnit(unit, privLocked, false, NavCoinUnits::separatorAlways));
+    ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(unit, privateBalance, false, NavCoinUnits::separatorAlways, true));
+    ui->labelPrivateBalancePending->setText(NavCoinUnits::formatWithUnit(unit, privPending, false, NavCoinUnits::separatorAlways, true));
+    ui->labelPrivateBalanceLocked->setText(NavCoinUnits::formatWithUnit(unit, privLocked, false, NavCoinUnits::separatorAlways, true));
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
     ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, currentColdStakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, currentImmatureBalance, false, NavCoinUnits::separatorAlways));
