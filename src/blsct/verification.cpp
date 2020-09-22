@@ -21,9 +21,9 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         fCheckBLSSignature = false;
         fCheckBalance = false;
     }
-    else if (!view.HaveInputs(tx))
+    else if (!view.HaveInputs(tx)) {
         return state.DoS(100, false, REJECT_INVALID, strprintf("inputs-not-available"));
-}
+    }
 
     if (!(fCheckRange || fCheckBalance || fCheckBLSSignature))
         return true;
