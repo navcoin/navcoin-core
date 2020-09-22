@@ -266,7 +266,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
-        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,75);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,36);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
@@ -518,7 +518,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,80);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,32);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -754,7 +754,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,88);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,40);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -980,7 +980,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,89);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,44);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
