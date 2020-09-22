@@ -2934,7 +2934,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
 
             // We should not consider coins which aren't at least in our mempool
             // It's possible for these to be conflicted via ancestors which we may never be able to detect
-            if (nDepth == 0 && !pcoin->InMempool())
+            if (nDepth == 0)
                 continue;
 
             if (!mapBlockIndex.count(pcoin->hashBlock))
@@ -3742,7 +3742,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     try
                     {
-                        if (!(coinsToMix && coinsToMix->tx.vin.size() > 0) && !VerifyBLSCT(txNew, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false))
+                        if (!(coinsToMix && coinsToMix->tx.vin.size() > 0) && !VerifyBLSCT(txNew, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, true))
                         {
                             strFailReason = FormatStateMessage(state);
                             return false;
