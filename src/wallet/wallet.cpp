@@ -2905,9 +2905,11 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
     }
 }
 
-void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount) const
+void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount, bool fRecursive) const
 {
     vCoins.clear();
+
+    int nLockedOutputs = 0;
 
     {
         LOCK2(cs_main, cs_wallet);
@@ -2946,6 +2948,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
             {
+
                 isminetype mine = IsMine(pcoin->vout[i]);
 
                 if (pcoin->vout[i].spendingKey.size() == 0)
@@ -2958,15 +2961,26 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                 if (amount < nMinAmount)
                     continue;
 
-                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
-                        !IsLockedCoin((*it).first, i) && (amount > 0 || fIncludeZeroValue) &&
+                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO && (amount > 0 || fIncludeZeroValue) &&
                         (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected(COutPoint((*it).first, i))))
+                {
+                    if (IsLockedCoin((*it).first, i) && !fRecursive)
+                    {
+                        nLockedOutputs++;
+                        continue;
+                    }
                     vCoins.push_back(COutput(pcoin, i, nDepth,
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
                                              memo, amount, gamma));
+                }
             }
         }
+    }
+
+    if (vCoins.size() == 0 && nLockedOutputs >= 10 && !fRecursive)
+    {
+        AvailablePrivateCoins(vCoins, fOnlyConfirmed, coinControl, fIncludeZeroValue, nMinAmount, true);
     }
 }
 
