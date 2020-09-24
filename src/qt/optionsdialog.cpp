@@ -87,6 +87,9 @@ OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent
     ui->voteTextField->setVisible(showVoting);
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
 
+    ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
+    ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
+
     /* Window elements init */
 #ifdef Q_OS_MAC
     /* remove Window tab on Mac */
@@ -299,7 +302,7 @@ void OptionsDialog::setOkButtonState(bool fState)
 }
 
 void OptionsDialog::on_resetButton_clicked()
-{
+{   
     if(model)
     {
         // confirmation dialog
@@ -310,6 +313,14 @@ void OptionsDialog::on_resetButton_clicked()
         if(btnRetVal == QMessageBox::Cancel)
             return;
 
+        SoftSetArg("-aggregationfee", std::to_string(GetArg("-aggregationfee", DEFAULT_MIX_FEE)), true);
+        RemoveConfigFile("aggregationfee");
+        WriteConfigFile("aggregationfee", std::to_string(GetArg("-aggregationfee", DEFAULT_MIX_FEE)));
+
+        SoftSetArg("-aggregationmaxfee", std::to_string(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE)), true);
+        RemoveConfigFile("aggregationmaxfee");
+        WriteConfigFile("aggregationmaxfee", std::to_string(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE)));
+
         /* reset all options and close GUI */
         model->Reset();
         QApplication::quit();
@@ -318,6 +329,14 @@ void OptionsDialog::on_resetButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
+    SoftSetArg("-aggregationfee", std::to_string(ui->mixfeeText->value()), true);
+    RemoveConfigFile("aggregationfee");
+    WriteConfigFile("aggregationfee", std::to_string(ui->mixfeeText->value()));
+
+    SoftSetArg("-aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()), true);
+    RemoveConfigFile("aggregationmaxfee");
+    WriteConfigFile("aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()));
+
     mapper->submit();
     model->setDirty(false);
     updateDefaultProxyNets();

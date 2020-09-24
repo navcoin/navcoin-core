@@ -271,6 +271,60 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Ask aggregation fee:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="NavCoinAmountField" name="mixfeeText"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Accept max aggregation fee: </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="NavCoinAmountField" name="maxmixfeeText"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
         <spacer name="verticalSpacer_Wallet">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -957,6 +1011,12 @@
    <class>QValueComboBox</class>
    <extends>QComboBox</extends>
    <header>qvaluecombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>NavCoinAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>navcoinamountfield.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

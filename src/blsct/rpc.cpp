@@ -51,6 +51,12 @@ UniValue stopaggregationsession(const UniValue& params, bool fHelp)
 
 UniValue viewaggregationsession(const UniValue& params, bool fHelp)
 {
+    if (fHelp || params.size() != 0)
+        throw std::runtime_error(
+                "viewaggregationsession\n"
+                "Shows the active mix session if any\n"
+                );
+
     UniValue ret(UniValue::VOBJ);
 
     {
@@ -73,12 +79,72 @@ UniValue viewaggregationsession(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue getaggregationfee(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw std::runtime_error(
+                "getaggregationfee\n"
+                "Shows the fee this node will ask for mixing its coins\n"
+                );
+
+    return GetArg("-aggregationfee", DEFAULT_MIX_FEE);
+}
+
+UniValue getaggregationmaxfee(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw std::runtime_error(
+                "getaggregationmaxfee\n"
+                "Shows the maximum fee this node will pay for mixing coins\n"
+                );
+
+    return GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE);
+}
+
+UniValue setaggregationfee(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1 || !params[0].isNum())
+        throw std::runtime_error(
+                "setaggregationfee <fee>\n"
+                "Sets the fee this node will ask for mixing its coins\n"
+                );
+
+    std::string fee = params[0].get_str();
+
+    SoftSetArg("-aggregationfee", fee, true);
+    RemoveConfigFile("aggregationfee");
+    WriteConfigFile("aggregationfee", fee);
+
+    return true;
+}
+
+UniValue setaggregationmaxfee(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1 || !params[0].isNum())
+        throw std::runtime_error(
+                "setaggregationmaxfee <fee>\n"
+                "Sets the maximum fee this node will pay for mixing coins\n"
+                );
+
+    std::string fee = params[0].get_str();
+
+    SoftSetArg("-aggregationmaxfee", fee, true);
+    RemoveConfigFile("aggregationmaxfee");
+    WriteConfigFile("aggregationmaxfee", fee);
+
+    return true;
+}
+
 static const CRPCCommand blsctcommands[] =
 { //  category              name                        actor (function)           okSafeMode
   //  --------------------- ------------------------    -----------------------    ----------
   { "blsct",              "startaggregationsession",    &startaggregationsession,  false },
   { "blsct",              "stopaggregationsession",     &stopaggregationsession,   false },
   { "blsct",              "viewaggregationsession",     &viewaggregationsession,   false },
+  { "blsct",              "setaggregationfee",          &setaggregationfee,        true  },
+  { "blsct",              "setaggregationmaxfee",       &setaggregationmaxfee,     true  },
+  { "blsct",              "getaggregationfee",          &getaggregationfee,        true  },
+  { "blsct",              "getaggregationmaxfee",       &getaggregationmaxfee,     true  },
 };
 
 void RegisterBLSCTRPCCommands(CRPCTable &tableRPC)
