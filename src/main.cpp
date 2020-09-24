@@ -4572,6 +4572,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nPublicMoneySupply += nCreated - nFees - nMovedToBLS;
     pindex->nPrivateMoneySupply += nMovedToBLS;
 
+    if (pindex->nPrivateMoneySupply < 0)
+        return state.DoS(100, error("ConnectBlock() : private money supply goes in negative"));
+
     if (!control.Wait()) {
         return state.DoS(100, false);
     }

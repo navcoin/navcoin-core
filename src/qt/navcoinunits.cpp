@@ -108,11 +108,11 @@ bool NavCoinUnits::valid(int unit)
     }
 }
 
-QString NavCoinUnits::name(int unit)
+QString NavCoinUnits::name(int unit, bool fPrivate)
 {
     switch(unit)
     {
-        case NAV: return QString("NAV");
+        case NAV: if (fPrivate) return QString("xNAV"); else return QString("NAV");
         case BTC: return QString("BTC");
         case EUR: return QString("EUR");
         case USD: return QString("USD");
@@ -344,19 +344,19 @@ QString NavCoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, Separator
 //
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
-QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
-    return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit));
+    return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
-    return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit));
+    return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
+QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing, bool fPrivate)
 {
-    QString str(formatWithUnit(unit, amount, plussign, separators));
+    QString str(formatWithUnit(unit, amount, plussign, separators, fPrivate));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }

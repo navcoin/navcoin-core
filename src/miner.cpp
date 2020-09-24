@@ -629,6 +629,8 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
     std::vector<RangeproofEncodedData> blsctData;
     CValidationState state;
 
+    CAmount nMovedToBLS = 0;
+
     for (auto &it: mempool.mapTx)
     {
         CTransaction tx = it.GetTx();
@@ -639,7 +641,10 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
         try
         {
             if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
+            {
+                nMovedToBLS += inputs.GetValueIn(tx) - tx.GetValueOut();
                 vToCombine.push_back(tx);
+            }
             else
                 LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
         }
@@ -647,6 +652,14 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
         {
             continue;
         }
+    }
+
+    CBlockIndex* pindexPrev = chainActive.Tip();
+
+    if (pindexPrev->nPrivateMoneySupply + nMovedToBLS < 0)
+    {
+        vToCombine.clear();
+        error("%s: Did not add BLS transactions to block, it would bring the negative pool in negative!", __func__);
     }
 
     if (vToCombine.size() == 0)

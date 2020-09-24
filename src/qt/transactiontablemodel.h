@@ -74,6 +74,8 @@ public:
         StatusRole,
         /** Unprocessed icon */
         RawDecorationRole,
+        /** Is it private? */
+        PrivateRole,
     };
 
     int rowCount(const QModelIndex &parent) const;

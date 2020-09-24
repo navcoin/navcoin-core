@@ -1035,9 +1035,9 @@ void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CA
     balanceAvail->setText(NavCoinUnits::prettyWithUnit(unit, avail, false, NavCoinUnits::separatorAlways));
     balancePendi->setText(NavCoinUnits::prettyWithUnit(unit, pendi, false, NavCoinUnits::separatorAlways));
     balanceImmat->setText(NavCoinUnits::prettyWithUnit(unit, immat, false, NavCoinUnits::separatorAlways));
-    privAvail->setText(NavCoinUnits::prettyWithUnit(unit, priv, false, NavCoinUnits::separatorAlways));
-    privLocked->setText(NavCoinUnits::prettyWithUnit(unit, privlocked, false, NavCoinUnits::separatorAlways));
-    privPendi->setText(NavCoinUnits::prettyWithUnit(unit, privpending, false, NavCoinUnits::separatorAlways));
+    privAvail->setText(NavCoinUnits::prettyWithUnit(unit, priv, false, NavCoinUnits::separatorAlways, true));
+    privLocked->setText(NavCoinUnits::prettyWithUnit(unit, privlocked, false, NavCoinUnits::separatorAlways, true));
+    privPendi->setText(NavCoinUnits::prettyWithUnit(unit, privpending, false, NavCoinUnits::separatorAlways, true));
 }
 
 void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmount &week)

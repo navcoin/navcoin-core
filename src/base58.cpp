@@ -204,7 +204,7 @@ bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes)
 
 bool CBase58Data::SetString(const std::string& str)
 {
-    return SetString(str.c_str());
+    return SetString(str.c_str(), str.substr(0,2) == "xN" ? 2 : 1);
 }
 
 std::string CBase58Data::ToString() const
