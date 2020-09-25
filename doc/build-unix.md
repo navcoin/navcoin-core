@@ -48,13 +48,18 @@ the usage of the absolute path.
 
 These dependencies are required:
 
- Library     | Purpose          | Description
- ------------|------------------|----------------------
- libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
- libboost    | Utility          | Library for threading, data structures, etc
- libcurl     | Networking       | Library for http(s) networking
- libevent    | Networking       | OS independent asynchronous networking
- libunbound  | Networking       | DNS resolver, that does DNSSEC validation
+ Library        | Purpose          | Description
+ ---------------|------------------|----------------------
+ libssl         | Crypto           | Random Number Generation, Elliptic Curve Cryptography
+ libgmp-dev     | Crypto           | Library for cryptographic operations
+ libsodium-dev  | Crypto           | Library for cryptographic operations
+ libboost       | Utility          | Library for threading, data structures, etc
+ libattr1-dev   | Utility          | Contains the runtime environment required for extended attributes
+ libseccomp-dev | Utility          | Interface to the Linux Kernel's syscall filtering mechanism
+ libcap-dev     | Utility          | Implements the user-space interfaces to the POSIX 1003.1e capabilities
+ libcurl        | Networking       | Library for http(s) networking
+ libevent       | Networking       | OS independent asynchronous networking
+ libunbound     | Networking       | DNS resolver, that does DNSSEC validation
 
 Optional dependencies:
 
@@ -83,7 +88,7 @@ tuned to conserve memory with additional CXXFLAGS:
 
 Build requirements:
 
-    sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
+    sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libattr1-dev libgmp-dev libsodium-dev libseccomp-dev libcap-dev cmake
 
 Options when installing required Boost library files:
 
