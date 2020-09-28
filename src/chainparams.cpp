@@ -483,18 +483,18 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa4;
-        pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x27;
+        pchMessageStart[0] = 0x32;
+        pchMessageStart[1] = 0x14;
+        pchMessageStart[2] = 0xf2;
+        pchMessageStart[3] = 0x07;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        uint32_t nTimestamp = 1588962030;
-        uint256 hashGenesisBlock = uint256S("0x0000ca20010727d0fdf6343bc233ac5a5eb44631c89c1722b27c15017dbc2902");
-        uint256 hashMerkleRoot = uint256S("0x413d5d2f43cdb6375980973a56036d4a9c67408fe91240934e269c904677b88a");
-        uint32_t nNonce = 2043761685;
+        uint32_t nTimestamp = 1601287047;
+        uint256 hashGenesisBlock = uint256S("0x00006fdcd481ed66a9a9c355de65b02cfec8afa60e8c4e330a8581c93b1018a4");
+        uint256 hashMerkleRoot = uint256S("0xc5d2016098c52d29709d8a65468ec7ac0eb64cf4597e2c96ddd47ffc3d29fb76");
+        uint32_t nNonce = 2043806890;
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
