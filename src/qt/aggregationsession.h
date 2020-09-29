@@ -18,6 +18,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QProgressBar>
+#include <QSettings>
 #include <QString>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -57,6 +58,7 @@ private:
     QLabel *bottom2Status;
 
     uint64_t nExpiresAt;
+    uint64_t nStart;
 
     CandidateTransaction selectedCoins;
 

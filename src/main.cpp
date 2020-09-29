@@ -1276,10 +1276,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (!IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && ((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION || (tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION))
         return state.DoS(100, false, REJECT_INVALID, "too-early-cfund");
 
-    if (!IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::CONSULTATION_VERSION || tx.nVersion == CTransaction::ANSWER_VERSION))
+    if (!IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()) && ((tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION || (tx.nVersion&0xF) == CTransaction::ANSWER_VERSION))
         return state.DoS(100, false, REJECT_INVALID, "too-early-consultation");
 
-    if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && tx.nVersion == CTransaction::VOTE_VERSION)
+    if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion&0xF) == CTransaction::VOTE_VERSION)
         return state.DoS(100, false, REJECT_INVALID, "too-early-dao-vote-tx");
 
     // Coinbase is only valid in a block, not as a loose transaction
@@ -1398,11 +1398,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
-            if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
+            if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION)
                 if(!IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
 
-            if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
+            if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::ANSWER_VERSION)
                 if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, chainActive.Tip()))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
         }
@@ -1411,7 +1411,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         if (fColdStakingv2)
         {
-            if (tx.nVersion == CTransaction::VOTE_VERSION)
+            if ((tx.nVersion&0xF) == CTransaction::VOTE_VERSION)
             {
                 if (!IsValidDaoTxVote(tx, view))
                 {
@@ -1520,7 +1520,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -1545,7 +1545,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid dao consultation");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, chainActive.Tip()))
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, chainActive.Tip()))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
@@ -2651,12 +2651,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 view.RemovePaymentRequest(hash);
                 LogPrintf("%s: Removed payment request %s\n", __func__, hash.ToString());
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION)
             {
                 view.RemoveConsultation(hash);
                 LogPrintf("%s: Removed consultation %s\n", __func__, hash.ToString());
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::ANSWER_VERSION)
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, hash, block.GetHash(), answer))
@@ -3853,12 +3853,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION)
             {
                 if(!IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::ANSWER_VERSION)
             {
                 if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
@@ -4343,7 +4343,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
+            else if(fDAOConsultations && (tx.nVersion&0xF) == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -4367,7 +4367,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            if(fDAOConsultations && (tx.nVersion == CTransaction::ANSWER_VERSION))
+            if(fDAOConsultations && ((tx.nVersion&0xF) == CTransaction::ANSWER_VERSION))
             {
                 if (IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
                 {

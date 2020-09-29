@@ -45,6 +45,8 @@ AggregationSesionDialog::AggregationSesionDialog(QWidget *parent)
                 ShowError(tr("Could not start mix session, try restarting your wallet."));
             }
         }
+
+        nStart = GetTime();
     }
 
     QTimer *timer = new QTimer(this);
@@ -65,27 +67,39 @@ void AggregationSesionDialog::NewAggregationSesion(std::string hs)
 {
     if (pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->GetHiddenService() == hs)
     {
+        QSettings settings;
         SetTopLabel(tr("Session started."));
         SetTopLabel(tr("Waiting for coin candidates..."));
         fReady = true;
-        nExpiresAt = GetTime()+10;
+        nExpiresAt = GetTime()+settings.value("aggregationSessionWait", 15).toInt();
     }
 }
 
 void AggregationSesionDialog::CheckStatus()
 {
-    if (!fReady)
+    if (!fReady && vNodes.size() > 0)
+    {
+        if (GetTime() > nStart + 60)
+        {
+            fReady = false;
+            this->done(false);
+        }
+
+        SetBottomLabel(QString(tr("Waiting %1 seconds more...").arg(nStart + 60 - GetTime())));
+
         return;
+    }
 
     fReady = false;
 
     size_t nCount = 0;
 
-    if (pwalletMain && pwalletMain->aggSession)
+    if (pwalletMain && pwalletMain->aggSession && vNodes.size() > 0)
         nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
     else
     {
         fReady = true;
+        this->done(false);
         return;
     }
 

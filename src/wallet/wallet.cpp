@@ -2254,7 +2254,7 @@ bool CWalletTx::RelayWalletTransaction()
         /* GetDepthInMainChain already catches known conflicts. */
         if (InMempool() || InStempool()) {
             // If Dandelion enabled, push inventory item to just one destination.
-            if (GetBoolArg("-dandelion", true)) {
+            if (GetBoolArg("-dandelion", true)  && !(vNodes.size() <= 1 || !(IsLocalDandelionDestinationSet() || SetLocalDandelionDestination()))) {
                 int64_t nCurrTime = GetTimeMicros();
                 int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
                 InsertDandelionEmbargo(GetHash(),nEmbargo);
@@ -5528,7 +5528,7 @@ bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
 {
     CValidationState state;
     bool ret;
-    if (GetBoolArg("-dandelion", true) && !(GetBoolArg("-devnet", false) && vNodes.size() == 0)) {
+    if (GetBoolArg("-dandelion", true) && !(vNodes.size() <= 1 || !(IsLocalDandelionDestinationSet() || SetLocalDandelionDestination()))) {
         ret = ::AcceptToMemoryPool(stempool, state, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     } else {

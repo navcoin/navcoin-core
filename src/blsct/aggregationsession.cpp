@@ -211,7 +211,7 @@ void AggregationSesion::AnnounceHiddenService()
         int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
         InsertDandelionAggregationSesionEmbargo(*this,nEmbargo);
 
-        if (vNodes.size() <= 1)
+        if (vNodes.size() <= 1 || !(IsLocalDandelionDestinationSet() || SetLocalDandelionDestination()))
             RelayAggregationSesion(*this);
         else if (!LocalDandelionDestinationPushAggregationSesion(*this))
             Stop();
