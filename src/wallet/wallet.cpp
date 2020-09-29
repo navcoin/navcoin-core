@@ -2797,7 +2797,7 @@ CAmount CWallet::GetUnconfirmedBalance() const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
-                nTotal += pcoin->GetAvailableCredit() + pcoin->GetAvailablePrivateCredit();
+                nTotal += pcoin->GetAvailableCredit();
         }
     }
     return nTotal;
