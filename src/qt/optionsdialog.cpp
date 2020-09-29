@@ -87,9 +87,6 @@ OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent
     ui->voteTextField->setVisible(showVoting);
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
 
-    ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
-    ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
-
     /* Window elements init */
 #ifdef Q_OS_MAC
     /* remove Window tab on Mac */
@@ -165,6 +162,10 @@ void OptionsDialog::setModel(OptionsModel *model)
 
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
     ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
+    ui->mixfeeText->setDisplayUnit(model->getDisplayUnit());
+    ui->maxmixfeeText->setDisplayUnit(model->getDisplayUnit());
+    ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
+    ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
 
     int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
 
