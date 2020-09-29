@@ -123,7 +123,7 @@ UniValue setaggregationmaxfee(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 1 || !params[0].isNum())
         throw std::runtime_error(
                 "setaggregationmaxfee <fee>\n"
-                "Sets the maximum fee this node will pay for mixing coins\n"
+                "Sets the maximum fee this node will pay for each mixing output candidate\n"
                 );
 
     std::string fee = params[0].get_str();
