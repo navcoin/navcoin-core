@@ -166,6 +166,7 @@ void OptionsDialog::setModel(OptionsModel *model)
     ui->maxmixfeeText->setDisplayUnit(model->getDisplayUnit());
     ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
     ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
+    ui->mixTimeout->setValue(settings.value("aggregationSessionWait", 15).toInt());
 
     int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
 
@@ -318,6 +319,9 @@ void OptionsDialog::on_resetButton_clicked()
         RemoveConfigFile("aggregationfee");
         WriteConfigFile("aggregationfee", std::to_string(GetArg("-aggregationfee", DEFAULT_MIX_FEE)));
 
+        QSettings settings;
+        settings.setValue("aggregationSessionWait", settings.value("aggregationSessionWait", 15));
+
         SoftSetArg("-aggregationmaxfee", std::to_string(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE)), true);
         RemoveConfigFile("aggregationmaxfee");
         WriteConfigFile("aggregationmaxfee", std::to_string(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE)));
@@ -337,6 +341,9 @@ void OptionsDialog::on_okButton_clicked()
     SoftSetArg("-aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()), true);
     RemoveConfigFile("aggregationmaxfee");
     WriteConfigFile("aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()));
+
+    QSettings settings;
+    settings.setValue("aggregationSessionWait", ui->mixTimeout->value());
 
     mapper->submit();
     model->setDirty(false);

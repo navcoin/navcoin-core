@@ -1292,7 +1292,7 @@ bool IsValidDaoTxVote(const CTransaction& tx, const CStateViewCache& view)
             fHasVote = true;
     }
 
-    return tx.nVersion == CTransaction::VOTE_VERSION && fHasVote && nAmountContributed >= GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE, view);
+    return (tx.nVersion&0xF) == CTransaction::VOTE_VERSION && fHasVote && nAmountContributed >= GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE, view);
 }
 
 // CONSENSUS PARAMETERS
