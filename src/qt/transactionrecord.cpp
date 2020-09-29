@@ -313,9 +313,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic)
+            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit + blsFee, 0));
             }
         }
         else
