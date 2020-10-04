@@ -5009,6 +5009,12 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     list<CTransaction> txConflicted;
     mempool.removeForBlock(pblock->vtx, pindexNew->nHeight, txConflicted, !IsInitialBlockDownload());
     stempool.removeForBlock(pblock->vtx, pindexNew->nHeight, txConflicted, !IsInitialBlockDownload());
+    if (pwalletMain && pblock->vtx.size() > 2 && pblock->vtx[2].IsBLSInput())
+    {
+        LOCK(pwalletMain->cs_wallet);
+        if (pwalletMain->aggSession)
+            pwalletMain->aggSession->UpdateCandidateTransactions(pblock->vtx[2]);
+    }
     // Update chainActive & related variables.
     UpdateTip(pindexNew, statehash, chainparams);
     // Tell wallet about transactions that went from mempool
@@ -8391,27 +8397,27 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     else if (strCommand == NetMsgType::DANDELIONAGGREGATIONSESSION)
     {
         if (IsDandelionInbound(pfrom)) {
-            AggregationSesion ms(pcoinsTip);
+            AggregationSession ms(pcoinsTip);
             vRecv >> ms;
             int64_t nCurrTime = GetTimeMicros();
             int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-            InsertDandelionAggregationSesionEmbargo(ms,nEmbargo);
-            RelayDandelionAggregationSesion(ms, pfrom);
+            InsertDandelionAggregationSessionEmbargo(ms,nEmbargo);
+            RelayDandelionAggregationSession(ms, pfrom);
         }
     }
     else if (strCommand == NetMsgType::AGGREGATIONSESSION)
     {
-        AggregationSesion ms(pcoinsTip);
+        AggregationSession ms(pcoinsTip);
         vRecv >> ms;
 
-        if (IsDandelionAggregationSesionEmbargoed(ms)) {
+        if (IsDandelionAggregationSessionEmbargoed(ms)) {
             LogPrint("dandelion", "Embargoed dandelion message %s found; removing from embargo map\n", ms.GetHash().ToString());
-            RemoveDandelionAggregationSesionEmbargo(ms);
+            RemoveDandelionAggregationSessionEmbargo(ms);
         }
-        if (!AggregationSesion::IsKnown(ms))
+        if (!AggregationSession::IsKnown(ms))
         {
-            uiInterface.NewAggregationSesion(ms.GetHiddenService());
-            RelayAggregationSesion(ms);
+            uiInterface.NewAggregationSession(ms.GetHiddenService());
+            RelayAggregationSession(ms);
             ms.Join();
         }
     }
@@ -10327,12 +10333,12 @@ static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom)
     }
 }
 
-static void RelayDandelionAggregationSesion(const AggregationSesion& ms, CNode* pfrom)
+static void RelayDandelionAggregationSession(const AggregationSession& ms, CNode* pfrom)
 {
     FastRandomContext rng;
     if (rng.randrange(100)<DANDELION_FLUFF) {
         LogPrint("dandelion", "Dandelion message fluff: %s\n", ms.GetHash().ToString());
-        RelayAggregationSesion(ms);
+        RelayAggregationSession(ms);
     } else {
         CNode* destination = GetDandelionDestination(pfrom);
         if (destination!=nullptr) {
@@ -10344,10 +10350,10 @@ static void RelayDandelionAggregationSesion(const AggregationSesion& ms, CNode* 
 static void CheckDandelionEmbargoes()
 {
     int64_t nCurrTime = GetTimeMicros();
-    for (auto iter=mDandelionAggregationSesionEmbargo.begin(); iter!=mDandelionAggregationSesionEmbargo.end();) {
+    for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
         if (iter->second < nCurrTime) {
-            RelayAggregationSesion(iter->first);
-            iter = mDandelionAggregationSesionEmbargo.erase(iter);
+            RelayAggregationSession(iter->first);
+            iter = mDandelionAggregationSessionEmbargo.erase(iter);
         } else {
             iter++;
         }

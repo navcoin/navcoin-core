@@ -28,12 +28,12 @@ class ClientModel;
 class PlatformStyle;
 class WalletModel;
 
-class AggregationSesionDialog : public QDialog
+class AggregationSessionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AggregationSesionDialog(QWidget *parent);
+    AggregationSessionDialog(QWidget *parent);
     void ShowError(QString string);
     void SetTopLabel(QString string);
     void SetBottomLabel(QString string);
@@ -45,7 +45,7 @@ public:
     void setWalletModel(WalletModel *walletModel);
 
 private Q_SLOTS:
-    void NewAggregationSesion(std::string hs);
+    void NewAggregationSession(std::string hs);
     void CheckStatus();
 
 private:

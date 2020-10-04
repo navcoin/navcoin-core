@@ -107,8 +107,8 @@ public:
     /** New block has been accepted */
     boost::signals2::signal<void (bool, const CBlockIndex *)> NotifyBlockTip;
 
-    /** New AggregationSesion has been received */
-    boost::signals2::signal<void (std::string)> NewAggregationSesion;
+    /** New AggregationSession has been received */
+    boost::signals2::signal<void (std::string)> NewAggregationSession;
 
     /** Best header has changed */
     boost::signals2::signal<void (bool, const CBlockIndex *)> NotifyHeaderTip;

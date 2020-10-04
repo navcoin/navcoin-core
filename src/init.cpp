@@ -17,6 +17,7 @@
 #include <checkpoints.h>
 #include <compat/sanity.h>
 #include <consensus/validation.h>
+#include <blsct/aggregationsession.h>
 #include <blsct/rpc.h>
 #include <httpserver.h>
 #include <httprpc.h>
@@ -1893,6 +1894,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
     threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    if (pwalletMain)
+        threadGroup.create_thread(boost::bind(&AggregationSessionThread));
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

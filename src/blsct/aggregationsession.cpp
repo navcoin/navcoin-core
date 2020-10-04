@@ -5,12 +5,13 @@
 #include "aggregationsession.h"
 
 std::set<uint256> setKnownSessions;
+CCriticalSection cs_aggregation;
 
-AggregationSesion::AggregationSesion(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(1)
+AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(1)
 {
 }
 
-bool AggregationSesion::Start()
+bool AggregationSession::Start()
 {
     if (fState && (es&&es->IsRunning()))
         return false;
@@ -20,8 +21,6 @@ bool AggregationSesion::Start()
         Stop();
         return false;
     }
-
-    vTransactionCandidates.clear();
 
     lock = true;
 
@@ -40,30 +39,80 @@ bool AggregationSesion::Start()
     return true;
 }
 
-bool AggregationSesion::IsKnown(const AggregationSesion& ms)
+bool AggregationSession::IsKnown(const AggregationSession& ms)
 {
     return setKnownSessions.find(ms.GetHash()) != setKnownSessions.end();
 }
 
-void AggregationSesion::Stop()
+void AggregationSession::Stop()
 {
     if (es)
         es->Stop();
     fState = 0;
-    vTransactionCandidates.clear();
-    RemoveDandelionAggregationSesionEmbargo(*this);
+    RemoveDandelionAggregationSessionEmbargo(*this);
 }
 
-bool AggregationSesion::GetState() const
+bool AggregationSession::GetState() const
 {
     return fState && (es&&es->IsRunning());
 }
 
-bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
+bool AggregationSession::UpdateCandidateTransactions(const CTransaction &tx)
 {
+    {
+        LOCK(cs_aggregation);
+
+        for (auto& in: tx.vin)
+        {
+            vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [in](CandidateTransaction x) {
+                                             for (auto& in_candidate: x.tx.vin)
+                                             {
+                                                 if (in_candidate == in)
+                                                    return true;
+                                             }
+                                             return false;
+                                         }), vTransactionCandidates.end());
+        }
+    }
+
+    return true;
+}
+
+bool AggregationSession::CleanCandidateTransactions()
+{
+    {
+        AssertLockHeld(cs_aggregation);
+
+        vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=](CandidateTransaction x) {
+                                         if (!inputs->HaveInputs(x.tx))
+                                         {
+                                             return true;
+                                         }
+
+                                         if (CWalletTx(NULL, x.tx).InputsInMempool()) {
+                                             return true;
+                                         }
+
+                                         if (CWalletTx(NULL, x.tx).InputsInStempool()) {
+                                             return true;
+                                         }
+                                         return false;
+                                     }), vTransactionCandidates.end());
+
+        if (GetRandInt(10) == 0 && vTransactionCandidates.size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
+            vTransactionCandidates.erase(vTransactionCandidates.begin(), vTransactionCandidates.begin() + GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
+    }
+
+    return true;
+}
+
+bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
+{
+    LOCK(cs_aggregation);
+
     random_shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), GetRandInt);
 
-    size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)DEFAULT_TX_MIXCOINS);
+    size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
 
     if (nSelect == 0)
         return true;
@@ -75,8 +124,9 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
     std::vector<CTransaction> vTransactionsToCombine;
 
     unsigned int i = 0;
+    unsigned int nSelected = 0;
 
-    while (i < nSelect && i < vTransactionCandidates.size())
+    while (nSelected < nSelect && i < vTransactionCandidates.size())
     {
         if (!inputs->HaveInputs(vTransactionCandidates[i].tx))
         {
@@ -84,12 +134,12 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
             continue;
         }
 
-        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InMempool()) {
+        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InputsInMempool()) {
             i++;
             continue;
         }
 
-        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InStempool()) {
+        if (CWalletTx(NULL, vTransactionCandidates[i].tx).InputsInStempool()) {
             i++;
             continue;
         }
@@ -111,20 +161,28 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
         vTransactionsToCombine.push_back(vTransactionCandidates[i].tx);
         nFee += vTransactionCandidates[i].fee;
         i++;
+        nSelected++;
     }
 
     CTransaction ctx;
 
     if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *inputs, state, nFee))
-        return error("AggregationSesion::%s: Failed %s\n", state.GetRejectReason());
+        return error("AggregationSession::%s: Failed %s\n", state.GetRejectReason());
 
     ret = CandidateTransaction(ctx, nFee, DEFAULT_MIN_OUTPUT_AMOUNT, BulletproofsRangeproof());
 
     return true;
 }
 
-bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>& v)
+void AggregationSession::SetCandidateTransactions(std::vector<CandidateTransaction> candidates)
 {
+    vTransactionCandidates = candidates;
+}
+
+bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char>& v)
+{
+    LOCK(cs_aggregation);
+
     if (!inputs)
         return false;
 
@@ -136,25 +194,31 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     }
     catch(...)
     {
-        return error("AggregationSesion::%s: Wrong serialization of transaction candidate\n", __func__);
+        return error("AggregationSession::%s: Wrong serialization of transaction candidate\n", __func__);
     }
 
     if (!(tx.tx.IsBLSInput() && tx.tx.IsCTOutput() && tx.tx.vin.size() == 1 && tx.tx.vout.size() == 1 && tx.minAmountProofs.V.size() == tx.tx.vout.size()))
-        return error("AggregationSesion::%s: Received transaction is not BLSCT mix compliant\n", __func__);
+        return error("AggregationSession::%s: Received transaction is not BLSCT mix compliant\n", __func__);
+
+    for (auto& it: vTransactionCandidates)
+    {
+        if (it.tx.vin == tx.tx.vin) // We already have this input
+            return true;
+    }
 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
     std::vector<RangeproofEncodedData> blsctData;
 
     if (!inputs->HaveInputs(tx.tx))
-        return error ("AggregationSesion::%s: Received spent inputs\n", __func__);
+        return error ("AggregationSession::%s: Received spent inputs\n", __func__);
 
-    if (CWalletTx(NULL, tx.tx).InMempool()) {
-        return error ("AggregationSesion::%s: Received transaction in mempool\n", __func__);
+    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+        return error ("AggregationSession::%s: Received transaction in mempool\n", __func__);
     }
 
-    if (CWalletTx(NULL, tx.tx).InStempool()) {
-        return error ("AggregationSesion::%s: Received transaction in stempool\n", __func__);
+    if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+        return error ("AggregationSession::%s: Received transaction in stempool\n", __func__);
     }
 
     for (unsigned int i = 0; i < tx.tx.vout.size(); i++)
@@ -164,18 +228,18 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
         bls::G1Element r = tx.tx.vout[i].bp.V[0];
         l = l + r;
         if (!(l == tx.minAmountProofs.V[i]))
-            return error ("AggregationSesion::%s: Failed verification from output's amount %d\n", __func__, i);
+            return error ("AggregationSession::%s: Failed verification from output's amount %d\n", __func__, i);
         proofs.push_back(std::make_pair(i, tx.minAmountProofs));
     }
 
     if (!VerifyBulletproof(proofs, blsctData, nonces))
-        return error("AggregationSesion::%s: Failed verification of min amount range proofs\n", __func__);
+        return error("AggregationSession::%s: Failed verification of min amount range proofs\n", __func__);
 
     if (!MoneyRange(tx.fee))
-        return error("AggregationSesion::%s: Received transaction with incorrect fee %d\n", __func__, tx.fee);
+        return error("AggregationSession::%s: Received transaction with incorrect fee %d\n", __func__, tx.fee);
 
     if (tx.fee > GetMaxFee())
-        return error("AggregationSesion::%s: Received transaction with too high fee %d\n", __func__, tx.fee);
+        return error("AggregationSession::%s: Received transaction with too high fee %d\n", __func__, tx.fee);
 
     CValidationState state;
 
@@ -183,12 +247,12 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     {
         if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
         {
-            return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+            return error("AggregationSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
         }
     }
     catch(...)
     {
-        return error("AggregationSesion::%s: Failed validation of transaction candidate %s. Catched exception.\n", __func__, state.GetRejectReason());
+        return error("AggregationSession::%s: Failed validation of transaction candidate %s. Catched exception.\n", __func__, state.GetRejectReason());
     }
 
 
@@ -197,7 +261,7 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
     return true;
 }
 
-void AggregationSesion::AnnounceHiddenService()
+void AggregationSession::AnnounceHiddenService()
 {
     if (!GetBoolArg("-dandelion", true))
     {
@@ -209,14 +273,14 @@ void AggregationSesion::AnnounceHiddenService()
 
         int64_t nCurrTime = GetTimeMicros();
         int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-        InsertDandelionAggregationSesionEmbargo(*this,nEmbargo);
+        InsertDandelionAggregationSessionEmbargo(*this,nEmbargo);
 
-        if (!LocalDandelionDestinationPushAggregationSesion(*this))
-            RelayAggregationSesion(*this);
+        if (!LocalDandelionDestinationPushAggregationSession(*this))
+            RelayAggregationSession(*this);
     }
 }
 
-bool AggregationSesion::Join() const
+bool AggregationSession::Join() const
 {
     setKnownSessions.insert(this->GetHash());
 
@@ -232,7 +296,7 @@ bool AggregationSesion::Join() const
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
 
-    LogPrint("AggregationSesion","AggregationSesion::%s: joining %s\n", __func__, GetHiddenService());
+    LogPrint("AggregationSession","AggregationSession::%s: joining %s\n", __func__, GetHiddenService());
 
     std::vector<COutput> vAvailableCoins;
 
@@ -277,24 +341,24 @@ bool AggregationSesion::Join() const
 
         if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
         {
-            return error("AggregationSesion::%s: Could not get private key from blsct pool.\n",__func__);
+            return error("AggregationSession::%s: Could not get private key from blsct pool.\n",__func__);
         }
 
         ephemeralKey = bk.GetKey().Serialize();
 
         if (!pwalletMain->GetBLSCTSubAddressPublicKeys(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, k))
         {
-            return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys not available\n", __func__);
         }
 
         if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
         {
-            return error("AggregationSesion::%s: BLSCT keys not available\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys not available\n", __func__);
         }
 
         if (!pwalletMain->GetBLSCTViewKey(v))
         {
-            return error("AggregationSesion::%s: BLSCT keys not available when getting view key\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys not available when getting view key\n", __func__);
         }
     }
 
@@ -323,12 +387,12 @@ bool AggregationSesion::Join() const
     {
         if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
         {
-            return error("AggregationSesion::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
+            return error("AggregationSession::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
         }
     }
     catch(...)
     {
-        return error("AggregationSesion::%s: Catched CreateBLSCTOutput exception.\n", __func__);
+        return error("AggregationSession::%s: Catched CreateBLSCTOutput exception.\n", __func__);
     }
 
 
@@ -345,7 +409,7 @@ bool AggregationSesion::Join() const
     }
     catch(...)
     {
-        return error("AggregationSesion::%s: Catched balanceSigningKey exception.\n", __func__);
+        return error("AggregationSession::%s: Catched balanceSigningKey exception.\n", __func__);
     }
 
     CValidationState state;
@@ -374,13 +438,13 @@ bool AggregationSesion::Join() const
 
     if (!VerifyBulletproof(proofs, blsctData, nonces, false))
     {
-        return error("AggregationSesion::%s: Failed validation of range proof\n", __func__);
+        return error("AggregationSession::%s: Failed validation of range proof\n", __func__);
     }
 
     CandidateTransaction tx(candidate, nAddedFee, DEFAULT_MIN_OUTPUT_AMOUNT, bprp);
 
     if(!VerifyBLSCT(candidate, v.GetKey(), blsctData, *inputs, state, false, nAddedFee))
-        return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+        return error("AggregationSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
 
     size_t colonPos = GetHiddenService().find(':');
 
@@ -402,16 +466,16 @@ bool AggregationSesion::Join() const
 
              // first connect to proxy server
              if (!ConnectSocketDirectly(proxy.proxy, so, 60)) {
-                 return error("AggregationSesion::%s: Failed to join session %s:%d, could not connect to tor socks proxy\n", __func__, host, port);
+                 return error("AggregationSession::%s: Failed to join session %s:%d, could not connect to tor socks proxy\n", __func__, host, port);
              }
 
              // do socks negotiation
              if (!Socks5(host, (unsigned short)port, 0, so))
-                 return error("AggregationSesion::%s: Failed to join session %s:%d, could not negotiate with tor socks proxy\n", __func__, host, port);
+                 return error("AggregationSession::%s: Failed to join session %s:%d, could not negotiate with tor socks proxy\n", __func__, host, port);
 
              if (!IsSelectableSocket(so)) {
                  CloseSocket(so);
-                 return error("AggregationSesion::%s: Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n", __func__);
+                 return error("AggregationSession::%s: Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n", __func__);
              }
 
              CDataStream ds(0,0);
@@ -420,7 +484,7 @@ bool AggregationSesion::Join() const
              vBuffer.push_back('\0');
 
              auto ret = send(so, reinterpret_cast<const char *>(vBuffer.data()), vBuffer.size(), MSG_NOSIGNAL);
-             LogPrintf("AggregationSesion::%s: Sent %d bytes\n", __func__, ret);
+             LogPrintf("AggregationSession::%s: Sent %d bytes\n", __func__, ret);
 
              CloseSocket(so);
 
@@ -434,12 +498,65 @@ bool AggregationSesion::Join() const
     return false;
 }
 
-CAmount AggregationSesion::GetDefaultFee()
+CAmount AggregationSession::GetDefaultFee()
 {
     return GetArg("-aggregationfee", DEFAULT_MIX_FEE);
 }
 
-CAmount AggregationSesion::GetMaxFee()
+CAmount AggregationSession::GetMaxFee()
 {
     return GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE);
+}
+
+void AggregationSessionThread()
+{
+    LogPrintf("NavCoinCandidateCoinsThread started\n");
+    SetThreadPriority(THREAD_PRIORITY_LOWEST);
+    RenameThread("navcoin-candidate-coins-thread");
+
+    try {
+        while (true) {
+            if (vNodes.size() == 0 || !pwalletMain)
+            {
+                MilliSleep(1000);
+                continue;
+            }
+
+            MilliSleep(GetRand(120*1000));
+
+            {
+                LOCK(pwalletMain->cs_wallet);
+                if (pwalletMain->aggSession->GetTransactionCandidates().size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
+                    continue;
+
+                if (!pwalletMain->aggSession->Start())
+                {
+                    pwalletMain->aggSession->Stop();
+                    if (!pwalletMain->aggSession->Start())
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            MilliSleep(GetRand(600*1000));
+
+            {
+                LOCK2(pwalletMain->cs_wallet, cs_aggregation);
+
+                pwalletMain->aggSession->CleanCandidateTransactions();
+                pwalletMain->WriteCandidateTransactions();
+            }
+        }
+    }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("NavCoinCandidateCoinsThread terminated\n");
+        throw;
+    }
+    catch (const std::runtime_error &e)
+    {
+        LogPrintf("NavCoinCandidateCoinsThread runtime error: %s\n", e.what());
+        return;
+    }
 }

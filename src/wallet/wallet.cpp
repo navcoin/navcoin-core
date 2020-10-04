@@ -785,6 +785,19 @@ bool CWallet::AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKe
                                              mapBLSCTBlindingKeyMetadata[pubkey.GetID()]);
 }
 
+bool CWallet::WriteCandidateTransactions()
+{
+    AssertLockHeld(cs_wallet); // mapKeyMetadata
+
+    if (!fFileBacked)
+        return true;
+
+    if (!aggSession)
+        return false;
+
+    return CWalletDB(strWalletFile).WriteCandidateTransactions(aggSession->GetTransactionCandidates());
+}
+
 bool CWallet::AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
@@ -2594,7 +2607,41 @@ bool CWalletTx::InMempool() const
     return false;
 }
 
+bool CWalletTx::InputsInMempool() const
+{
+    for (auto &in: vin)
+    {
+        for (auto &it: mempool.mapTx)
+        {
+            CTransaction tx = it.GetTx();
 
+            for (auto &in2: tx.vin)
+            {
+                if (in == in2) return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool CWalletTx::InputsInStempool() const
+{
+    for (auto &in: vin)
+    {
+        for (auto &it: stempool.mapTx)
+        {
+            CTransaction tx = it.GetTx();
+
+            for (auto &in2: tx.vin)
+            {
+                if (in == in2) return true;
+            }
+        }
+    }
+
+    return false;
+}
 bool CWalletTx::InStempool() const
 {
     LOCK(stempool.cs);
@@ -2905,7 +2952,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
     }
 }
 
-void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount, bool fRecursive) const
+void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount, bool fRecursive, bool fTryToSpendLocked) const
 {
     vCoins.clear();
 
@@ -2978,7 +3025,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
         }
     }
 
-    if (vCoins.size() == 0 && nLockedOutputs >= 10 && !fRecursive)
+    if (vCoins.size() == 0 && nLockedOutputs >= 1 && !fRecursive && fTryToSpendLocked)
     {
         AvailablePrivateCoins(vCoins, fOnlyConfirmed, coinControl, fIncludeZeroValue, nMinAmount, true);
     }
@@ -5115,6 +5162,7 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
     bool fFirstRun = true;
     bool fFirstBLSCTRun = true;
     CWallet *walletInstance = new CWallet(walletFile);
+    walletInstance->aggSession = new AggregationSession(pcoinsTip);
     DBErrors nLoadWalletRet = walletInstance->LoadWallet(fFirstRun, fFirstBLSCTRun);
     if (nLoadWalletRet != DB_LOAD_OK)
     {
@@ -5315,8 +5363,13 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
     }
     walletInstance->SetBroadcastTransactions(GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
 
+    if (walletInstance->aggSession)
+    {
+        LOCK(cs_aggregation);
+        walletInstance->aggSession->CleanCandidateTransactions();
+    }
+
     pwalletMain = walletInstance;
-    pwalletMain->aggSession = new AggregationSesion(pcoinsTip);
     return true;
 }
 

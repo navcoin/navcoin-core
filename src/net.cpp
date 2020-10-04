@@ -74,7 +74,7 @@ const static std::string NET_MESSAGE_COMMAND_OTHER = "*other*";
 /** Services this node implementation cares about */
 ServiceFlags nRelevantServices = NODE_NETWORK;
 
-class AggregationSesion;
+class AggregationSession;
 
 //
 // Global state variables
@@ -112,7 +112,7 @@ boost::condition_variable messageHandlerCondition;
 
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
-std::map<AggregationSesion, int64_t> mDandelionAggregationSesionEmbargo;
+std::map<AggregationSession, int64_t> mDandelionAggregationSessionEmbargo;
 // Dandelion fields
 std::vector<CNode*> vDandelionInbound;
 std::vector<CNode*> vDandelionOutbound;
@@ -1557,7 +1557,7 @@ bool LocalDandelionDestinationPushInventory(const CInv& inv) {
     }
 }
 
-bool LocalDandelionDestinationPushAggregationSesion(const AggregationSesion& ms) {
+bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& ms) {
     if(IsLocalDandelionDestinationSet()) {
         localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
         return true;
@@ -1596,25 +1596,25 @@ bool RemoveDandelionEmbargo(const uint256& hash) {
     return removed;
 }
 
-bool InsertDandelionAggregationSesionEmbargo(const AggregationSesion& ms, const int64_t& embargo) {
-    auto pair = mDandelionAggregationSesionEmbargo.insert(std::make_pair(ms, embargo));
+bool InsertDandelionAggregationSessionEmbargo(const AggregationSession& ms, const int64_t& embargo) {
+    auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(ms, embargo));
     return pair.second;
 }
 
-bool IsDandelionAggregationSesionEmbargoed(const AggregationSesion& ms) {
-    auto pair = mDandelionAggregationSesionEmbargo.find(ms);
-    if (pair != mDandelionAggregationSesionEmbargo.end()) {
+bool IsDandelionAggregationSessionEmbargoed(const AggregationSession& ms) {
+    auto pair = mDandelionAggregationSessionEmbargo.find(ms);
+    if (pair != mDandelionAggregationSessionEmbargo.end()) {
         return true;
     } else {
         return false;
     }
 }
 
-bool RemoveDandelionAggregationSesionEmbargo(const AggregationSesion& ms) {
+bool RemoveDandelionAggregationSessionEmbargo(const AggregationSession& ms) {
     bool removed = false;
-    for (auto iter=mDandelionAggregationSesionEmbargo.begin(); iter!=mDandelionAggregationSesionEmbargo.end();) {
+    for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
         if (iter->first==ms) {
-            iter = mDandelionAggregationSesionEmbargo.erase(iter);
+            iter = mDandelionAggregationSessionEmbargo.erase(iter);
             removed = true;
         } else {
             iter++;
@@ -2532,7 +2532,7 @@ void RelayTransaction(const CTransaction& tx)
     }
 }
 
-void RelayAggregationSesion(const AggregationSesion& ms)
+void RelayAggregationSession(const AggregationSession& ms)
 {
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)

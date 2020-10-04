@@ -210,7 +210,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
         if(defaultPrivacy == 1)
         {
-            AggregationSesionDialog msd(this);
+            AggregationSessionDialog msd(this);
             msd.setWalletModel(model);
             msd.setClientModel(clientModel);
             if (!msd.exec())

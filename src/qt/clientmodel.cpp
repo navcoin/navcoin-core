@@ -281,9 +281,9 @@ static void BannedListChanged(ClientModel *clientmodel)
     QMetaObject::invokeMethod(clientmodel, "updateBanlist", Qt::QueuedConnection);
 }
 
-static void NewAggregationSesion(ClientModel *clientmodel, std::string hiddenService)
+static void NewAggregationSession(ClientModel *clientmodel, std::string hiddenService)
 {
-    QMetaObject::invokeMethod(clientmodel, "newAggregationSesion", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(clientmodel, "newAggregationSession", Qt::QueuedConnection,
                               Q_ARG(std::string, hiddenService));
 }
 
@@ -323,7 +323,7 @@ void ClientModel::subscribeToCoreSignals()
 {
     // Connect signals to client
     uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
-    uiInterface.NewAggregationSesion.connect(boost::bind(NewAggregationSesion, this, _1));
+    uiInterface.NewAggregationSession.connect(boost::bind(NewAggregationSession, this, _1));
     uiInterface.NotifyNumConnectionsChanged.connect(boost::bind(NotifyNumConnectionsChanged, this, _1));
     uiInterface.NotifyAlertChanged.connect(boost::bind(NotifyAlertChanged, this));
     uiInterface.BannedListChanged.connect(boost::bind(BannedListChanged, this));
@@ -335,7 +335,7 @@ void ClientModel::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from client
     uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
-    uiInterface.NewAggregationSesion.disconnect(boost::bind(NewAggregationSesion, this, _1));
+    uiInterface.NewAggregationSession.disconnect(boost::bind(NewAggregationSession, this, _1));
     uiInterface.NotifyNumConnectionsChanged.disconnect(boost::bind(NotifyNumConnectionsChanged, this, _1));
     uiInterface.NotifyAlertChanged.disconnect(boost::bind(NotifyAlertChanged, this));
     uiInterface.BannedListChanged.disconnect(boost::bind(BannedListChanged, this));

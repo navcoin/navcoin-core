@@ -83,6 +83,13 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     return Write(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
 }
 
+bool CWalletDB::WriteCandidateTransactions(const std::vector<CandidateTransaction>& candidates)
+{
+    nWalletDBUpdated++;
+
+    return Write(std::string("candidatetransactions"), candidates);
+}
+
 bool CWalletDB::WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta)
 {
     nWalletDBUpdated++;
@@ -720,6 +727,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         else if (strType == "defaultkey")
         {
             ssValue >> pwallet->vchDefaultKey;
+        }
+        else if (strType == "candidatetransactions")
+        {
+            std::vector<CandidateTransaction> ct;
+            ssValue >> ct;
+            pwallet->aggSession->SetCandidateTransactions(ct);
         }
         else if (strType == "blsctviewkey")
         {

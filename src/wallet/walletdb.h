@@ -8,6 +8,7 @@
 
 #include <amount.h>
 #include <blsct/key.h>
+#include <blsct/transaction.h>
 #include <primitives/transaction.h>
 #include <wallet/db.h>
 #include <key.h>
@@ -243,6 +244,7 @@ public:
     bool WriteBLSCTKey(const CWallet* pwallet);
     bool WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta);
     bool WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
+    bool WriteCandidateTransactions(const std::vector<CandidateTransaction>& candidates);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

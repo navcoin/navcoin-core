@@ -691,8 +691,6 @@ void NavCoinGUI::createHeaderWidgets()
     privateAvailContainer->setObjectName("privateAvailContainer");
     QWidget* privatePendiContainer = new QWidget();
     privatePendiContainer->setObjectName("privatePendiContainer");
-    QWidget* privateLockedContainer = new QWidget();
-    privateLockedContainer->setObjectName("privateLockedContainer");
 
     QWidget* stakedAvailContainer = new QWidget();
     stakedAvailContainer->setObjectName("stakedAvailContainer");
@@ -719,9 +717,6 @@ void NavCoinGUI::createHeaderWidgets()
     QVBoxLayout* privatePendiLayout = new QVBoxLayout();
     privatePendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
     privatePendiLayout->setSpacing(0);
-    QVBoxLayout* privateLockedLayout = new QVBoxLayout();
-    privateLockedLayout->setContentsMargins(0, 0, 0, 0);
-    privateLockedLayout->setSpacing(0);
 
     // Layouts for the sub staked sections
     QVBoxLayout* stakedAvailLayout = new QVBoxLayout();
@@ -740,7 +735,6 @@ void NavCoinGUI::createHeaderWidgets()
     balanceImmatContainer->setLayout(balanceImmatLayout);
     privateAvailContainer->setLayout(privateAvailLayout);
     privatePendiContainer->setLayout(privatePendiLayout);
-    privateLockedContainer->setLayout(privateLockedLayout);
     stakedAvailContainer->setLayout(stakedAvailLayout);
     stakedPendiContainer->setLayout(stakedPendiLayout);
     stakedImmatContainer->setLayout(stakedImmatLayout);
@@ -760,9 +754,6 @@ void NavCoinGUI::createHeaderWidgets()
     privAvail = new QLabel();
     privAvail->setObjectName("privAvail");
     privAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    privLocked = new QLabel();
-    privLocked->setObjectName("privLocked");
-    privLocked->setTextInteractionFlags(Qt::TextSelectableByMouse);
     privPendi = new QLabel();
     privPendi->setObjectName("privPendi");
     privPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -794,9 +785,6 @@ void NavCoinGUI::createHeaderWidgets()
     QLabel *privPendiLabel = new QLabel();
     privPendiLabel->setText(tr("Pending"));
     privPendiLabel->setObjectName("privPendiLabel");
-    QLabel *privLockedLabel = new QLabel();
-    privLockedLabel->setText(tr("Locked"));
-    privLockedLabel->setObjectName("privLockedLabel");
     QLabel* stakedAvailLabel = new QLabel();
     stakedAvailLabel->setText(tr("Staked"));
     stakedAvailLabel->setObjectName("stakedAvailLabel");
@@ -818,8 +806,6 @@ void NavCoinGUI::createHeaderWidgets()
     privateAvailLayout->addWidget(privAvail);
     privatePendiLayout->addWidget(privPendiLabel);
     privatePendiLayout->addWidget(privPendi);
-    privateLockedLayout->addWidget(privLockedLabel);
-    privateLockedLayout->addWidget(privLocked);
     stakedAvailLayout->addWidget(stakedAvailLabel);
     stakedAvailLayout->addWidget(stakedAvail);
     stakedPendiLayout->addWidget(stakedPendiLabel);
@@ -839,7 +825,6 @@ void NavCoinGUI::createHeaderWidgets()
     privateSubLayout->setContentsMargins(0, 0, 0, 0);
     privateSubLayout->setSpacing(0);
     privateSubLayout->addWidget(privatePendiContainer);
-    privateSubLayout->addWidget(privateLockedContainer);
 
     // Sub layout
     QHBoxLayout* stakedSubLayout = new QHBoxLayout();
@@ -1036,7 +1021,6 @@ void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CA
     balancePendi->setText(NavCoinUnits::prettyWithUnit(unit, pendi, false, NavCoinUnits::separatorAlways));
     balanceImmat->setText(NavCoinUnits::prettyWithUnit(unit, immat, false, NavCoinUnits::separatorAlways));
     privAvail->setText(NavCoinUnits::prettyWithUnit(unit, priv, false, NavCoinUnits::separatorAlways, true));
-    privLocked->setText(NavCoinUnits::prettyWithUnit(unit, privlocked, false, NavCoinUnits::separatorAlways, true));
     privPendi->setText(NavCoinUnits::prettyWithUnit(unit, privpending, false, NavCoinUnits::separatorAlways, true));
 }
 

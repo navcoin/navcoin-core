@@ -682,7 +682,7 @@ uint64_t GetFundContributionPerBlock(const CStateViewCache& view);
 uint64_t GetStakingRewardPerBlock(const CStateViewCache& view);
 
 static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom);
-static void RelayDandelionAggregationSesion(const AggregationSesion& tx, CNode* pfrom);
+static void RelayDandelionAggregationSession(const AggregationSession& tx, CNode* pfrom);
 static void CheckDandelionEmbargoes();
 
 std::vector<std::pair<uint256, int>>* GetProposalVotes(const uint256& hash);

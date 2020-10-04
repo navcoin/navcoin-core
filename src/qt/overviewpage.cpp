@@ -192,7 +192,6 @@ void OverviewPage::setBalance(
     ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
     ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(unit, privateBalance, false, NavCoinUnits::separatorAlways, true));
     ui->labelPrivateBalancePending->setText(NavCoinUnits::formatWithUnit(unit, privPending, false, NavCoinUnits::separatorAlways, true));
-    ui->labelPrivateBalanceLocked->setText(NavCoinUnits::formatWithUnit(unit, privLocked, false, NavCoinUnits::separatorAlways, true));
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
     ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, currentColdStakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, currentImmatureBalance, false, NavCoinUnits::separatorAlways));

@@ -4,7 +4,7 @@
 
 #include "aggregationsession.h"
 
-AggregationSesionDialog::AggregationSesionDialog(QWidget *parent)
+AggregationSessionDialog::AggregationSessionDialog(QWidget *parent)
     :
       QDialog(parent), layout(new QVBoxLayout), topStatus(0), bottomStatus(0), bottom2Status(0), fReady(false)
 {
@@ -37,12 +37,30 @@ AggregationSesionDialog::AggregationSesionDialog(QWidget *parent)
         if (!pwalletMain->aggSession)
             ShowError(tr("Error internal structures."));
 
-        if (!pwalletMain->aggSession->Start())
+        auto nCount = 0;
+
+        if (pwalletMain && pwalletMain->aggSession)
+            nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
+        else
         {
-            pwalletMain->aggSession->Stop();
+            fReady = true;
+            this->done(false);
+            return;
+        }
+
+        if (nCount > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*2)
+        {
+            fReady = true;
+        }
+        else
+        {
             if (!pwalletMain->aggSession->Start())
             {
-                ShowError(tr("Could not start mix session, try restarting your wallet."));
+                pwalletMain->aggSession->Stop();
+                if (!pwalletMain->aggSession->Start())
+                {
+                    ShowError(tr("Could not start mix session, try restarting your wallet."));
+                }
             }
         }
 
@@ -54,16 +72,16 @@ AggregationSesionDialog::AggregationSesionDialog(QWidget *parent)
     timer->start(1000);
 }
 
-void AggregationSesionDialog::setClientModel(ClientModel *clientModel)
+void AggregationSessionDialog::setClientModel(ClientModel *clientModel)
 {
     this->clientModel = clientModel;
 
     if (clientModel) {
-        connect(clientModel, SIGNAL(newAggregationSesion(std::string)), this, SLOT(NewAggregationSesion(std::string)));
+        connect(clientModel, SIGNAL(newAggregationSession(std::string)), this, SLOT(NewAggregationSession(std::string)));
     }
 }
 
-void AggregationSesionDialog::NewAggregationSesion(std::string hs)
+void AggregationSessionDialog::NewAggregationSession(std::string hs)
 {
     if (pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->GetHiddenService() == hs)
     {
@@ -75,7 +93,7 @@ void AggregationSesionDialog::NewAggregationSesion(std::string hs)
     }
 }
 
-void AggregationSesionDialog::CheckStatus()
+void AggregationSessionDialog::CheckStatus()
 {
     if (!fReady && vNodes.size() > 0)
     {
@@ -103,10 +121,10 @@ void AggregationSesionDialog::CheckStatus()
         return;
     }
 
-    if (nExpiresAt < GetTime())
+    if (nExpiresAt < GetTime() || nCount > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*2)
     {
-        SetTopLabel("Coins received");
-        SetBottomLabel("Combining coins...");
+        SetTopLabel("We have enough coins to mix.");
+        SetBottomLabel("Aggregating coin inputs...");
         SetBottom2Label("");
         bool ret = true;
         {
@@ -123,39 +141,39 @@ void AggregationSesionDialog::CheckStatus()
     }
     else if (nCount > 0)
     {
-        SetBottomLabel(QString(tr("Received %1 coin candidate(s)...").arg(nCount)));
+        SetBottomLabel(QString(tr("We have %1 coin candidate(s)...").arg(nCount)));
     }
-    SetBottom2Label(QString(tr("%1 seconds left...").arg(nExpiresAt-GetTime())));
+    SetBottom2Label(QString(tr("Waiting %1 seconds more...").arg(nExpiresAt-GetTime())));
     fReady = true;
 }
 
-CandidateTransaction AggregationSesionDialog::GetSelectedCoins()
+CandidateTransaction AggregationSessionDialog::GetSelectedCoins()
 {
     return selectedCoins;
 }
 
-void AggregationSesionDialog::setWalletModel(WalletModel *model)
+void AggregationSessionDialog::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
 }
 
-void AggregationSesionDialog::ShowError(QString string)
+void AggregationSessionDialog::ShowError(QString string)
 {
     QMessageBox::critical(this, tr("Something failed"), string);
     this->done(0);
 }
 
-void AggregationSesionDialog::SetTopLabel(QString string)
+void AggregationSessionDialog::SetTopLabel(QString string)
 {
     topStatus->setText(string);
 }
 
-void AggregationSesionDialog::SetBottomLabel(QString string)
+void AggregationSessionDialog::SetBottomLabel(QString string)
 {
     bottomStatus->setText(string);
 }
 
-void AggregationSesionDialog::SetBottom2Label(QString string)
+void AggregationSessionDialog::SetBottom2Label(QString string)
 {
     bottom2Status->setText(string);
 }

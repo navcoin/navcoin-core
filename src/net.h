@@ -187,7 +187,7 @@ extern CCriticalSection cs_nLastNodeId;
 
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
-extern std::map<AggregationSesion, int64_t> mDandelionAggregationSesionEmbargo;
+extern std::map<AggregationSession, int64_t> mDandelionAggregationSessionEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsDandelionOutbound(const CNode* const pnode);
@@ -195,13 +195,13 @@ bool IsLocalDandelionDestinationSet();
 bool SetLocalDandelionDestination();
 CNode* GetDandelionDestination(CNode* pfrom);
 bool LocalDandelionDestinationPushInventory(const CInv& inv);
-bool LocalDandelionDestinationPushAggregationSesion(const AggregationSesion& inv);
+bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& inv);
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
-bool InsertDandelionAggregationSesionEmbargo(const AggregationSesion& ms, const int64_t& embargo);
-bool IsDandelionAggregationSesionEmbargoed(const AggregationSesion& ms);
-bool RemoveDandelionAggregationSesionEmbargo(const AggregationSesion& ms);
+bool InsertDandelionAggregationSessionEmbargo(const AggregationSession& ms, const int64_t& embargo);
+bool IsDandelionAggregationSessionEmbargoed(const AggregationSession& ms);
+bool RemoveDandelionAggregationSessionEmbargo(const AggregationSession& ms);
 // Dandelion fields
 extern std::vector<CNode*> vDandelionInbound;
 extern std::vector<CNode*> vDandelionOutbound;
@@ -868,7 +868,7 @@ public:
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);
-void RelayAggregationSesion(const AggregationSesion& ms);
+void RelayAggregationSession(const AggregationSession& ms);
 
 /** Access to the (IP) address database (peers.dat) */
 class CAddrDB

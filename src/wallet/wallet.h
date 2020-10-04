@@ -81,7 +81,7 @@ class CReserveKey;
 class CScript;
 class CTxMemPool;
 class CWalletTx;
-class AggregationSesion;
+class AggregationSession;
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -548,6 +548,8 @@ public:
 
     bool InMempool() const;
     bool InStempool() const;
+    bool InputsInMempool() const;
+    bool InputsInStempool() const;
     bool IsTrusted() const;
 
     int64_t GetTxTime() const;
@@ -780,7 +782,7 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
-    AggregationSesion* aggSession;
+    AggregationSession* aggSession;
 
     CAmount nCommunityFund;
 
@@ -848,7 +850,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
-    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false) const;
+    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -889,6 +891,8 @@ public:
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CPubKey &pubkey, const CKeyMetadata &metadata);
     bool LoadBLSCTBlindingKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTBlindingKeyMetadata &metadata);
+
+    bool WriteCandidateTransactions();
 
     bool LoadMinVersion(int nVersion) { AssertLockHeld(cs_wallet); nWalletVersion = nVersion; nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion); return true; }
 

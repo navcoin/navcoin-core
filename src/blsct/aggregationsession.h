@@ -18,13 +18,15 @@
 #define DEFAULT_MIX_FEE 10000000
 #define DEFAULT_MIN_OUTPUT_AMOUNT 10000000000
 #define DEFAULT_MAX_MIX_FEE 100000000
-#define DEFAULT_TX_MIXCOINS 10
+#define DEFAULT_TX_MIXCOINS 5
 #define DEFAULT_MIX true
 
-class AggregationSesion
+extern CCriticalSection cs_aggregation;
+
+class AggregationSession
 {
 public:
-    AggregationSesion(const CStateViewCache* inputs);
+    AggregationSession(const CStateViewCache* inputs);
 
     bool Start();
     void Stop();
@@ -32,7 +34,7 @@ public:
     static CAmount GetDefaultFee();
     static CAmount GetMaxFee();
 
-    static bool IsKnown(const AggregationSesion& ms);
+    static bool IsKnown(const AggregationSession& ms);
 
     bool GetState() const;
 
@@ -41,6 +43,12 @@ public:
     bool AddCandidateTransaction(const std::vector<unsigned char>& v);
 
     bool SelectCandidates(CandidateTransaction& ret);
+
+    void SetCandidateTransactions(std::vector<CandidateTransaction> candidates);
+
+    bool UpdateCandidateTransactions(const CTransaction &tx);
+
+    bool CleanCandidateTransactions();
 
     uint256 GetHash() const
     {
@@ -59,8 +67,8 @@ public:
 
     bool Join() const;
 
-    friend inline  bool operator==(const AggregationSesion& a, const AggregationSesion& b) { return a.GetHiddenService() == b.GetHiddenService(); }
-    friend inline  bool operator<(const AggregationSesion& a, const AggregationSesion& b) { return a.GetHiddenService() < b.GetHiddenService(); }
+    friend inline  bool operator==(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() == b.GetHiddenService(); }
+    friend inline  bool operator<(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() < b.GetHiddenService(); }
 
     ADD_SERIALIZE_METHODS;
 
@@ -81,5 +89,7 @@ private:
 
     std::vector<CandidateTransaction> vTransactionCandidates;
 };
+
+void AggregationSessionThread();
 
 #endif // AGGREGATIONSESSION_H

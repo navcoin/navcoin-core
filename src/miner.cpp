@@ -916,6 +916,7 @@ extern unsigned int nMinerSleep;
 
 void NavCoinStaker(const CChainParams& chainparams)
 {
+
     LogPrintf("NavCoinStaker started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-staker");
