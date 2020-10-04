@@ -1895,7 +1895,9 @@ UniValue getbalance(const UniValue& params, bool fHelp)
         if(params[2].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
 
-    if (params[0].get_str() == "*") {
+    if (params[0].get_str() == "private") {
+        return  ValueFromAmount(pwalletMain->GetPrivateBalance());
+    } else if (params[0].get_str() == "*") {
         // Calculate total balance a different way from GetBalance()
         // (GetBalance() sums up all unspent TxOuts)
         // getbalance and "getbalance * 1 true" should return the same number
