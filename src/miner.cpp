@@ -631,7 +631,7 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
 
     CAmount nMovedToBLS = 0;
 
-    for (auto &it: mempool.mapTx)
+    for (auto &it: stempool.mapTx)
     {
         CTransaction tx = it.GetTx();
 

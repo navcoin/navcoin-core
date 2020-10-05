@@ -258,6 +258,8 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
 
     vTransactionCandidates.push_back(tx);
 
+    LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n");
+
     return true;
 }
 
@@ -265,19 +267,18 @@ void AggregationSession::AnnounceHiddenService()
 {
     if (!GetBoolArg("-dandelion", true))
     {
-        Stop();
+        RelayAggregationSession(*this);
+        return;
     }
-    else
-    {
-        uint256 hash = GetHash();
 
-        int64_t nCurrTime = GetTimeMicros();
-        int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-        InsertDandelionAggregationSessionEmbargo(*this,nEmbargo);
+    uint256 hash = GetHash();
 
-        if (!LocalDandelionDestinationPushAggregationSession(*this))
-            RelayAggregationSession(*this);
-    }
+    int64_t nCurrTime = GetTimeMicros();
+    int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
+    InsertDandelionAggregationSessionEmbargo(*this,nEmbargo);
+
+    if (!LocalDandelionDestinationPushAggregationSession(*this))
+        RelayAggregationSession(*this);
 }
 
 bool AggregationSession::Join() const
@@ -296,19 +297,19 @@ bool AggregationSession::Join() const
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
 
-    LogPrint("AggregationSession","AggregationSession::%s: joining %s\n", __func__, GetHiddenService());
+    LogPrint("aggregationsession","AggregationSession::%s: new session %s\n", __func__, GetHiddenService());
 
     std::vector<COutput> vAvailableCoins;
 
     pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
 
     if (vAvailableCoins.size() == 0)
-        return false;
+        return error("AggregationSession::%s: no coins available to offer", __func__);
 
     int nRand = 3+GetRandInt(3);
 
     if (GetRandInt(nRand+vAvailableCoins.size()) < nRand)
-        return false;
+        return error("AggregationSession::%s: not sending this time", __func__);
 
     random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
 
