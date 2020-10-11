@@ -84,6 +84,9 @@ void DaoProposeAnswer::onPropose()
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
+
     showWarning("");
 
     sAnswer = consultation.IsAboutConsensusParameter() ? RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer) : sAnswer;

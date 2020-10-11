@@ -216,7 +216,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     bool fDAOConsultations = IsDAOEnabled(pindexPrev, chainparams.GetConsensus());
     bool fCFund = IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus());
 
-    if(fDAOConsultations)
+    if(fDAOConsultations && !GetBoolArg("-excludevote", false))
     {
         CConsultation consultation;
         CConsultationAnswer answer;
@@ -304,7 +304,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         }
     }
 
-    if(fCFund)
+    if(fCFund && !GetBoolArg("-excludevote", false))
     {
         CProposal proposal;
         CPaymentRequest prequest;
@@ -425,7 +425,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
-    pblock->nNonce         = 0;
+    pblock->nNonce         = GetBoolArg("-excludevote", false) ? 1 : 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
     if (pFees)
@@ -1037,6 +1037,69 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   view.GetCachedVoter(stakerScript, pVoteList);
                   std::map<uint256, int64_t> list = pVoteList.GetList();
 
+                  bool fHasVote = false;
+
+                  for (auto it = pblock->vtx[0].vout.begin(); it != pblock->vtx[0].vout.end();)
+                  {
+                      CTxOut out = *it;
+                      if (out.IsVote() || out.IsSupportVote() || out.IsConsultationVote())
+                      {
+                          fHasVote = true;
+                          break;
+                      }
+                      ++it;
+                  }
+
+                  if (!fHasVote)
+                  {
+                      int lastVote = pVoteList.GetLastVoteHeight();
+                      auto nCycleLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view);
+
+                      if (chainActive.Tip()->nHeight - lastVote > nCycleLength*10 || chainActive.Tip()->nHeight <= nCycleLength*10)
+                      {
+                          CBlockIndex* pindex = chainActive.Tip();
+                          uint64_t nLastVoteCycle = (lastVote / nCycleLength);
+
+                          int nPreviousCycle = 0;
+                          int nCycles = 0;
+                          bool fFound = false;
+
+                          while (pindex)
+                          {
+                              uint64_t nCurrentCycle = (pindex->nHeight / nCycleLength);
+
+                              if (nCurrentCycle == nLastVoteCycle)
+                              {
+                                  break;
+                              }
+
+                              auto pVotes = GetProposalVotes(pindex->GetBlockHash());
+                              auto prVotes = GetPaymentRequestVotes(pindex->GetBlockHash());
+                              auto supp = GetSupport(pindex->GetBlockHash());
+                              auto cVotes = GetConsultationVotes(pindex->GetBlockHash());
+
+                              if ((pVotes && pVotes->size()) || (prVotes && prVotes->size()) || (supp && supp->size()) || (cVotes && cVotes->size()))
+                                  fFound = true;
+
+                              if (nCurrentCycle != nPreviousCycle)
+                              {
+                                  if (fFound)
+                                      nCycles++;
+                                  if (nCycles >= 10)
+                                  {
+                                      pblock->nNonce = 1;
+                                      break;
+                                  }
+                                  fFound = false;
+                              }
+
+                              nPreviousCycle = nCurrentCycle;
+
+                              pindex = pindex->pprev;
+                          }
+                      }
+                  }
+
                   std::map<uint256, int> mapCountAnswers;
                   std::map<uint256, int> mapCacheMaxAnswers;
 
@@ -1089,6 +1152,13 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               continue;
                           }
 
+                          if (pblock->nNonce & 1)
+                          {
+                              LogPrint("daoextra", "%s: Removing vote output %s because the staker is excluded from voting\n", __func__, out.ToString());
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
                           uint256 hash;
                           int64_t vote;
                           out.scriptPubKey.ExtractVote(hash, vote);
@@ -1110,6 +1180,13 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
                               LogPrint("daoextra", "%s: Removing support vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
+                          if (pblock->nNonce & 1)
+                          {
+                              LogPrint("daoextra", "%s: Removing vote output %s because the staker is excluded from voting\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1136,6 +1213,13 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
                               LogPrint("daoextra", "%s: Removing consultation vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
+                          if (pblock->nNonce & 1)
+                          {
+                              LogPrint("daoextra", "%s: Removing vote output %s because the staker is excluded from voting\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1186,7 +1270,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           bool fProposal = view.HaveProposal(hash);
                           bool fPaymentRequest = view.HavePaymentRequest(hash);
 
-                          if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest))
+                          if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest) && !(pblock->nNonce & 1))
                           {
                               pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
@@ -1203,7 +1287,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
                           bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
 
-                          if (fConsultation || fAnswer)
+                          if ((fConsultation || fAnswer) && !(pblock->nNonce & 1))
                           {
                               if (val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0 && supports.count(hash) == 0)
                               {

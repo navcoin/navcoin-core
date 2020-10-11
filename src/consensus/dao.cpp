@@ -12,6 +12,7 @@ void GetVersionMask(uint64_t &nProposalMask, uint64_t &nPaymentRequestMask, uint
 {
     bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindex, Params().GetConsensus());
     bool fAbstainVote = IsDAOEnabled(pindex, Params().GetConsensus());
+    bool fExclude = IsExcludeEnabled(pindex, Params().GetConsensus());
 
     nProposalMask = Params().GetConsensus().nProposalMaxVersion;
     nPaymentRequestMask = Params().GetConsensus().nPaymentRequestMaxVersion;
@@ -28,6 +29,14 @@ void GetVersionMask(uint64_t &nProposalMask, uint64_t &nPaymentRequestMask, uint
     {
         nProposalMask &= ~CProposal::ABSTAIN_VOTE_VERSION;
         nPaymentRequestMask &= ~CPaymentRequest::ABSTAIN_VOTE_VERSION;
+    }
+
+    if (!fExclude)
+    {
+        nProposalMask &= ~CProposal::EXCLUDE_VERSION;
+        nPaymentRequestMask &= ~CPaymentRequest::EXCLUDE_VERSION;
+        nConsultationMask &= ~CConsultation::EXCLUDE_VERSION;
+        nConsultationAnswerMask &= ~CConsultationAnswer::EXCLUDE_VERSION;
     }
 }
 
@@ -317,6 +326,7 @@ std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCachePaymentRequestToUpdate;
 std::map<uint256, int> mapCacheSupportToUpdate;
 std::map<std::pair<uint256, int64_t>, int> mapCacheConsultationToUpdate;
+int nCacheExclude = 0;
 uint256 lastConsensusStateHash;
 
 bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& view)
@@ -352,6 +362,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
         mapCacheConsultationToUpdate.clear();
+        nCacheExclude = 0;
         fScanningWholeCycle = true;
     } else {
         nBlocks = 1;
@@ -375,127 +386,135 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         mapSeen.clear();
         mapSeenSupport.clear();
 
-        if (fCFund)
+        if (pindexblock->nNonce & 1)
         {
-            auto pVotes = GetProposalVotes(pindexblock->GetBlockHash());
-            if (pVotes != nullptr)
+            nCacheExclude++;
+        }
+        else
+        {
+            if (fCFund)
             {
-                for(unsigned int i = 0; i < pVotes->size(); i++)
+                auto pVotes = GetProposalVotes(pindexblock->GetBlockHash());
+                if (pVotes != nullptr)
                 {
-                    if(mapSeen.count((*pVotes)[i].first) == 0)
+                    for(unsigned int i = 0; i < pVotes->size(); i++)
                     {
-                        LogPrint("daoextra", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
-                                 (*pVotes)[i].second, (*pVotes)[i].first.ToString(),
-                                 pindexblock->nHeight);
+                        if(mapSeen.count((*pVotes)[i].first) == 0)
+                        {
+                            LogPrint("daoextra", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
+                                     (*pVotes)[i].second, (*pVotes)[i].first.ToString(),
+                                     pindexblock->nHeight);
 
-                        if(mapCacheProposalsToUpdate.count((*pVotes)[i].first) == 0)
-                            mapCacheProposalsToUpdate[(*pVotes)[i].first] = make_pair(make_pair(0, 0), 0);
+                            if(mapCacheProposalsToUpdate.count((*pVotes)[i].first) == 0)
+                                mapCacheProposalsToUpdate[(*pVotes)[i].first] = make_pair(make_pair(0, 0), 0);
 
-                        if((*pVotes)[i].second == VoteFlags::VOTE_YES)
-                            mapCacheProposalsToUpdate[(*pVotes)[i].first].first.first += 1;
-                        else if((*pVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
-                            mapCacheProposalsToUpdate[(*pVotes)[i].first].second += 1;
-                        else if((*pVotes)[i].second == VoteFlags::VOTE_NO)
-                            mapCacheProposalsToUpdate[(*pVotes)[i].first].first.second += 1;
+                            if((*pVotes)[i].second == VoteFlags::VOTE_YES)
+                                mapCacheProposalsToUpdate[(*pVotes)[i].first].first.first += 1;
+                            else if((*pVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
+                                mapCacheProposalsToUpdate[(*pVotes)[i].first].second += 1;
+                            else if((*pVotes)[i].second == VoteFlags::VOTE_NO)
+                                mapCacheProposalsToUpdate[(*pVotes)[i].first].first.second += 1;
 
-                        mapSeen[(*pVotes)[i].first]=true;
+                            mapSeen[(*pVotes)[i].first]=true;
+                        }
+                    }
+                }
+
+                auto prVotes = GetPaymentRequestVotes(pindexblock->GetBlockHash());
+                if (prVotes != nullptr)
+                {
+                    for(unsigned int i = 0; i < prVotes->size(); i++)
+                    {
+                        if(mapSeen.count((*prVotes)[i].first) == 0)
+                        {
+                            LogPrint("daoextra", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
+                                     (*prVotes)[i].second, (*prVotes)[i].first.ToString(),
+                                     pindexblock->nHeight);
+
+                            if(mapCachePaymentRequestToUpdate.count((*prVotes)[i].first) == 0)
+                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first] = make_pair(make_pair(0, 0), 0);
+
+                            if((*prVotes)[i].second == VoteFlags::VOTE_YES)
+                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first].first.first += 1;
+                            else if((*prVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
+                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first].second += 1;
+                            else if((*prVotes)[i].second == VoteFlags::VOTE_NO)
+                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first].first.second += 1;
+
+                            mapSeen[(*prVotes)[i].first]=true;
+                        }
                     }
                 }
             }
 
-            auto prVotes = GetPaymentRequestVotes(pindexblock->GetBlockHash());
-            if (prVotes != nullptr)
+            if (fDAOConsultations)
             {
-                for(unsigned int i = 0; i < prVotes->size(); i++)
+                auto supp = GetSupport(pindexblock->GetBlockHash());
+
+                if (supp != nullptr)
                 {
-                    if(mapSeen.count((*prVotes)[i].first) == 0)
+                    for (auto& it: *supp)
                     {
-                        LogPrint("daoextra", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
-                                 (*prVotes)[i].second, (*prVotes)[i].first.ToString(),
-                                 pindexblock->nHeight);
+                        if (!it.second)
+                            continue;
 
-                        if(mapCachePaymentRequestToUpdate.count((*prVotes)[i].first) == 0)
-                            mapCachePaymentRequestToUpdate[(*prVotes)[i].first] = make_pair(make_pair(0, 0), 0);
+                        if (!mapSeenSupport.count(it.first))
+                        {
+                            LogPrint("daoextra", "%s: Found support vote for %s at block height %d\n", __func__,
+                                     it.first.ToString(),
+                                     pindexblock->nHeight);
 
-                        if((*prVotes)[i].second == VoteFlags::VOTE_YES)
-                            mapCachePaymentRequestToUpdate[(*prVotes)[i].first].first.first += 1;
-                        else if((*prVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
-                            mapCachePaymentRequestToUpdate[(*prVotes)[i].first].second += 1;
-                        else if((*prVotes)[i].second == VoteFlags::VOTE_NO)
-                            mapCachePaymentRequestToUpdate[(*prVotes)[i].first].first.second += 1;
+                            if(mapCacheSupportToUpdate.count(it.first) == 0)
+                                mapCacheSupportToUpdate[it.first] = 0;
 
-                        mapSeen[(*prVotes)[i].first]=true;
+                            mapCacheSupportToUpdate[it.first] += 1;
+                            mapSeenSupport[it.first]=true;
+                        }
+                    }
+                }
+
+                auto cVotes = GetConsultationVotes(pindexblock->GetBlockHash());
+
+                if (cVotes != nullptr)
+                {
+                    for (auto&it: *cVotes)
+                    {
+                        if (mapSeen.count(it.first))
+                            continue;
+
+                        if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
+                        {
+
+                            if (it.second == VoteFlags::VOTE_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
+                            {
+                                if(mapCacheConsultationToUpdate.count(std::make_pair(answer.parent,it.second)) == 0)
+                                    mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] = 0;
+
+                                mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
+
+                                mapSeen[it.first]=true;
+
+                                LogPrint("daoextra", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
+                                         it.second, answer.parent.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)]);
+                            }
+                            else
+                            {
+                                if(mapCacheConsultationToUpdate.count(std::make_pair(it.first,it.second)) == 0)
+                                    mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] = 0;
+
+                                mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
+
+                                mapSeen[it.first]=true;
+
+                                LogPrint("daoextra", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
+                                         it.second, it.first.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)]);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (fDAOConsultations)
-        {
-            auto supp = GetSupport(pindexblock->GetBlockHash());
-
-            if (supp != nullptr)
-            {
-                for (auto& it: *supp)
-                {
-                    if (!it.second)
-                        continue;
-
-                    if (!mapSeenSupport.count(it.first))
-                    {
-                        LogPrint("daoextra", "%s: Found support vote for %s at block height %d\n", __func__,
-                                 it.first.ToString(),
-                                 pindexblock->nHeight);
-
-                        if(mapCacheSupportToUpdate.count(it.first) == 0)
-                            mapCacheSupportToUpdate[it.first] = 0;
-
-                        mapCacheSupportToUpdate[it.first] += 1;
-                        mapSeenSupport[it.first]=true;
-                    }
-                }
-            }
-
-            auto cVotes = GetConsultationVotes(pindexblock->GetBlockHash());
-
-            if (cVotes != nullptr)
-            {
-                for (auto&it: *cVotes)
-                {
-                    if (mapSeen.count(it.first))
-                        continue;
-
-                    if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
-                    {
-
-                        if (it.second == VoteFlags::VOTE_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
-                        {
-                            if(mapCacheConsultationToUpdate.count(std::make_pair(answer.parent,it.second)) == 0)
-                                mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] = 0;
-
-                            mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
-
-                            mapSeen[it.first]=true;
-
-                            LogPrint("daoextra", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
-                                     it.second, answer.parent.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)]);
-                        }
-                        else
-                        {
-                            if(mapCacheConsultationToUpdate.count(std::make_pair(it.first,it.second)) == 0)
-                                mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] = 0;
-
-                            mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
-
-                            mapSeen[it.first]=true;
-
-                            LogPrint("daoextra", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
-                                     it.second, it.first.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)]);
-                        }
-                    }
-                }
-            }
-        }
         pindexblock = pindexblock->pprev;
         nBlocks--;
     }
@@ -757,6 +776,56 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         if(!view.GetAllConsultationAnswers(mapConsultationAnswers) || !view.GetAllConsultations(mapConsultations))
             return false;
+    }
+
+    if (fCFund)
+    {
+        for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
+        {
+            if (!view.HavePaymentRequest(it->first))
+                continue;
+
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
+
+            if (prequest->CanVote(view))
+                prequest->nExclude = nCacheExclude;
+        }
+
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            if (!view.HaveProposal(it->first))
+                continue;
+
+            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+
+            if (!mapSeen.count(proposal->hash) && proposal->CanVote(view))
+                proposal->nExclude = nCacheExclude;
+        }
+    }
+
+    if (fDAOConsultations)
+    {
+        for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
+        {
+            if (!view.HaveConsultation(it->first))
+                continue;
+
+            CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
+
+            if (consultation->GetLastState() == DAOFlags::ACCEPTED)
+                consultation->nExclude = nCacheExclude;
+        }
+
+        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
+        {
+            if (!view.HaveConsultationAnswer(it->first))
+                continue;
+
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
+
+            if (answer->CanBeVoted(view))
+                answer->nExclude = nCacheExclude;
+        }
     }
     
     std::vector<uint256> vClearAnswers;
@@ -2011,6 +2080,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     {
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
+    ret.pushKV("excludedVotes", nExclude);
     ret.pushKV("mapState", mapState);
     ret.pushKV("answers", answers);
     ret.pushKV("min", nMin);
@@ -2270,7 +2340,11 @@ bool CConsultationAnswer::IsConsensusAccepted(const CStateViewCache& view) const
 {
     float nMinimumQuorum = Params().GetConsensus().nConsensusChangeMinAccept/10000.0;
 
-    return nVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum;
+    int exclude = 0;
+    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+        exclude = nExclude;
+
+    return nVotes >= (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude;
 
 }
 
@@ -2298,6 +2372,7 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     {
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
+    ret.pushKV("excludedVotes", nExclude);
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)fState);
@@ -2563,10 +2638,14 @@ bool CPaymentRequest::IsAccepted(const CStateViewCache& view) const
     if (nVersion & REDUCED_QUORUM_VERSION)
         nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
+    int exclude = 0;
+    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+        exclude = nExclude;
+
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum
+    return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT, view) / 10000.0));
 }
 
@@ -2580,7 +2659,11 @@ bool CPaymentRequest::IsRejected(const CStateViewCache& view) const {
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum
+    int exclude = 0;
+    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+        exclude -= nExclude;
+
+    return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view) / 10000.0));
 }
 
@@ -2599,7 +2682,11 @@ bool CProposal::IsAccepted(const CStateViewCache& view) const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum
+    int exclude = 0;
+    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+        exclude -= nExclude;
+
+    return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view) / 10000.0));
 }
 
@@ -2614,7 +2701,11 @@ bool CProposal::IsRejected(const CStateViewCache& view) const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum
+    int exclude = 0;
+    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+        exclude -= nExclude;
+
+    return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/ 10000.0));
 }
 
@@ -2865,6 +2956,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("excludedVotes", nExclude);
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)+1));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     UniValue mapState(UniValue::VOBJ);
@@ -2926,6 +3018,7 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("excludedVotes", nExclude);
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)+1));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     UniValue mapState(UniValue::VOBJ);

@@ -657,6 +657,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CProposal::EXCLUDE_VERSION;
+
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("a",ownerAddress);
     if (ownerAddress != paymentAddress)
@@ -788,6 +791,9 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
     UniValue answers(UniValue::VARR);
     answers.push_back(sAnswer);
 
@@ -887,6 +893,9 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
         nVersion &= ~CConsultation::MORE_ANSWERS_VERSION;
     }
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
     strDZeel.pushKV("q",sQuestion);
     strDZeel.pushKV("m",nMin);
     strDZeel.pushKV("n",nMax);
@@ -973,6 +982,9 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
 
     if (fAdmitsAnswers)
         nVersion |= CConsultation::MORE_ANSWERS_VERSION;
@@ -1122,6 +1134,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::EXCLUDE_VERSION;
+
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("s",Signature);
@@ -1222,6 +1237,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("a",sAnswer);

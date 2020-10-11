@@ -1544,6 +1544,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "consultations", consensusParams, Consensus::DEPLOYMENT_CONSULTATIONS);
     BIP9SoftForkDescPushBack(bip9_softforks, "dao_consensus", consensusParams, Consensus::DEPLOYMENT_DAO_CONSENSUS);
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_v2", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "exclude", consensusParams, Consensus::DEPLOYMENT_EXCLUDE);
     obj.pushKV("softforks",      softforks);
     obj.pushKV("bip9_softforks", bip9_softforks);
 
