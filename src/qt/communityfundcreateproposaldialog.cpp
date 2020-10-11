@@ -146,6 +146,9 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
+        if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::EXCLUDE_VERSION;
+
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("a",Address);
         strDZeel.pushKV("d",nDeadline);
