@@ -271,7 +271,7 @@ public:
     static const uint64_t BASE_VERSION=1<<1;
     static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
     static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
-    static const uint64_t EXCLUDE_VERSION=1<<3;
+    static const uint64_t EXCLUDE_VERSION=1<<4;
     static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | EXCLUDE_VERSION;
 
     CAmount nAmount;
@@ -476,7 +476,7 @@ public:
     static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
     static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
     static const uint64_t PAYMENT_ADDRESS_VERSION=1<<4;
-    static const uint64_t EXCLUDE_VERSION=1<<8;
+    static const uint64_t EXCLUDE_VERSION=1<<5;
     static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | PAYMENT_ADDRESS_VERSION | EXCLUDE_VERSION;
 
     CAmount nAmount;
@@ -703,7 +703,7 @@ class CConsultationAnswer
 {
 public:
     static const uint64_t BASE_VERSION=1;
-    static const uint64_t EXCLUDE_VERSION=1;
+    static const uint64_t EXCLUDE_VERSION=1<<1;
     static const uint64_t ALL_VERSION = BASE_VERSION|EXCLUDE_VERSION;
 
     int nVersion;
