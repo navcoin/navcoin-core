@@ -798,7 +798,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
 
-            if (!mapSeen.count(proposal->hash) && proposal->CanVote(view))
+            if (proposal->CanVote(view))
                 proposal->nExclude = nCacheExclude;
         }
     }
@@ -2664,7 +2664,7 @@ bool CPaymentRequest::IsAccepted(const CStateViewCache& view) const
         nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
     int exclude = 0;
-    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
+    if (nVersion & CPaymentRequest::EXCLUDE_VERSION)
         exclude = nExclude;
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
@@ -2685,8 +2685,8 @@ bool CPaymentRequest::IsRejected(const CStateViewCache& view) const {
         nTotalVotes += nVotesAbs;
 
     int exclude = 0;
-    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
-        exclude -= nExclude;
+    if (nVersion & CPaymentRequest::EXCLUDE_VERSION)
+        exclude = nExclude;
 
     return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view) / 10000.0));
@@ -2708,8 +2708,8 @@ bool CProposal::IsAccepted(const CStateViewCache& view) const
         nTotalVotes += nVotesAbs;
 
     int exclude = 0;
-    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
-        exclude -= nExclude;
+    if (nVersion & CProposal::EXCLUDE_VERSION)
+        exclude = nExclude;
 
     return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view) / 10000.0));
@@ -2727,8 +2727,8 @@ bool CProposal::IsRejected(const CStateViewCache& view) const
         nTotalVotes += nVotesAbs;
 
     int exclude = 0;
-    if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
-        exclude -= nExclude;
+    if (nVersion & CProposal::EXCLUDE_VERSION)
+        exclude = nExclude;
 
     return nTotalVotes > (GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum) - exclude
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/ 10000.0));
