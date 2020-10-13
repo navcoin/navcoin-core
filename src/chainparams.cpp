@@ -246,7 +246,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of BLSCT
-        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 10;
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 

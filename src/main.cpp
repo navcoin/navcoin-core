@@ -3160,6 +3160,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoExcludeVersionMask;
 
+    if(IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nBLSCTVersionMask;
+
     return nVersion;
 }
 
@@ -5960,6 +5963,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nDaoConsensusVersionMask) != nDaoConsensusVersionMask && IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no dao consensus block");
+
+    if((block.nVersion & nBLSCTVersionMask) != nBLSCTVersionMask && IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no blsct block");
 
     return true;
 }
