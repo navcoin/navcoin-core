@@ -26,6 +26,7 @@ bool AggregationSession::Start()
 
     es = new EphemeralServer([=](std::string& s) -> void {
         lock = false;
+        LogPrint("aggregationsession", "AggregationSession::%s: created session %s\n", __func__, s);
         sHiddenService = s;
         if (!fState)
             AnnounceHiddenService();
@@ -258,7 +259,7 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
 
     vTransactionCandidates.push_back(tx);
 
-    LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n");
+    LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n", __func__);
 
     return true;
 }
@@ -467,12 +468,12 @@ bool AggregationSession::Join() const
 
              // first connect to proxy server
              if (!ConnectSocketDirectly(proxy.proxy, so, 60)) {
-                 return error("AggregationSession::%s: Failed to join session %s:%d, could not connect to tor socks proxy\n", __func__, host, port);
+                 return error("AggregationSession::%s: Failed to join session %s:%d, could not connect to tor socks proxy %s\n", __func__, host, port, proxy.proxy.ToString());
              }
 
              // do socks negotiation
              if (!Socks5(host, (unsigned short)port, 0, so))
-                 return error("AggregationSession::%s: Failed to join session %s:%d, could not negotiate with tor socks proxy\n", __func__, host, port);
+                 return error("AggregationSession::%s: Failed to join session %s:%d, could not negotiate with tor socks proxy %s\n", __func__, host, port, proxy.proxy.ToString());
 
              if (!IsSelectableSocket(so)) {
                  CloseSocket(so);

@@ -465,7 +465,7 @@ QValidator::State ProxyAddressValidator::validate(QString &input, int &pos) cons
 {
     Q_UNUSED(pos);
     // Validate the proxy
-    proxyType addrProxy = proxyType(CService(input.toStdString(), 9050), true);
+    proxyType addrProxy = proxyType(CService(input.toStdString(), GetArg("-torsocksport", 9044)), true);
     if (addrProxy.IsValid())
         return QValidator::Acceptable;
 
