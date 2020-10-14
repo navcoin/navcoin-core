@@ -147,7 +147,7 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     daoPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
-    requestPaymentPage->showQR();
+    requestPaymentPage->showPrivateAddress(0);
     sendCoinsPage->setModel(walletModel);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(walletModel->getAddressTableModel());
@@ -231,6 +231,7 @@ void WalletView::gotoReceiveCoinsPage()
 }
 
 void WalletView::gotoRequestPaymentPage(){
+    requestPaymentPage->showPrivateAddress(0);
     setCurrentWidget(requestPaymentPage);
     daoPage->setActive(false);
 }

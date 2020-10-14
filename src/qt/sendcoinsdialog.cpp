@@ -269,7 +269,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
     }
 
-    CAmount txFee = currentTransaction.getTransactionFee()+selectedCoins.fee;
+    CAmount txFee = currentTransaction.getTransactionFee();
 
     QString questionString = tr("Are you sure you want to send?");
 

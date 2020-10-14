@@ -139,6 +139,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    connect(ui->swapButton, SIGNAL(clicked()), this, SLOT(ShowSwapDialog()));
+
+    swapDialog = new SwapXNAVDialog(this);
 
     // start with displaying the "out of sync" warnings
     updateStakeReportNow();
@@ -200,6 +203,9 @@ void OverviewPage::setBalance(
 
     updateStakeReportNow();
 
+    swapDialog->SetPublicBalance(balance);
+    swapDialog->SetPrivateBalance(privateBalance);
+
     uiInterface.SetBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance, currentPrivateBalance, currentPrivateBalancePending, currentPrivateBalanceLocked);
 }
 
@@ -212,11 +218,13 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
+    this->swapDialog->setClientModel(model);
 }
 
 void OverviewPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
+    this->swapDialog->setModel(model);
     if(model && model->getOptionsModel())
     {
         // Set up transaction list
@@ -265,6 +273,10 @@ void OverviewPage::updateDisplayUnit()
     }
 }
 
+void OverviewPage::ShowSwapDialog()
+{
+    this->swapDialog->exec();
+}
 
 using namespace boost;
 using namespace std;

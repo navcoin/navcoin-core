@@ -43,6 +43,15 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     // just a label for displaying navcoin address(es)
     ui->payTo_is->setFont(GUIUtil::fixedPitchFont());
 
+    QPixmap p1(":/icons/mininav");
+    QPixmap p2(":/icons/minixnav");
+
+    ui->fromBox->insertItem(0,"Public NAV");
+    ui->fromBox->insertItem(1,"Private xNAV");
+    ui->fromBox->setItemData(0,p1,Qt::DecorationRole);
+    ui->fromBox->setItemData(1,p2,Qt::DecorationRole);
+    ui->fromBox->setIconSize(QSize(32,32));
+
     // Connect signals
     connect(ui->payAmount, SIGNAL(valueChanged()), this, SIGNAL(payAmountChanged()));
     connect(ui->checkboxSubtractFeeFromAmount, SIGNAL(toggled(bool)), this, SIGNAL(subtractFeeFromAmountChanged()));
@@ -51,15 +60,13 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
     connect(ui->checkboxUseFullAmount, SIGNAL(clicked()), this, SLOT(useFullAmount()));
     connect(ui->checkboxCoinControl, SIGNAL(toggled(bool)), this, SLOT(_coinControlFeaturesChanged(bool)));
-    connect(ui->sendPublic, SIGNAL(clicked()), this, SLOT(sendPublicChanged()));
-    connect(ui->sendPrivate, SIGNAL(clicked()), this, SLOT(sendPrivateChanged()));
+    connect(ui->fromBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fromChanged(int)));
 
     QSettings settings;
 
     bool fDefaultPrivate = settings.value("defaultprivate", false).toBool();
 
-    ui->sendPublic->setChecked(!fDefaultPrivate);
-    ui->sendPrivate->setChecked(fDefaultPrivate);
+    ui->fromBox->setCurrentIndex(fDefaultPrivate);
     ui->amountLabel->setText(fDefaultPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
     ui->memo->setVisible(false);
     ui->memoLabel->setVisible(false);
@@ -74,22 +81,13 @@ SendCoinsEntry::~SendCoinsEntry()
     delete ui;
 }
 
-void SendCoinsEntry::sendPublicChanged()
+void SendCoinsEntry::fromChanged(int index)
 {
-    fPrivate = !((bool)ui->sendPublic->isChecked() && ui->sendPublic->isCheckable());
+    fPrivate = index;
     QSettings settings;
-    settings.setValue("defaultprivate", !ui->sendPublic->isChecked());
+    settings.setValue("defaultprivate", index);
     ui->amountLabel->setText(fPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
-    Q_EMIT privateOrPublicChanged(false);
-}
-
-void SendCoinsEntry::sendPrivateChanged()
-{
-    fPrivate = (bool)ui->sendPrivate->isChecked() && ui->sendPrivate->isCheckable();
-    QSettings settings;
-    settings.setValue("defaultprivate", ui->sendPrivate->isChecked());
-    ui->amountLabel->setText(fPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
-    Q_EMIT privateOrPublicChanged(true);
+    Q_EMIT privateOrPublicChanged(index);
 }
 
 void SendCoinsEntry::setTotalPrivateAmount(const CAmount& amount)
@@ -110,8 +108,7 @@ void SendCoinsEntry::useFullAmount()
 {
     ui->payAmount->setValue(totalAmount);
     ui->payAmount->setDisabled(ui->checkboxUseFullAmount->isChecked());
-    ui->sendPublic->setChecked(true);
-    ui->sendPrivate->setChecked(false);
+    ui->fromBox->setCurrentIndex(0);
     fPrivate = false;
 }
 
@@ -263,7 +260,7 @@ SendCoinsRecipient SendCoinsEntry::getValue()
     recipient.label = ui->addAsLabel->text();
     recipient.amount = ui->payAmount->value();
     recipient.message = ui->memo->text();
-    recipient.isanon = ui->sendPrivate->isChecked();
+    recipient.isanon = ui->fromBox->currentIndex();
     recipient.fSubtractFeeFromAmount = (ui->checkboxSubtractFeeFromAmount->checkState() == Qt::Checked);
 
     return recipient;

@@ -203,6 +203,7 @@ QT_MOC_CPP = \
   qt/moc_daopage.cpp \
   qt/moc_daoconsultationvote.cpp \
   qt/moc_daoconsultationcreate.cpp \
+  qt/moc_swapxnav.cpp \
   qt/moc_navcoinlistwidget.cpp \
   qt/moc_navcoinpushbutton.cpp \
   qt/moc_daoproposeanswer.cpp \
@@ -315,6 +316,7 @@ NAVCOIN_QT_H = \
 	qt/walletview.h \
   qt/winshutdownmonitor.h \
   qt/daopage.h \
+  qt/swapxnav.h \
   qt/daoconsultationvote.h \
   qt/daoconsultationcreate.h \
   qt/navcoinlistwidget.h \
@@ -328,6 +330,9 @@ RES_ICONS = \
 	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/navcoin.png \
+	qt/res/icons/mininav.png \
+	qt/res/icons/swap.png \
+	qt/res/icons/minixnav.png \
 	qt/res/icons/navcoin_full.png
 
 # Vector Icons
@@ -551,6 +556,7 @@ NAVCOIN_QT_CPP += \
 	qt/walletmodeltransaction.cpp \
   qt/walletview.cpp \
   qt/daopage.cpp \
+  qt/swapxnav.cpp \
   qt/daoconsultationvote.cpp \
   qt/daoconsultationcreate.cpp \
   qt/daoproposeanswer.cpp \
