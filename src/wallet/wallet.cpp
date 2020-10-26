@@ -5224,16 +5224,6 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
                     return InitError(strprintf(_("You specified a wrong mnemonic")));
                 }
                 masterPubKey = walletInstance->ImportMnemonic(words, lexicon);
-
-                // Check if we gave a password
-                if (!password.empty()) {
-                    // Is this safe? or do I need to do something more
-                    // to the string after I've converted it to SecureString
-                    SecureString strWalletPass;
-                    strWalletPass.reserve(100);
-                    strWalletPass = password.c_str();
-                    walletInstance->EncryptWallet(strWalletPass);
-                }
             } else
                 masterPubKey = walletInstance->GenerateNewHDMasterKey();
             if (!walletInstance->SetHDMasterKey(masterPubKey))
@@ -5295,6 +5285,13 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
 
             LogPrintf("Generated BLSCT parameters.\n");
         }
+    }
+
+    if (fFirstRun && !password.empty()) {
+        SecureString strWalletPass;
+        strWalletPass.reserve(100);
+        strWalletPass = password.c_str();
+        walletInstance->EncryptWallet(strWalletPass);
     }
 
     LogPrintf(" wallet      %15dms\n", GetTimeMillis() - nStart);
