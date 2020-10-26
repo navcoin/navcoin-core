@@ -7,6 +7,7 @@
 
 #include <amount.h>
 #include <splitrewards.h>
+#include <swapxnav.h>
 
 #include <QWidget>
 #include <QPushButton>
@@ -76,10 +77,13 @@ private:
     qint64 nLastReportUpdate;
     void updateStakeReport(bool fImmediate);
 
+    SwapXNAVDialog* swapDialog;
+
 private Q_SLOTS:
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateWatchOnlyLabels(bool showWatchOnly);
+    void ShowSwapDialog();
 };
 
 #endif // NAVCOIN_QT_OVERVIEWPAGE_H

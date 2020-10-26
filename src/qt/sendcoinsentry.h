@@ -69,8 +69,7 @@ private Q_SLOTS:
     void on_addressBookButton_clicked();
     void updateDisplayUnit();
     void updateAddressBook();
-    void sendPrivateChanged();
-    void sendPublicChanged();
+    void fromChanged(int);
     void useFullAmount();
     void coinControlFeaturesChanged(bool enabled);
     void _coinControlFeaturesChanged(bool enabled);
