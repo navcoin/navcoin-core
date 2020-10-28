@@ -1928,7 +1928,7 @@ std::string CConsultation::GetState(const CBlockIndex* pindex, const CStateViewC
         if (!HaveEnoughAnswers(view))
             sFlags += ", waiting for having enough supported answers";
         if(fState != DAOFlags::SUPPORTED)
-            sFlags += ", waiting for end of voting period";
+            sFlags = "waiting for support";
         if(fState == DAOFlags::REFLECTION)
             sFlags = "reflection phase";
         else if(fState == DAOFlags::ACCEPTED)
@@ -2281,10 +2281,8 @@ bool CConsultationAnswer::ClearState(const CBlockIndex* pindex) {
 std::string CConsultationAnswer::GetState(const CStateViewCache& view) const {
     flags fState = GetLastState();
     std::string sFlags = "waiting for support";
-    if(IsSupported(view)) {
+    if(IsSupported(view) && fState == DAOFlags::ACCEPTED) {
         sFlags = "found support";
-        if(fState != DAOFlags::ACCEPTED)
-            sFlags += ", waiting for end of voting period";
     }
     if (fState == DAOFlags::PASSED)
         sFlags = "passed";
@@ -2845,17 +2843,17 @@ std::string CProposal::GetState(uint32_t currentTime, const CStateViewCache& vie
         if(fState == DAOFlags::PENDING_FUNDS)
             sFlags += ", waiting for enough coins in fund";
         else if(fState != DAOFlags::ACCEPTED)
-            sFlags += ", waiting for end of voting period";
+            sFlags = "pending";
     }
     if(IsRejected(view)) {
         sFlags = "rejected";
         if(fState != DAOFlags::REJECTED)
-            sFlags += ", waiting for end of voting period";
+            sFlags = "pending";
     }
     if(currentTime > 0 && IsExpired(currentTime, view)) {
         sFlags = "expired";
         if(fState != DAOFlags::EXPIRED)
-            sFlags += ", waiting for end of voting period";
+            sFlags = "pending";
     }
     if(fState == DAOFlags::PENDING_VOTING_PREQ) {
         sFlags = "expired, pending voting of payment requests";
