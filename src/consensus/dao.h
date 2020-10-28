@@ -387,17 +387,17 @@ public:
         if(IsAccepted(view)) {
             sFlags = "accepted";
             if(fState != DAOFlags::ACCEPTED)
-                sFlags += " waiting for end of voting period";
+                sFlags = "pending";
         }
         if(IsRejected(view)) {
             sFlags = "rejected";
             if(fState != DAOFlags::REJECTED)
-                sFlags += " waiting for end of voting period";
+                sFlags = "pending";
         }
         if(IsExpired(view)) {
             sFlags = "expired";
             if(fState != DAOFlags::EXPIRED)
-                sFlags += " waiting for end of voting period";
+                sFlags = "pending";
         }
         if (fState == PAID)
             sFlags = "paid";
