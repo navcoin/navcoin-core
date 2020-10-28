@@ -26,7 +26,7 @@
 #define CLIENT_BUILD_IS_RELEASE_CANDIDATE false
 
 /* Build is a test release */
-#define CLIENT_BUILD_IS_TEST_RELEASE false
+#define CLIENT_BUILD_IS_TEST_RELEASE true
 
 /**
  * Copyright year (2009-this)

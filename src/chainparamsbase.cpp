@@ -110,21 +110,25 @@ void SelectBaseParams(const std::string& chain)
 std::string ChainNameFromCommandLine()
 {
     bool fRegTest = GetBoolArg("-regtest", false);
-    bool fTestNet = GetBoolArg("-testnet", false);
     bool fDevNet = GetBoolArg("-devnet", false);
-
+#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+    bool fTestNet = GetBoolArg("-testnet", false);
+#else
+    bool fTestNet = GetBoolArg("-testnet", true);
     if (fTestNet && fRegTest)
         throw std::runtime_error("Invalid combination of -regtest and -testnet.");
     if (fTestNet && fDevNet)
         throw std::runtime_error("Invalid combination of -devnet and -testnet.");
+#endif
+
     if (fDevNet && fRegTest)
         throw std::runtime_error("Invalid combination of -regtest and -devnet.");
     if (fRegTest)
         return CBaseChainParams::REGTEST;
-    if (fTestNet)
-        return CBaseChainParams::TESTNET;
     if (fDevNet)
         return CBaseChainParams::DEVNET;
+    if (fTestNet)
+        return CBaseChainParams::TESTNET;
     return CBaseChainParams::MAIN;
 }
 
