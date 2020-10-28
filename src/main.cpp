@@ -5914,14 +5914,22 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nCFundVersionMask) != nCFundVersionMask && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
+#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+    bool fTestNet = GetBoolArg("-testnet", false);
+#else
+    bool fTestNet = GetBoolArg("-testnet", true);
+#endif
 
-    if(!GetBoolArg("-testnet",false)) {
+    if(!fTestNet) {
         if((block.nVersion & nCFundAccVersionMask) != nCFundAccVersionMask && IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                                "rejected no cfund accumulation block");
         if((block.nVersion & nColdStakingVersionMask) != nColdStakingVersionMask && IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                                "rejected no cold-staking block");
+        if((block.nVersion & nBLSCTVersionMask) != nBLSCTVersionMask && IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
+            return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                             "rejected no blsct block");
     }
 
     if((block.nVersion & nCFundAccSpreadVersionMask) != nCFundAccSpreadVersionMask && IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
@@ -5963,10 +5971,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nDaoConsensusVersionMask) != nDaoConsensusVersionMask && IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no dao consensus block");
-
-    if((block.nVersion & nBLSCTVersionMask) != nBLSCTVersionMask && IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                         "rejected no blsct block");
 
     return true;
 }
