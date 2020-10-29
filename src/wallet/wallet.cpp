@@ -182,7 +182,7 @@ bool CWallet::GenerateNewSubAddress(const uint64_t& account, blsctDoublePublicKe
     {
         index = std::make_pair(account, hdChain.nExternalBLSCTSubAddressCounter[account]);
 
-        if (!GetBLSCTSubAddressPublicKeys(index, pk))
+        if (!CBasicKeyStore::GetBLSCTSubAddressPublicKeys(index, pk))
             return false;
 
         hdChain.nExternalBLSCTSubAddressCounter[account] = hdChain.nExternalBLSCTSubAddressCounter[account] + 1;
@@ -191,7 +191,7 @@ bool CWallet::GenerateNewSubAddress(const uint64_t& account, blsctDoublePublicKe
         if (!CWalletDB(strWalletFile).WriteHDChain(hdChain))
             throw std::runtime_error("CWallet::GenerateNewSubAddress(): Writing HD chain model failed");
 
-    } while (HaveBLSCTSubAddress(pk.GetID()));
+    } while (CBasicKeyStore::HaveBLSCTSubAddress(pk.GetID()));
 
     if (!AddBLSCTSubAddress(pk.GetID(), index))
         throw std::runtime_error("CWallet::GenerateNewSubAddress(): AddBLSCTSubAddress failed");
@@ -1794,7 +1794,7 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
 
                 nonces.push_back(t);
                 bool fValidBP = VerifyBulletproof(proofs, blsctData, nonces, true);
-                bool fHaveSubAddressKey = HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
+                bool fHaveSubAddressKey = CBasicKeyStore::HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
                 if (fValidBP && blsctData.size() == 1 && fHaveSubAddressKey)
                 {
                     return ISMINE_SPENDABLE_PRIVATE;
@@ -4518,7 +4518,7 @@ void CWallet::ReserveBLSCTSubAddressKeyFromKeyPool(const uint64_t& account, int6
         if (!walletdb.ReadBLSCTSubAddressPool(account, nIndex, keypool))
             throw runtime_error("ReserveBLSCTSubAddressKeyFromKeyPool(): read failed");
         LogPrintf("%s: read %s with index %d\n", __func__, keypool.hashId.ToString(), nIndex);
-        if (!HaveBLSCTSubAddress(keypool.hashId))
+        if (!CBasicKeyStore::HaveBLSCTSubAddress(keypool.hashId))
             throw runtime_error("ReserveBLSCTSubAddressKeyFromKeyPool(): unknown key in key pool");
         LogPrintf("blsctSubAddressKeyPool reserve %d\n", nIndex);
     }
