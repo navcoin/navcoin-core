@@ -35,7 +35,15 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
     std::vector<unsigned char> vMemo(sMemo.length());
     std::copy(sMemo.begin(), sMemo.end(), vMemo.begin());
 
-    bprp.Prove(value, gammas, nonces[0], vMemo);
+    try
+    {
+        bprp.Prove(value, gammas, nonces[0], vMemo);
+    }
+    catch(...)
+    {
+        strFailReason = "Range proof failed with exception";
+        return false;
+    }
 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     proofs.push_back(std::make_pair(0,bprp));

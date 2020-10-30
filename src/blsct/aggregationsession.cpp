@@ -433,7 +433,14 @@ bool AggregationSession::Join() const
 
     std::vector<unsigned char> vMemo;
 
-    bprp.Prove(value, gammas, nonce, vMemo);
+    try
+    {
+        bprp.Prove(value, gammas, nonce, vMemo);
+    }
+    catch(...)
+    {
+        return error("AggregationSession::%s: Catched balanceSigningKey exception.\n", __func__);
+    }
 
     std::vector<std::pair<int,BulletproofsRangeproof>> proofs;
     proofs.push_back(std::make_pair(0,bprp));
