@@ -5915,9 +5915,9 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
 #if defined(CLIENT_BUILD_IS_TEST_RELEASE)
-    bool fTestNet = GetBoolArg("-testnet", false);
-#else
     bool fTestNet = GetBoolArg("-testnet", true);
+#else
+    bool fTestNet = GetBoolArg("-testnet", false);
 #endif
 
     if(!fTestNet) {
