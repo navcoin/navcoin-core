@@ -112,9 +112,9 @@ std::string ChainNameFromCommandLine()
     bool fRegTest = GetBoolArg("-regtest", false);
     bool fDevNet = GetBoolArg("-devnet", false);
 #if defined(CLIENT_BUILD_IS_TEST_RELEASE)
-    bool fTestNet = GetBoolArg("-testnet", false);
-#else
     bool fTestNet = GetBoolArg("-testnet", true);
+#else
+    bool fTestNet = GetBoolArg("-testnet", false);
     if (fTestNet && fRegTest)
         throw std::runtime_error("Invalid combination of -regtest and -testnet.");
     if (fTestNet && fDevNet)
