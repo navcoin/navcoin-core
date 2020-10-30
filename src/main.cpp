@@ -2352,8 +2352,14 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
                                  REJECT_INVALID, "bad-mix-bls-inputs",
                                  "transaction mixes bls and legacy inputs");
 
+#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+        bool fTestNet = GetBoolArg("-testnet", true);
+#else
+        bool fTestNet = GetBoolArg("-testnet", false);
+#endif
+
         // If prev is coinbase, check that it's matured
-        if ((coins->IsCoinBase() || coins->IsCoinStake()) && !GetBoolArg("-testnet",false)) {
+        if ((coins->IsCoinBase() || coins->IsCoinStake()) && !fTestNet) {
             if (nSpendHeight - coins->nHeight < ::Params().GetConsensus().nCoinbaseMaturity && nSpendHeight - coins->nHeight > 0)
                 return state.Invalid(false,
                                      REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
