@@ -494,8 +494,41 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     {
         const CNavCoinAddress& address = item.first;
         const string& strName = item.second.name;
-        if (strName == strAccount)
+        if (strName == strAccount && strName != "blsct receive")
             ret.push_back(address.ToString());
+    }
+    return ret;
+}
+
+UniValue listprivateaddresses(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "listprivateaddresses\n"
+                "\nList the private addresses of the wallet.\n"
+                "\nExample:\n"
+                + HelpExampleCli("listprivateaddresses", "")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    // Find all addresses that have the given account
+    UniValue ret(UniValue::VARR);
+    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    {
+        const CNavCoinAddress& address = item.first;
+        const string& strName = item.second.name;
+        const string& index = item.second.purpose;
+        if (strName == "blsct receive")
+        {
+            UniValue obj(UniValue::VOBJ);
+            obj.pushKV("address", address.ToString());
+            obj.pushKV("index", index);
+            ret.push_back(obj);
+        }
     }
     return ret;
 }
@@ -2257,9 +2290,14 @@ UniValue getnewprivateaddress(const UniValue& params, bool fHelp)
     blsctDoublePublicKey k;
 
     if (!pwalletMain->GetBLSCTSubAddressPublicKeys(keyID, k))
-        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Could not calculate public key");
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not calculate public key");
 
-    //pwalletMain->SetAddressBook(keyID, strAccount, "blsct receive");
+    std::pair<uint64_t, uint64_t> index;
+
+    if (!pwalletMain->GetBLSCTSubAddressIndex(keyID, index))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not get subaddress index");
+
+    pwalletMain->SetAddressBook(k, "blsct receive", std::to_string(index.first) + "/" + std::to_string(index.second));
 
     return CNavCoinAddress(k).ToString();
 }
@@ -2477,6 +2515,9 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
         const string& strAccount = item.second.name;
         map<CNavCoinAddress, tallyitem>::iterator it = mapTally.find(address);
         if (it == mapTally.end() && !fIncludeEmpty)
+            continue;
+
+        if (strAccount == "blsct receive")
             continue;
 
         CAmount nAmount = 0;
@@ -4901,6 +4942,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
     { "wallet",             "getaccount",               &getaccount,               true  },
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
+    { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
     { "wallet",             "getbalance",               &getbalance,               false },
     { "wallet",             "getnewaddress",            &getnewaddress,            true  },
     { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
