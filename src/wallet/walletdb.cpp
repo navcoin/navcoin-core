@@ -206,7 +206,7 @@ bool CWalletDB::WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck)
 {
     nWalletDBUpdated++;
     return Write(std::string("crypted_blsctspendkey"), ck) &&
-            Erase(std::string("crypted_blsctspendkey"));
+            Erase(std::string("blsctspendkey"));
 }
 
 bool CWalletDB::WriteBLSCTKey(const CWallet* pwallet)
