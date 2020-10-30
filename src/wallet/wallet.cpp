@@ -5574,7 +5574,7 @@ int CMerkleTx::GetBlocksToMaturity() const
     bool fTestNet = GetBoolArg("-testnet", false);
 #endif
 
-    if (!(IsCoinBase() || IsCoinStake()) || fTestnet)
+    if (!(IsCoinBase() || IsCoinStake()) || fTestNet)
         return 0;
     return max(0, (Params().GetConsensus().nCoinbaseMaturity+1) - GetDepthInMainChain());
 }
