@@ -87,6 +87,8 @@ void SendCoinsEntry::fromChanged(int index)
     QSettings settings;
     settings.setValue("defaultprivate", index);
     ui->amountLabel->setText(fPrivate ? "A&mount (xNAV):" : "A&mount (NAV):");
+    ui->checkboxUseFullAmount->setCheckState(Qt::Unchecked);
+    ui->payAmount->setDisabled(ui->checkboxUseFullAmount->isChecked());
     Q_EMIT privateOrPublicChanged(index);
 }
 
@@ -106,10 +108,8 @@ void SendCoinsEntry::setTotalAmount(const CAmount& amount)
 
 void SendCoinsEntry::useFullAmount()
 {
-    ui->payAmount->setValue(totalAmount);
+    ui->payAmount->setValue(fPrivate ? totalPrivateAmount : totalAmount);
     ui->payAmount->setDisabled(ui->checkboxUseFullAmount->isChecked());
-    ui->fromBox->setCurrentIndex(0);
-    fPrivate = false;
 }
 
 void SendCoinsEntry::updateAddressBook()
