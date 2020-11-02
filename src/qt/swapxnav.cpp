@@ -34,7 +34,6 @@ SwapXNAVDialog::SwapXNAVDialog(QWidget *parent) :
     swapButton->setIcon(ButtonIcon);
     swapButton->setIconSize(QSize(65, 65));
     swapButton->setFixedSize(QSize(65, 65));
-    swapButton->setFlat(true);
 
     connect(swapButton, SIGNAL(clicked()), this, SLOT(Swap()));
 
