@@ -163,8 +163,19 @@ void SwapXNAVDialog::Ok()
 {
     CAmount nAmount = amount->value();
 
-    if ((fMode ? publicBalance : privateBalance) < nAmount)
+    if (nAmount <= 0)
+    {
+        QMessageBox msgBox(this);
+        std::string str = tr("The amount must be greater than 0").toStdString();
+        msgBox.setText(tr(str.c_str()));
+        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Invalid amount");
+        msgBox.exec();
+        return;
+    }
 
+    if ((fMode ? publicBalance : privateBalance) < nAmount)
     {
         QMessageBox msgBox(this);
         std::string str = tr("You don't have that many coins to swap!\n\nAvailable:\n%1").arg(NavCoinUnits::formatWithUnit(0, fMode ? publicBalance : privateBalance, false, NavCoinUnits::separatorAlways, !fMode)).toStdString();
