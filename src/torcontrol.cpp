@@ -579,6 +579,7 @@ void TorController::protocolinfo_cb(TorControlConnection& conn, const TorControl
          * 250-AUTH METHODS=HASHEDPASSWORD
          */
         for(const std::string &s: reply.lines) {
+            LogPrint("tor", "tor: Protocol Info answer: %s\n", s);
             std::pair<std::string,std::string> l = SplitTorReplyLine(s);
             if (l.first == "AUTH") {
                 std::map<std::string,std::string> m = ParseTorReplyMapping(l.second);
