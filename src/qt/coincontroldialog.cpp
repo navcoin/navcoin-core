@@ -739,7 +739,8 @@ void CoinControlDialog::updateView()
         int nInputSum = 0;
         for(const COutput& out: coins.second) {
             int nInputSize = 0;
-            nSum += out.tx->vout[out.i].nValue;
+
+            nSum += out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue;
             nChildren++;
 
             QTreeWidgetItem *itemOutput;
