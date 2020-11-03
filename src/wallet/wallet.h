@@ -834,6 +834,7 @@ public:
     std::map<uint256, int> mapRequestCount;
 
     std::map<CTxDestination, CAddressBookData> mapAddressBook;
+    std::map<std::string, CAddressBookData> mapPrivateAddressBook;
 
     CPubKey vchDefaultKey;
 
@@ -1040,6 +1041,8 @@ public:
     bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& purpose);
 
     bool DelAddressBook(const CTxDestination& address);
+
+    bool SetPrivateAddressBook(const string& address, const std::string& strName, const std::string& purpose);
 
     void UpdatedTransaction(const uint256 &hashTx);
 

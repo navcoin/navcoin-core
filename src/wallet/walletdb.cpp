@@ -54,6 +54,32 @@ bool CWalletDB::ErasePurpose(const string& strPurpose)
     return Erase(make_pair(string("purpose"), strPurpose));
 }
 
+bool CWalletDB::WritePrivateName(const string& strAddress, const string& strName)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("privatename"), strAddress), strName);
+}
+
+bool CWalletDB::ErasePrivateName(const string& strAddress)
+{
+    // This should only be used for sending addresses, never for receiving addresses,
+    // receiving addresses must always have an address book entry if they're not change return.
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("privatename"), strAddress));
+}
+
+bool CWalletDB::WritePrivatePurpose(const string& strAddress, const string& strPurpose)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("privatepurpose"), strAddress), strPurpose);
+}
+
+bool CWalletDB::ErasePrivatePurpose(const string& strPurpose)
+{
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("privatepurpose"), strPurpose));
+}
+
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
     nWalletDBUpdated++;
@@ -498,6 +524,18 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             string strAddress;
             ssKey >> strAddress;
             ssValue >> pwallet->mapAddressBook[CNavCoinAddress(strAddress).Get()].purpose;
+        }
+        else if (strType == "privatename")
+        {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapPrivateAddressBook[strAddress].name;
+        }
+        else if (strType == "privatepurpose")
+        {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapPrivateAddressBook[strAddress].purpose;
         }
         else if (strType == "tx")
         {

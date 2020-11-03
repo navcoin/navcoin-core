@@ -4138,6 +4138,25 @@ bool CWallet::DelAddressBook(const CTxDestination& address)
     return CWalletDB(strWalletFile).EraseName(CNavCoinAddress(address).ToString());
 }
 
+bool CWallet::SetPrivateAddressBook(const string& address, const string& strName, const string& strPurpose)
+{
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet); // mapAddressBook
+        std::map<string, CAddressBookData>::iterator mi = mapPrivateAddressBook.find(address);
+        fUpdated = mi != mapPrivateAddressBook.end();
+        mapPrivateAddressBook[address].name = strName;
+        if (!strPurpose.empty()) /* update purpose only if requested */
+            mapPrivateAddressBook[address].purpose = strPurpose;
+    }
+
+    if (!fFileBacked)
+        return false;
+    if (!strPurpose.empty() && !CWalletDB(strWalletFile).WritePrivatePurpose(address, strPurpose))
+        return false;
+    return CWalletDB(strWalletFile).WritePrivateName(address, strName);
+}
+
 bool CWallet::SetDefaultKey(const CPubKey &vchPubKey)
 {
     if (fFileBacked)

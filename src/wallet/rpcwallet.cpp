@@ -517,15 +517,15 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(string, CAddressBookData)& item: pwalletMain->mapPrivateAddressBook)
     {
-        const CNavCoinAddress& address = item.first;
+        const string& address = item.first;
         const string& strName = item.second.name;
         const string& index = item.second.purpose;
         if (strName == "blsct receive")
         {
             UniValue obj(UniValue::VOBJ);
-            obj.pushKV("address", address.ToString());
+            obj.pushKV("address", address);
             obj.pushKV("index", index);
             ret.push_back(obj);
         }
@@ -2297,7 +2297,7 @@ UniValue getnewprivateaddress(const UniValue& params, bool fHelp)
     if (!pwalletMain->GetBLSCTSubAddressIndex(keyID, index))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not get subaddress index");
 
-    pwalletMain->SetAddressBook(k, "blsct receive", std::to_string(index.first) + "/" + std::to_string(index.second));
+    pwalletMain->SetPrivateAddressBook(CNavCoinAddress(k).ToString(), "blsct receive", std::to_string(index.first) + "/" + std::to_string(index.second));
 
     return CNavCoinAddress(k).ToString();
 }
