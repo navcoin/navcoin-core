@@ -630,19 +630,11 @@ void TorController::protocolinfo_cb(TorControlConnection& conn, const TorControl
          */
         for(const std::string &s: reply.lines) {
             std::pair<std::string,std::string> l = SplitTorReplyLine(s);
-            LogPrint("tor", "tor: Protocol Info answer: %s (divided in %s and %s)\n", s, l.first, l.second);
             if (l.first == "AUTH") {
                 std::map<std::string,std::string> m = ParseTorReplyMapping(l.second);
-                for (auto &it: m)
-                {
-                    LogPrint("tor", "tor: Read parameters %s=%s\n", it.first, it.second);
-                }
                 std::map<std::string,std::string>::iterator i;
                 if ((i = m.find("METHODS")) != m.end())
-                {
                     boost::split(methods, i->second, boost::is_any_of(","));
-                    LogPrint("tor", "tor: found METHODS\n");
-                }
                 if ((i = m.find("COOKIEFILE")) != m.end())
                     cookiefile = i->second;
             } else if (l.first == "VERSION") {
