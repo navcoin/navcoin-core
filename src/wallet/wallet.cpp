@@ -3016,10 +3016,17 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                         nLockedOutputs++;
                         continue;
                     }
+
+                    blsctDoublePublicKey k;
+                    string sAddress = "";
+
+                    if (pwalletMain->GetBLSCTSubAddressPublicKeys(pcoin->vout[i].outputKey, pcoin->vout[i].spendingKey, k))
+                        sAddress = CNavCoinAddress(k).ToString();
+
                     vCoins.push_back(COutput(pcoin, i, nDepth,
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
-                                             memo, amount, gamma));
+                                             memo, amount, gamma, sAddress));
                 }
             }
         }

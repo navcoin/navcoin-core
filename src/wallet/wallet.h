@@ -583,15 +583,16 @@ public:
     std::string vMemo;
     CAmount nAmount;
     Scalar gamma;
+    string sAddress;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0)
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "")
     {
-        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
+        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0)
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "")
     {
-        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
+        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn;
     }
 
     std::string ToString() const;

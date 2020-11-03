@@ -196,8 +196,10 @@ UniValue listprivateunspent(const UniValue& params, bool fHelp)
     for(const COutput& out: vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;
+
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("txid", out.tx->GetHash().GetHex());
+        entry.pushKV("address", out.sAddress);
         entry.pushKV("vout", out.i);
         entry.pushKV("amount", ValueFromAmount(out.tx->vAmounts[out.i]));
         entry.pushKV("confirmations", out.nDepth);
