@@ -495,7 +495,7 @@ bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocket, int nTi
             }
             if (nRet != 0)
             {
-                LogPrintf("connect() to %s failed after select(): %s", addrConnect.ToString(), NetworkErrorString(nRet));
+                LogPrintf("connect() to %s failed after select(): %s\n", addrConnect.ToString(), NetworkErrorString(nRet));
                 return false;
             }
         }
@@ -505,7 +505,7 @@ bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocket, int nTi
         else
 #endif
         {
-            LogPrintf("connect() to %s failed: %s", addrConnect.ToString(), NetworkErrorString(WSAGetLastError()));
+            LogPrintf("connect() to %s failed: %s\n", addrConnect.ToString(), NetworkErrorString(WSAGetLastError()));
             return false;
         }
     }
