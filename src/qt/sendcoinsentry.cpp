@@ -176,6 +176,7 @@ void SendCoinsEntry::clear()
     ui->payTo_s->clear();
     ui->memoTextLabel_s->clear();
     ui->payAmount_s->clear();
+    ui->memo->setStyleSheet("color: black");
 
     // update the display unit, to not use the default ("NAV")
     updateDisplayUnit();
@@ -242,6 +243,16 @@ bool SendCoinsEntry::validate()
     {
         ui->payAmount->setValid(false);
         retval = false;
+    }
+
+    if (fPrivate && ui->memo->text().size() > maxMessageSize)
+    {
+        ui->memo->setStyleSheet("color: red");
+        retval = false;
+    }
+    else
+    {
+        ui->memo->setStyleSheet("color: black");
     }
 
     // Reject dust outputs:

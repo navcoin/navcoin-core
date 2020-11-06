@@ -64,9 +64,9 @@
         <file alias="roboto-medium">res/fonts/roboto-medium.ttf</file>
         <file alias="robotoreg">res/fonts/roboto-regular.ttf</file>
         <file alias="source">res/fonts/source.ttf</file>
-        <file alias="mininav">res/icons/mininav.png</file>
-        <file alias="minixnav">res/icons/minixnav.png</file>
         <file alias="swap">res/icons/swap.png</file>
+        <file alias="mininav">res/icons/mininav.svg</file>
+        <file alias="minixnav">res/icons/minixnav.svg</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

@@ -32,8 +32,8 @@ SwapXNAVDialog::SwapXNAVDialog(QWidget *parent) :
     QIcon ButtonIcon(pixmap);
     swapButton = new QPushButton();
     swapButton->setIcon(ButtonIcon);
-    swapButton->setIconSize(QSize(65, 65));
-    swapButton->setFixedSize(QSize(65, 65));
+    swapButton->setIconSize(QSize(64, 64));
+    swapButton->setFixedSize(QSize(64, 64));
 
     connect(swapButton, SIGNAL(clicked()), this, SLOT(Swap()));
 
@@ -64,7 +64,12 @@ SwapXNAVDialog::SwapXNAVDialog(QWidget *parent) :
     QLabel *amountLabel = new QLabel(tr("Swap amount: "));
     amountLabel->setFont(titleFont);
 
-    QPushButton* okButton = new QPushButton(tr("SWAP!"));
+    QHBoxLayout *okLayout = new QHBoxLayout();
+    QPushButton* okButton = new QPushButton(tr("Swap"));
+
+    okLayout->addStretch();
+    okLayout->addWidget(okButton);
+    okLayout->addStretch();
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(Ok()));
 
@@ -74,7 +79,7 @@ SwapXNAVDialog::SwapXNAVDialog(QWidget *parent) :
     layout->addSpacing(20);
     layout->addLayout(iconsLayout);
     layout->addSpacing(20);
-    layout->addWidget(okButton);
+    layout->addLayout(okLayout);
     layout->addSpacing(10);
 
     layout->setAlignment(amountLabel, Qt::AlignCenter);
@@ -120,23 +125,23 @@ void SwapXNAVDialog::Swap()
     fMode = !fMode;
 
     QPixmap pix(":/icons/mininav");
-    QPixmap scaled = pix.scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    QPixmap scaled = pix.scaled(64,64,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 
-    QBitmap map(50,50);
+    QBitmap map(64,64);
     map.fill(Qt::color0);
     QPainter painter( &map );
     painter.setBrush(Qt::color1);
-    painter.drawRoundedRect( 0, 0, 50, 50,15,15);
+    painter.drawRect( 0, 0, 64, 64);
     scaled.setMask(map);
 
     QPixmap pix2(":/icons/minixnav");
-    QPixmap scaled2 = pix2.scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    QPixmap scaled2 = pix2.scaled(64,64,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 
-    QBitmap map2(50,50);
+    QBitmap map2(64,64);
     map2.fill(Qt::color0);
     QPainter painter2( &map2 );
     painter2.setBrush(Qt::color1);
-    painter2.drawRoundedRect( 0, 0, 50, 50,15,15);
+    painter2.drawRect( 0, 0, 64, 64);
     scaled2.setMask(map2);
 
     if (fMode)

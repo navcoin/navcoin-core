@@ -330,9 +330,9 @@ RES_ICONS = \
 	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/navcoin.png \
-	qt/res/icons/mininav.png \
+	qt/res/icons/mininav.svg \
 	qt/res/icons/swap.png \
-	qt/res/icons/minixnav.png \
+	qt/res/icons/minixnav.svg \
 	qt/res/icons/navcoin_full.png
 
 # Vector Icons
