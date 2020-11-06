@@ -31,6 +31,10 @@
 #include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
 #include <boost/thread.hpp>
 
+#ifdef USE_POLL
+#include <poll.h>
+#endif
+
 #if !defined(HAVE_MSG_NOSIGNAL) && !defined(MSG_NOSIGNAL)
 #define MSG_NOSIGNAL 0
 #endif
