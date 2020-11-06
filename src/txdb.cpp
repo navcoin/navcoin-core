@@ -718,8 +718,7 @@ bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
                     nValue.voting_weight = 0;
                 if (filter & AddressHistoryFilter::GENERATED_FILTER && !(nValue.flags & AddressHistoryFlag::GENERATED_FLAG))
                     continue;
-                if (nValue.spendable != 0 || nValue.stakable != 0 || nValue.voting_weight != 0)
-                    addressIndex.push_back(make_pair(key.second, nValue));
+                addressIndex.push_back(make_pair(key.second, nValue));
                 pcursor->Next();
             } else {
                 return error("failed to get address history value");
