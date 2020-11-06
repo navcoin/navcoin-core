@@ -8,6 +8,7 @@
 #include <qt/walletmodel.h>
 
 #include <QStackedWidget>
+#include <QMessageBox>
 
 class WalletModel;
 class PlatformStyle;

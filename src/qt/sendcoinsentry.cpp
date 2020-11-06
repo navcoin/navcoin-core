@@ -176,7 +176,6 @@ void SendCoinsEntry::clear()
     ui->payTo_s->clear();
     ui->memoTextLabel_s->clear();
     ui->payAmount_s->clear();
-    ui->memo->setStyleSheet("color: black");
 
     // update the display unit, to not use the default ("NAV")
     updateDisplayUnit();
@@ -247,12 +246,8 @@ bool SendCoinsEntry::validate()
 
     if (fPrivate && ui->memo->text().size() > maxMessageSize)
     {
-        ui->memo->setStyleSheet("color: red");
+        QMessageBox::critical(this, tr("Wrong size for encrypted message"), tr("The encrypted message can't be longer than %1 characters.").arg(QString::number(maxMessageSize)));
         retval = false;
-    }
-    else
-    {
-        ui->memo->setStyleSheet("color: black");
     }
 
     // Reject dust outputs:
