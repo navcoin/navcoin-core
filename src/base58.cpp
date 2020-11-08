@@ -338,6 +338,8 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
         return vchData.size() > 0;
     if (vchVersion == params.Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
         return vchData.size() == 2*bls::G1Element::SIZE;
+    if (vchVersion == params.Base58Prefix(CChainParams::SECRET_BLSCT_VIEW_KEY) || vchVersion == params.Base58Prefix(CChainParams::SECRET_BLSCT_SPEND_KEY))
+        return vchData.size() == bls::PrivateKey::PRIVATE_KEY_SIZE;
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
