@@ -5,6 +5,7 @@
 #include <base58.h>
 #include <blsct/rpc.h>
 #include <core_io.h>
+#include <main.h>
 #include <rpc/server.h>
 #include <wallet/wallet.h>
 
@@ -182,6 +183,137 @@ UniValue dumpviewprivkey(const UniValue& params, bool fHelp)
     }
 }
 
+struct blsctOutputInfo
+{
+    CAmount amount;
+    std::string message;
+    bool spent;
+};
+
+UniValue scanviewkey(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+                "scanviewkey \"view key\" ( \"from time\")\n"
+                "\nScans the blockchain using the specified BLSCT view key.\n"
+                "\nArguments:\n"
+                "1. \"view key\"          (string, required) The BLSCT view key\n"
+                "1. \"from time\"         (integer, optional) The timestamp to start scanning at, by default it uses the current chain tip. Use 0 to scan from genesis.\n"
+                "\nExamples:\n"
+                + HelpExampleCli("scanviewkey", "PVpSXkdpeLSTLMNLRTKLMNDLPFTqjX4Ug34ALU8")
+                );
+
+    int64_t nTimeBegin = chainActive.Tip()->GetBlockTime();
+
+    if (params.size() > 1)
+        nTimeBegin = std::max(1601287047, params[1].get_int());
+
+    CNavCoinBLSCTViewKey key(params[0].get_str());
+
+    CBlockIndex *pindex = chainActive.Tip();
+    while (pindex && pindex->pprev && pindex->GetBlockTime() > nTimeBegin - 7200)
+        pindex = pindex->pprev;
+
+    blsctKey vk = key.GetKey();
+
+    if (!vk.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid view key: ")+params[0].get_str());
+
+    UniValue ret(UniValue::VOBJ);
+
+    std::map<COutPoint, blsctOutputInfo> mapOutputs;
+    CAmount nBalance = 0;
+
+    int64_t nLastChecked = pindex->GetBlockTime();
+
+    {
+        LOCK2(cs_main, pwalletMain->cs_wallet);
+
+        while (pindex)
+        {
+            nLastChecked = pindex->GetBlockTime();
+
+            CBlock block;
+            ReadBlockFromDisk(block, pindex, Params().GetConsensus());
+
+            if (pindex->nHeight % 25000 == 0)
+                LogPrintf("%s: Scanning using view key. Current height: %d\n", __func__, pindex->nHeight);
+
+            for(CTransaction& tx: block.vtx)
+            {
+                for (CTxIn& in: tx.vin)
+                {
+                    if (mapOutputs.count(in.prevout))
+                    {
+                        mapOutputs[in.prevout].spent = true;
+                        nBalance -= mapOutputs[in.prevout].amount;
+                    }
+                }
+                for (unsigned int i = 0; i < tx.vout.size(); i++)
+                {
+                    CTxOut txout = tx.vout[i];
+                    if (txout.HasRangeProof() && txout.IsBLSCT())
+                    {
+                        std::vector<RangeproofEncodedData> blsctData;
+                        std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+                        std::vector<bls::G1Element> nonces;
+
+                        if (txout.ephemeralKey.size() > 0 && txout.outputKey.size() > 0 && txout.spendingKey.size() > 0)
+                        {
+                            try
+                            {
+                                proofs.push_back(std::make_pair(0,txout.bp));
+                                bls::G1Element t = bls::G1Element::FromByteVector(txout.outputKey);
+                                bls::PrivateKey k = vk.GetKey();
+                                t = t * k;
+
+                                nonces.push_back(t);
+                                bool fValidBP = VerifyBulletproof(proofs, blsctData, nonces, true);
+                                if (fValidBP && blsctData.size() == 1)
+                                {
+                                    blsctOutputInfo info;
+                                    info.amount = blsctData[0].amount;
+                                    info.message = blsctData[0].message;
+                                    info.spent = false;
+                                    nBalance += blsctData[0].amount;
+                                    mapOutputs.insert(std::make_pair(COutPoint(tx.GetHash(), i), info));
+                                }
+                            }
+                            catch(...)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            pindex = chainActive.Next(pindex);
+        }
+    }
+
+    UniValue outs(UniValue::VARR);
+
+    for (auto& it: mapOutputs)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.hash.ToString());
+        entry.pushKV("n", (uint64_t)it.first.n);
+        entry.pushKV("amount", it.second.amount);
+        entry.pushKV("message", it.second.message);
+        entry.pushKV("spent", it.second.spent);
+        outs.push_back(entry);
+    }
+
+    ret.pushKV("outputs", outs);
+    ret.pushKV("last_checked", nLastChecked);
+
+    if (nTimeBegin <= 1601287047)
+        ret.pushKV("balance", nBalance);
+
+    return ret;
+}
+
 static const CRPCCommand blsctcommands[] =
 { //  category              name                        actor (function)           okSafeMode
   //  --------------------- ------------------------    -----------------------    ----------
@@ -193,6 +325,7 @@ static const CRPCCommand blsctcommands[] =
   { "blsct",              "getaggregationfee",          &getaggregationfee,        true  },
   { "blsct",              "getaggregationmaxfee",       &getaggregationmaxfee,     true  },
   { "blsct",              "dumpviewprivkey",            &dumpviewprivkey,          true  },
+  { "blsct",              "scanviewkey",                &scanviewkey,              true  },
 };
 
 void RegisterBLSCTRPCCommands(CRPCTable &tableRPC)

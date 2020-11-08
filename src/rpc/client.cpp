@@ -152,6 +152,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "coinstakeinputs", 0 },
     { "forcetransactions", 0 },
     { "donatefund", 1 },
+    { "getnewprivateaddress", 0 },
+    { "scanviewkey", 1 },
 };
 
 class CRPCConvertTable
