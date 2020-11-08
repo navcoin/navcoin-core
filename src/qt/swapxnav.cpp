@@ -310,7 +310,7 @@ void SwapXNAVDialog::Ok()
                                                fMode ? "xNAV" : "NAV",
                                                NavCoinUnits::formatWithUnit(0, nFeeRequired, false, NavCoinUnits::separatorAlways, !fMode))
                                                +"<br><br>"+tr("You will receive a total of %1.").arg(
-                                               NavCoinUnits::formatWithUnit(0, nAmount - nFeeRequired, false, NavCoinUnits::separatorAlways, !fMode))
+                                               NavCoinUnits::formatWithUnit(0, nAmount - nFeeRequired, false, NavCoinUnits::separatorAlways, fMode))
                                                +"<br><br>"+tr("Do you want to continue?"),
                                            QMessageBox::Yes|QMessageBox::No).exec())
         {
