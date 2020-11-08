@@ -2,10 +2,23 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <base58.h>
 #include <blsct/rpc.h>
 #include <core_io.h>
 #include <rpc/server.h>
 #include <wallet/wallet.h>
+
+bool EnsureWalletIsAvailable(bool avoidException)
+{
+    if (!pwalletMain)
+    {
+        if (!avoidException)
+            throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Method not found (disabled)");
+        else
+            return false;
+    }
+    return true;
+}
 
 UniValue startaggregationsession(const UniValue& params, bool fHelp)
 {
@@ -135,6 +148,40 @@ UniValue setaggregationmaxfee(const UniValue& params, bool fHelp)
     return true;
 }
 
+UniValue dumpviewprivkey(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "dumpviewprivkey\n"
+                "\nReveals the current blsct view key.\n"
+                "\nResult:\n"
+                " \"key\"                 (string) The BLSCT private view key\n"
+                "\nExamples:\n"
+                + HelpExampleCli("dumpviewprivkey", "")
+                );
+
+    LOCK(pwalletMain->cs_wallet);
+
+    //EnsureWalletIsUnlocked();
+
+    blsctKey k;
+    if (pwalletMain->GetBLSCTViewKey(k))
+    {
+        CNavCoinBLSCTViewKey key;
+        key.SetKey(k);
+
+        return key.ToString();
+    }
+    else
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Unable to retrieve BLSCT private view key");
+        return NullUniValue;
+    }
+}
+
 static const CRPCCommand blsctcommands[] =
 { //  category              name                        actor (function)           okSafeMode
   //  --------------------- ------------------------    -----------------------    ----------
@@ -145,6 +192,7 @@ static const CRPCCommand blsctcommands[] =
   { "blsct",              "setaggregationmaxfee",       &setaggregationmaxfee,     true  },
   { "blsct",              "getaggregationfee",          &getaggregationfee,        true  },
   { "blsct",              "getaggregationmaxfee",       &getaggregationmaxfee,     true  },
+  { "blsct",              "dumpviewprivkey",            &dumpviewprivkey,          true  },
 };
 
 void RegisterBLSCTRPCCommands(CRPCTable &tableRPC)

@@ -272,6 +272,8 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
         base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,36);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
@@ -529,6 +531,8 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,32);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -770,6 +774,8 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,40);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -1001,6 +1007,8 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,44);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);

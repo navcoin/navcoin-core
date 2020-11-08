@@ -189,7 +189,40 @@ public:
     CNavCoinExtKeyBase() {}
 };
 
+template<CChainParams::Base58Type Type>class CNavCoinBLSCTKeyBase : public CBase58Data
+{
+public:
+    void SetKey(const blsctKey &key) {
+        std::vector<unsigned char> vch = key.GetKey().Serialize();
+        SetData(Params().Base58Prefix(Type), &vch[0], vch.size());
+    }
+
+    blsctKey GetKey() {
+        CPrivKey k;
+        blsctKey retk;
+        if (vchData.size() == bls::PrivateKey::PRIVATE_KEY_SIZE) {
+            //if base58 encouded data not holds a ext key, return a !IsValid() key
+            k.resize(bls::PrivateKey::PRIVATE_KEY_SIZE);
+            memcpy(k.data(), &vchData.front(), k.size());
+            retk = k;
+        }
+        return retk;
+    }
+
+    CNavCoinBLSCTKeyBase(const blsctKey &key) {
+        SetKey(key);
+    }
+
+    CNavCoinBLSCTKeyBase(const std::string& strBase58c) {
+        SetString(strBase58c.c_str(), Params().Base58Prefix(Type).size());
+    }
+
+    CNavCoinBLSCTKeyBase() {}
+};
+
 typedef CNavCoinExtKeyBase<CExtKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_SECRET_KEY> CNavCoinExtKey;
 typedef CNavCoinExtKeyBase<CExtPubKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_PUBLIC_KEY> CNavCoinExtPubKey;
+typedef CNavCoinBLSCTKeyBase<CChainParams::SECRET_BLSCT_VIEW_KEY> CNavCoinBLSCTViewKey;
+typedef CNavCoinBLSCTKeyBase<CChainParams::SECRET_BLSCT_SPEND_KEY> CNavCoinBLSCTSpendKey;
 
 #endif // NAVCOIN_BASE58_H
