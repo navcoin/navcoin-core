@@ -9,7 +9,7 @@
 #include <rpc/server.h>
 #include <wallet/wallet.h>
 
-bool EnsureWalletIsAvailable(bool avoidException)
+bool EnsureWalletIsAvailable_(bool avoidException)
 {
     if (!pwalletMain)
     {
@@ -151,7 +151,7 @@ UniValue setaggregationmaxfee(const UniValue& params, bool fHelp)
 
 UniValue dumpviewprivkey(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable_(fHelp))
         return NullUniValue;
 
     if (fHelp || params.size() != 0)
