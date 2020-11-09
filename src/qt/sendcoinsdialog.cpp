@@ -281,7 +281,10 @@ void SendCoinsDialog::on_sendButton_clicked()
         QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
-        QString address = "<span style='font-family: monospace;'>" + rcp.address;
+        QString splitAddr = rcp.address;
+        for (int i = 50; i <= splitAddr.size(); i+=51)
+            splitAddr.insert(i, "<br>");
+        QString address = "<span style='font-family: monospace'>" + splitAddr;
         address.append("</span>");
 
         QString recipientElement;
