@@ -3610,6 +3610,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<CTxIn> vBLSConflicted;
     std::vector<int> prevheights;
     CAmount nFees = 0;
+    CAmount nBLSCTFees = 0;
     int nInputs = 0;
     int64_t nSigOpsCost = 0;
     CDiskTxPos pos(pindex->GetBlockPos(), GetSizeOfCompactSize(block.vtx.size()));
@@ -4087,7 +4088,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (!tx.IsCoinStake())
             {
                 if (tx.IsBLSCT())
+                {
+                    nBLSCTFees += tx.GetFee();
                     nFees += tx.GetFee();
+                }
                 else
                     nFees += view.GetValueIn(tx) - tx.GetValueOut();
             }
@@ -4589,7 +4593,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
-    pindex->nPublicMoneySupply += nCreated - nFees - nMovedToBLS;
+    LogPrintf("%s: added to public +%s -%s -%s\n", __func__, FormatMoney(nCreated), FormatMoney(nBLSCTFees), FormatMoney(nMovedToBLS));
+
+    pindex->nPublicMoneySupply += nCreated - nBLSCTFees - nMovedToBLS;
     pindex->nPrivateMoneySupply += nMovedToBLS;
 
     if (pindex->nPrivateMoneySupply < 0)
