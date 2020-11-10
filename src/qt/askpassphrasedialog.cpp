@@ -146,9 +146,7 @@ void AskPassphraseDialog::accept()
                                     "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
                                 "<br><br><b>" +
                                 tr("IMPORTANT: Any previous backups you have made of your wallet file "
-                                    "should be replaced with the newly generated, encrypted wallet file. "
-                                    "For security reasons, previous backups of the unencrypted wallet file "
-                                    "will become useless as soon as you start using the new, encrypted wallet.") +
+                                    "should be replaced with the newly generated, encrypted wallet file. ") +
                                 "</b></qt>");
                         QApplication::quit();
                     }
@@ -195,9 +193,7 @@ void AskPassphraseDialog::accept()
                                     "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
                                 "<br><br><b>" +
                                 tr("IMPORTANT: Any previous backups you have made of your wallet file "
-                                    "should be replaced with the newly generated, encrypted wallet file. "
-                                    "For security reasons, previous backups of the unencrypted wallet file "
-                                    "will become useless as soon as you start using the new, encrypted wallet.") +
+                                    "should be replaced with the newly generated, encrypted wallet file. ") +
                                 "</b></qt>");
                         QApplication::quit();
                     }
