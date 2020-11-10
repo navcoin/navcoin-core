@@ -1480,7 +1480,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
-                if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation, vAnswers))
+                if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), chainActive.Tip(), consultation, vAnswers))
                 {
                     if (viewMemPool.AddConsultation(consultation))
                     {
@@ -2925,7 +2925,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
 
-    if (fStake && fVoteCacheState && fCFund)
+    if (fStake && fVoteCacheState && fCFund && !(pindex->nNonce & 1))
     {
         CVoteMap baseMap;
 
@@ -3064,6 +3064,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoConsensusVersionMask;
 
+    if(IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nDaoExcludeVersionMask;
+
     return nVersion;
 }
 
@@ -3184,7 +3187,7 @@ bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& block
     return true;
 }
 
-bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation, std::vector<CConsultationAnswer>& vAnswers)
+bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CBlockIndex* pindexPrev, CConsultation& consultation, std::vector<CConsultationAnswer>& vAnswers)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
@@ -3245,6 +3248,10 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
             answer.parent = hash;
             answer.sAnswer = s;
             answer.nVersion = CConsultationAnswer::BASE_VERSION;
+
+            if (IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
+                answer.nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
+
             answer.txblockhash = blockhash;
             answer.fDirty = true;
 
@@ -3554,7 +3561,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         nInputs += tx.vin.size();
 
-        if (fCFund || fDAOConsultations)
+        if ((fCFund || fDAOConsultations) && !(pindex->nNonce & 1))
         {
             // Add Votes from the block coinbase or dao vote txs if enabled
             if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fStake && fDaoTx && i > 1) || (!fStake && fDaoTx && i > 0))
@@ -4239,7 +4246,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
-                if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), consultation, vAnswers))
+                if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), pindex->pprev, consultation, vAnswers))
                 {
                     if (view.AddConsultation(consultation))
                     {
@@ -5630,6 +5637,12 @@ bool IsColdStakingv2Enabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING_V2, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsExcludeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_EXCLUDE, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -5788,6 +5801,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
                          "rejected, block version isn't v4.5.2");
 
     if((block.nVersion & nDAOVersionMask) != nDAOVersionMask && IsDAOEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no consultations block");
+
+    if((block.nVersion & nDaoExcludeVersionMask) != nDaoExcludeVersionMask && IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
 

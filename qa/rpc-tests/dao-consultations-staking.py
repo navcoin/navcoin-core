@@ -84,10 +84,10 @@ class ConsultationsTest(NavCoinTestFramework):
 
         #cycle 2
 
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "found support, waiting for end of voting period")
+        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "pending")
         assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] == "waiting for support, waiting for having enough supported answers")
         assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "found support, waiting for end of voting period")
+        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "pending")
 
         self.end_cycle_stake(self.nodes[0])
         self.stake_block(self.nodes[0] , 1)

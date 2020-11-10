@@ -66,13 +66,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
             blocks=slow_gen(self.nodes[0], 1)
             time.sleep(1)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
 
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
         slow_gen(self.nodes[0], 1)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 1)
@@ -151,7 +151,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
         time.sleep(0.2)

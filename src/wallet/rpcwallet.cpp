@@ -585,6 +585,27 @@ UniValue stakervote(const UniValue& params, bool fHelp)
     return "";
 }
 
+UniValue setexclude(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "setexclude bool\n"
+                "\nSets the node blocks to be excluded from votings.\n"
+                "\nArguments:\n"
+                "1. \"bool\"               (bool, required) Whether to turn on or off.\n"
+                + HelpExampleCli("setexclude", "true")
+                );
+
+    if (!params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
+
+    SoftSetArg("-excludevote", params[0].get_bool() ? "1" : "0", true);
+    RemoveConfigFile("excludevote");
+    WriteConfigFile("excludevote", params[0].get_bool() ? "1" : "0");
+
+    return "";
+}
+
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -656,6 +677,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CProposal::EXCLUDE_VERSION;
 
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("a",ownerAddress);
@@ -788,6 +812,9 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
     UniValue answers(UniValue::VARR);
     answers.push_back(sAnswer);
 
@@ -887,6 +914,9 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
         nVersion &= ~CConsultation::MORE_ANSWERS_VERSION;
     }
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
     strDZeel.pushKV("q",sQuestion);
     strDZeel.pushKV("m",nMin);
     strDZeel.pushKV("n",nMax);
@@ -973,6 +1003,9 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
 
     if (fAdmitsAnswers)
         nVersion |= CConsultation::MORE_ANSWERS_VERSION;
@@ -1122,6 +1155,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::EXCLUDE_VERSION;
+
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("s",Signature);
@@ -1222,6 +1258,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("a",sAnswer);
@@ -4481,6 +4520,7 @@ static const CRPCCommand commands[] =
     { "dao",                "proposeanswer",            &proposeanswer,            false },
     { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
     { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
+    { "dao",                "setexclude",               &setexclude,               false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "dao",                "support",                  &support,                  false },
     { "dao",                "supportlist",              &supportlist,              false },

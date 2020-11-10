@@ -205,6 +205,9 @@ void DaoConsultationCreate::onCreate()
     if (fRange)
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
 
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
     if (moreAnswersBox->isChecked())
     {
         if (!fRange)
@@ -302,7 +305,7 @@ void DaoConsultationCreate::onCreate()
             else {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
-                if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), consultation, vAnswers))
+                if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), chainActive.Tip(), consultation, vAnswers))
                 {
                     for (auto &it: vAnswers)
                     {
@@ -372,6 +375,9 @@ void DaoConsultationCreate::onCreateConsensus()
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
 
     if (listAnswers.size() < 1)
     {
@@ -462,7 +468,7 @@ void DaoConsultationCreate::onCreateConsensus()
             bool duplicate;
             CConsultation consultation;
             std::vector<CConsultationAnswer> vAnswers;
-            if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), consultation, vAnswers))
+            if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), chainActive.Tip(), consultation, vAnswers))
             {
                 for (auto &it: vAnswers)
                 {
