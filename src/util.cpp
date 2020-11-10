@@ -111,7 +111,6 @@ namespace boost {
 
 using namespace std;
 
-const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 const char * const DEFAULT_WALLET_DAT = "wallet.dat";
