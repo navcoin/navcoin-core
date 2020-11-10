@@ -65,6 +65,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
     }
 
+    if (hash.ToString() == "be198aa82b5a2948b39487c9604c29de6f1160150d17b0b968b3e705f6f80d02")
+        LogPrintf("%s: %s\n", __func__ ,hash.ToString());
+
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         //
@@ -310,12 +313,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 }
 
                 CAmount nValue = txout.nValue;
-                /* Add fee to first output */
-                if (nTxFee > 0)
-                {
-                    nValue += nTxFee;
-                    nTxFee = 0;
-                }
+
+                if (nValue == 0)
+                    continue;
 
                 sub.debit = -nValue;
 
@@ -325,8 +325,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
 
-                else if (txout.scriptPubKey.IsFee())
-                    continue;
+                if (txout.scriptPubKey.IsFee())
+                    sub.type = TransactionRecord::Fee;
 
                 parts.append(sub);
             }
