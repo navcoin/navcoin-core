@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include <boost/algorithm/string/join.hpp>
+
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
@@ -54,6 +56,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
+    std::vector<std::string> vMemos;
+    for (auto &s:wtx.vMemos)
+    {
+        if (s != "" && s != "Fee" && s != "Change")
+        {
+            vMemos.push_back(s);
+        }
+    }
 
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
@@ -175,12 +185,19 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::Fee, "",
                             -(nDebit - nChange), nCredit - nChange));
             parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
+
             if (wtx.IsBLSInput() && fHasSomeNormalOut)
+            {
                  parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPublic, "",
                                                 0, nPublicCredit));
+                 parts.last().memo = boost::algorithm::join(vMemos, ", ");
+            }
              else if (!wtx.IsBLSInput() && wtx.IsCTOutput())
+            {
                  parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
                                                 0, nPrivateCredit));
+                 parts.last().memo = boost::algorithm::join(vMemos, ", ");
+            }
         }
         else if (fAllFromMe && !wtx.IsBLSInput())
         {
@@ -252,6 +269,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
             {
                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit+blsFee, 0));
+                parts.last().memo = boost::algorithm::join(vMemos, ", ");
             }
         }
         else if (fAllFromMe && wtx.IsBLSInput())
@@ -316,6 +334,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
             {
                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit + blsFee, 0));
+                parts.last().memo = boost::algorithm::join(vMemos, ", ");
             }
         }
         else
@@ -323,10 +342,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Mixed debit transaction, can't break down payees
             //
+
             if (nPrivateDebit > nPrivateCredit)
             {
                 CAmount nTxFee = wtx.GetFee();
                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
+                parts.last().memo = boost::algorithm::join(vMemos, ", ");
             }
             else
             {

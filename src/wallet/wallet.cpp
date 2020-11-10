@@ -1517,8 +1517,10 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                 {
                     if (it.valid)
                     {
-                        wtx.vAmounts[it.index] = it.amount;
-                        wtx.vMemos[it.index] = it.message;
+                        if (it.amount != 0)
+                            wtx.vAmounts[it.index] = it.amount;
+                        if (it.message != "")
+                            wtx.vMemos[it.index] = it.message;
                         wtx.vGammas[it.index] = it.gamma;
                     }
                 }
@@ -3397,6 +3399,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     txNew.nLockTime = chainActive.Height();
     txNew.nTime = GetAdjustedTime();
 
+    std::vector<CAmount> vAmounts;
+    std::vector<std::string> vMemos;
+
     // Secondly occasionally randomly pick a nLockTime even further back, so
     // that transactions that are delayed after signing for whatever reason,
     // e.g. high-latency mix networks and some CoinJoin implementations, have
@@ -3424,6 +3429,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 nChangePosInOut = nChangePosRequest;
                 txNew.vin.clear();
                 txNew.vout.clear();
+                vAmounts.clear();
+                vMemos.clear();
                 wtxNew.fFromMe = true;
                 bool fFirst = true;
 
@@ -3519,6 +3526,13 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     }
 
                     txNew.vout.push_back(txout);
+
+                    vAmounts.resize(txNew.vout.size());
+                    vMemos.resize(txNew.vout.size());
+
+                    vAmounts[txNew.vout.size()-1] = nValue;
+                    vMemos[txNew.vout.size()-1] = recipient.sMemo;
+
                     i++;
                 }
 
@@ -3597,6 +3611,12 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         txNew.nVersion |= TX_BLS_CT_FLAG;
                         txNew.vout.push_back(newTxOut);
+
+                        vAmounts.resize(txNew.vout.size());
+                        vMemos.resize(txNew.vout.size());
+
+                        vAmounts[txNew.vout.size()-1] = nChange;
+                        vMemos[txNew.vout.size()-1] = "Change";
                     }
                     else
                     {
@@ -3681,6 +3701,12 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 {
                     CTxOut feeOut = CTxOut(nFeeRet-nMixFee, CScript(OP_RETURN));
                     txNew.vout.push_back(feeOut);
+
+                    vAmounts.resize(txNew.vout.size());
+                    vMemos.resize(txNew.vout.size());
+
+                    vAmounts[txNew.vout.size()-1] = nFeeRet-nMixFee;
+                    vMemos[txNew.vout.size()-1] = "Fee";
                 }
 
                 // Fill vin
@@ -3828,6 +3854,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 // Embed the constructed transaction data in wtxNew.
                 *static_cast<CTransaction*>(&wtxNew) = CTransaction(txNew);
+
+                wtxNew.vAmounts = vAmounts;
+                wtxNew.vMemos = vMemos;
 
                 // Limit size
                 if (GetTransactionWeight(txNew) >= MAX_STANDARD_TX_WEIGHT)
