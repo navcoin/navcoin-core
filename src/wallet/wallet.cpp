@@ -953,7 +953,7 @@ bool CWallet::Verify()
         // Check if it's encrypted
         if (BdbEncrypted(boost::filesystem::path(GetDataDir() / walletFile))) {
             // No pin?
-           if (pin == "")
+            if (pin == "")
                 pin = uiInterface.AskForPin(_("PIN/PASS:"));
         }
     }

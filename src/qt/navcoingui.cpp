@@ -1856,18 +1856,23 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
 
 static std::string AskForPin(NavCoinGUI *gui)
 {
+    std::string ret = "";
+    QMetaObject::invokeMethod(gui, "askForPin", GUIUtil::blockingGUIThreadConnection(), Q_ARG(std::string*, &ret));
+    return ret;
+}
+
+void NavCoinGUI::askForPin(std::string *ret)
+{
     bool ok = false;
-    QString text = QInputDialog::getText(gui,
-            _("Unlock wallet").c_str(),
-            _("Pin/Password:").c_str(),
+    QString text = QInputDialog::getText(this,
+            tr("Unlock wallet"),
+            tr("Pin/Password:"),
             QLineEdit::Password,
             "",
             &ok);
-    std::string ret = text.toStdString();
-    if (ret == "")
-        return "=";
-    else
-        return ret;
+    *ret = text.toStdString();
+    if (*ret == "")
+        *ret = "=";
 }
 
 void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
