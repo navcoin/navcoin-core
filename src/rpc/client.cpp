@@ -147,6 +147,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getaddressutxos", 0},
     { "getaddressmempool", 0},
     { "staking", 0 },
+    { "setexclude", 0 },
     { "coinbaseoutputs", 0 },
     { "coinstakeoutputs", 0 },
     { "coinstakeinputs", 0 },

@@ -954,6 +954,27 @@ UniValue stakervote(const UniValue& params, bool fHelp)
     return "";
 }
 
+UniValue setexclude(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "setexclude bool\n"
+                "\nSets the node blocks to be excluded from votings.\n"
+                "\nArguments:\n"
+                "1. \"bool\"               (bool, required) Whether to turn on or off.\n"
+                + HelpExampleCli("setexclude", "true")
+                );
+
+    if (!params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
+
+    SoftSetArg("-excludevote", params[0].get_bool() ? "1" : "0", true);
+    RemoveConfigFile("excludevote");
+    WriteConfigFile("excludevote", params[0].get_bool() ? "1" : "0");
+
+    return "";
+}
+
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -4985,6 +5006,7 @@ static const CRPCCommand commands[] =
     { "dao",                "proposeanswer",            &proposeanswer,            false },
     { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
     { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
+    { "dao",                "setexclude",               &setexclude,               false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "dao",                "support",                  &support,                  false },
     { "dao",                "supportlist",              &supportlist,              false },
