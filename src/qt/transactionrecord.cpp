@@ -65,9 +65,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
     }
 
-    if (hash.ToString() == "be198aa82b5a2948b39487c9604c29de6f1160150d17b0b968b3e705f6f80d02")
-        LogPrintf("%s: %s\n", __func__ ,hash.ToString());
-
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         //
