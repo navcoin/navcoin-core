@@ -133,6 +133,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     else
                     {
                         sub.type = TransactionRecord::Staked;
+                        if (wtx.IsCTOutput())
+                        {
+                            sub.type = TransactionRecord::AnonTxRecv;
+                            for(auto&it: wtx.vAmounts)
+                            {
+                                sub.credit += it;
+                            }
+                            sub.memo = "Staking Reward";
+                        }
                     }
                 }
                 else if(txout.HasRangeProof())
@@ -150,7 +159,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::CFund;
                 }
 
-                parts.append(sub);
+                if (sub.credit > 0)
+                    parts.append(sub);
             }
             i++;
         }

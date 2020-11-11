@@ -2323,7 +2323,7 @@ int GetSpendHeight(const CStateViewCache& inputs)
 }
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData, CAmount allowedInPrivate = 0)
 {
     // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
     // for an attacker to attempt to split the network.
@@ -2400,7 +2400,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
             else
                 v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
 
-            if (!VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state))
+            if (!tx.IsCoinStake() && !VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state, false, allowedInPrivate))
                 return false;
         }
         catch(...)
@@ -2415,11 +2415,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks, CAmount allowedInPrivate)
 {
     if (!tx.IsCoinBase())
     {
-        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData))
+        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData, allowedInPrivate))
             return false;
 
         if (tx.IsBLSInput())
@@ -3450,6 +3450,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nPublicMoneySupply = pindex->pprev != NULL ? pindex->pprev->nPublicMoneySupply : 0;
 
     CAmount nCreated = 0;
+    CAmount nMovedToPublic = 0;
 
     if (block.IsProofOfStake())
     {
@@ -3610,7 +3611,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<CTxIn> vBLSConflicted;
     std::vector<int> prevheights;
     CAmount nFees = 0;
-    CAmount nBLSCTFees = 0;
+    CAmount nBLSCTPublicFees = 0;
+    CAmount nBLSCTPrivateFees = 0;
     int nInputs = 0;
     int64_t nSigOpsCost = 0;
     CDiskTxPos pos(pindex->GetBlockPos(), GetSizeOfCompactSize(block.vtx.size()));
@@ -4089,7 +4091,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
                 if (tx.IsBLSCT())
                 {
-                    nBLSCTFees += tx.GetFee();
+                    if (tx.IsBLSInput())
+                        nBLSCTPrivateFees += tx.GetFee();
+                    else
+                        nBLSCTPublicFees += tx.GetFee();
                     nFees += tx.GetFee();
                 }
                 else
@@ -4139,7 +4144,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
             if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, tx.IsCTOutput()?blsctData[i]:dummyData, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
-                    tx.GetHash().ToString(), FormatStateMessage(state));
+                             tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
 
         } else {
@@ -4312,7 +4317,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         bool fContribution = false;
         CAmount nProposalFee = 0;
 
-        if (tx.IsCTOutput())
+        if (tx.IsCTOutput() && !tx.IsCoinStake())
         {
             nMovedToBLS += view.GetValueIn(tx) - tx.GetValueOut();
         }
@@ -4416,7 +4421,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
         }
 
-        nCreated += tx.GetValueOut() - view.GetValueIn(tx);
+        if (!tx.IsBLSInput())
+        {
+            nCreated += tx.GetValueOut() - view.GetValueIn(tx);
+        }
+        else
+        {
+            nMovedToPublic += tx.GetValueOut() - view.GetValueIn(tx);
+        }
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -4591,12 +4603,36 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
+
+        if (block.vtx[1].IsCTOutput()) // coinstake moving to private is checked after the loop
+        {
+            LogPrintf("%s: Verifying rewards moving to private. Amount must be: %s\n", __func__, FormatMoney(nCalculatedStakeReward - nStakeReward));
+
+            try
+            {
+                blsctKey v;
+
+                if (pwalletMain)
+                    pwalletMain->GetBLSCTViewKey(v);
+                else
+                    v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
+
+                CTransaction tx = block.vtx[1];
+
+                nMovedToBLS += nCalculatedStakeReward - nStakeReward;
+
+                if (!VerifyBLSCTBalanceOutputs(block.vtx[1], v.GetKey(), blsctData[1], view, state, false, nCalculatedStakeReward - nStakeReward))
+                    return error("%s: Stake %s failed verification of private output: %s\n", __func__, block.vtx[1].GetHash().ToString(), FormatStateMessage(state));
+            }
+            catch(...)
+            {
+                return error("%s: Failed verifying redirection of stakes to private\n", __func__);
+            }
+        }
     }
 
-    LogPrintf("%s: added to public +%s -%s -%s\n", __func__, FormatMoney(nCreated), FormatMoney(nBLSCTFees), FormatMoney(nMovedToBLS));
-
-    pindex->nPublicMoneySupply += nCreated - nBLSCTFees - nMovedToBLS;
-    pindex->nPrivateMoneySupply += nMovedToBLS;
+    pindex->nPublicMoneySupply += nCreated - nBLSCTPublicFees;
+    pindex->nPrivateMoneySupply += nMovedToBLS - nBLSCTPrivateFees - nMovedToPublic;
 
     if (pindex->nPrivateMoneySupply < 0)
         return state.DoS(100, error("ConnectBlock() : private money supply goes in negative"));

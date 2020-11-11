@@ -573,6 +573,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
     double nPoolFee = GetArg("-poolfee", 0) / 100.0;
+    bool fRedirectedToblsCT = false;
+    Scalar gammaIns = 0;
+    Scalar gammaOuts = 0;
 
     if (nPoolFee > 0 && poolFeeAddress.IsValid())
     {
@@ -614,6 +617,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     if (address.IsValid())
                     {
                         splitMap[address] = 100.0;
+                        if (address.IsPrivateAddress(Params()))
+                            fRedirectedToblsCT = true;
                     }
                     else
                     {
@@ -634,6 +639,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                         nAccumulatedFee += pair.second.get_real();
 
                         splitMap[address] = pair.second.get_real();
+
+                        if (address.IsPrivateAddress(Params()))
+                            fRedirectedToblsCT = true;
                     }
                 }
 
@@ -648,14 +656,44 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             address = CNavCoinAddress(GetArg("-stakingaddress", ""));
             if (address.IsValid()) {
                 splitMap[address] = 100;
+                if (address.IsPrivateAddress(Params()))
+                    fRedirectedToblsCT = true;
             }
         }
 
+        std::vector<bls::G2Element> vBLSSignatures;
+
         for (const auto& entry: splitMap)
         {
-            CAmount thisOut = nReward * entry.second/100.0;
-            blockValue -= thisOut;
-            txNew.vout.push_back(CTxOut(thisOut, GetScriptForDestination(entry.first.Get())));
+            if (entry.first.IsPrivateAddress(Params()))
+            {
+                CTxOut blsctOut;
+
+                CPrivKey rand;
+                rand.reserve(32);
+                GetRandBytes(rand.data(), 32);
+                bls::PrivateKey ephemeralKey = bls::PrivateKey::FromSeed(rand.data(), 32);
+
+                CAmount thisOut = nReward * entry.second/100.0;
+                blockValue -= thisOut;
+
+                std::string strFailReason;
+
+                blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(entry.first.Get());
+
+                if (!CreateBLSCTOutput(ephemeralKey, blsctOut, dk, thisOut, "Staking reward", gammaOuts, strFailReason, false, vBLSSignatures))
+                {
+                    return error("%s: Could not redirect stakes to xNAV: %s\n", __func__, strFailReason);
+                }
+
+                txNew.vout.push_back(blsctOut);
+            }
+            else
+            {
+                CAmount thisOut = nReward * entry.second/100.0;
+                blockValue -= thisOut;
+                txNew.vout.push_back(CTxOut(thisOut, GetScriptForDestination(entry.first.Get())));
+            }
         }
     }
 
@@ -709,6 +747,21 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     txNew.nVersion = IsCommunityFundEnabled(chainActive.Tip(),Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+
+    if (fRedirectedToblsCT)
+    {
+        txNew.nVersion |= TX_BLS_CT_FLAG;
+        Scalar diff = gammaIns-gammaOuts;
+        try
+        {
+            bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
+            txNew.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+        }
+        catch(...)
+        {
+            return error("%s: Catched balance signing key exception\n", __func__);
+        }
+    }
 
     // Sign
     int nIn = 0;

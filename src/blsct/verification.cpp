@@ -211,6 +211,105 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     return true;
 }
 
+
+bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
+{
+    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    std::vector<bls::G1Element> nonces;
+
+    bls::G1Element balKey;
+    bool fElementZero = true;
+
+    bool fCheckRange = true;
+    bool fCheckBalance = true;
+
+    CAmount valIn = 0;
+    CAmount valOut = 0;
+
+    if (nMixFee != 0)
+    {
+        Scalar sMixFee = Scalar(nMixFee);
+
+        if (nMixFee < 0)
+            sMixFee = sMixFee.Negate();
+
+        Scalar s = Scalar(sMixFee).bn;
+        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        balKey = fElementZero ? t : balKey + t;
+        valIn += nMixFee;
+        fElementZero = false;
+    }
+
+
+    for (size_t j = 0; j < tx.vout.size(); j++)
+    {
+        if (tx.vout[j].HasRangeProof())
+        {
+            if (tx.vout[j].ephemeralKey.size() == 0)
+            {
+                return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
+            }
+            if (fCheckRange)
+            {
+                proofs.push_back(std::make_pair(j, tx.vout[j].bp));
+                // Shared key v*R - Used as nonce for bulletproof
+                try
+                {
+                    bls::G1Element t = bls::G1Element::FromBytes(tx.vout[j].outputKey.data());
+                    t = t * viewKey;
+                    nonces.push_back(t);
+                }
+                catch(std::exception& e)
+                {
+                    return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
+                }
+            }
+            if (fCheckBalance)
+            {
+                if (fElementZero)
+                {
+                    balKey = tx.vout[j].bp.GetValueCommitments()[0];
+                }
+                else
+                {
+                    bls::G1Element t = tx.vout[j].bp.GetValueCommitments()[0].Inverse();
+                    balKey = balKey + t;
+                }
+                fElementZero = false;
+            }
+        }
+    }
+
+    if (fCheckRange && proofs.size() > 0)
+    {
+        if (!VerifyBulletproof(proofs, vData, nonces, fOnlyRecover))
+        {
+            return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+        }
+    }
+
+    if (fCheckBalance)
+    {
+        if (tx.vchBalanceSig.size() == 0)
+            return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-read-balanceproof"));
+
+        try
+        {
+            bls::G2Element sig = bls::G2Element::FromBytes(tx.vchBalanceSig.data());
+
+            if (!bls::BasicSchemeMPL::Verify(balKey, balanceMsg, sig))
+                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
+        }
+        catch(std::exception& e)
+        {
+            return state.DoS(100, false, REJECT_INVALID, strprintf("caught-balanceproof-exception"));
+        }
+    }
+
+    return true;
+}
+
+
 bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CStateViewCache& inputs, CValidationState& state, CAmount nMixFee)
 {
     std::set<CTxIn> setInputs;
