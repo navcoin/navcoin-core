@@ -1959,7 +1959,7 @@ CPubKey CWallet::ImportMnemonic(word_list mnemonic, dictionary lang)
 
     key.Set(vKey.begin(), vKey.end(), false);
 
-    int64_t nCreationTime = GetArg("-importmnemonicfromtime", chainActive.Genesis()->GetBlockTime());
+    int64_t nCreationTime = GetArg("-importmnemonicfromtime", (chainActive.Genesis() ? chainActive.Genesis()->GetBlockTime() : 0));
     CKeyMetadata metadata(nCreationTime);
 
     // calculate the pubkey
