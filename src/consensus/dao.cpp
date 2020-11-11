@@ -2634,6 +2634,9 @@ bool IsValidProposal(CTransaction tx, const CStateViewCache& view, uint64_t nMas
     if (!paddress.IsValid())
         return error("%s: Wrong address %s for proposal %s", __func__, paymentAddress.c_str(), tx.GetHash().ToString());
 
+    if (paddress.IsPrivateAddress(Params()) || oaddress.IsPrivateAddress(Params()))
+        return error("%s: Wrong proposal %s. A proposal does not admit private addresses", __func__, tx.GetHash().ToString());
+
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
