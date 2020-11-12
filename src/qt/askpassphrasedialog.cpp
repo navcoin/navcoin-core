@@ -130,7 +130,11 @@ void AskPassphraseDialog::accept()
                 break;
             }
             QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet encryption"),
-                    tr("Warning: If you encrypt your wallet and lose your passphrase, you will <b>LOSE ALL OF YOUR NAVCOINS</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet?"),
+                    tr("Warning: If you encrypt your wallet and lose your passphrase, you will not be able to access this wallet anymore. Please be sure you keep a backup of your seed words (mnemonic). This is the only way to recover access to your coins in case of forgetting your pin.") +
+                    "<br><br>" +
+                    tr("Forgetting your passphrase and not having your mnemonic will make you <b>LOSE ACCESS TO ALL OF YOUR NAVCOINS!!!</b>") +
+                    "<br><br>" +
+                    tr("Are you sure you wish to encrypt your wallet txdata?"),
                     QMessageBox::Yes|QMessageBox::Cancel,
                     QMessageBox::Cancel);
             if(retval == QMessageBox::Yes)
@@ -144,10 +148,7 @@ void AskPassphraseDialog::accept()
                                 tr("%1 will close now to finish the encryption process. "
                                     "Remember that encrypting your wallet cannot fully protect "
                                     "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
-                                "<br><br><b>" +
-                                tr("IMPORTANT: Any previous backups you have made of your wallet file "
-                                    "should be replaced with the newly generated, encrypted wallet file. ") +
-                                "</b></qt>");
+                                "</qt>");
                         QApplication::quit();
                     }
                     else
@@ -177,7 +178,11 @@ void AskPassphraseDialog::accept()
                 break;
             }
             QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet txdata encryption"),
-                    tr("Warning: If you encrypt your wallet txdata and lose your pin, you will <b>LOSE ALL OF YOUR NAVCOINS</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet txdata?"),
+                    tr("Warning: If you encrypt your wallet txdata and lose your pin, you will not be able to access this wallet anymore. Please be sure you keep a backup of your seed words (mnemonic). This is the only way to recover access to your coins in case of forgetting your pin.") +
+                    "<br><br>" +
+                    tr("Forgetting your pin and not having your mnemonic will make you <b>LOSE ACCESS TO ALL OF YOUR NAVCOINS!!!</b>") +
+                    "<br><br>" +
+                    tr("Are you sure you wish to encrypt your wallet txdata?"),
                     QMessageBox::Yes|QMessageBox::Cancel,
                     QMessageBox::Cancel);
             if(retval == QMessageBox::Yes)
@@ -191,10 +196,7 @@ void AskPassphraseDialog::accept()
                                 tr("%1 will close now to finish the encryption process. "
                                     "Remember that encrypting your wallet cannot fully protect "
                                     "your navcoins from being stolen by malware infecting your computer.").arg(tr(PACKAGE_NAME)) +
-                                "<br><br><b>" +
-                                tr("IMPORTANT: Any previous backups you have made of your wallet file "
-                                    "should be replaced with the newly generated, encrypted wallet file. ") +
-                                "</b></qt>");
+                                "</qt>");
                         QApplication::quit();
                     }
                     else
