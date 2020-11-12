@@ -328,6 +328,9 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             if (pcoin->GetBlocksToMaturity() > 0)
                 continue;
 
+            if (pcoin->IsCTOutput())
+                continue;
+
             if (pcoin->isAbandoned())
                 continue;
 
@@ -1829,14 +1832,22 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
     return 0;
 }
 
+std::map<uint256, isminetype> mapCacheBlsctIsmine;
+
 isminetype CWallet::IsMine(const CTxOut& txout) const
 {
     if (txout.HasRangeProof() && txout.IsBLSCT())
     {
+        uint256 outhash = txout.GetHash();
+        if (mapCacheBlsctIsmine.count(outhash))
+            return mapCacheBlsctIsmine.at(outhash);
+
         std::vector<RangeproofEncodedData> blsctData;
         std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
         std::vector<bls::G1Element> nonces;
         blsctKey v;
+
+        isminetype ret = ISMINE_NO;
 
         if (GetBLSCTViewKey(v) && txout.ephemeralKey.size() > 0 && txout.outputKey.size() > 0 && txout.spendingKey.size() > 0)
         {
@@ -1852,15 +1863,18 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
                 bool fHaveSubAddressKey = CBasicKeyStore::HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
                 if (fValidBP && blsctData.size() == 1 && fHaveSubAddressKey)
                 {
-                    return ISMINE_SPENDABLE_PRIVATE;
+                    ret = ISMINE_SPENDABLE_PRIVATE;
                 }
             }
             catch(...)
             {
-                return ISMINE_NO;
+                ret = ISMINE_NO;
             }
         }
-        return ISMINE_NO;
+
+        mapCacheBlsctIsmine[outhash] = ret;
+
+        return ret;
     }
     else
         return ::IsMine(*this, txout.scriptPubKey);
@@ -2589,7 +2603,7 @@ CAmount CWalletTx::GetAvailableStakableCredit() const
     uint256 hashTx = GetHash();
     for (unsigned int i = 0; i < vout.size(); i++)
     {
-        if (!pwallet->IsSpent(hashTx, i))
+        if (!pwallet->IsSpent(hashTx, i) && !vout[i].HasRangeProof())
         {
             const CTxOut &txout = vout[i];
             nCredit += pwallet->GetCredit(txout, ISMINE_STAKABLE);
