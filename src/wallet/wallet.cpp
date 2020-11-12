@@ -953,8 +953,13 @@ bool CWallet::Verify()
         // Check if it's encrypted
         if (BdbEncrypted(boost::filesystem::path(GetDataDir() / walletFile))) {
             // No pin?
-            if (pin == "")
+            if (pin == "") {
+                if (GetBoolArg("-daemon", false)) {
+                    return InitError(strprintf(_("Can't decrypt wallet, please provide pin via -pin=")));
+                }
+
                 pin = uiInterface.AskForPin(_("PIN/PASS:"));
+            }
         }
     }
 
