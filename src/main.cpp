@@ -4317,7 +4317,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         bool fContribution = false;
         CAmount nProposalFee = 0;
 
-        if (tx.IsCTOutput() && !tx.IsCoinStake())
+        if (tx.IsCTOutput() && !tx.IsBLSInput() && !tx.IsCoinStake())
         {
             nMovedToBLS += view.GetValueIn(tx) - tx.GetValueOut();
         }
