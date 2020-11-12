@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "aggregationsession.h"
+#include "main.h"
 
 std::set<uint256> setKnownSessions;
 CCriticalSection cs_aggregation;
@@ -525,11 +526,16 @@ void AggregationSessionThread()
 
     try {
         while (true) {
-            if (vNodes.size() == 0 || !pwalletMain)
-            {
+            do {
+                bool fvNodesEmpty;
+                {
+                    LOCK(cs_vNodes);
+                    fvNodesEmpty = vNodes.empty();
+                }
+                if (!fvNodesEmpty && !IsInitialBlockDownload())
+                    break;
                 MilliSleep(1000);
-                continue;
-            }
+            } while (true);
 
             MilliSleep(GetRand(120*1000));
 
