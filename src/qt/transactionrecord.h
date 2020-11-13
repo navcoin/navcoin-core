@@ -84,6 +84,7 @@ public:
         AnonTxRecv,
         SendToSelfPrivate,
         SendToSelfPublic,
+        MixingReward,
         Fee,
         CFund,
         CFundPayment

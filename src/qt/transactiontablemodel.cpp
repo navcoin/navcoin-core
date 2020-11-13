@@ -382,6 +382,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Community Fund Payment");
     case TransactionRecord::AnonTxRecv:
         return tr("Received Private Payment");
+    case TransactionRecord::MixingReward:
+        return tr("Mixing Reward");
     case TransactionRecord::AnonTxSend:
         return tr("Sent Private Payment");
     case TransactionRecord::Fee:
@@ -415,6 +417,7 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     case TransactionRecord::AnonTxSend:
     case TransactionRecord::AnonTxRecv:
         return TxIcon(":/icons/ghost");
+    case TransactionRecord::MixingReward:
     case TransactionRecord::Staked:
     case TransactionRecord::Generated:
         return TxIcon(":/icons/tx_mined");
@@ -446,7 +449,9 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
         return tr("Community Fund Contribution");
     case TransactionRecord::AnonTxSend:
     case TransactionRecord::AnonTxRecv:
-         return tr("Private Payment: %1").arg(QString::fromStdString(wtx->memo));
+        return tr("Private Payment: %1").arg(QString::fromStdString(wtx->memo));
+    case TransactionRecord::MixingReward:
+        return tr("Mixing reward");
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
@@ -475,6 +480,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     case TransactionRecord::AnonTxRecv:
     case TransactionRecord::AnonTxSend:
     case TransactionRecord::Fee:
+    case TransactionRecord::MixingReward:
         return QVariant();
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
@@ -575,7 +581,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     switch(role)
     {
     case PrivateRole:
-        return rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate;
+        return rec->type == TransactionRecord::AnonTxRecv ||TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate;
     case RawDecorationRole:
         switch(index.column())
         {

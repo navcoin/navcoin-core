@@ -83,6 +83,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
                         TransactionFilterProxy::TYPE(TransactionRecord::AnonTxSend));
     typeWidget->addItem(tr("Staked/generated"), (TransactionFilterProxy::TYPE(TransactionRecord::Generated) |
                         TransactionFilterProxy::TYPE(TransactionRecord::Staked)));
+    typeWidget->addItem(tr("Mixing reward"), (TransactionFilterProxy::TYPE(TransactionRecord::MixingReward)));
     typeWidget->addItem(tr("Community Fund"), TransactionFilterProxy::TYPE(TransactionRecord::CFund) |
                         TransactionFilterProxy::TYPE(TransactionRecord::CFundPayment));
     typeWidget->addItem(tr("Other"), TransactionFilterProxy::TYPE(TransactionRecord::Other));

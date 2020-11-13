@@ -150,7 +150,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.memo = wtx.vMemos[i];
                     sub.credit = wtx.vAmounts[i];
                     if (sub.memo == "Mixing Reward")
+                    {
+                        sub.type = TransactionRecord::MixingReward;
                         sub.credit += nReward;
+                    }
                     fBLSCT = true;
                 }
 
