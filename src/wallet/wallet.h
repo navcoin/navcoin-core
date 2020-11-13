@@ -71,8 +71,6 @@ static const bool DEFAULT_USE_HD_WALLET = true;
 //! Do we wanna warn the user of a failed blsct generation?
 static const bool DEFAULT_SUPPRESS_BLSCT_WARNING = false;
 
-extern const char * DEFAULT_WALLET_DAT;
-
 class CBlockIndex;
 class CCoinControl;
 class COutput;
