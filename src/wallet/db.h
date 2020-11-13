@@ -21,7 +21,6 @@
 #include <db_cxx.h>
 
 static const unsigned int DEFAULT_WALLET_DBLOGSIZE = 100;
-static const bool DEFAULT_WALLET_PRIVDB = true;
 
 extern unsigned int nWalletDBUpdated;
 
@@ -33,6 +32,10 @@ private:
     // Don't change into boost::filesystem::path, as that can result in
     // shutdown problems/crashes caused by a static initialized internal pointer.
     std::string strPath;
+
+    // We need to save the state of encryption so we can use it to create copies
+    // of the unlocked DBEnv later on, usefull for when we rewrite the entire file
+    bool fCrypted = false;
 
     void EnvShutdown();
 
@@ -49,6 +52,8 @@ public:
     void MakeMock();
     bool IsMock() { return fMockDb; }
 
+    bool IsCrypted() { return fCrypted; }
+
     /**
      * Verify that database file strFile is OK. If it is not,
      * call the callback to try to recover.
@@ -57,6 +62,7 @@ public:
      */
     enum VerifyResult { VERIFY_OK,
                         RECOVER_OK,
+                        DECRYPT_FAIL,
                         RECOVER_FAIL };
     VerifyResult Verify(const std::string& strFile, bool (*recoverFunc)(CDBEnv& dbenv, const std::string& strFile));
     /**
@@ -69,7 +75,7 @@ public:
     typedef std::pair<std::vector<unsigned char>, std::vector<unsigned char> > KeyValPair;
     bool Salvage(const std::string& strFile, bool fAggressive, std::vector<KeyValPair>& vResult);
 
-    bool Open(const boost::filesystem::path& path);
+    bool Open(const boost::filesystem::path& path, std::string pin = "");
     void Close();
     void Flush(bool fShutdown);
     void CheckpointLSN(const std::string& strFile);
@@ -100,7 +106,7 @@ protected:
     bool fReadOnly;
     bool fFlushOnClose;
 
-    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn=true);
+    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn = true);
     ~CDB() { Close(); }
 
 public:
@@ -306,7 +312,7 @@ public:
         return Write(std::string("version"), nVersion);
     }
 
-    bool static Rewrite(const std::string& strFile, const char* pszSkip = NULL);
+    bool static Rewrite(const std::string& strFile, const char* pszSkip = nullptr, std::string newPin = "");
 };
 
 #endif // NAVCOIN_WALLET_DB_H

@@ -5,11 +5,13 @@
 
 #include <wallet/db.h>
 
+#include <init.h>
 #include <addrman.h>
 #include <hash.h>
 #include <protocol.h>
 #include <util.h>
 #include <utilstrencodings.h>
+#include <ui_interface.h>
 
 #include <stdint.h>
 
@@ -61,6 +63,7 @@ CDBEnv::CDBEnv() : dbenv(NULL)
 
 CDBEnv::~CDBEnv()
 {
+    info("CDBEnv::~CDBEnv destroy");
     EnvShutdown();
     delete dbenv;
     dbenv = nullptr;
@@ -71,10 +74,14 @@ void CDBEnv::Close()
     EnvShutdown();
 }
 
-bool CDBEnv::Open(const boost::filesystem::path& pathIn)
+bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
 {
     if (fDbEnvInit)
         return true;
+
+    // Check if we are encrypted and save the state for later use
+    if (!pin.empty())
+        fCrypted = true;
 
     boost::this_thread::interruption_point();
 
@@ -83,10 +90,6 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
     TryCreateDirectory(pathLogDir);
     boost::filesystem::path pathErrorFile = pathIn / "db.log";
     LogPrintf("CDBEnv::Open: LogDir=%s ErrorFile=%s\n", pathLogDir.string(), pathErrorFile.string());
-
-    unsigned int nEnvFlags = 0;
-    if (GetBoolArg("-privdb", DEFAULT_WALLET_PRIVDB))
-        nEnvFlags |= DB_PRIVATE;
 
     dbenv->set_lg_dir(pathLogDir.string().c_str());
     dbenv->set_cachesize(0, 0x100000, 1); // 1 MiB should be enough for just the wallet
@@ -98,6 +101,24 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
     dbenv->set_flags(DB_AUTO_COMMIT, 1);
     dbenv->set_flags(DB_TXN_WRITE_NOSYNC, 1);
     dbenv->log_set_config(DB_LOG_AUTO_REMOVE, 1);
+
+    // Check if we got a pin
+    if (fCrypted)
+    {
+        info("CDBEnv::Open: Encryption Enabled");
+
+        // Enable encryption for the envirnment
+        int cryptRet = dbenv->set_encrypt(pin.c_str(), DB_ENCRYPT_AES);
+
+        // Check if it worked
+        if (cryptRet != 0)
+            return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
+    } else {
+        info("CDBEnv::Open: Encryption Disabled");
+    }
+
+    info("CDBEnv::Open: CALL DBEnv->open");
+    info("CDBEnv::Open: DIR %s", strPath);
     int ret = dbenv->open(strPath.c_str(),
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -106,7 +127,7 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
                              DB_INIT_TXN |
                              DB_THREAD |
                              DB_RECOVER |
-                             nEnvFlags,
+                             DB_PRIVATE,
                          S_IRUSR | S_IWUSR);
     if (ret != 0)
         return error("CDBEnv::Open: Error %d opening database environment: %s\n", ret, DbEnv::strerror(ret));
@@ -132,6 +153,8 @@ void CDBEnv::MakeMock()
     dbenv->set_lk_max_objects(10000);
     dbenv->set_flags(DB_AUTO_COMMIT, 1);
     dbenv->log_set_config(DB_LOG_IN_MEMORY, 1);
+
+    info("CDBEnv::MakeMock: CALL DB->open");
     int ret = dbenv->open(NULL,
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -155,8 +178,13 @@ CDBEnv::VerifyResult CDBEnv::Verify(const std::string& strFile, bool (*recoverFu
 
     Db db(dbenv, 0);
     int result = db.verify(strFile.c_str(), nullptr, nullptr, 0);
+
+    info("CDBEnv::Verify: CODE: %d MESSAGE: %s", result, DbEnv::strerror(result));
+
     if (result == 0)
         return VERIFY_OK;
+    else if (result == DB_RUNRECOVERY && bitdb.IsCrypted())
+        return DECRYPT_FAIL;
     else if (recoverFunc == nullptr)
         return RECOVER_FAIL;
 
@@ -239,9 +267,9 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
     dbenv->lsn_reset(strFile.c_str(), 0);
 }
 
-
-CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(NULL), activeTxn(NULL)
+CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(nullptr), activeTxn(nullptr)
 {
+    info("CDB::CDB: START");
     int ret;
     fReadOnly = (!strchr(pszMode, '+') && !strchr(pszMode, 'w'));
     fFlushOnClose = fFlushOnCloseIn;
@@ -256,7 +284,7 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
     {
         LOCK(bitdb.cs_db);
         if (!bitdb.Open(GetDataDir()))
-            throw runtime_error("CDB: Failed to open database environment.");
+            throw runtime_error("CDB::CDB: Failed to open database environment.");
 
         strFile = strFilename;
         ++bitdb.mapFileUseCount[strFile];
@@ -269,9 +297,22 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                 DbMpoolFile* mpf = pdb->get_mpf();
                 ret = mpf->set_flags(DB_MPOOL_NOFILE, 1);
                 if (ret != 0)
-                    throw runtime_error(strprintf("CDB: Failed to configure for no temp file backing for database %s", strFile));
+                    throw runtime_error(strprintf("CDB::CDB Failed to configure for no temp file backing for database %s", strFile));
             }
 
+            // Check if bitdb is encrypted
+            if (bitdb.IsCrypted())
+            {
+                info("CDB::CDB: DB_ENCRYPT enabled");
+                // Enable encryption for the database
+                int cryptRet = pdb->set_flags(DB_ENCRYPT);
+
+                // Check if it worked
+                if (cryptRet != 0)
+                    throw runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
+            }
+
+            info("CDB::CDB: CALL DB->open");
             ret = pdb->open(NULL,                               // Txn pointer
                             fMockDb ? NULL : strFile.c_str(),   // Filename
                             fMockDb ? strFile.c_str() : "main", // Logical db name
@@ -284,7 +325,7 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                 pdb = nullptr;
                 --bitdb.mapFileUseCount[strFile];
                 strFile = "";
-                throw runtime_error(strprintf("CDB: Error %d, can't open database %s", ret, strFile));
+                throw runtime_error(strprintf("CDB::CDB Error %d, can't open database %s", ret, strFile));
             }
 
             if (fCreate && !Exists(string("version"))) {
@@ -353,38 +394,79 @@ bool CDBEnv::RemoveDb(const string& strFile)
     return (rc == 0);
 }
 
-bool CDB::Rewrite(const string& strFile, const char* pszSkip)
+bool CDB::Rewrite(const string& strFile, const char* pszSkip, std::string newPin)
 {
-    while (true) {
+    while (true)
+    {
         {
             LOCK(bitdb.cs_db);
-            if (!bitdb.mapFileUseCount.count(strFile) || bitdb.mapFileUseCount[strFile] == 0) {
+            if (!bitdb.mapFileUseCount.count(strFile) || bitdb.mapFileUseCount[strFile] == 0)
+            {
                 // Flush log data to the dat file
                 bitdb.CloseDb(strFile);
                 bitdb.CheckpointLSN(strFile);
                 bitdb.mapFileUseCount.erase(strFile);
+
+                // Just make a copy of the original
+                CDBEnv* _bitdb(&bitdb);
+
+                // Check if we wanna replace the pin
+                if (!newPin.empty())
+                {
+                    // Replace with a new copy
+                    _bitdb = new CDBEnv();
+
+                    // Get the path
+                    boost::filesystem::path _path = GetDataDir() / "tmp";
+
+                    // Remove old tmp if we already have it
+                    if (boost::filesystem::exists(_path))
+                        boost::filesystem::remove_all(_path);
+
+                    // Create the directory again
+                    boost::filesystem::create_directory(_path);
+
+                    // Make sure the bitdb is open
+                    if (!_bitdb->Open(_path, newPin))
+                        throw runtime_error("CDB::Rewrite: Failed to open database environment.");
+                }
 
                 bool fSuccess = true;
                 LogPrintf("CDB::Rewrite: Rewriting %s...\n", strFile);
                 string strFileRes = strFile + ".rewrite";
                 { // surround usage of db with extra {}
                     CDB db(strFile.c_str(), "r");
-                    Db* pdbCopy = new Db(bitdb.dbenv, 0);
+                    Db* pdbCopy = new Db(_bitdb->dbenv, 0);
 
+                    // Check if _bitdb is encrypted
+                    if (_bitdb->IsCrypted())
+                    {
+                        info("CDB::Rewrite: DB_ENCRYPT enabled");
+                        // Enable encryption for the database
+                        int cryptRet = pdbCopy->set_flags(DB_ENCRYPT);
+
+                        // Check if it worked
+                        if (cryptRet != 0)
+                            throw runtime_error(strprintf("CDB::Rewrite: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
+                    }
+
+                    info("CDB::Rewrite: CALL DB->open");
                     int ret = pdbCopy->open(NULL,               // Txn pointer
                                             strFileRes.c_str(), // Filename
                                             "main",             // Logical db name
                                             DB_BTREE,           // Database type
                                             DB_CREATE,          // Flags
                                             0);
-                    if (ret > 0) {
-                        LogPrintf("CDB::Rewrite: Can't create database file %s\n", strFileRes);
+                    if (ret != 0)
+                    {
+                        LogPrintf("CDB::Rewrite: Error %d can't create database %s : %s\n", ret, strFileRes, DbEnv::strerror(ret));
                         fSuccess = false;
                     }
 
                     Dbc* pcursor = db.GetCursor();
                     if (pcursor)
-                        while (fSuccess) {
+                        while (fSuccess)
+                        {
                             CDataStream ssKey(SER_DISK, CLIENT_VERSION);
                             CDataStream ssValue(SER_DISK, CLIENT_VERSION);
                             int ret = db.ReadAtCursor(pcursor, ssKey, ssValue, DB_NEXT);
@@ -399,7 +481,8 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                             if (pszSkip &&
                                 strncmp(&ssKey[0], pszSkip, std::min(ssKey.size(), strlen(pszSkip))) == 0)
                                 continue;
-                            if (strncmp(&ssKey[0], "\x07version", 8) == 0) {
+                            if (strncmp(&ssKey[0], "\x07version", 8) == 0)
+                            {
                                 // Update version:
                                 ssValue.clear();
                                 ssValue << CLIENT_VERSION;
@@ -410,29 +493,62 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                             if (ret2 > 0)
                                 fSuccess = false;
                         }
-                    if (fSuccess) {
+                    if (fSuccess)
+                    {
                         db.Close();
-                        bitdb.CloseDb(strFile);
+
                         if (pdbCopy->close(0))
                             fSuccess = false;
+
+                        if (!newPin.empty())
+                            _bitdb->dbenv->lsn_reset(strFileRes.c_str(), 0); // DO NOT REMOVE
+
                         delete pdbCopy;
+
+                        if (!newPin.empty())
+                            delete _bitdb;
                     }
                 }
-                if (fSuccess) {
-                    Db dbA(bitdb.dbenv, 0);
-                    if (dbA.remove(strFile.c_str(), nullptr, 0))
-                        fSuccess = false;
-                    Db dbB(bitdb.dbenv, 0);
-                    if (dbB.rename(strFileRes.c_str(), nullptr, strFile.c_str(), 0))
-                        fSuccess = false;
+                if (fSuccess)
+                {
+                    // Remove the old wallet file
+                    bitdb.RemoveDb(strFile);
+
+                    // Check if we have a new pin
+                    if (!newPin.empty())
+                    {
+                        // Remove our old database dir
+                        boost::filesystem::remove_all(GetDataDir() / "database");
+
+                        // Reset bitdb
+                        bitdb.Reset();
+
+                        // Reopen it with the new pin
+                        if (!bitdb.Open(GetDataDir(), newPin))
+                            throw runtime_error("CDB::Rewrite: Failed to open database environment after moving new wallet over form tmp env.");
+
+                        Db db(bitdb.dbenv, 0);
+                        if (db.rename(("tmp/" + strFileRes).c_str(), nullptr, strFile.c_str(), 0))
+                            fSuccess = false;
+
+                        // Remove our tmp working dir
+                        boost::filesystem::remove_all(GetDataDir() / "tmp");
+                    } else
+                    {
+                        Db db(bitdb.dbenv, 0);
+                        if (db.rename(strFileRes.c_str(), nullptr, strFile.c_str(), 0))
+                            fSuccess = false;
+                    }
                 }
                 if (!fSuccess)
                     LogPrintf("CDB::Rewrite: Failed to rewrite database file %s\n", strFileRes);
                 return fSuccess;
             }
         }
+
         MilliSleep(100);
     }
+
     return false;
 }
 

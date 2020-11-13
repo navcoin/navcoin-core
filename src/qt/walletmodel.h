@@ -145,6 +145,7 @@ public:
     CAmount getWatchUnconfirmedBalance() const;
     CAmount getWatchImmatureBalance() const;
     EncryptionStatus getEncryptionStatus() const;
+    bool getEncryptionTxStatus() const;
 
     // Check address for validity
     bool validateAddress(const QString &address);
@@ -165,6 +166,8 @@ public:
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);
+    // Wallet tx data encryption
+    bool setTxEncrypted(const SecureString &passphrase);
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
