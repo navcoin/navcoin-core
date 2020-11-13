@@ -586,7 +586,9 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     CStateViewCache view(pcoinsTip);
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
-    std::pair<CAmount, std::pair<CAmount, CAmount>> stakingCoins = GetStakingCoins();
+    std::pair<CAmount, std::pair<CAmount, CAmount>> stakingCoins;
+    if (fAddressIndex)
+        stakingCoins = GetStakingCoins();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
     uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
     CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
@@ -606,9 +608,12 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     obj.pushKV("weight", (uint64_t)nWeight);
     obj.pushKV("netstakeweight", (uint64_t)nNetworkWeight);
 
-    obj.pushKV("hotstakingcoins", FormatMoney(stakingCoins.first));
-    obj.pushKV("coldstakingcoins", FormatMoney(stakingCoins.second.first));
-    obj.pushKV("coldv2stakingcoins", FormatMoney(stakingCoins.second.second));
+    if (fAddressIndex)
+    {
+        obj.pushKV("hotstakingcoins", FormatMoney(stakingCoins.first));
+        obj.pushKV("coldstakingcoins", FormatMoney(stakingCoins.second.first));
+        obj.pushKV("coldv2stakingcoins", FormatMoney(stakingCoins.second.second));
+    }
 
     obj.pushKV("expectedtime", nExpectedTime);
     obj.pushKV("expecteddailyreward", (double) nExpectedDailyReward / COIN);
