@@ -356,7 +356,7 @@ bool AggregationSession::Join() const
 
         if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
         {
-            return error("AggregationSession::%s: BLSCT keys not available\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys for subaddress not available\n", __func__);
         }
 
         if (!pwalletMain->GetBLSCTViewKey(v))
