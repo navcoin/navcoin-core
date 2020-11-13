@@ -87,6 +87,9 @@ public:
     /** If possible, ask the user a question. If not, falls back to ThreadSafeMessageBox(noninteractive_message, caption, style) and returns false. */
     boost::signals2::signal<bool (const std::string& message, const std::string& noninteractive_message, const std::string& caption, unsigned int style), boost::signals2::last_value<bool> > ThreadSafeQuestion;
 
+    /** As the user for a pin */
+    boost::signals2::signal<std::string (const std::string& message), boost::signals2::last_value<std::string>> AskForPin;
+
     /** Progress message during initialization. */
     boost::signals2::signal<void (const std::string &message)> InitMessage;
 

@@ -168,8 +168,10 @@ private:
     QAction *cfundPaymentRequestsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
+    QAction *encryptTxAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
+    QAction *changePinAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
     QAction *openAction;
@@ -260,12 +262,17 @@ public Q_SLOTS:
     */
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
 
+    /** Prompt use for pin */
+    void askForPin(std::string *ret);
+
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
        @param[in] status            current encryption status
        @see WalletModel::EncryptionStatus
     */
     void setEncryptionStatus(int status);
+
+    void setEncryptionTxStatus(bool fCrypted);
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 

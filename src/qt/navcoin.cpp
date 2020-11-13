@@ -359,8 +359,6 @@ void NavCoinApplication::loadTheme()
         theme = "light";
     }
 
-    qDebug() << __func__ << ": THEME LOADED: " << settings.value("theme").toString();
-
     // Load the style sheet
     QFile appQss(":/themes/app");
     QFile sharedQss(":/themes/shared");

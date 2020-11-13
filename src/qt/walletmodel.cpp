@@ -486,18 +486,23 @@ WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
     }
 }
 
+bool WalletModel::getEncryptionTxStatus() const
+{
+    return wallet->IsCryptedTx();
+}
+
 bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphrase)
 {
     if(encrypted)
     {
-        // Encrypt
         return wallet->EncryptWallet(passphrase);
     }
-    else
-    {
-        // Decrypt -- TODO; not supported yet
-        return false;
-    }
+    return false;
+}
+
+bool WalletModel::setTxEncrypted(const SecureString &passphrase)
+{
+    return wallet->EncryptTx(passphrase);
 }
 
 bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)

@@ -3501,6 +3501,52 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     return _("wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet.");
 }
 
+UniValue encrypttxdata(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "encrypttxdata \"passphrase\"\n"
+            "\nEncrypts the wallet database using \"passphrase\", effectively encrypting your\n"
+            "transaction data and addressbook, you can also use this rpc command to change the\n"
+            "encryption \"passphrase\" of an already encrypted wallet database.\n"
+            "Note that this will shutdown the server.\n"
+            "\nArguments:\n"
+            "1. \"passphrase\"    (string) The pass phrase to encrypt the wallet database with. It must be at least 1 character, but should be long.\n"
+            "\nExamples:\n"
+            "\nEncrypt you wallet\n"
+            + HelpExampleCli("encrypttxdata", "\"my pass phrase\"") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("encrypttxdata", "\"my pass phrase\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    if (fHelp)
+        return true;
+
+    // TODO: get rid of this .c_str() by implementing SecureString::operator=(std::string)
+    // Alternately, find a way to make params[0] mlock()'d to begin with.
+    SecureString strWalletPass;
+    strWalletPass.reserve(100);
+    strWalletPass = params[0].get_str().c_str();
+
+    if (strWalletPass.length() < 1)
+        throw runtime_error(
+            "encrypttxdata <passphrase>\n"
+            "Encrypts the txdata with <passphrase>.");
+
+    if (!pwalletMain->EncryptTx(strWalletPass))
+        throw JSONRPCError(RPC_TXDATA_ENCRYPTION_FAILED, "Error: Failed to encrypt the txdata.");
+
+    // Shutdown the wallet so we don't accidentally write unencrypted data
+    // to the wallet.dat file...
+    StartShutdown();
+    return _("txdata encrypted; NavCoin server stopping, restart to run with encrypted txdata.");
+}
+
 UniValue lockunspent(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -4962,6 +5008,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
     { "wallet",             "dumpwallet",               &dumpwallet,               true  },
     { "wallet",             "encryptwallet",            &encryptwallet,            true  },
+    { "wallet",             "encrypttxdata",            &encrypttxdata,            true  },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
     { "wallet",             "getaccount",               &getaccount,               true  },
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },

@@ -90,6 +90,8 @@ public Q_SLOTS:
 
     /** Encrypt the wallet */
     void encryptWallet(bool status);
+    /** Encrypt the wallet txdata */
+    void encryptTx();
     /** Backup the wallet */
     void backupWallet();
     /** Change encrypted wallet passphrase */

@@ -58,9 +58,9 @@ extern bool fLogIPs;
 extern std::atomic<bool> fReopenLogFiles;
 extern CTranslationInterface translationInterface;
 
-extern const char * DEFAULT_WALLET_DAT;
 extern const char * const NAVCOIN_CONF_FILENAME;
 extern const char * const NAVCOIN_PID_FILENAME;
+extern const char * const DEFAULT_WALLET_DAT;
 
 /**
  * Translation function: Call Translate signal on UI interface, which returns a boost::optional result.
@@ -113,6 +113,12 @@ bool error(const char* fmt, const T1& v1, const Args&... args)
     return false;
 }
 
+template<typename T1, typename... Args>
+int info(const char* fmt, const T1& v1, const Args&... args)
+{
+    return DebugLogPrintStr("INFO: " + tfm::format(fmt, v1, args...) + "\n");
+}
+
 /**
  * Zero-arg versions of logging and error, these are not covered by
  * the variadic templates above (and don't take format arguments but
@@ -132,10 +138,9 @@ static inline bool error(std::string s)
 {
     return error(s.c_str());
 }
-static inline bool info(const char* s)
+static inline int info(const char* s)
 {
-    DebugLogPrintStr(std::string("INFO: ") + s + "\n");
-    return false;
+    return DebugLogPrintStr(std::string("INFO: ") + s + "\n");
 }
 static inline bool info(std::string s)
 {
@@ -308,5 +313,13 @@ template <typename Callable, typename Arg1> void TraceThread(const char* name,  
 }
 
 std::string CopyrightHolders(const std::string& strPrefix);
+
+bool BdbEncrypted(boost::filesystem::path wallet);
+
+/*
+ * These are used to get password input from user on cli
+ */
+int __getch();
+std::string __getpass(const std::string& prompt, bool show_asterisk = true);
 
 #endif // NAVCOIN_UTIL_H

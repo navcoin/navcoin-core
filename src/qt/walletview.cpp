@@ -116,6 +116,9 @@ void WalletView::setNavCoinGUI(NavCoinGUI *gui)
         // Pass through encryption status changed signals
         connect(this, SIGNAL(encryptionStatusChanged(int)), gui, SLOT(setEncryptionStatus(int)));
 
+        // Pass through encryption status changed signals
+        connect(this, SIGNAL(encryptionTxStatusChanged(bool)), gui, SLOT(setEncryptionTxStatus(bool)));
+
         // Pass through transaction notifications
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
     }
@@ -160,6 +163,10 @@ void WalletView::setWalletModel(WalletModel *walletModel)
         // Handle changes in encryption status
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SIGNAL(encryptionStatusChanged(int)));
         updateEncryptionStatus();
+
+        // Handle changes in encryption status
+        connect(walletModel, SIGNAL(encryptionTxStatusChanged(bool)), this, SIGNAL(encryptionTxStatusChanged(bool)));
+        updateEncryptionTxStatus();
 
         // Balloon pop-up for new transaction
         connect(walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -282,6 +289,11 @@ void WalletView::updateEncryptionStatus()
     Q_EMIT encryptionStatusChanged(walletModel->getEncryptionStatus());
 }
 
+void WalletView::updateEncryptionTxStatus()
+{
+    Q_EMIT encryptionTxStatusChanged(walletModel->getEncryptionTxStatus());
+}
+
 void WalletView::encryptWallet(bool status)
 {
     if(!walletModel)
@@ -291,6 +303,17 @@ void WalletView::encryptWallet(bool status)
     dlg.exec();
 
     updateEncryptionStatus();
+}
+
+void WalletView::encryptTx()
+{
+    if(!walletModel)
+        return;
+    AskPassphraseDialog dlg(AskPassphraseDialog::EncryptTx, this);
+    dlg.setModel(walletModel);
+    dlg.exec();
+
+    updateEncryptionTxStatus();
 }
 
 void WalletView::backupWallet()

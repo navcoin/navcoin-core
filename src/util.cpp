@@ -45,6 +45,10 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 
+// We need this for __getch function
+#include <termios.h>
+#include <unistd.h>
+
 #else
 
 #ifdef _MSC_VER
@@ -71,6 +75,10 @@
 
 #include <io.h> /* for _commit */
 #include <shlobj.h>
+
+// We need this for ReadConsoleA
+// and other windows cli functions
+#include <windows.h>
 #endif
 
 #ifdef HAVE_SYS_PRCTL_H
@@ -103,9 +111,9 @@ namespace boost {
 
 using namespace std;
 
-const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
+const char * const DEFAULT_WALLET_DAT = "wallet.dat";
 
 std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
@@ -1100,4 +1108,114 @@ void SetThreadPriority(int nPriority)
     setpriority(PRIO_PROCESS, 0, nPriority);
 #endif
 #endif
+}
+
+bool BdbEncrypted(boost::filesystem::path wallet)
+{
+    // Open file
+    std::ifstream file(wallet.string());
+    char* buffer = new char [4];
+
+    // Get length of file
+    file.seekg(0, std::ios::end);
+    size_t length = file.tellg();
+
+    // Check if we can even go that far
+    if (length < 8190)
+        return true;
+
+    // Reset our cursor
+    file.seekg(8187, file.beg);
+
+    // Read data from the file
+    file.read(buffer, 5);
+
+    // Check if we have it
+    if (string(buffer) == "main")
+        return false;
+
+    // Reset our cursor for older wallet formats
+    file.seekg(16379, file.beg);
+
+    // Read data from the file
+    file.read(buffer, 5);
+
+    // Close the file
+    file.close();
+
+    // Check if we have it
+    if (string(buffer) == "main")
+        return false;
+
+    // It's encrypted
+    return true;
+}
+
+#ifndef WIN32
+int __getch() {
+    int ch;
+    struct termios t_old, t_new;
+
+    tcgetattr(STDIN_FILENO, &t_old);
+    t_new = t_old;
+    t_new.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
+
+    return ch;
+}
+#endif
+
+std::string __getpass(const std::string& prompt, bool show_asterisk)
+{
+    std::string password;
+    unsigned char ch = 0;
+
+    std::cout << prompt;
+
+#ifdef WIN32
+    const char BACKSPACE = 8;
+    const char RETURN = 13;
+
+    DWORD con_mode;
+    DWORD dwRead;
+
+    HANDLE hIn=GetStdHandle(STD_INPUT_HANDLE);
+
+    GetConsoleMode( hIn, &con_mode );
+    SetConsoleMode( hIn, con_mode & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT) );
+#else
+    const char BACKSPACE = 127;
+    const char RETURN = 10;
+#endif
+
+#ifndef WIN32
+    while((ch = __getch()) != RETURN)
+#else
+    while(ReadConsoleA(hIn, &ch, 1, &dwRead, NULL) && ch != RETURN)
+#endif
+    {
+        if(ch == BACKSPACE)
+        {
+            if(password.length() != 0)
+            {
+                if(show_asterisk)
+                    std::cout << "\b \b";
+                password.resize(password.length()-1);
+            }
+        }
+        else
+        {
+            password+=ch;
+            if(show_asterisk)
+                std::cout << '*';
+        }
+    }
+
+    std::cout << std::endl;
+
+    return password;
 }
