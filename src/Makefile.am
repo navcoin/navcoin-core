@@ -72,7 +72,6 @@ LIBTORUTIL = \
         tor/src/lib/libtor-wallclock.a \
         tor/src/lib/libtor-err.a \
         tor/src/lib/libtor-version.a \
-        tor/src/lib/libtor-llharden.a \
         tor/src/lib/libtor-intmath.a \
         tor/src/lib/libtor-ctime.a
 
