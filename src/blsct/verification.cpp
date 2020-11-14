@@ -397,6 +397,10 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
     mutOutTx.vin.clear();
     mutOutTx.vout.clear();
 
+    random_shuffle(setInputs.begin(), setInputs.end(), GetRandInt);
+    random_shuffle(setOutputs.begin(), setOutputs.end(), GetRandInt);
+
+
     for (auto& in: setInputs)
     {
         mutOutTx.vin.push_back(in);

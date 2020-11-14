@@ -17,6 +17,7 @@
 #include <coins.h>
 #include <consensus/validation.h>
 #include <primitives/transaction.h>
+#include <random.h>
 #include <schemes.hpp>
 #include <utiltime.h>
 
