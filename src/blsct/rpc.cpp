@@ -188,6 +188,7 @@ struct blsctOutputInfo
     CAmount amount;
     std::string message;
     bool spent;
+    uint64_t time;
 };
 
 UniValue scanviewkey(const UniValue& params, bool fHelp)
@@ -275,6 +276,7 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
                                     info.amount = blsctData[0].amount;
                                     info.message = blsctData[0].message;
                                     info.spent = false;
+                                    info.time = tx.nTime;
                                     nBalance += blsctData[0].amount;
                                     mapOutputs.insert(std::make_pair(COutPoint(tx.GetHash(), i), info));
                                 }
@@ -301,6 +303,7 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
         entry.pushKV("n", (uint64_t)it.first.n);
         entry.pushKV("amount", it.second.amount);
         entry.pushKV("message", it.second.message);
+        entry.pushKV("time", it.second.time);
         entry.pushKV("spent", it.second.spent);
         outs.push_back(entry);
     }
