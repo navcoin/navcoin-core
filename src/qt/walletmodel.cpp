@@ -663,7 +663,9 @@ void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vect
         if (!wallet->mapWallet.count(outpoint.hash)) continue;
         int nDepth = wallet->mapWallet[outpoint.hash].GetDepthInMainChain();
         if (nDepth < 0) continue;
-        COutput out(&wallet->mapWallet[outpoint.hash], outpoint.n, nDepth, true, true);
+        COutput out(&wallet->mapWallet[outpoint.hash], outpoint.n, nDepth, true, true, wallet->mapWallet[outpoint.hash].vMemos[outpoint.n],
+                wallet->mapWallet[outpoint.hash].vAmounts[outpoint.n], wallet->mapWallet[outpoint.hash].vGammas[outpoint.n],
+                "", wallet->mapWallet[outpoint.hash].mixCount);
         vOutputs.push_back(out);
     }
 }
@@ -688,7 +690,7 @@ void WalletModel::listPrivateCoins(std::map<QString, std::vector<COutput> >& map
         while (wallet->IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && wallet->IsMine(cout.tx->vin[0]))
         {
             if (!wallet->mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
-            cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0, true, true, out.vMemo, out.nAmount);
+            cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0, true, true, out.vMemo, out.nAmount, out.mixCount);
         }
 
         CTxDestination address;

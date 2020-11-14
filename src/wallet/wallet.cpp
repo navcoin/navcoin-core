@@ -1491,9 +1491,31 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
         pair<map<uint256, CWalletTx>::iterator, bool> ret = mapWallet.insert(make_pair(hash, wtxIn));
         CWalletTx& wtx = (*ret.first).second;
         wtx.BindWallet(this);
+
         bool fInsertedNew = ret.second;
         if (fInsertedNew)
         {
+            if (wtx.IsCTOutput() && wtx.IsBLSInput())
+            {
+                int prevMix = -1;
+                bool fMixed = false;
+                for (auto& in: wtx.vin)
+                {
+                    if (mapWallet.count(in.prevout.hash))
+                    {
+                        if (prevMix == -1 || mapWallet[in.prevout.hash].mixCount < prevMix)
+                            prevMix = mapWallet[in.prevout.hash].mixCount;
+                    }
+                    else
+                    {
+                        fMixed = true;
+                    }
+                }
+                if (prevMix == -1) // Transaction coming from other private wallet
+                    prevMix = 0;
+                wtx.mixCount = prevMix+fMixed;
+            }
+
             wtx.nTimeReceived = GetAdjustedTime();
             wtx.nOrderPos = IncOrderPosNext(pwalletdb);
             wtxOrdered.insert(make_pair(wtx.nOrderPos, TxPair(&wtx, (CAccountingEntry*)0)));
@@ -3112,6 +3134,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                 if (amount < nMinAmount)
                     continue;
 
+
                 if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO && (amount > 0 || fIncludeZeroValue) &&
                         (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected(COutPoint((*it).first, i))))
                 {
@@ -3130,7 +3153,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                     vCoins.push_back(COutput(pcoin, i, nDepth,
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
                                              ((mine & ISMINE_SPENDABLE_PRIVATE) != ISMINE_NO),
-                                             memo, amount, gamma, sAddress));
+                                             memo, amount, gamma, sAddress, pcoin->mixCount));
                 }
             }
         }
@@ -5516,6 +5539,8 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
     }
     walletInstance->SetBroadcastTransactions(GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
 
+    walletInstance->BuildMixCounters();
+
     if (walletInstance->aggSession)
     {
         LOCK(cs_aggregation);
@@ -5524,6 +5549,37 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
 
     pwalletMain = walletInstance;
     return true;
+}
+
+void CWallet::BuildMixCounters()
+{
+    const TxItems & txOrdered = wtxOrdered;
+    for (TxItems::const_iterator it = txOrdered.begin(); it != txOrdered.end(); ++it)
+    {
+        CWalletTx *const pcoin = (*it).second.first;
+        uint256 hash = pcoin->GetHash();
+
+        if (pcoin->IsCTOutput() && pcoin->IsBLSInput())
+        {
+            int prevMix = -1;
+            bool fMixed = false;
+            for (auto& in: pcoin->vin)
+            {
+                if (mapWallet.count(in.prevout.hash))
+                {
+                    if (prevMix == -1 || mapWallet[in.prevout.hash].mixCount < prevMix)
+                        prevMix = mapWallet[in.prevout.hash].mixCount;
+                }
+                else
+                {
+                    fMixed = true;
+                }
+            }
+            if (prevMix == -1) // Transaction coming from other private wallet
+                prevMix = 0;
+            mapWallet[hash].mixCount = prevMix+fMixed;
+        }
+    }
 }
 
 bool CWallet::ParameterInteraction()

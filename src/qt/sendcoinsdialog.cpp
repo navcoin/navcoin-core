@@ -241,7 +241,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     WalletModel::SendCoinsReturn prepareStatus;
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
-        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, CoinControlDialog::coinControl, &selectedCoins);
+        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, coinControl, &selectedCoins);
     else
         prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, 0, &selectedCoins);
 

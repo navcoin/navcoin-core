@@ -126,11 +126,14 @@ CoinControlDialog::CoinControlDialog(const PlatformStyle *platformStyle, QWidget
     ui->treeWidget->setColumnWidth(COLUMN_LABEL, 170);
     ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 290);
     ui->treeWidget->setColumnWidth(COLUMN_DATE, 110);
-    ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 100);
-    ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
+    ui->treeWidget->setColumnWidth(COLUMN_MIXCOUNT, 66);
+    ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 66);
+    ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 66);
+    ui->treeWidget->setColumnHidden(COLUMN_MIXCOUNT, true);
     ui->treeWidget->setColumnHidden(COLUMN_TXHASH, true);              // store transaction hash in this column, but don't show it
     ui->treeWidget->setColumnHidden(COLUMN_VOUT_INDEX, true);          // store vout index in this column, but don't show it
     ui->treeWidget->setColumnHidden(COLUMN_AMOUNT_INT64, true);        // store amount int64 in this column, but don't show it
+    ui->treeWidget->setColumnHidden(COLUMN_MIXCOUNT_INT64, true); // store confirmations int64 in this column, but don't show it
     ui->treeWidget->setColumnHidden(COLUMN_CONFIRMATIONS_INT64, true); // store confirmations int64 in this column, but don't show it
     ui->treeWidget->setColumnHidden(COLUMN_PRIORITY_INT64, true);      // store priority int64 in this column, but don't show it
     ui->treeWidget->setColumnHidden(COLUMN_DATE_INT64, true);          // store date int64 in this column, but don't show it
@@ -710,6 +713,21 @@ void CoinControlDialog::updateView()
     else
         model->listCoins(mapCoins);
 
+    ui->treeWidget->setColumnHidden(COLUMN_MIXCOUNT, !CoinControlDialog::fPrivate);
+
+    if (fPrivate)
+    {
+        ui->treeWidget->setColumnWidth(COLUMN_MIXCOUNT, 66);
+        ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 66);
+        ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 66);
+    }
+    else
+    {
+        ui->treeWidget->setColumnWidth(COLUMN_MIXCOUNT, 0);
+        ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 100);
+        ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
+    }
+
     for(const PAIRTYPE(QString, std::vector<COutput>)& coins: mapCoins) {
         QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
         itemWalletAddress->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
@@ -792,6 +810,10 @@ void CoinControlDialog::updateView()
             // confirmations
             itemOutput->setText(COLUMN_CONFIRMATIONS, QString::number(out.nDepth));
             itemOutput->setText(COLUMN_CONFIRMATIONS_INT64, strPad(QString::number(out.nDepth), 10, "0")); // padding so that sorting works correctly
+
+            // mixcount
+            itemOutput->setText(COLUMN_MIXCOUNT, QString::number(out.mixCount));
+            itemOutput->setText(COLUMN_MIXCOUNT_INT64, strPad(QString::number(out.mixCount), 10, "0")); // padding so that sorting works correctly
 
             // priority
             double dPriority = ((double)out.tx->vout[out.i].nValue  / (nInputSize + 78)) * (out.nDepth+1); // 78 = 2 * 34 + 10
