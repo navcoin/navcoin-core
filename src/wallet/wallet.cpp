@@ -4041,7 +4041,10 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
         CValidationState state;
 
         if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *pcoinsTip, state))
+        {
+            strFailReason = state.GetRejectReason();
             return error("CWallet::%s: Failed %s\n", __func__, state.GetRejectReason());
+        }
 
         *static_cast<CTransaction*>(&wtxNew) = CTransaction(ctx);
     }
