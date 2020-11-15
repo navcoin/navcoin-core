@@ -65,7 +65,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
     }
 
-    if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
+    bool involvesWatchAddress = false;
+    isminetype fAllFromMe = ISMINE_SPENDABLE;
+    for(const CTxIn& txin: wtx.vin)
+    {
+        isminetype mine = wallet->IsMine(txin);
+        if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+        if(fAllFromMe > mine) fAllFromMe = mine;
+    }
+
+    if ((nNet > 0 && fAllFromMe) || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         //
         // Credit
@@ -163,22 +172,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 }
 
                 if (sub.credit > 0)
+                {
                     parts.append(sub);
+                }
             }
             i++;
         }
     }
     else
     {
-        bool involvesWatchAddress = false;
-        isminetype fAllFromMe = ISMINE_SPENDABLE;
-        for(const CTxIn& txin: wtx.vin)
-        {
-            isminetype mine = wallet->IsMine(txin);
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
-            if(fAllFromMe > mine) fAllFromMe = mine;
-        }
-
         isminetype fAllToMe = ISMINE_SPENDABLE;
         bool fHasSomeNormalOut = false;
         for(const CTxOut& txout: wtx.vout)
@@ -203,13 +205,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             {
                  parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPublic, "",
                                                 0, nPublicCredit));
-                 parts.last().memo = boost::algorithm::join(vMemos, ", ");
             }
              else if (!wtx.IsBLSInput() && wtx.IsCTOutput())
             {
                  parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
                                                 0, nPrivateCredit));
-                 parts.last().memo = boost::algorithm::join(vMemos, ", ");
             }
         }
         else if (fAllFromMe && !wtx.IsBLSInput())
@@ -262,27 +262,25 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     sub.type = TransactionRecord::AnonTxSend;
                     sub.memo = wtx.vMemos[nOut];
-                    sub.debit = nNet;
-                    parts.append(sub);
-                    break;
+                    sub.debit = wtx.vAmounts[nOut];
                 }
 
                 else if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
 
                 else if (txout.scriptPubKey.IsFee())
-                    continue;
+                {
+                    sub.type = TransactionRecord::Fee;
+                }
 
-                if (sub.type == TransactionRecord::SendToAddress)
-                    nSentToOthersPublic -= sub.debit;
+                nSentToOthersPublic += -sub.debit;
 
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
+            if (nPrivateCredit > nPrivateDebit + nSentToOthersPublic)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit+blsFee, 0));
-                parts.last().memo = boost::algorithm::join(vMemos, ", ");
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit+nSentToOthersPublic-nPrivateDebit, 0));
             }
         }
         else if (fAllFromMe && wtx.IsBLSInput())
@@ -324,13 +322,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
                 CAmount nValue = txout.nValue;
 
-                if (nValue == 0)
-                    continue;
-
                 sub.debit = -nValue;
-
-                if (sub.type == TransactionRecord::SendToAddress)
-                    nSentToOthersPublic -= sub.debit;
 
                 if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
@@ -338,13 +330,24 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (txout.scriptPubKey.IsFee())
                     sub.type = TransactionRecord::Fee;
 
+                if(txout.HasRangeProof())
+                {
+                    sub.type = TransactionRecord::AnonTxSend;
+                    sub.memo = wtx.vMemos[nOut];
+                    sub.debit = -wtx.vAmounts[nOut];
+                }
+
+                if (sub.debit == 0)
+                    continue;
+
+                nSentToOthersPublic += -sub.debit;
+
                 parts.append(sub);
             }
 
-            if (nPrivateDebit > nPrivateCredit + nSentToOthersPublic + blsFee)
+            if (nPrivateCredit > nPrivateDebit + nSentToOthersPublic)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit + blsFee, 0));
-                parts.last().memo = boost::algorithm::join(vMemos, ", ");
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit, 0));
             }
         }
         else
@@ -353,17 +356,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             // Mixed debit transaction, can't break down payees
             //
 
-            if (nPrivateDebit > nPrivateCredit)
-            {
-                CAmount nTxFee = wtx.GetFee();
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nPrivateDebit, 0));
-                parts.last().memo = boost::algorithm::join(vMemos, ", ");
-            }
-            else
-            {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-                parts.last().involvesWatchAddress = involvesWatchAddress;
-            }
+            CAmount sent = nPrivateDebit;
+            CAmount delta = nPrivateCredit - nPrivateDebit;
+            bool fHasOtherThanMixingReward = false;
+            bool fHasMixingReward = false;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -376,18 +372,86 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Ignore parts sent to self, as this is usually the change
                     // from a transaction sent back to our own address.
-                    continue;
+                    if(txout.HasRangeProof())
+                    {
+                        if (wtx.vMemos[nOut] == "Change" || wtx.vAmounts[nOut] == 0)
+                        {
+                            sent -= wtx.vAmounts[nOut];
+                            continue;
+                        }
+                        if (wtx.vMemos[nOut] != "Mixing Reward")
+                        {
+                            fHasOtherThanMixingReward = true;
+                        }
+                        else
+                        {
+                            fHasMixingReward = true;
+                        }
+                        sub.type = TransactionRecord::AnonTxRecv;
+                        sub.memo = wtx.vMemos[nOut];
+                        sub.credit = wtx.vAmounts[nOut];
+                        parts.append(sub);
+                    }
                 }
-
-                if(txout.HasRangeProof())
+                else
                 {
-                    if (wtx.vAmounts[nOut] == 0)
-                        continue;
-                    sub.type = TransactionRecord::AnonTxSend;
-                    sub.memo = wtx.vMemos[nOut];
-                    sub.credit = wtx.vAmounts[nOut];
-                    parts.append(sub);
+                    if(txout.HasRangeProof())
+                    {
+                        if (wtx.vAmounts[nOut] == 0)
+                            continue;
+
+                        if (wtx.vMemos[nOut] != "Mixing Reward")
+                        {
+                            fHasOtherThanMixingReward = true;
+                        }
+                        else
+                        {
+                            fHasMixingReward = true;
+                        }
+                        sub.type = TransactionRecord::AnonTxSend;
+                        sub.memo = wtx.vMemos[nOut];
+                        sub.debit = -wtx.vAmounts[nOut];
+                        sent -= -sub.debit;
+
+                        parts.append(sub);
+                    }
                 }
+            }
+            CAmount nTxFee = wtx.GetFee();
+            if (wtx.IsBLSCT())
+            {
+                if (!fHasOtherThanMixingReward && fHasMixingReward)
+                {
+                    parts.clear();
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::MixingReward, "", 0, nPrivateCredit-nPrivateDebit));
+                }
+                else if (sent > 0)
+                {
+                    if (parts.size() == 1)
+                    {
+                        parts.last().debit -= sent;
+                    }
+                    else
+                    {
+                        parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", -sent, 0));
+                    }
+                }
+                else if (sent < 0)
+                {
+                    if (parts.size() == 1)
+                    {
+                        parts.last().credit -= sent;
+                    }
+                    else
+                    {
+                        parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxRecv, "", 0, sent));
+                    }
+                }
+            }
+            else
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+                parts.last().involvesWatchAddress = involvesWatchAddress;
             }
         }
     }

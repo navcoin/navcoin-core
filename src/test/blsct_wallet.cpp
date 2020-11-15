@@ -76,7 +76,8 @@ BOOST_AUTO_TEST_CASE(blsct_wallet)
     std::string strFailReason;
     std::vector<bls::G2Element> vBLSSignatures;
     CTxOut txout;
-    BOOST_CHECK(CreateBLSCTOutput(b.GetKey(), txout, destKey, 10*COIN, "", gamma, strFailReason, false, vBLSSignatures));
+    bls::G1Element nonce;
+    BOOST_CHECK(CreateBLSCTOutput(b.GetKey(), nonce, txout, destKey, 10*COIN, "", gamma, strFailReason, false, vBLSSignatures));
 
     BOOST_CHECK(pwalletMain->IsMine(txout));
 }

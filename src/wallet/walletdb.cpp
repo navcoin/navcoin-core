@@ -116,6 +116,14 @@ bool CWalletDB::WriteCandidateTransactions(const std::vector<CandidateTransactio
     return Write(std::string("candidatetransactions"), candidates);
 }
 
+bool CWalletDB::WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce)
+{
+    nWalletDBUpdated++;
+
+    return Write(std::make_pair(std::string("outputnonce"), hash), nonce);
+}
+
+
 bool CWalletDB::WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta)
 {
     nWalletDBUpdated++;
@@ -771,6 +779,14 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             std::vector<CandidateTransaction> ct;
             ssValue >> ct;
             pwallet->aggSession->SetCandidateTransactions(ct);
+        }
+        else if (strType == "outputnonce")
+        {
+            uint256 hash;
+            std::vector<unsigned char> nonce;
+            ssKey >> hash;
+            ssValue >> nonce;
+            pwallet->mapNonces[hash] = nonce;
         }
         else if (strType == "blsctviewkey")
         {

@@ -252,6 +252,7 @@ public:
     bool WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta);
     bool WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     bool WriteCandidateTransactions(const std::vector<CandidateTransaction>& candidates);
+    bool WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

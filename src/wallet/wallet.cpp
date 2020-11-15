@@ -688,8 +688,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 std::string strFailReason;
 
                 blsctDoublePublicKey dk = boost::get<blsctDoublePublicKey>(entry.first.Get());
+                bls::G1Element nonce;
 
-                if (!CreateBLSCTOutput(ephemeralKey, blsctOut, dk, thisOut, "Staking reward", gammaOuts, strFailReason, false, vBLSSignatures))
+                if (!CreateBLSCTOutput(ephemeralKey, nonce, blsctOut, dk, thisOut, "Staking reward", gammaOuts, strFailReason, false, vBLSSignatures))
                 {
                     return error("%s: Could not redirect stakes to xNAV: %s\n", __func__, strFailReason);
                 }
@@ -857,6 +858,18 @@ bool CWallet::WriteCandidateTransactions()
         return false;
 
     return CWalletDB(strWalletFile).WriteCandidateTransactions(aggSession->GetTransactionCandidates());
+}
+
+bool CWallet::WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce)
+{
+    AssertLockHeld(cs_wallet);
+
+    mapNonces[hash] = nonce;
+
+    if (!fFileBacked)
+        return true;
+
+    return CWalletDB(strWalletFile).WriteOutputNonce(hash, nonce);
 }
 
 bool CWallet::AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index)
@@ -1607,13 +1620,46 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
 
                 if (GetBLSCTViewKey(k))
                 {
-                    if (VerifyBLSCT(wtx, k.GetKey(), data, view, state, true))
+                    std::vector<bls::G1Element> nonces;
+                    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+
+                    bls::PrivateKey vk = k.GetKey();
+
+                    for (unsigned int i = 0; i < wtx.vout.size(); i++)
                     {
-                        blsctData = &data;
+                        CTxOut out = wtx.vout[i];
+
+                        if (out.outputKey.size() == 0)
+                            continue;
+
+                        bls::G1Element n = bls::G1Element::FromByteVector(out.outputKey);
+                        n = n * vk;
+
+                        if (mapNonces.count(out.GetHash()) && mapNonces[out.GetHash()].size() > 0)
+                        {
+                            try
+                            {
+                                n = bls::G1Element::FromByteVector(mapNonces[out.GetHash()]);
+                            }
+                            catch(...)
+                            {
+                                proofs.push_back(std::make_pair(i, out.bp));
+                                nonces.push_back(n);
+                                continue;
+                            }
+
+                        }
+                        proofs.push_back(std::make_pair(i, out.bp));
+                        nonces.push_back(n);
+                    }
+
+                    if (!VerifyBulletproof(proofs, data, nonces, true))
+                    {
+                        return error("%s: VerifyBulletproof returned false\n", __func__);
                     }
                     else
                     {
-                        return error("%s: VerifyBLSCT returned false: %s\n", __func__, state.GetRejectReason());
+                        blsctData = &data;
                     }
                 }
             }
@@ -3524,6 +3570,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     std::vector<CAmount> vAmounts;
     std::vector<std::string> vMemos;
+    std::vector<std::vector<unsigned char>> vNonces;
 
     // Secondly occasionally randomly pick a nLockTime even further back, so
     // that transactions that are delayed after signing for whatever reason,
@@ -3554,6 +3601,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 txNew.vout.clear();
                 vAmounts.clear();
                 vMemos.clear();
+                vNonces.clear();
                 wtxNew.fFromMe = true;
                 bool fFirst = true;
 
@@ -3589,6 +3637,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                             nValue -= nFeeRet % nSubtractFeeFromAmount;
                         }
                     }
+
+                    bls::G1Element nonce;
 
                     if (!recipient.fBLSCT)
                     {
@@ -3640,7 +3690,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         bls::PrivateKey ephemeralKey = bk.GetKey();
 
-                        if (!CreateBLSCTOutput(ephemeralKey, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), nValue, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures))
+                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), nValue, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
                             return false;
@@ -3650,11 +3700,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     txNew.vout.push_back(txout);
 
-                    vAmounts.resize(txNew.vout.size());
-                    vMemos.resize(txNew.vout.size());
+                    vNonces.resize(txNew.vout.size());
 
-                    vAmounts[txNew.vout.size()-1] = nValue;
-                    vMemos[txNew.vout.size()-1] = recipient.sMemo;
+                    vNonces[txNew.vout.size()-1] = nonce.Serialize();
 
                     i++;
                 }
@@ -3722,8 +3770,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         }
 
                         uiInterface.ShowProgress("Constructing BLSCT transaction...", -1);
+                        bls::G1Element nonce;
 
-                        if (!CreateBLSCTOutput(ephemeralKey, newTxOut, k, nChange, "Change", gammaOuts, strFailReason, fPrivate, vBLSSignatures))
+                        if (!CreateBLSCTOutput(ephemeralKey, nonce, newTxOut, k, nChange, "Change", gammaOuts, strFailReason, fPrivate, vBLSSignatures))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
                             strFailReason = _("Error creating BLSCT change output");
@@ -3735,11 +3784,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         txNew.nVersion |= TX_BLS_CT_FLAG;
                         txNew.vout.push_back(newTxOut);
 
-                        vAmounts.resize(txNew.vout.size());
-                        vMemos.resize(txNew.vout.size());
-
-                        vAmounts[txNew.vout.size()-1] = nChange;
-                        vMemos[txNew.vout.size()-1] = "Change";
                     }
                     else
                     {
@@ -3824,12 +3868,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 {
                     CTxOut feeOut = CTxOut(nFeeRet-nMixFee, CScript(OP_RETURN));
                     txNew.vout.push_back(feeOut);
-
-                    vAmounts.resize(txNew.vout.size());
-                    vMemos.resize(txNew.vout.size());
-
-                    vAmounts[txNew.vout.size()-1] = nFeeRet-nMixFee;
-                    vMemos[txNew.vout.size()-1] = "Fee";
                 }
 
                 // Fill vin
@@ -3980,6 +4018,14 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 wtxNew.vAmounts = vAmounts;
                 wtxNew.vMemos = vMemos;
+
+                for (unsigned int i = 0; i < vNonces.size(); i++)
+                {
+                    if (vNonces[i].size() > 0)
+                    {
+                        WriteOutputNonce(wtxNew.vout[i].GetHash(), vNonces[i]);
+                    }
+                }
 
                 // Limit size
                 if (GetTransactionWeight(txNew) >= MAX_STANDARD_TX_WEIGHT)

@@ -4606,7 +4606,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (block.vtx[1].IsCTOutput()) // coinstake moving to private is checked after the loop
         {
-            LogPrintf("%s: Verifying rewards moving to private. Amount must be: %s\n", __func__, FormatMoney(nCalculatedStakeReward - nStakeReward));
+            //LogPrintf("%s: Verifying rewards moving to private. Amount must be: %s\n", __func__, FormatMoney(nCalculatedStakeReward - nStakeReward));
 
             try
             {

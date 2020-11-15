@@ -356,7 +356,7 @@ bool AggregationSession::Join() const
 
         if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
         {
-            return error("AggregationSession::%s: BLSCT keys for subaddress not available\n", __func__);
+            return error("AggregationSession::%s: BLSCTed keys for subaddress not available\n", __func__);
         }
 
         if (!pwalletMain->GetBLSCTViewKey(v))
@@ -386,9 +386,11 @@ bool AggregationSession::Join() const
 
     std::string strFailReason;
 
+    bls::G1Element nonce_;
+
     try
     {
-        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), nonce_, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
         {
             return error("AggregationSession::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
         }

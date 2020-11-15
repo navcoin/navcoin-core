@@ -4,7 +4,7 @@
 
 #include "transaction.h"
 
-bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
+bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                        Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify)
 {
 
@@ -22,7 +22,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, CTxOut& newTxOut, const blsc
         return false;
     }
 
-    bls::G1Element nonce = blindingKey*vk;
+    nonce = blindingKey*vk;
     nonces.push_back(nonce);
 
     // Masking key - Used for bulletproof

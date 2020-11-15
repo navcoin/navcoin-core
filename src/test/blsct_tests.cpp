@@ -84,8 +84,9 @@ BOOST_AUTO_TEST_CASE(blsct)
     Scalar gammaIns, gammaOuts, gammaPrevOut;
     std::string strFailReason;
     std::vector<bls::G2Element> vBLSSignatures;
+    bls::G1Element nonce;
 
-    BOOST_CHECK(CreateBLSCTOutput(bk, prevTx.vout[1], destKey, 10*COIN, "", gammaPrevOut, strFailReason, false, vBLSSignatures));
+    BOOST_CHECK(CreateBLSCTOutput(bk, nonce, prevTx.vout[1], destKey, 10*COIN, "", gammaPrevOut, strFailReason, false, vBLSSignatures));
 
     view.ModifyCoins(prevTx.GetHash())->FromTx(prevTx, 0);
 
@@ -105,7 +106,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     gammaIns = 0;
     gammaOuts = 0;
 
-    BOOST_CHECK(CreateBLSCTOutput(bk, spendingTx.vout[0], destKey, 10, "test", gammaOuts, strFailReason, true, vBLSSignatures));
+    BOOST_CHECK(CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10, "test", gammaOuts, strFailReason, true, vBLSSignatures));
 
     std::vector<RangeproofEncodedData> vData;
     CValidationState state;
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     gammaIns = 0;
     gammaOuts = 0;
 
-    BOOST_CHECK(CreateBLSCTOutput(bk, spendingTx.vout[0], destKey, 10*COIN, "testtesttesttesttest", gammaOuts, strFailReason, true, vBLSSignatures));
+    BOOST_CHECK(CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10*COIN, "testtesttesttesttest", gammaOuts, strFailReason, true, vBLSSignatures));
 
     // Public to Private. Same amount. Balance signature empty. Tx signature empty.
     state = CValidationState();
@@ -160,7 +161,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     bool fException = false;
 
     try {
-        CreateBLSCTOutput(bk, spendingTx.vout[0], destKey, 10*COIN, "test2test2test2test2test2", gammaOuts, strFailReason, true, vBLSSignatures);
+        CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10*COIN, "test2test2test2test2test2", gammaOuts, strFailReason, true, vBLSSignatures);
     }
     catch (...)
     {
@@ -171,7 +172,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     gammaOuts = 0;
 
     BOOST_CHECK(fException);
-    BOOST_CHECK(CreateBLSCTOutput(bk, spendingTx.vout[0], destKey, 10*COIN, "test2test2test2test2tes", gammaOuts, strFailReason, true, vBLSSignatures));
+    BOOST_CHECK(CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10*COIN, "test2test2test2test2tes", gammaOuts, strFailReason, true, vBLSSignatures));
     // Private to Private. Same amount. Balance signature empty. Tx signature empty.
     state = CValidationState();
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
@@ -217,7 +218,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     spendingTx.vin[0].prevout = COutPoint(prevTx.GetHash(), 1);
     spendingTx.nVersion |= TX_BLS_INPUT_FLAG;
 
-    BOOST_CHECK(CreateBLSCTOutput(bk, spendingTx.vout[0], destKey, 10, "test2", gammaOuts, strFailReason, true, vBLSSignatures));
+    BOOST_CHECK(CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10, "test2", gammaOuts, strFailReason, true, vBLSSignatures));
 
     // Private to Private. Different amount. Balance signature empty. Tx signature empty.
     state = CValidationState();

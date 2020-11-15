@@ -433,11 +433,11 @@ public:
         }
 
         if (HasCTOutput())
-         {
-             READWRITE(vAmounts);
-             READWRITE(vMemos);
-             READWRITE(vGammas);
-         }
+        {
+            READWRITE(vAmounts);
+            READWRITE(vMemos);
+            READWRITE(vGammas);
+        }
 
         mapValue.erase("fromaccount");
         mapValue.erase("version");
@@ -744,6 +744,7 @@ private:
     int64_t nLastResend;
     bool fBroadcastTransactions;
 
+
     /**
      * Used to keep track of spent outpoints, and
      * detect and report conflicts (double-spends or
@@ -780,6 +781,7 @@ public:
     std::map<uint64_t, std::set<uint64_t>> mapBLSCTSubAddressKeyPool;
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
     std::map<CKeyID, CBLSCTBlindingKeyMetadata> mapBLSCTBlindingKeyMetadata;
+    std::map<uint256, std::vector<unsigned char>> mapNonces;
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
@@ -900,6 +902,7 @@ public:
     bool LoadBLSCTBlindingKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTBlindingKeyMetadata &metadata);
 
     bool WriteCandidateTransactions();
+    bool WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce);
 
     bool LoadMinVersion(int nVersion) { AssertLockHeld(cs_wallet); nWalletVersion = nVersion; nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion); return true; }
 
