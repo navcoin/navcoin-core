@@ -81,6 +81,14 @@ typedef u_int SOCKET;
 size_t strnlen( const char *start, size_t max_len);
 #endif // HAVE_DECL_STRNLEN
 
+bool static inline IsSelectableSocket(SOCKET s) {
+#ifdef WIN32
+    return true;
+#else
+    return (s < FD_SETSIZE);
+#endif
+}
+
 #ifndef WIN32
 // PRIO_MAX is not defined on Solaris
 #ifndef PRIO_MAX
@@ -91,31 +99,5 @@ size_t strnlen( const char *start, size_t max_len);
 #define THREAD_PRIORITY_NORMAL          0
 #define THREAD_PRIORITY_ABOVE_NORMAL    (-2)
 #endif
-
-#if HAVE_DECL_STRNLEN == 0
-size_t strnlen( const char *start, size_t max_len);
-#endif // HAVE_DECL_STRNLEN
-
-#ifndef WIN32
-typedef void* sockopt_arg_type;
-#else
-typedef char* sockopt_arg_type;
-#endif
-
-// Note these both should work with the current usage of poll, but best to be safe
-// WIN32 poll is broken https://daniel.haxx.se/blog/2012/10/10/wsapoll-is-broken/
-// __APPLE__ poll is broke https://github.com/bitcoin/bitcoin/pull/14336#issuecomment-437384408
-#if defined(__linux__)
-#define USE_POLL
-#endif
-
-bool static inline IsSelectableSocket(const SOCKET& s) {
-#if defined(USE_POLL) || defined(WIN32)
-    return true;
-#else
-    return (s < FD_SETSIZE);
-#endif
-}
-
 
 #endif // NAVCOIN_COMPAT_H
