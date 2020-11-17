@@ -1635,11 +1635,13 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                         bls::G1Element n = bls::G1Element::FromByteVector(out.outputKey);
                         n = n * vk;
 
-                        if (mapNonces.count(out.GetHash()) && mapNonces[out.GetHash()].size() > 0)
+                        uint256 ekhash = SerializeHash(out.ephemeralKey);
+
+                        if (mapNonces.count(ekhash) && mapNonces[ekhash].size() > 0)
                         {
                             try
                             {
-                                n = bls::G1Element::FromByteVector(mapNonces[out.GetHash()]);
+                                n = bls::G1Element::FromByteVector(mapNonces[ekhash]);
                             }
                             catch(...)
                             {
@@ -3570,7 +3572,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     std::vector<CAmount> vAmounts;
     std::vector<std::string> vMemos;
-    std::vector<std::vector<unsigned char>> vNonces;
+    std::map<uint256, std::vector<unsigned char>> vNonces;
 
     // Secondly occasionally randomly pick a nLockTime even further back, so
     // that transactions that are delayed after signing for whatever reason,
@@ -3700,9 +3702,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     txNew.vout.push_back(txout);
 
-                    vNonces.resize(txNew.vout.size());
-
-                    vNonces[txNew.vout.size()-1] = nonce.Serialize();
+                    vNonces[SerializeHash(txout.ephemeralKey)] = nonce.Serialize();
 
                     i++;
                 }
@@ -4019,11 +4019,11 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 wtxNew.vAmounts = vAmounts;
                 wtxNew.vMemos = vMemos;
 
-                for (unsigned int i = 0; i < vNonces.size(); i++)
+                for (auto& it: vNonces)
                 {
-                    if (vNonces[i].size() > 0)
+                    if (it.second.size() > 0)
                     {
-                        WriteOutputNonce(wtxNew.vout[i].GetHash(), vNonces[i]);
+                        WriteOutputNonce(it.first, it.second);
                     }
                 }
 
