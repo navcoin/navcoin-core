@@ -46,7 +46,6 @@ void EphemeralServer::Start()
 
     fState = 0;
 
-    LogPrint("ephemeralserver", "EphemeralServer::%s: Closing ephemeral server at port %d\n", __func__, s.port);
     io_service.stop();
     LogPrint("ephemeralserver", "EphemeralServer::%s: Closed ephemeral server at port %d\n", __func__, s.port);
 
