@@ -1716,7 +1716,7 @@ void NavCoinGUI::incomingTransaction(const QString& date, int unit, const CAmoun
 {
     // On new transaction, make an info balloon
     QString msg = tr("Date: %1\n").arg(date) +
-                  tr("Amount: %1\n").arg(NavCoinUnits::formatWithUnit(unit, amount, true)) +
+                  tr("Amount: %1\n").arg(NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::SeparatorStyle::separatorStandard, type.contains("Private Payment"))) +
                   tr("Type: %1\n").arg(type);
     if (!label.isEmpty())
         msg += tr("Label: %1\n").arg(label);
