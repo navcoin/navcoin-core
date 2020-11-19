@@ -49,6 +49,7 @@ public:
     void CheckValid() const;
     void ToNative(g1_t* output) const;
     G1Element Negate() const;
+    G1Element Inverse();
     GTElement Pair(const G2Element &b) const;
     uint32_t GetFingerprint() const;
     std::vector<uint8_t> Serialize() const;
@@ -61,11 +62,11 @@ public:
     friend G1Element operator*(const bn_t &k, const G1Element &a);
     friend GTElement operator&(const G1Element &a, const G2Element &b);
 
-private:
-    g1_t p;
     G1Element() {
         g1_set_infty(p);
     }
+
+    g1_t p;
 };
 
 class G2Element {
@@ -94,12 +95,13 @@ public:
     friend G2Element operator*(const G2Element &a, const bn_t &k);
     friend G2Element operator*(const bn_t &k, const G2Element &a);
 
-
-private:
-    g2_t q;
     G2Element() {
         g2_set_infty(q);
     }
+
+private:
+    g2_t q;
+
 };
 
 class GTElement {

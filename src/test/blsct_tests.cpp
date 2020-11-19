@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     Scalar diff = gammaIns-gammaOuts;
     bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
 
     // Public to Private. Different amount. Balance signature correct. Tx signature empty.
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
 
     // Public to Private. Same amount. Balance signature correct. Tx signature empty.
     state = CValidationState();
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
 
     // Private to Private. Same amount. Balance signature correct. Tx signature empty.
     state = CValidationState();
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(blsct)
 
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
 
     // Private to Private. Different amount. Balance signature complete but incorrect due different amount. Tx signature empty.
     state = CValidationState();
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     diff = gammaIns-gammaOuts;
     balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
 
-    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+    spendingTx.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
 
     // Private to Public. Same amount. Balance signature correct. Tx signature complete.
     state = CValidationState();

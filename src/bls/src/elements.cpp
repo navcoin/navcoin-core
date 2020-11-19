@@ -140,6 +140,17 @@ G1Element G1Element::Negate() const
     return ans;
 }
 
+G1Element G1Element::Inverse()
+{
+    G1Element ans = G1Element();
+    bn_t ordMinus1;
+    bn_new(ordMinus1);
+    g1_get_ord(ordMinus1);
+    bn_sub_dig(ordMinus1, ordMinus1, 1);
+    g1_mul(ans.p, this->p, ordMinus1);
+    return ans;
+}
+
 GTElement G1Element::Pair(const G2Element& b) const { return (*this) & b; }
 
 uint32_t G1Element::GetFingerprint() const

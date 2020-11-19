@@ -5,6 +5,9 @@
 #include "aggregationsession.h"
 #include "main.h"
 
+#include <algorithm>
+#include <random>
+
 std::set<uint256> setKnownSessions;
 CCriticalSection cs_aggregation;
 
@@ -112,7 +115,9 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 {
     LOCK(cs_aggregation);
 
-    random_shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), GetRandInt);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), g);
 
     size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
 
@@ -367,7 +372,9 @@ bool AggregationSession::Join() const
     if (GetRandInt(nRand+vAvailableCoins.size()) < nRand)
         return error("AggregationSession::%s: not sending this time", __func__);
 
-    random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), g);
 
     const CWalletTx *prevcoin = vAvailableCoins[0].tx;
     int prevout = vAvailableCoins[0].i;
@@ -462,7 +469,7 @@ bool AggregationSession::Join() const
         // Balance Sig
         Scalar diff = gammaIns-gammaOuts;
         bls::PrivateKey balanceSigningKey = bls::PrivateKey::FromBN(diff.bn);
-        candidate.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg);
+        candidate.vchBalanceSig = bls::BasicSchemeMPL::Sign(balanceSigningKey, balanceMsg).Serialize();
         // Tx Sig
         candidate.vchTxSig = bls::BasicSchemeMPL::Aggregate(vBLSSignatures).Serialize();
     }

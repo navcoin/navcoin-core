@@ -46,7 +46,7 @@ static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx)
 
     bls::G1Element e = bls::G1Element::FromMessage(std::vector<unsigned char>(hash.begin(), hash.end()), dest, 1);
 
-    CHECK_AND_ASSERT_THROW_MES(e != bls::G1Element::Unity(), "Exponent is point at infinity");
+    CHECK_AND_ASSERT_THROW_MES(e != bls::G1Element::Infinity(), "Exponent is point at infinity");
 
     return e;
 }
@@ -993,5 +993,5 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
     bls::G1Element mexp = MultiExp(multiexpdata);
 
-    return mexp == bls::G1Element::Unity();
+    return mexp == bls::G1Element::Infinity();
 }

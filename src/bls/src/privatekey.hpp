@@ -31,6 +31,10 @@ class PrivateKey {
     // less than the group order (which is in bls.hpp).
     static const size_t PRIVATE_KEY_SIZE = 32;
 
+    // Generates a private key from a seed, similar to HD key generation
+    // (hashes the seed), and reduces it mod the group order.
+    static PrivateKey FromSeed(const uint8_t *seed, size_t seedLen);
+
     // Construct a private key from a bytearray.
     static PrivateKey FromBytes(const uint8_t *bytes, bool modOrder = false);
 
@@ -45,8 +49,10 @@ class PrivateKey {
     PrivateKey(const PrivateKey &k);
     PrivateKey(PrivateKey &&k);
 
-    PrivateKey& operator=(PrivateKey const&) = delete;
-    PrivateKey& operator=(PrivateKey&&) = delete;
+    PrivateKey& operator=(PrivateKey const&);
+
+    // Construct a private key from a native bn element.
+    static PrivateKey FromBN(bn_t sk, bool modOrder = false);
 
     ~PrivateKey();
 

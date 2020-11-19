@@ -75,7 +75,7 @@ bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::ve
 {
     newTxOut.ephemeralKey = blindingKey.GetG1Element().Serialize();
     uint256 txOutHash = newTxOut.GetHash();
-    bls::G2Element sig = bls::AugSchemeMPL::SignNative(blindingKey, std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
+    bls::G2Element sig = bls::AugSchemeMPL::Sign(blindingKey, std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
     vBLSSignatures.push_back(sig);
 
     return true;
@@ -86,7 +86,7 @@ bool SignBLSInput(const bls::PrivateKey& signingKey, CTxIn& newTxIn, std::vector
     CHashWriter ss(SER_GETHASH, 0);
     ss << newTxIn;
     uint256 txInHash = ss.GetHash();
-    bls::G2Element sig = bls::AugSchemeMPL::SignNative(signingKey, std::vector<unsigned char>(txInHash.begin(), txInHash.end()));
+    bls::G2Element sig = bls::AugSchemeMPL::Sign(signingKey, std::vector<unsigned char>(txInHash.begin(), txInHash.end()));
     vBLSSignatures.push_back(sig);
 
     return true;
