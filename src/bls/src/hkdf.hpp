@@ -1,4 +1,4 @@
-// Copyright 2018 Chia Network Inc
+// Copyright 2020 Chia Network Inc
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <gmp.h>
 #endif
 
+#include <cassert>
 #include "util.hpp"
 
 namespace bls {
@@ -45,7 +46,7 @@ class HKDF256 {
     static void Expand(uint8_t* okm, size_t L, const uint8_t* prk, const uint8_t* info, const size_t infoLen) {
         assert(L <= 255 * HASH_LEN); // L <= 255 * HashLen
         assert(infoLen >= 0);
-        size_t N = ceil((double)L / HASH_LEN);
+        size_t N = (L + HASH_LEN - 1) / HASH_LEN; // Round up
         size_t bytesWritten = 0;
 
         uint8_t* T = Util::SecAlloc<uint8_t>(HASH_LEN);
