@@ -1357,6 +1357,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DGMP_INCLUDES=$prefix/include \
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
+                    -DCIBUILDWHEEL=1 \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
