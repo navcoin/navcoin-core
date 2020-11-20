@@ -450,7 +450,10 @@ static bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRe
         return false;
 
     if (!IsSelectableSocket(hSocket))
+    {
+        CloseSocket(hSocket);
         return error("Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
+    }
 
     int set = 1;
 #ifdef SO_NOSIGPIPE
