@@ -25,8 +25,6 @@ extern "C" {
 #include <gmp.h>
 #endif
 
-#include <utility>
-
 namespace bls {
 class G1Element;
 class G2Element;
@@ -139,7 +137,7 @@ public:
     }
 
     BNWrapper(BNWrapper&& other)
-        : b(std::exchange(other.b, nullptr))
+        : b(exchange(other.b, nullptr))
     {}
 
     BNWrapper& operator=(const BNWrapper& other) &
@@ -158,7 +156,7 @@ public:
             bn_free(*b);
             Util::SecFree(b);
         }
-        b = std::exchange(other.b, nullptr);
+        b = exchange(other.b, nullptr);
         return *this;
     }
 
