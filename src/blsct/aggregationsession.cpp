@@ -786,7 +786,7 @@ void AggregationSessionThread()
                 }
             }
 
-            MilliSleep(GetRand(600*1000));
+            MilliSleep(GetRand(180*1000));
         }
     }
     catch (const boost::thread_interrupted&)
