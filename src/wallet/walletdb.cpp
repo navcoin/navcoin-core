@@ -113,6 +113,8 @@ bool CWalletDB::WriteCandidateTransactions(const std::vector<CandidateTransactio
 {
     nWalletDBUpdated++;
 
+    LogPrintf("Writing %d candidate transactions\n", candidates.size());
+
     return Write(std::string("candidatetransactions"), candidates);
 }
 
@@ -778,6 +780,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             std::vector<CandidateTransaction> ct;
             ssValue >> ct;
+            LogPrintf("Read %d candidate transactions\n", ct.size());
             pwallet->aggSession->SetCandidateTransactions(ct);
         }
         else if (strType == "outputnonce")
