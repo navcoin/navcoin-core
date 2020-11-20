@@ -14,17 +14,14 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules
 )
 
-# Make sure to statically link libsodium when building wheels on ci
-if(DEFINED ENV{CIBUILDWHEEL})
-  set(sodium_USE_STATIC_LIBS TRUE)
-  message("libsodium will be statically linked because $CIBUILDWHEEL is defined.")
-endif()
+set(sodium_USE_STATIC_LIBS TRUE)
 
 find_package(sodium)
 if (SODIUM_FOUND)
   message(STATUS "Found libsodium")
   message(STATUS "Sodium include dir = ${sodium_INCLUDE_DIR}")
   set(BLSALLOC_SODIUM "1" CACHE STRING "")
+  set(SODIUM_STATIC "1" CACHE STRING "")
   include_directories(${sodium_INCLUDE_DIR})
 endif()
 
