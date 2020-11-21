@@ -447,11 +447,11 @@ bool AggregationSession::Join() const
 
     std::string strFailReason;
 
-    bls::G1Element nonce_;
+    bls::G1Element nonce;
 
     try
     {
-        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), nonce_, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), nonce, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
         {
             return error("AggregationSession::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
         }
@@ -488,7 +488,6 @@ bool AggregationSession::Join() const
     std::vector<Scalar> value;
     value.push_back(prevcoin->vAmounts[prevout]+nAddedFee-DEFAULT_MIN_OUTPUT_AMOUNT);
 
-    bls::G1Element nonce = bls::PrivateKey::FromBN(Scalar::Rand().bn).GetG1Element();
     std::vector<bls::G1Element> nonces;
     nonces.push_back(nonce);
 
