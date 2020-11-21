@@ -496,17 +496,17 @@ public:
          * a large 32-bit integer with any alignment.
          */
         pchMessageStart[0] = 0x32;
-        pchMessageStart[1] = 0x14;
+        pchMessageStart[1] = 0x24;
         pchMessageStart[2] = 0xf2;
         pchMessageStart[3] = 0x07;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        uint32_t nTimestamp = 1601287047;
-        uint256 hashGenesisBlock = uint256S("0x00006fdcd481ed66a9a9c355de65b02cfec8afa60e8c4e330a8581c93b1018a4");
-        uint256 hashMerkleRoot = uint256S("0xc5d2016098c52d29709d8a65468ec7ac0eb64cf4597e2c96ddd47ffc3d29fb76");
-        uint32_t nNonce = 2043806890;
+        uint32_t nTimestamp = 1605978909;
+        uint256 hashGenesisBlock = uint256S("0x000018559824d98c6e0c3beaa674fe1019b8e17433655aff7e71f0d2eada1659");
+        uint256 hashMerkleRoot = uint256S("0xd11474466d523c907a2b3684f67830d7e2fb9aa6e789d11411d059c531b2c61c");
+        uint32_t nNonce = 2043837216;
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
