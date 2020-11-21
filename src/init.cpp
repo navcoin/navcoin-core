@@ -1080,6 +1080,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     sa.sa_flags = 0;
     sigaction(SIGTERM, &sa, nullptr);
     sigaction(SIGINT, &sa, nullptr);
+    sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, nullptr);
+
 
     // Reopen debug.log on SIGHUP
     struct sigaction sa_hup;
