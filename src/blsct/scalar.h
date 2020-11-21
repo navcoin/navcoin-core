@@ -55,6 +55,7 @@ public:
     Scalar operator-(const Scalar &b) const;
     Scalar operator*(const Scalar &b) const;
     Scalar operator|(const Scalar &b) const;
+    Scalar operator^(const Scalar &b) const;
     Scalar operator&(const Scalar &b) const;
     Scalar operator~() const;
     Scalar operator<<(const int &b) const;

@@ -25,7 +25,7 @@
 #include <boost/thread/lock_guard.hpp>
 
 static const size_t maxN = 64;
-static const size_t maxMessageSize = 24;
+static const size_t maxMessageSize = 54;
 static const size_t maxM = 16;
 static const size_t maxMN = maxM*maxN;
 
@@ -47,7 +47,7 @@ public:
 
     static bool Init();
 
-    void Prove(std::vector<Scalar> v, std::vector<Scalar> gamma, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
+    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
 
     bool operator==(const BulletproofsRangeproof& rh) const {
         return (V == rh.V &&

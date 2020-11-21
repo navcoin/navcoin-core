@@ -7,7 +7,6 @@
 bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                        Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify)
 {
-
     newTxOut = CTxOut(0, CScript(OP_TRUE));
 
     std::vector<Scalar> value;
@@ -26,7 +25,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     nonces.push_back(nonce);
 
     // Masking key - Used for bulletproof
-    Scalar gamma = Scalar::Rand();
+    Scalar gamma = HashG1Element(nonce, 100);
     std::vector<Scalar> gammas;
     gammaAcc = gammaAcc + gamma;
     gammas.push_back(gamma);
@@ -37,7 +36,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
 
     try
     {
-        bprp.Prove(value, gammas, nonces[0], vMemo);
+        bprp.Prove(value, nonces[0], vMemo);
     }
     catch(...)
     {

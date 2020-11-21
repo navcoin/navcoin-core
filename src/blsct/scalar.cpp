@@ -137,6 +137,22 @@ Scalar Scalar::operator|(const Scalar &b) const
     return ret;
 }
 
+Scalar Scalar::operator^(const Scalar &b) const
+{
+    Scalar ret;
+
+    size_t size = std::max(bn_bits(this->bn), bn_bits(b.bn));
+
+    for (size_t i = 0; i < size; i++)
+    {
+        bool l = bn_get_bit(this->bn, i);
+        bool r = bn_get_bit(b.bn, i);
+        bn_set_bit(ret.bn, i, l^r);
+    }
+
+    return ret;
+}
+
 Scalar Scalar::operator&(const Scalar &b) const
 {
     Scalar ret;

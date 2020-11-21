@@ -493,13 +493,13 @@ bool AggregationSession::Join() const
     nonces.push_back(nonce);
 
     std::vector<Scalar> gammas;
-    gammas.push_back(gammaOuts);
+    gammas.push_back(HashG1Element(nonce, 100));
 
     std::vector<unsigned char> vMemo;
 
     try
     {
-        bprp.Prove(value, gammas, nonce, vMemo);
+        bprp.Prove(value, nonce, vMemo);
     }
     catch(...)
     {

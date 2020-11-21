@@ -19,18 +19,15 @@ bool TestRange(std::vector<Scalar> values, bls::G1Element nonce)
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
-        gamma.push_back(Scalar::Rand());
+        gamma.push_back(HashG1Element(nonce, 100+i));
         nonces.push_back(nonce);
     }
 
     BulletproofsRangeproof bprp;
-    bprp.Prove(values, gamma, nonce, {1, 2, 3, 4});
+    bprp.Prove(values, nonce, {1, 2, 3, 4});
 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     proofs.push_back(std::make_pair(0,bprp));
-
-    std::vector<uint64_t> amounts;
-    std::vector<Scalar> gammas;
 
     std::vector<RangeproofEncodedData> data;
 
@@ -66,27 +63,22 @@ bool TestRangeBatch(std::vector<Scalar> values, bls::G1Element nonce)
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
     std::vector<Scalar> gamma;
+    Scalar mask = HashG1Element(nonce, 100);
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
         std::vector<Scalar> v;
         v.push_back(values[i]);
 
-        std::vector<Scalar> g;
-        Scalar mask = Scalar::Rand();
-        g.push_back(mask);
         gamma.push_back(mask);
 
         BulletproofsRangeproof bprp;
-        bprp.Prove(v, g, nonce, {1,2,3,4});
+        bprp.Prove(v, nonce, {1,2,3,4});
 
         nonces.push_back(nonce);
 
         proofs.push_back(std::make_pair(i, bprp));
     }
-
-    std::vector<uint64_t> amounts;
-    std::vector<Scalar> gammas;
 
     std::vector<RangeproofEncodedData> data;
 

@@ -366,18 +366,17 @@ bls::G1Element CrossVectorExponent(size_t size, const std::vector<bls::G1Element
     return MultiExp(multiexp_data);
 }
 
-void BulletproofsRangeproof::Prove(std::vector<Scalar> v, std::vector<Scalar> gamma, bls::G1Element nonce, const std::vector<uint8_t>& message)
+void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message)
 {
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
 
-    if (message.size() >= maxMessageSize)
+    if (message.size() > maxMessageSize)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): message size is too big");
 
-    if (v.size() != gamma.size() || v.empty() || v.size() > maxM)
+    if (v.empty() || v.size() > maxM)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): Invalid vector size");
 
-    CHECK_AND_ASSERT_THROW_MES(v.size() == gamma.size(), "Incompatible sizes of sv and gamma");
     CHECK_AND_ASSERT_THROW_MES(!v.empty(), "sv is empty");
 
     Init();
@@ -386,12 +385,20 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, std::vector<Scalar> ga
 
     size_t M, logM;
     for (logM = 0; (M = 1<<logM) <= maxM && M < v.size(); ++logM);
-    CHECK_AND_ASSERT_THROW_MES(M <= maxM, "sv/gamma are too large");
+    CHECK_AND_ASSERT_THROW_MES(M <= maxM, "sv is too large");
     const size_t logMN = logM + BulletproofsRangeproof::logN;
     const size_t MN = M * N;
 
     // V is a vector with commitments in the form g2^v g^gamma
     this->V.resize(v.size());
+
+    std::vector<Scalar> gamma;
+    gamma.resize(v.size());
+
+    for (auto i = 0; i < gamma.size(); i++)
+    {
+        gamma[i] =  HashG1Element(nonce, 100+i);
+    }
 
     // This hash is updated for Fiat-Shamir throughout the proof
     CHashWriter hasher(0,0);
@@ -432,11 +439,13 @@ try_again:
     // PAPER LINES 43-44
     // Commitment to aL and aR (obfuscated with alpha)
     Scalar alpha;
-    Scalar sM = message;
+    std::vector<unsigned char> firstMessage;
+    firstMessage = message.size() > 23 ? std::vector<unsigned char>(message.begin(), message.begin()+23) : message;
+    Scalar sM = firstMessage;
     sM = sM << 8*8;
 
     alpha = HashG1Element(nonce, 1);
-    alpha = alpha + (v[0] | sM);
+    alpha = alpha ^ (v[0] | sM);
 
     this->A = VectorCommitment(aL, aR);
     {
@@ -523,6 +532,9 @@ try_again:
     // PAPER LINES 52-53
     Scalar tau1 = HashG1Element(nonce, 3);
     Scalar tau2 = HashG1Element(nonce, 4);
+    std::vector<unsigned char> secondMessage = message.size() > 23 ? std::vector<unsigned char>(message.begin()+23, message.end()) : std::vector<unsigned char>();
+    Scalar sM2 = secondMessage;
+    tau1 = tau1 ^ sM2;
 
     {
     bls::G1Element t1Element = H*t1.bn;
@@ -773,8 +785,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             Scalar rho = HashG1Element(nonces[j], 2);
             Scalar tau1 = HashG1Element(nonces[j], 3);
             Scalar tau2 = HashG1Element(nonces[j], 4);
-
-            Scalar excess = (proof.mu - rho*pd.x) - alpha;
+            Scalar gamma = HashG1Element(nonces[j], 100);
+            Scalar excess = (proof.mu - rho*pd.x) ^ alpha;
             Scalar amount = (excess & Scalar(0xFFFFFFFFFFFFFFFF));
 
             RangeproofEncodedData data;
@@ -794,16 +806,31 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
                     vMsgTrimmed.push_back(it);
             }
 
-            data.message = std::string(vMsgTrimmed.begin(), vMsgTrimmed.end());
+            data.gamma = gamma;
             data.valid = true;
 
-            Scalar gamma = (proof.taux - (tau2*pd.x*pd.x) - (tau1*pd.x)) * (pd.z*pd.z).Invert();
-            data.gamma = gamma;
+            Scalar excessMsg2 = ((proof.taux - (tau2*pd.x*pd.x) - (pd.z*pd.z*gamma)) * pd.x.Invert()) ^ tau1;
+
+            std::vector<unsigned char> vMsg2 = excessMsg2.GetVch();
+            std::vector<unsigned char> vMsg2Trimmed(0);
+
+            fFoundNonZero = false;
+
+            for (auto&it: vMsg2)
+            {
+                if (it != '\0')
+                    fFoundNonZero = true;
+                if (fFoundNonZero)
+                    vMsg2Trimmed.push_back(it);
+            }
+
+            data.message = std::string(vMsgTrimmed.begin(), vMsgTrimmed.end()) + std::string(vMsg2Trimmed.begin(), vMsg2Trimmed.end());
 
             {
             bls::G1Element gammaElement = BulletproofsRangeproof::G*gamma.bn;
             bls::G1Element valueElement = BulletproofsRangeproof::H*amount.bn;
             bool fIsMine = ((gammaElement + valueElement) == pd.V[0]);
+
             if (fIsMine)
                 vData.push_back(data);
             }
