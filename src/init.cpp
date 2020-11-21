@@ -1079,15 +1079,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
 
-    struct sigaction ignore_sa;
-    sigfillset(&ignore_sa.sa_mask);
-    ignore_sa.sa_handler = SIG_IGN;
-    ignore_sa.sa_flags = 0;
-
     sigaction(SIGTERM, &sa, nullptr);
     sigaction(SIGINT, &sa, nullptr);
-    sigaction(SIGPIPE, &ignore_sa, nullptr);
-
 
     // Reopen debug.log on SIGHUP
     struct sigaction sa_hup;
