@@ -333,9 +333,6 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             if (pcoin->GetBlocksToMaturity() > 0)
                 continue;
 
-            if (pcoin->IsCTOutput())
-                continue;
-
             if (pcoin->isAbandoned())
                 continue;
 
@@ -344,7 +341,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
-                if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
+                if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue && !pcoin->vout[i].HasRangeProof()){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
                                            !pcoin->vout[i].scriptPubKey.IsColdStaking() &&
