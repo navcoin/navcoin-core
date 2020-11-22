@@ -1211,7 +1211,7 @@ void ThreadSocketHandler()
             LOCK(cs_vNodes);
             for(CNode* pnode: vNodes)
             {
-                if (pnode->hSocket == INVALID_SOCKET || !IsSelectableSocket(pnode->hSocket))
+                if (pnode->hSocket == INVALID_SOCKET)
                     continue;
                 FD_SET(pnode->hSocket, &fdsetError);
                 hSocketMax = std::max(hSocketMax, pnode->hSocket);
