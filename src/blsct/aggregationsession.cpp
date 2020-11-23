@@ -405,24 +405,24 @@ bool AggregationSession::Join() const
 
         if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
         {
-            return error("AggregationSession::%s: Could not get private key from blsct pool.\n",__func__);
+            return error("AggregationSession::%s: Could not get private key from blsct pool",__func__);
         }
 
         ephemeralKey = bk.GetKey().Serialize();
 
         if (!pwalletMain->GetBLSCTSubAddressPublicKeys(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, k))
         {
-            return error("AggregationSession::%s: BLSCT keys not available\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys not available", __func__);
         }
 
         if (!pwalletMain->GetBLSCTSubAddressSpendingKeyForOutput(prevcoin->vout[prevout].outputKey, prevcoin->vout[prevout].spendingKey, s))
         {
-            return error("AggregationSession::%s: BLSCTed keys for subaddress not available\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys for subaddress not available (is the wallet unlocked?)", __func__);
         }
 
         if (!pwalletMain->GetBLSCTViewKey(v))
         {
-            return error("AggregationSession::%s: BLSCT keys not available when getting view key\n", __func__);
+            return error("AggregationSession::%s: BLSCT keys not available when getting view key", __func__);
         }
     }
 

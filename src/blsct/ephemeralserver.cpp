@@ -35,21 +35,30 @@ void EphemeralServer::Start()
     });
     torController.Start();
 
-    boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
-
-    live_until += GetTime();
-
-    while (fState == 1 && GetTime() < live_until)
+    try
     {
-        boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+        boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
+
+        live_until += GetTime();
+
+        while (fState == 1 && GetTime() < live_until)
+        {
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+        }
+
+        fState = 0;
+
+        s.Stop();
+        t.join();
+    }
+    catch(...)
+    {
+        fState = 0;
+
+        s.Stop();
     }
 
-    fState = 0;
-
-    io_service.stop();
     LogPrint("ephemeralserver", "EphemeralServer::%s: Closed ephemeral server at port %d\n", __func__, s.port);
-
-    t.join();
 
 }
 
@@ -64,6 +73,11 @@ void tcp_connection::start()
                                   boost::bind(&tcp_connection::handle_read, this,
                                               boost::asio::placeholders::error,
                                               boost::asio::placeholders::bytes_transferred));
+}
+
+void tcp_connection::stop()
+{
+    socket_.close();
 }
 
 void tcp_connection::handle_read(const boost::system::error_code& error,
@@ -83,4 +97,60 @@ void tcp_connection::handle_read(const boost::system::error_code& error,
     {
         delete this;
     }
+}
+
+void EphemeralSession::Stop()
+{
+    acceptor_.close();
+    connection_manager_.stop_all();
+}
+
+
+void EphemeralSession::HandleAccept(tcp_connection* new_connection,
+                  const boost::system::error_code& error)
+{
+    if (!acceptor_.is_open())
+    {
+        return;
+    }
+
+    if (!error)
+    {
+        connection_manager_.start(new_connection);
+    }
+    else
+    {
+        delete new_connection;
+    }
+
+    StartAccept();
+}
+
+void EphemeralSession::StartAccept()
+{
+    tcp_connection* new_connection = new
+            tcp_connection(io_context_, data_cb, connection_manager_);
+
+    acceptor_.async_accept(new_connection->socket(),
+                           boost::bind(&EphemeralSession::HandleAccept, this, new_connection,
+                                       boost::asio::placeholders::error));
+}
+
+void connection_manager::start(tcp_connection* c)
+{
+    connections_.insert(c);
+    c->start();
+}
+
+void connection_manager::stop(tcp_connection* c)
+{
+    connections_.erase(c);
+    c->stop();
+}
+
+void connection_manager::stop_all()
+{
+    std::for_each(connections_.begin(), connections_.end(),
+                  boost::bind(&tcp_connection::stop, _1));
+    connections_.clear();
 }
