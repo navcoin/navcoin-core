@@ -1305,7 +1305,6 @@ case $host in
 # Need to check WSIZE value based on host
 i?86-* | arm*)
     BLS_WSIZE=32
-    BLS_ARCH=ARM
 ;;
 esac
 
