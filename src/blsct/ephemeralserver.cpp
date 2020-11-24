@@ -30,13 +30,13 @@ void EphemeralServer::Start()
 
     LogPrint("ephemeralserver", "EphemeralServer::%s: Listening on %d\n", __func__, s.port);
 
-    torController = TorControlThread(s.port, [=](std::string s) {
-        SetHiddenService(s);
-    });
-    torController.Start();
-
     try
     {
+        torController = TorControlThread(s.port, [=](std::string s) {
+            SetHiddenService(s);
+        });
+        torController.Start();
+
         boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
 
         live_until += GetTime();
@@ -50,12 +50,17 @@ void EphemeralServer::Start()
 
         s.Stop();
         t.join();
+
+        torController.Stop();
     }
     catch(...)
     {
         fState = 0;
 
         s.Stop();
+
+        if (torController)
+            torController.Stop();
     }
 
     LogPrint("ephemeralserver", "EphemeralServer::%s: Closed ephemeral server at port %d\n", __func__, s.port);
