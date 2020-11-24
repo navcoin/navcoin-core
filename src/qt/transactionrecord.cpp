@@ -57,10 +57,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
     std::vector<std::string> vMemos;
-    if (hash.ToString() == "4e17548cb35b77d1e23b685eb89d2e26316d9f717d126b84d054d8303f8ce723")
-    {
 
-    }
     for (auto &s:wtx.vMemos)
     {
         if (s != "" && s != "Fee" && s != "Change")

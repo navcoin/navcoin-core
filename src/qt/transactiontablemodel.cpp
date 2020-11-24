@@ -669,9 +669,15 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case LongDescriptionRole:
         return priv->describe(rec, walletModel->getOptionsModel()->getDisplayUnit());
     case AddressRole:
-        return QString::fromStdString(rec->address);
+        if (rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate)
+            return formatTxToAddress(rec, false);
+        else
+            return QString::fromStdString(rec->address);
     case LabelRole:
-        return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
+        if (rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate)
+            return formatTxToAddress(rec, false);
+        else
+            return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
     case AmountRole:
         return qint64(rec->credit + rec->debit);
     case TxIDRole:
