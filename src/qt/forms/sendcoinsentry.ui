@@ -43,6 +43,9 @@
       </property>
       <item>
        <widget class="QValidatedLineEdit" name="payTo">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
         <property name="toolTip">
          <string>The NavCoin address to send the payment to</string>
         </property>
@@ -50,6 +53,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="addressBookButton">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="icon">
          <iconset resource="../navcoin.qrc">
           <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
@@ -141,6 +147,9 @@
        <font>
         <pointsize>10</pointsize>
        </font>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="toolTip">
        <string>Save this address in the address book for later reference.</string>
@@ -292,12 +301,19 @@
     <item row="9" column="3">
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0">
       <item>
-       <widget class="NavCoinAmountField" name="payAmount"/>
+       <widget class="NavCoinAmountField" name="payAmount">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
     <item row="5" column="3">
      <widget class="QLineEdit" name="addAsLabel">
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
       <property name="toolTip">
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
@@ -382,6 +398,9 @@
     </item>
     <item row="6" column="3">
      <widget class="QLineEdit" name="memo">
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
       <property name="toolTip">
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
@@ -1499,13 +1518,20 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>fromBox</tabstop>
   <tabstop>payTo</tabstop>
   <tabstop>addressBookButton</tabstop>
+  <tabstop>addressBookCheckBox</tabstop>
+  <tabstop>addAsLabel</tabstop>
+  <tabstop>memo</tabstop>
   <tabstop>payAmount</tabstop>
   <tabstop>payAmount_is</tabstop>
-  <tabstop>deleteButton_is</tabstop>
+  <tabstop>checkboxUseFullAmount</tabstop>
+  <tabstop>checkboxSubtractFeeFromAmount</tabstop>
+  <tabstop>checkboxCoinControl</tabstop>
   <tabstop>payAmount_s</tabstop>
   <tabstop>deleteButton_s</tabstop>
+  <tabstop>deleteButton_is</tabstop>
  </tabstops>
  <resources>
   <include location="../navcoin.qrc"/>
