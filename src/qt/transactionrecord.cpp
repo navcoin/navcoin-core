@@ -57,6 +57,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
     std::vector<std::string> vMemos;
+    if (hash.ToString() == "4e17548cb35b77d1e23b685eb89d2e26316d9f717d126b84d054d8303f8ce723")
+    {
+
+    }
     for (auto &s:wtx.vMemos)
     {
         if (s != "" && s != "Fee" && s != "Change")
@@ -356,8 +360,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             // Mixed debit transaction, can't break down payees
             //
 
-            CAmount sent = nPrivateDebit;
-            CAmount delta = nPrivateCredit - nPrivateDebit;
+            CAmount sent = nPrivateDebit + nPublicDebit;
+            CAmount delta = nPrivateCredit + nPublicCredit - nPrivateDebit;
             bool fHasOtherThanMixingReward = false;
             bool fHasMixingReward = false;
 
@@ -392,6 +396,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         sub.credit = wtx.vAmounts[nOut];
                         parts.append(sub);
                     }
+                    else
+                    {
+                        sent -= wtx.vout[nOut].nValue;
+                    }
                 }
                 else
                 {
@@ -423,7 +431,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (!fHasOtherThanMixingReward && fHasMixingReward)
                 {
                     parts.clear();
-                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::MixingReward, "", 0, nPrivateCredit-nPrivateDebit));
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::MixingReward, "", 0, nPrivateCredit+nPublicCredit-nPrivateDebit));
                 }
                 else if (sent > 0)
                 {
