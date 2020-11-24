@@ -1299,11 +1299,13 @@ if test "x$TARGET_OS" = "xdarwin"; then
 fi
 
 BLS_HOST="${host%%-*}"
+BLS_ARCH=""
 
 case $host in
 # Need to check WSIZE value based on host
 i?86-* | arm*)
     BLS_WSIZE=32
+    BLS_ARCH=ARM
 ;;
 esac
 
@@ -1357,6 +1359,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DGMP_INCLUDES=$prefix/include \
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
+                    -DARCH=$BLS_ARCH \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
@@ -1375,7 +1378,8 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     BLS_RANLIB=$BLS_RANLIB
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
-                    BLS_WSIZE=$BLS_WSIZE])
+                    BLS_WSIZE=$BLS_WSIZE
+                    BLS_ARCH=$BLS_ARCH])
 
 AC_OUTPUT
 
