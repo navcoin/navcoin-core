@@ -278,7 +278,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     const SendCoinsRecipient &rcp = currentTransaction.recipients.first();
     {
         // generate bold amount string
-        QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount, NavCoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon);
+        QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount, false, NavCoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon);
         amount.append("</b>");
         // generate monospace address string
         QString splitAddr = rcp.address;
@@ -312,7 +312,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             // append fee string if a fee is required
             questionString.append("<hr /><span style='color:#aa0000;'>");
-            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee, NavCoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon));
+            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee, false, NavCoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon));
             questionString.append("</span> ");
             questionString.append(tr("added as transaction fee"));
 
