@@ -4427,7 +4427,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
         else
         {
-            nMovedToPublic += tx.GetValueOut() - view.GetValueIn(tx);
+            nMovedToPublic += tx.GetValueOut() - view.GetValueIn(tx) - nBLSCTPrivateFees;
         }
 
         CTxUndo undoDummy;
@@ -4631,7 +4631,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
     }
 
-    pindex->nPublicMoneySupply += nCreated - nBLSCTPublicFees;
+    pindex->nPublicMoneySupply += nCreated + nMovedToPublic - nBLSCTPublicFees;
     pindex->nPrivateMoneySupply += nMovedToBLS - nBLSCTPrivateFees - nMovedToPublic;
 
     if (pindex->nPrivateMoneySupply < 0)
