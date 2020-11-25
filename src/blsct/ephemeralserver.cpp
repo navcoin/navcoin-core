@@ -94,7 +94,7 @@ void tcp_connection::handle_read(const boost::system::error_code& error,
         b.consume(bytes_transferred);
         data_cb(result);
     }
-    else
+    else if (error != boost::asio::error::operation_aborted)
     {
         connection_manager_.stop(shared_from_this());
     }
@@ -135,13 +135,13 @@ void EphemeralSession::StartAccept()
 void connection_manager::start(connection_ptr c)
 {
     connections_.insert(c);
-    c.get()->start();
+    c->start();
 }
 
 void connection_manager::stop(connection_ptr c)
 {
     connections_.erase(c);
-    c.get()->stop();
+    c->stop();
 }
 
 void connection_manager::stop_all()
