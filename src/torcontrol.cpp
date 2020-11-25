@@ -402,7 +402,7 @@ static bool WriteBinaryFile(const std::string &filename, const std::string &data
 class TorController
 {
 public:
-    TorController(struct event_base* base, const std::string& target, const int& listen_in = 0, hidden_service_cb ready_cb_in = 0);
+    TorController(struct event_base* base, const std::string& target, const int& listen_in = 0, hidden_service_cb ready_cb_in = 0, float disconnect_timeout_in = 120);
     ~TorController();
 
     /** Get name fo file to store private key in */
@@ -419,7 +419,9 @@ private:
     std::string service_id;
     bool reconnect;
     struct event *reconnect_ev;
+    struct event *disconnect_ev;
     float reconnect_timeout;
+    float disconnect_timeout;
     CService service;
     bool ready;
     hidden_service_cb ready_cb;
@@ -443,15 +445,18 @@ private:
     /** Callback after connection lost or failed connection attempt */
     void disconnected_cb(TorControlConnection& conn);
 
+    static void disconnect_cb(evutil_socket_t fd, short what, void *arg);
+
     /** Callback for reconnect timer */
     static void reconnect_cb(evutil_socket_t fd, short what, void *arg);
 };
 
 TorController::TorController(struct event_base* baseIn, const std::string& target,
-                             const int& listen_in, hidden_service_cb ready_cb_in) :
+                             const int& listen_in, hidden_service_cb ready_cb_in,
+                             float disconnect_timeout_in) :
     ready(false), announce(false), listen(listen_in), ready_cb(ready_cb_in),
-    target(target), conn(base), reconnect(true), reconnect_ev(0),
-    reconnect_timeout(RECONNECT_TIMEOUT_START), base(baseIn)
+    target(target), conn(base), reconnect(true), reconnect_ev(0), disconnect_ev(0),
+    reconnect_timeout(RECONNECT_TIMEOUT_START), base(baseIn), disconnect_timeout(disconnect_timeout_in)
 {
     reconnect_ev = event_new(base, -1, 0, reconnect_cb, this);
     if (!reconnect_ev)
@@ -483,6 +488,10 @@ TorController::~TorController()
     if (reconnect_ev) {
         event_free(reconnect_ev);
         reconnect_ev = 0;
+    }
+    if (disconnect_ev) {
+        event_free(disconnect_ev);
+        disconnect_ev = 0;
     }
     if (service.IsValid()) {
         RemoveLocal(service);
@@ -525,7 +534,12 @@ void TorController::add_onion_cb(TorControlConnection& conn, const TorControlRep
             ready_cb("");
     }
     if (ready_cb)
-        conn.Disconnect();
+    {
+        disconnect_ev = event_new(base, -1, 0, disconnect_cb, this);
+        struct timeval time = MillisToTimeval(int64_t(disconnect_timeout * 1000.0));
+        if (disconnect_ev)
+            event_add(disconnect_ev, &time);
+    }
 }
 
 void TorController::auth_cb(TorControlConnection& conn, const TorControlReply& reply)
@@ -698,6 +712,12 @@ void TorController::protocolinfo_cb(TorControlConnection& conn, const TorControl
         if (ready_cb)
             ready_cb("");
     }
+}
+
+void TorController::disconnect_cb(evutil_socket_t fd, short what, void *arg)
+{
+    TorController *self = (TorController*)arg;
+    self->conn.Disconnect();
 }
 
 void TorController::connected_cb(TorControlConnection& conn)
