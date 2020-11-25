@@ -59,8 +59,7 @@ void EphemeralServer::Start()
 
         s.Stop();
 
-        if (torController)
-            torController.Stop();
+        torController.Stop();
     }
 
     LogPrint("ephemeralserver", "EphemeralServer::%s: Closed ephemeral server at port %d\n", __func__, s.port);
