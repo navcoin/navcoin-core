@@ -1300,10 +1300,13 @@ fi
 
 BLS_HOST="${host%%-*}"
 BLS_ARCH=""
+BLS_TIMER=""
 
 case $host in
 # Need to check WSIZE value based on host
 i?86-* | arm*)
+    BLS_ARCH="ARM"
+    BLS_TIMER="-DTIMER=HREAL"
     BLS_WSIZE=32
 ;;
 esac
@@ -1359,6 +1362,7 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DARCH=$BLS_ARCH \
+                    $BLS_TIMER \
                     $BLS_CCACHE_CMAKE \
                     $BLS_AR \
                     $BLS_RANLIB && \
@@ -1378,7 +1382,8 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     BLS_OPSYS=$BLS_OPSYS
                     BLS_SEED=$BLS_SEED
                     BLS_WSIZE=$BLS_WSIZE
-                    BLS_ARCH=$BLS_ARCH])
+                    BLS_ARCH=$BLS_ARCH
+                    BLS_TIMER=$BLS_TIMER])
 
 AC_OUTPUT
 
