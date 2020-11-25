@@ -37,7 +37,7 @@ UniValue startaggregationsession(const UniValue& params, bool fHelp)
         if (!pwalletMain->aggSession->Start())
             throw JSONRPCError(RPC_INTERNAL_ERROR, string("Could not start mix session"));
 
-        return pwalletMain->aggSession->GetHiddenService();
+        return true;
     }
 }
 
