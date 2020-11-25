@@ -20,6 +20,8 @@ typedef std::function<void(std::string&)> hs_cb_t;
 class connection_manager;
 
 class tcp_connection
+        : public boost::enable_shared_from_this<tcp_connection>,
+        private boost::noncopyable
 {
 public:
     tcp_connection(boost::asio::io_context& io_context, cb_t data_cb_in, connection_manager& manager)
@@ -46,26 +48,29 @@ private:
     cb_t data_cb;
 };
 
+typedef boost::shared_ptr<tcp_connection> connection_ptr;
+
 class connection_manager
-        : public boost::enable_shared_from_this<connection_manager>
+        : private boost::noncopyable
 {
 public:
     /// Add the specified connection to the manager and start it.
-    void start(tcp_connection* c);
+    void start(connection_ptr c);
 
     /// Stop the specified connection.
-    void stop(tcp_connection* c);
+    void stop(connection_ptr c);
 
     /// Stop all connections.
     void stop_all();
 
 private:
     /// The managed connections.
-    std::set<tcp_connection*> connections_;
+    std::set<connection_ptr> connections_;
 };
 
 
 class EphemeralSession
+        : private boost::noncopyable
 {
 public:
     EphemeralSession(boost::asio::io_context& io_context, cb_t data_cb_in)
@@ -82,12 +87,13 @@ public:
 private:
     void StartAccept();
 
-    void HandleAccept(tcp_connection* new_connection,
+    void HandleAccept(connection_ptr new_connection,
                       const boost::system::error_code& error);
 
     tcp::acceptor acceptor_;
     boost::asio::io_context& io_context_;
     connection_manager connection_manager_;
+    connection_ptr new_connection_;
     cb_t data_cb;
 };
 

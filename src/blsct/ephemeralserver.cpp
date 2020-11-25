@@ -71,7 +71,7 @@ void EphemeralServer::SetHiddenService(std::string s)
 void tcp_connection::start()
 {
     boost::asio::async_read(socket_, b, boost::asio::transfer_all(),
-                                  boost::bind(&tcp_connection::handle_read, this,
+                                  boost::bind(&tcp_connection::handle_read, shared_from_this(),
                                               boost::asio::placeholders::error,
                                               boost::asio::placeholders::bytes_transferred));
 }
@@ -107,7 +107,7 @@ void EphemeralSession::Stop()
 }
 
 
-void EphemeralSession::HandleAccept(tcp_connection* new_connection,
+void EphemeralSession::HandleAccept(connection_ptr new_connection,
                   const boost::system::error_code& error)
 {
     if (!acceptor_.is_open())
@@ -119,34 +119,29 @@ void EphemeralSession::HandleAccept(tcp_connection* new_connection,
     {
         connection_manager_.start(new_connection);
     }
-    else
-    {
-        delete new_connection;
-    }
 
     StartAccept();
 }
 
 void EphemeralSession::StartAccept()
 {
-    tcp_connection* new_connection = new
-            tcp_connection(io_context_, data_cb, connection_manager_);
+    new_connection_.reset(new tcp_connection(io_context_, data_cb, connection_manager_));
 
-    acceptor_.async_accept(new_connection->socket(),
-                           boost::bind(&EphemeralSession::HandleAccept, this, new_connection,
+    acceptor_.async_accept(new_connection_->socket(),
+                           boost::bind(&EphemeralSession::HandleAccept, this, new_connection_,
                                        boost::asio::placeholders::error));
 }
 
-void connection_manager::start(tcp_connection* c)
+void connection_manager::start(connection_ptr c)
 {
     connections_.insert(c);
-    c->start();
+    c.get()->start();
 }
 
-void connection_manager::stop(tcp_connection* c)
+void connection_manager::stop(connection_ptr c)
 {
     connections_.erase(c);
-    c->stop();
+    c.get()->stop();
 }
 
 void connection_manager::stop_all()
