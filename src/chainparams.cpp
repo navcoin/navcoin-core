@@ -498,15 +498,15 @@ public:
         pchMessageStart[0] = 0x32;
         pchMessageStart[1] = 0x24;
         pchMessageStart[2] = 0xf2;
-        pchMessageStart[3] = 0x07;
+        pchMessageStart[3] = 0x17;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        uint32_t nTimestamp = 1605978909;
-        uint256 hashGenesisBlock = uint256S("0x000018559824d98c6e0c3beaa674fe1019b8e17433655aff7e71f0d2eada1659");
-        uint256 hashMerkleRoot = uint256S("0xd11474466d523c907a2b3684f67830d7e2fb9aa6e789d11411d059c531b2c61c");
-        uint32_t nNonce = 2043837216;
+        uint32_t nTimestamp = 1606327577;
+        uint256 hashGenesisBlock = uint256S("0x0000e0870ba071bb91a28a624f39d92959c4b6fd539d269b0dfcc46f253c3104");
+        uint256 hashMerkleRoot = uint256S("0x97148c18a758d7b06b25294d25e86608d7619f0eab79ab855691233050d6687f");
+        uint32_t nNonce = 2043919587;
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
