@@ -445,7 +445,7 @@ try_again:
     sM = sM << 8*8;
 
     alpha = HashG1Element(nonce, 1);
-    alpha = alpha ^ (v[0] | sM);
+    alpha = alpha + (v[0] | sM);
 
     this->A = VectorCommitment(aL, aR);
     {
@@ -534,7 +534,7 @@ try_again:
     Scalar tau2 = HashG1Element(nonce, 4);
     std::vector<unsigned char> secondMessage = message.size() > 23 ? std::vector<unsigned char>(message.begin()+23, message.end()) : std::vector<unsigned char>();
     Scalar sM2 = secondMessage;
-    tau1 = tau1 ^ sM2;
+    tau1 = tau1 + sM2;
 
     {
     bls::G1Element t1Element = H*t1.bn;
@@ -786,7 +786,7 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             Scalar tau1 = HashG1Element(nonces[j], 3);
             Scalar tau2 = HashG1Element(nonces[j], 4);
             Scalar gamma = HashG1Element(nonces[j], 100);
-            Scalar excess = (proof.mu - rho*pd.x) ^ alpha;
+            Scalar excess = (proof.mu - rho*pd.x) - alpha;
             Scalar amount = (excess & Scalar(0xFFFFFFFFFFFFFFFF));
 
             RangeproofEncodedData data;
@@ -809,7 +809,7 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             data.gamma = gamma;
             data.valid = true;
 
-            Scalar excessMsg2 = ((proof.taux - (tau2*pd.x*pd.x) - (pd.z*pd.z*gamma)) * pd.x.Invert()) ^ tau1;
+            Scalar excessMsg2 = ((proof.taux - (tau2*pd.x*pd.x) - (pd.z*pd.z*gamma)) * pd.x.Invert()) - tau1;
 
             std::vector<unsigned char> vMsg2 = excessMsg2.GetVch();
             std::vector<unsigned char> vMsg2Trimmed(0);
