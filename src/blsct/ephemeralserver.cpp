@@ -96,7 +96,7 @@ void tcp_connection::handle_read(const boost::system::error_code& error,
     }
     else
     {
-        delete this;
+        connection_manager_.stop(shared_from_this());
     }
 }
 
