@@ -49,21 +49,18 @@ void EphemeralServer::Start()
         fState = 0;
 
         s.Stop();
-        t.join();
-
         torController.Stop();
+        t.join();
     }
     catch(...)
     {
         fState = 0;
 
         s.Stop();
-
         torController.Stop();
     }
 
     LogPrint("ephemeralserver", "EphemeralServer::%s: Closed ephemeral server at port %d\n", __func__, s.port);
-
 }
 
 void EphemeralServer::SetHiddenService(std::string s)

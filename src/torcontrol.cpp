@@ -524,6 +524,8 @@ void TorController::add_onion_cb(TorControlConnection& conn, const TorControlRep
         if (ready_cb)
             ready_cb("");
     }
+    if (ready_cb)
+        conn.Disconnect();
 }
 
 void TorController::auth_cb(TorControlConnection& conn, const TorControlReply& reply)
