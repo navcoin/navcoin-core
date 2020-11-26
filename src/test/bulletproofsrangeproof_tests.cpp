@@ -40,7 +40,7 @@ bool TestRange(std::vector<Scalar> values, bls::G1Element nonce)
     {
         for (unsigned int i = 0; i < values.size(); i++)
         {
-            if(data[i].amount != values[i].GetUint64())
+            if(data[i].amount != values[i].GetInt64())
                 return false;
             if(!(data[i].gamma == gamma[i]))
                 return false;
@@ -89,7 +89,7 @@ bool TestRangeBatch(std::vector<Scalar> values, bls::G1Element nonce)
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
-        if(data[i].amount != values[i].GetUint64())
+        if(data[i].amount != values[i].GetInt64())
             return false;
         if(!(data[i].gamma == gamma[i]))
             return false;

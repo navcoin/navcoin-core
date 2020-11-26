@@ -68,7 +68,7 @@ public:
     Scalar Negate() const;
 
     bool GetBit(size_t n) const;
-    uint64_t GetUint64() const;
+    int64_t GetInt64() const;
 
     std::vector<uint8_t> GetVch() const;
     void SetVch(const std::vector<uint8_t>& b);

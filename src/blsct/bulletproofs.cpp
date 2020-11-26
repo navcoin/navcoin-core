@@ -791,7 +791,7 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
             RangeproofEncodedData data;
             data.index = p.first;
-            data.amount = amount.GetUint64();
+            data.amount = amount.GetInt64();
 
             std::vector<unsigned char> vMsg = (excess>>8*8).GetVch();
             std::vector<unsigned char> vMsgTrimmed(0);

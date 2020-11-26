@@ -262,12 +262,12 @@ Scalar Scalar::Invert() const
     return inv;
 }
 
-uint64_t Scalar::GetUint64() const
+int64_t Scalar::GetInt64() const
 {
-    uint64_t ret = 0;
-    for (unsigned int i = 0; i < 64; i++)
+    int64_t ret = 0;
+    for (int64_t i = 0; i < 64; i++)
     {
-        ret |= bn_get_bit(this->bn, i) << i;
+        ret |= (int64_t)bn_get_bit(this->bn, i) << i;
     }
     return ret;
 }
