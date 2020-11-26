@@ -91,7 +91,6 @@ UniValue getinfo(const UniValue& params, bool fHelp)
         obj.pushKV("balance",                 ValueFromAmount(pwalletMain->GetBalance()));
         obj.pushKV("private_balance",         ValueFromAmount(pwalletMain->GetPrivateBalance()));
         obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
-        obj.pushKV("private_balance_locked",  ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
         obj.pushKV("coldstaking_balance",     ValueFromAmount(pwalletMain->GetColdStakingBalance()));
         obj.pushKV("newmint",                 ValueFromAmount(pwalletMain->GetNewMint()));
         obj.pushKV("stake",                   ValueFromAmount(pwalletMain->GetStake()));

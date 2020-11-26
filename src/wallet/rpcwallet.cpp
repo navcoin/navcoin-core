@@ -3750,7 +3750,6 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     obj.pushKV("coldstaking_balance",     ValueFromAmount(pwalletMain->GetColdStakingBalance()));
     obj.pushKV("unconfirmed_balance",     ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
     obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
-    obj.pushKV("private_balance_locked",  ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
     obj.pushKV("immature_balance",        ValueFromAmount(pwalletMain->GetImmatureBalance()));
     obj.pushKV("txcount",                 (int)pwalletMain->mapWallet.size());
     obj.pushKV("keypoololdest",           pwalletMain->GetOldestKeyPoolTime());
