@@ -2633,7 +2633,7 @@ CAmount CWalletTx::GetAvailablePrivateCredit(bool fLocked) const
 
         CAmount amount = vAmounts[i];
 
-        if (!pwallet->IsSpent(hashTx, i) && IsOutputLocked(hashTx, i) == fLocked)
+        if (!pwallet->IsSpent(hashTx, i))
         {
             const CTxOut &txout = vout[i];
 
