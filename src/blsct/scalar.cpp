@@ -265,9 +265,10 @@ Scalar Scalar::Invert() const
 uint64_t Scalar::GetUint64() const
 {
     uint64_t ret = 0;
-    if (this->bn->used == 0)
-        return ret;
-    ret = this->bn->dp[0];
+    for (unsigned int i = 0; i < 64; i++)
+    {
+        ret |= bn_get_bit(this->bn, i) << i;
+    }
     return ret;
 }
 
