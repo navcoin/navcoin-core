@@ -415,7 +415,7 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
 
 void SendCoinsDialog::updateTabsAndLabels()
 {
-    setupTabChain(0);
+//    setupTabChain(0);
     coinControlUpdateLabels();
 }
 
@@ -432,20 +432,20 @@ void SendCoinsDialog::removeEntry(SendCoinsEntry* entry)
     updateTabsAndLabels();
 }
 
-QWidget *SendCoinsDialog::setupTabChain(QWidget *prev)
-{
-    for(int i = 0; i < ui->entries->count(); ++i)
-    {
-        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry)
-        {
-            prev = entry->setupTabChain(prev);
-        }
-    }
-    QWidget::setTabOrder(prev, ui->sendButton);
+//QWidget *SendCoinsDialog::setupTabChain(QWidget *prev)
+//{
+//    for(int i = 0; i < ui->entries->count(); ++i)
+//    {
+//        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+//        if(entry)
+//        {
+//            prev = entry->setupTabChain(prev);
+//        }
+//    }
+//    QWidget::setTabOrder(prev, ui->sendButton);
 
-    return ui->sendButton;
-}
+//    return ui->sendButton;
+//}
 
 void SendCoinsDialog::setAddress(const QString &address)
 {

@@ -272,15 +272,15 @@ SendCoinsRecipient SendCoinsEntry::getValue()
     return recipient;
 }
 
-QWidget *SendCoinsEntry::setupTabChain(QWidget *prev)
-{
-    QWidget::setTabOrder(prev, ui->payTo);
-    QWidget::setTabOrder(ui->payTo, ui->addAsLabel);
-    QWidget *w = ui->payAmount->setupTabChain(ui->addAsLabel);
-    QWidget::setTabOrder(w, ui->checkboxSubtractFeeFromAmount);
-    QWidget::setTabOrder(ui->checkboxSubtractFeeFromAmount, ui->addressBookButton);
-    return ui->addressBookButton;
-}
+//QWidget *SendCoinsEntry::setupTabChain(QWidget *prev)
+//{
+//    QWidget::setTabOrder(prev, ui->payTo);
+//    QWidget::setTabOrder(ui->payTo, ui->addAsLabel);
+//    QWidget *w = ui->payAmount->setupTabChain(ui->addAsLabel);
+//    QWidget::setTabOrder(w, ui->checkboxSubtractFeeFromAmount);
+//    QWidget::setTabOrder(ui->checkboxSubtractFeeFromAmount, ui->addressBookButton);
+//    return ui->addressBookButton;
+//}
 
 void SendCoinsEntry::setValue(const SendCoinsRecipient &value)
 {
