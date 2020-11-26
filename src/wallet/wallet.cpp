@@ -1626,7 +1626,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                     {
                         CTxOut out = wtx.vout[i];
 
-                        if (out.outputKey.size() == 0)
+                        if (out.outputKey.size() == 0 || out.outputKey.size() == 0 || out.spendingKey.size() == 0)
                             continue;
 
                         bls::G1Element n = bls::G1Element::FromByteVector(out.outputKey);
@@ -1634,7 +1634,9 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
 
                         uint256 ekhash = SerializeHash(out.ephemeralKey);
 
-                        if (mapNonces.count(ekhash) && mapNonces[ekhash].size() > 0)
+                        bool fHaveSubAddressKey = CBasicKeyStore::HaveBLSCTSubAddress(out.outputKey, out.spendingKey);
+
+                        if (mapNonces.count(ekhash) && mapNonces[ekhash].size() > 0 && !fHaveSubAddressKey)
                         {
                             try
                             {
