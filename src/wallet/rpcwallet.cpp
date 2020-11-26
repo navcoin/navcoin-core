@@ -589,7 +589,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     }
 
     if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix)) {
-        if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
+        if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
