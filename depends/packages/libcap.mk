@@ -10,6 +10,6 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_build_cmds
-  CC="$($(host_arch)_$(host_os)_CC)" $(MAKE) DESTDIR=$($(package)_staging_dir) prefix=$(host_prefix) lib="lib" install && \
+  CC="$($(host_arch)_$(host_os)_CC)" $(MAKE) GOLANG=no DESTDIR=$($(package)_staging_dir) prefix=$(host_prefix) lib="lib" install && \
       rm $($(package)_staging_dir)$(host_prefix)/lib/libcap.so*
 endef
