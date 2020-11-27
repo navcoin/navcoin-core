@@ -6279,7 +6279,7 @@ bool ProcessNewBlock(CValidationState& state, const CChainParams& chainparams, C
         CheckBlockIndex(chainparams.GetConsensus());
 
         if (!ret)
-            return error("%s: AcceptBlock FAILED", __func__);
+            return error("%s: AcceptBlock FAILED: %s", __func__, pblock->ToString());
     }
 
     NotifyHeaderTip();
