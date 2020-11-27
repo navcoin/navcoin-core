@@ -263,7 +263,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     sub.type = TransactionRecord::AnonTxSend;
                     sub.memo = wtx.vMemos[nOut];
-                    sub.debit = wtx.vAmounts[nOut];
+                    sub.debit = -wtx.vAmounts[nOut];
                 }
 
                 else if (txout.scriptPubKey.IsCommunityFundContribution())
