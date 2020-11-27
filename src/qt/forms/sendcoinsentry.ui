@@ -340,7 +340,7 @@
        <enum>Qt::StrongFocus</enum>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from within the blocks that is part of your transaction.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from the inputs used in your transaction.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -398,7 +398,7 @@
        </font>
       </property>
       <property name="toolTip">
-       <string>Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from within the blocks that is part of your transaction.</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from the inputs used in your transaction.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>Use custom change address</string>
