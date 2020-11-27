@@ -3275,6 +3275,10 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
     std::mt19937 g(rd());
     std::shuffle(vCoins.begin(), vCoins.end(), g);
 
+    std::sort(vCoins.begin(), vCoins.end(), [](const COutput &a, const COutput &b) {
+        return a.mixCount > b.mixCount;
+    });
+
     for(const COutput &output: vCoins)
     {
         if (!output.fSpendable)
