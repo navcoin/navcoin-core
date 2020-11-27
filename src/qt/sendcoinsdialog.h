@@ -67,6 +67,11 @@ private:
     bool fNewRecipientAllowed;
     const PlatformStyle *platformStyle;
     bool fPrivate;
+    QString sChangeAddress;
+
+    CAmount pubBalance;
+    CAmount privBalance;
+    CAmount ccAmount;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().
@@ -78,7 +83,6 @@ private Q_SLOTS:
     void removeEntry(SendCoinsEntry* entry);
     void updateDisplayUnit();
     void updatePrivateOrPublic(bool fPrivate);
-    void coinControlFeatureChanged(bool);
     void coinControlButtonClicked();
     void coinControlChangeChecked(int);
     void coinControlChangeEdited(const QString &);
@@ -91,6 +95,7 @@ private Q_SLOTS:
     void coinControlClipboardPriority();
     void coinControlClipboardLowOutput();
     void coinControlClipboardChange();
+    void reset();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user

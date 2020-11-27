@@ -5,6 +5,7 @@
 #ifndef NAVCOIN_QT_SENDCOINSENTRY_H
 #define NAVCOIN_QT_SENDCOINSENTRY_H
 
+#include <navcoinunits.h>
 #include <qt/walletmodel.h>
 
 #include <QStackedWidget>
@@ -53,6 +54,8 @@ public:
     CAmount totalAmount;
     CAmount totalPrivateAmount;
 
+    int unit;
+
     bool fPrivate;
 
 public Q_SLOTS:
@@ -63,6 +66,9 @@ Q_SIGNALS:
     void payAmountChanged();
     void subtractFeeFromAmountChanged();
     void privateOrPublicChanged(bool fPrivate);
+    void openCoinControl();
+    void customChangeChanged(QString);
+    void coinControlChangeChecked(int state);
 
 private Q_SLOTS:
     void deleteClicked();
@@ -72,8 +78,7 @@ private Q_SLOTS:
     void updateAddressBook();
     void fromChanged(int);
     void useFullAmount();
-    void coinControlFeaturesChanged(bool enabled);
-    void _coinControlFeaturesChanged(bool enabled);
+    void coinControlChangeCheckedSlot(int state);
 
 private:
     SendCoinsRecipient recipient;

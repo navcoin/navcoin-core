@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>628</width>
-    <height>501</height>
+    <height>534</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -216,16 +216,6 @@
           <string>Expert</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QCheckBox" name="coinControlFeatures">
-            <property name="toolTip">
-             <string>Whether to show coin control features or not.</string>
-            </property>
-            <property name="text">
-             <string>Enable coin &amp;control features</string>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QCheckBox" name="spendZeroConfChange">
             <property name="toolTip">
@@ -1091,15 +1081,15 @@
    <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>QValueComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qvaluecombobox.h</header>
-  </customwidget>
-  <customwidget>
    <class>NavCoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValueComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qvaluecombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

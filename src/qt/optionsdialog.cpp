@@ -226,7 +226,6 @@ void OptionsDialog::setModel(OptionsModel *model)
 
     /* Wallet */
     connect(ui->spendZeroConfChange, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
-    connect(ui->coinControlFeatures, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
 
     /* Network */
     connect(ui->mapPortUpnp, SIGNAL(clicked(bool)), this, SLOT(markModelDirty()));
@@ -264,7 +263,6 @@ void OptionsDialog::setMapper()
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
-    mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
