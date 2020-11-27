@@ -958,7 +958,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 {
                     if(prequest->IsExpired(view))
                     {
-                        if (oldState != DAOFlags::EXPIRED)
+                        if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::ACCEPTED && oldState != DAOFlags::REJECTED)
                         {
                             prequest->SetState(pindexNew, DAOFlags::EXPIRED);
                             prequest->fDirty = true;
@@ -1042,7 +1042,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 {
                     if(proposal->IsExpired(pindexNew->GetBlockTime(), view))
                     {
-                        if (oldState != DAOFlags::EXPIRED)
+                        if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::ACCEPTED && oldState != DAOFlags::REJECTED)
                         {
                             if (proposal->HasPendingPaymentRequests(view))
                             {
