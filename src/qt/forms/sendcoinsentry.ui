@@ -78,6 +78,9 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose which kind of coins you want to spend.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -208,7 +211,7 @@
        <enum>Qt::StrongFocus</enum>
       </property>
       <property name="toolTip">
-       <string>Enter a label for this address to add it to the list of used addresses</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can send an encrypted message together with the transaction when using xNAV. This encrypted message can only be read by the receiver.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -337,7 +340,7 @@
        <enum>Qt::StrongFocus</enum>
       </property>
       <property name="toolTip">
-       <string>The NavCoin address to send the payment to</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from within the blocks that is part of your transaction.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -393,6 +396,9 @@
        <font>
         <pointsize>10</pointsize>
        </font>
+      </property>
+      <property name="toolTip">
+       <string>Choose a custom address to which spare change is sent to. Spare change refers to the difference between the amount you are sending and the total amount available from within the blocks that is part of your transaction.</string>
       </property>
       <property name="text">
        <string>Use custom change address</string>
