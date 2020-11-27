@@ -662,9 +662,10 @@ void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vect
     {
         if (!wallet->mapWallet.count(outpoint.hash)) continue;
         auto wtx = wallet->mapWallet[outpoint.hash];
+        if (wtx.vout.size() == 0) continue;
         int nDepth = wtx.GetDepthInMainChain();
         if (nDepth < 0) continue;
-        COutput out(&wtx, outpoint.n, nDepth, true, true,
+        COutput out(&wallet->mapWallet[outpoint.hash], outpoint.n, nDepth, true, true,
                     outpoint.n < wtx.vMemos.size() ? wtx.vMemos[outpoint.n] : "",
                     outpoint.n < wtx.vAmounts.size() && wtx.vAmounts[outpoint.n] > 0? wtx.vAmounts[outpoint.n] : wtx.vout[outpoint.n].nValue,
                     outpoint.n < wtx.vGammas.size() ? wtx.vGammas[outpoint.n] : 0,
