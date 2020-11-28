@@ -1170,7 +1170,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
-    if ((tx.IsCTOutput() && (!tx.HasCTOutput() || tx.vchBalanceSig.size() == 0)) || (!tx.IsCTOutput() && (tx.HasCTOutput() || tx.vchBalanceSig.size() > 0)))
+    if ((tx.IsCTOutput() && (tx.vchBalanceSig.size() == 0)) || (!tx.IsCTOutput() && (tx.HasCTOutput() || tx.vchBalanceSig.size() > 0)))
         return state.DoS(100, false, REJECT_INVALID, "bad-ctout-version-flag");
 
     if ((tx.IsBLSInput() && (tx.vchBalanceSig.size() == 0 || tx.vchTxSig.size() == 0)) || (!tx.IsBLSInput() && (tx.vchTxSig.size() > 0)))
