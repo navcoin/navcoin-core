@@ -60,7 +60,7 @@ void EnsureWalletIsUnlocked()
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     if (fWalletUnlockStakingOnly)
-        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking only.");
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking or mixing only.");
 }
 
 void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
@@ -3732,7 +3732,7 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
                 "  \"keypoololdest\": xxxxxx,      (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
                 "  \"keypoolsize\": xxxx,          (numeric) how many new keys are pre-generated\n"
                 "  \"unlocked_until\": ttt,        (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
-                "  \"unlocked_for_staking\": b,    (boolean) whether the wallet is unlocked just for staking or not\n"
+                "  \"unlocked_for_staking\": b,    (boolean) whether the wallet is unlocked just for staking and mixing or not\n"
                 "  \"paytxfee\": x.xxxx,           (numeric) the transaction fee configuration, set in " + CURRENCY_UNIT + "/kB\n"
                 "  \"hdmasterkeyid\": \"<hash160>\", (string) the Hash160 of the HD master pubkey\n"
                 "}\n"

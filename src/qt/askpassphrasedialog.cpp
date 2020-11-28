@@ -72,7 +72,7 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
             ui->passLabel3->hide();
             ui->passEdit3->hide();
             ui->stakingCheckBox->setChecked(true);
-            setWindowTitle(tr("Unlock wallet for staking"));
+            setWindowTitle(tr("Unlock wallet for staking and mixing"));
             break;
         case Decrypt:   // Ask passphrase
             ui->warningLabel->setText(tr("This operation needs your wallet passphrase to decrypt the wallet."));

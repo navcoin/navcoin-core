@@ -495,8 +495,8 @@ void NavCoinGUI::createActions()
     encryptTxAction = new QAction(platformStyle->IconAlt(":/icons/lock_closed"), tr("&Encrypt Txdata..."), this);
     encryptTxAction->setStatusTip(tr("Encrypt the transaction history data in your wallet"));
     encryptTxAction->setCheckable(true);
-    unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking..."), this);
-    unlockWalletAction->setToolTip(tr("Unlock wallet for Staking"));
+    unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking and Mixing..."), this);
+    unlockWalletAction->setToolTip(tr("Unlock wallet for Staking and Mixing"));
     backupWalletAction = new QAction(platformStyle->IconAlt(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->IconAlt(":/icons/key"), tr("&Change Passphrase..."), this);
@@ -1776,7 +1776,7 @@ void NavCoinGUI::setEncryptionStatus(int status)
     if(fWalletUnlockStakingOnly)
     {
         labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
+        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking or mixing only</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false);
