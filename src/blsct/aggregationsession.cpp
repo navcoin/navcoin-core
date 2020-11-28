@@ -174,7 +174,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
     CTransaction ctx;
 
     if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *inputs, state, nFee))
-        return error("AggregationSession::%s: Failed %s\n", state.GetRejectReason());
+        return error("AggregationSession::%s: Failed %s\n", __func__, state.GetRejectReason());
 
     ret = CandidateTransaction(ctx, nFee, DEFAULT_MIN_OUTPUT_AMOUNT, BulletproofsRangeproof());
 
