@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "aggregationsession.h"
-#include "main.h"
+#include <main.h>
 
 #include <algorithm>
 #include <random>
@@ -54,7 +54,7 @@ void AggregationSession::Stop()
     if (es)
         es->Stop();
     fState = 0;
-    RemoveDandelionAggregationSessionEmbargo(*this);
+    RemoveDandelionAggregationSessionEmbargo(GetHash());
 }
 
 bool AggregationSession::GetState() const
@@ -174,7 +174,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
     CTransaction ctx;
 
     if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *inputs, state, nFee))
-        return error("AggregationSession::%s: Failed %s\n", __func__, state.GetRejectReason());
+        return error("AggregationSession::%s: Failed %s\n", __func__,   state.GetRejectReason());
 
     ret = CandidateTransaction(ctx, nFee, DEFAULT_MIN_OUTPUT_AMOUNT, BulletproofsRangeproof());
 
@@ -282,7 +282,7 @@ void AggregationSession::AnnounceHiddenService()
 
     int64_t nCurrTime = GetTimeMicros();
     int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-    InsertDandelionAggregationSessionEmbargo(*this,nEmbargo);
+    InsertDandelionAggregationSessionEmbargo(this,nEmbargo);
 
     if (!LocalDandelionDestinationPushAggregationSession(*this))
         RelayAggregationSession(*this);
@@ -342,7 +342,7 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
 }
 
 
-bool AggregationSession::Join() const
+bool AggregationSession::Join()
 {
     setKnownSessions.insert(this->GetHash());
 
@@ -358,6 +358,9 @@ bool AggregationSession::Join() const
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
 
+    if (sHiddenService.size() == 0)
+        return false;
+
     LogPrint("aggregationsession","AggregationSession::%s: new session %s\n", __func__, GetHiddenService());
 
     std::vector<COutput> vAvailableCoins;
@@ -367,17 +370,32 @@ bool AggregationSession::Join() const
     if (vAvailableCoins.size() == 0)
         return error("AggregationSession::%s: no coins available to offer", __func__);
 
-    int nRand = 3+GetRandInt(3);
-
-    if (GetRandInt(nRand+vAvailableCoins.size()) < nRand)
-        return error("AggregationSession::%s: not sending this time", __func__);
-
     std::random_device rd;
     std::mt19937 g(rd());
     std::shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), g);
 
-    const CWalletTx *prevcoin = vAvailableCoins[0].tx;
-    int prevout = vAvailableCoins[0].i;
+    joinThread = boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs));
+
+    joinThread.detach();
+
+    return true;
+}
+
+bool AggregationSession::JoinSingle(int index, const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs)
+{
+    int nRand = 3+GetRandInt(3);
+
+    if (GetRandInt(nRand+vAvailableCoins.size()) < nRand || index >= vAvailableCoins.size())
+    {
+        LogPrint("aggregationsession", "AggregationSession::%s: not sending this time", __func__);
+        return false;
+    }
+
+    if (index > 0)
+        MilliSleep(GetRand(6*1000));
+
+    const CWalletTx *prevcoin = vAvailableCoins[index].tx;
+    int prevout = vAvailableCoins[index].i;
 
     CAmount nAddedFee = GetDefaultFee();
 
@@ -451,7 +469,7 @@ bool AggregationSession::Join() const
 
     try
     {
-        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), nonce, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward", gammaOuts, strFailReason, true, vBLSSignatures))
+        if (!CreateBLSCTOutput(bls::PrivateKey::FromBytes(ephemeralKey.data()), nonce, newTxOut, k, prevcoin->vAmounts[prevout]+nAddedFee, "Mixing Reward: " + FormatMoney(nAddedFee), gammaOuts, strFailReason, true, vBLSSignatures))
         {
             return error("AggregationSession::%s: Error creating BLSCT output: %s\n",__func__, strFailReason);
         }
@@ -518,12 +536,12 @@ bool AggregationSession::Join() const
     if(!VerifyBLSCT(candidate, v.GetKey(), blsctData, *inputs, state, false, nAddedFee))
         return error("AggregationSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
 
-    size_t colonPos = GetHiddenService().find(':');
+    size_t colonPos = hiddenService.find(':');
 
     if(colonPos != std::string::npos)
     {
-        std::string host = GetHiddenService().substr(0,colonPos);
-        std::string portPart = GetHiddenService().substr(colonPos+1);
+        std::string host = hiddenService.substr(0,colonPos);
+        std::string portPart = hiddenService.substr(colonPos+1);
 
         std::stringstream parser(portPart);
 
@@ -544,6 +562,12 @@ bool AggregationSession::Join() const
             SOCKET so = socket(((struct sockaddr*)&sockaddr)->sa_family, SOCK_STREAM, IPPROTO_TCP);
             if (so == INVALID_SOCKET)
                 return error("%s: Could not create socket to %s:%d", __func__, host, port);
+
+            if (!IsSelectableSocket(so))
+            {
+                CloseSocket(so);
+                return error("%s: Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n", __func__);
+            }
 
             int set = 1;
 #ifdef SO_NOSIGPIPE
@@ -722,7 +746,7 @@ bool AggregationSession::Join() const
 
             CloseSocket(so);
 
-            LockOutputFor(prevcoin->GetHash(), prevout, 60);
+            //LockOutputFor(prevcoin->GetHash(), prevout, 60);
             pwalletMain->NotifyTransactionChanged(pwalletMain, prevcoin->GetHash(), CT_UPDATED);
 
             return ret;
@@ -730,6 +754,24 @@ bool AggregationSession::Join() const
     }
 
     return false;
+}
+
+bool AggregationSession::JoinThread(const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs)
+{
+    auto nThreads = std::min(vAvailableCoins.size(), 10ul);
+
+    boost::thread_group sessionsThreadGroup;
+
+    for (unsigned int i = 0; i < nThreads; i++)
+    {
+        sessionsThreadGroup.create_thread(boost::bind(&AggregationSession::JoinSingle, i, hiddenService, vAvailableCoins, inputs));
+    }
+
+    sessionsThreadGroup.join_all();
+
+    LogPrintf("%s: Join thread terminated\n", __func__);
+
+    return true;
 }
 
 CAmount AggregationSession::GetDefaultFee()

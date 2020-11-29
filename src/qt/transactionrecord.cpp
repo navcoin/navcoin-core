@@ -159,7 +159,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::AnonTxRecv;
                     sub.memo = wtx.vMemos[i];
                     sub.credit = wtx.vAmounts[i];
-                    if (sub.memo == "Mixing Reward")
+                    if (sub.memo.substr(0,13) == "Mixing Reward")
                     {
                         sub.type = TransactionRecord::MixingReward;
                         sub.credit += nReward;
@@ -375,15 +375,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                             sent -= wtx.vAmounts[nOut];
                             continue;
                         }
-                        if (wtx.vMemos[nOut] != "Mixing Reward")
+                        sub.type = TransactionRecord::AnonTxRecv;
+                        if (wtx.vMemos[nOut].substr(0,13) != "Mixing Reward")
                         {
                             fHasOtherThanMixingReward = true;
                         }
                         else
                         {
                             fHasMixingReward = true;
+                            sub.type = TransactionRecord::MixingReward;
                         }
-                        sub.type = TransactionRecord::AnonTxRecv;
                         sub.memo = wtx.vMemos[nOut];
                         sub.credit = wtx.vAmounts[nOut];
                         parts.append(sub);
@@ -400,7 +401,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         if (wtx.vAmounts[nOut] == 0)
                             continue;
 
-                        if (wtx.vMemos[nOut] != "Mixing Reward")
+                        if (wtx.vMemos[nOut].substr(0,13) != "Mixing Reward")
                         {
                             fHasOtherThanMixingReward = true;
                         }

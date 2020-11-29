@@ -23,6 +23,8 @@
 
 extern CCriticalSection cs_aggregation;
 
+class COutput;
+
 class AggregationSession
 {
 public:
@@ -65,7 +67,9 @@ public:
         return vTransactionCandidates;
     }
 
-    bool Join() const;
+    bool Join();
+    static bool JoinSingle(int index, const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinThread(const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
 
     friend inline  bool operator==(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() == b.GetHiddenService(); }
     friend inline  bool operator<(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() < b.GetHiddenService(); }
@@ -84,6 +88,8 @@ private:
     std::string sHiddenService;
     int fState;
     bool lock;
+
+    boost::thread joinThread;
 
     int nVersion;
 

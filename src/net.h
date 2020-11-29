@@ -187,7 +187,7 @@ extern CCriticalSection cs_nLastNodeId;
 
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
-extern std::map<AggregationSession, int64_t> mDandelionAggregationSessionEmbargo;
+extern std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsDandelionOutbound(const CNode* const pnode);
@@ -199,9 +199,9 @@ bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& i
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
-bool InsertDandelionAggregationSessionEmbargo(const AggregationSession& ms, const int64_t& embargo);
-bool IsDandelionAggregationSessionEmbargoed(const AggregationSession& ms);
-bool RemoveDandelionAggregationSessionEmbargo(const AggregationSession& ms);
+bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo);
+bool IsDandelionAggregationSessionEmbargoed(const uint256& hash);
+bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash);
 // Dandelion fields
 extern std::vector<CNode*> vDandelionInbound;
 extern std::vector<CNode*> vDandelionOutbound;

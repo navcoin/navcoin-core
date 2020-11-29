@@ -8481,7 +8481,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             vRecv >> ms;
             int64_t nCurrTime = GetTimeMicros();
             int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-            InsertDandelionAggregationSessionEmbargo(ms,nEmbargo);
+            InsertDandelionAggregationSessionEmbargo(&ms, nEmbargo);
             RelayDandelionAggregationSession(ms, pfrom);
         }
     }
@@ -8490,9 +8490,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         AggregationSession ms(pcoinsTip);
         vRecv >> ms;
 
-        if (IsDandelionAggregationSessionEmbargoed(ms)) {
+        if (IsDandelionAggregationSessionEmbargoed(ms.GetHash())) {
             LogPrint("dandelion", "Embargoed dandelion message %s found; removing from embargo map\n", ms.GetHash().ToString());
-            RemoveDandelionAggregationSessionEmbargo(ms);
+            RemoveDandelionAggregationSessionEmbargo(ms.GetHash());
         }
         if (!AggregationSession::IsKnown(ms))
         {
@@ -10431,8 +10431,8 @@ static void CheckDandelionEmbargoes()
 {
     int64_t nCurrTime = GetTimeMicros();
     for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
-        if (iter->second < nCurrTime) {
-            RelayAggregationSession(iter->first);
+        if (iter->second.second < nCurrTime) {
+            RelayAggregationSession(*(iter->second.first));
             iter = mDandelionAggregationSessionEmbargo.erase(iter);
         } else {
             iter++;

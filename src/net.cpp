@@ -112,7 +112,7 @@ boost::condition_variable messageHandlerCondition;
 
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
-std::map<AggregationSession, int64_t> mDandelionAggregationSessionEmbargo;
+std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
 // Dandelion fields
 std::vector<CNode*> vDandelionInbound;
 std::vector<CNode*> vDandelionOutbound;
@@ -1595,13 +1595,13 @@ bool RemoveDandelionEmbargo(const uint256& hash) {
     return removed;
 }
 
-bool InsertDandelionAggregationSessionEmbargo(const AggregationSession& ms, const int64_t& embargo) {
-    auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(ms, embargo));
+bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo) {
+    auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(ms->GetHash(), std::make_pair(ms, embargo)));
     return pair.second;
 }
 
-bool IsDandelionAggregationSessionEmbargoed(const AggregationSession& ms) {
-    auto pair = mDandelionAggregationSessionEmbargo.find(ms);
+bool IsDandelionAggregationSessionEmbargoed(const uint256& hash) {
+    auto pair = mDandelionAggregationSessionEmbargo.find(hash);
     if (pair != mDandelionAggregationSessionEmbargo.end()) {
         return true;
     } else {
@@ -1609,10 +1609,10 @@ bool IsDandelionAggregationSessionEmbargoed(const AggregationSession& ms) {
     }
 }
 
-bool RemoveDandelionAggregationSessionEmbargo(const AggregationSession& ms) {
+bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash) {
     bool removed = false;
     for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
-        if (iter->first==ms) {
+        if (iter->first==hash) {
             iter = mDandelionAggregationSessionEmbargo.erase(iter);
             removed = true;
         } else {
