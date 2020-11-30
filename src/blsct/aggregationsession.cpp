@@ -382,7 +382,7 @@ bool AggregationSession::Join()
     pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
 
     if (vAvailableCoins.size() == 0)
-        return error("AggregationSession::%s: no coins available to offer", __func__);
+        return false;
 
     std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
 
