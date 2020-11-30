@@ -53,7 +53,7 @@ bool AggregationSession::Start()
 
         vKeys.push_back(std::make_pair(SerializeHash(vPublicKey), key));
 
-        while (vKeys.size() > 1)
+        while (vKeys.size() > 3)
         {
             vKeys.erase(vKeys.begin());
         }
