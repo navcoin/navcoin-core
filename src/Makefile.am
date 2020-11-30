@@ -365,7 +365,6 @@ libnavcoin_consensus_a_SOURCES = \
   arith_uint256.h \
   blsct/bulletproofs.cpp \
   blsct/scalar.cpp \
-  blsct/transaction.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
