@@ -1055,7 +1055,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                                 {
                                     pindexNew->nCFSupply += proposal->GetAvailable(view);
                                     pindexNew->nCFLocked -= proposal->GetAvailable(view);
-                                    proposal->SetState(pindexNew, DAOFlags::ACEPTED_EXPIRED);
+                                    proposal->SetState(pindexNew, DAOFlags::ACCEPTED_EXPIRED);
                                     LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
                                 } 
                                 else
