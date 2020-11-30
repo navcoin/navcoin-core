@@ -21,6 +21,7 @@
 
 static const bool DEFAULT_FLUSHWALLET = true;
 
+class CandidateTransaction;
 class CAccount;
 class CAccountingEntry;
 struct CBlockLocator;

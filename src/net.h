@@ -32,6 +32,7 @@
 class CAddrMan;
 class CScheduler;
 class CNode;
+class EncryptedCandidateTransaction;
 
 namespace boost {
     class thread_group;
@@ -188,6 +189,7 @@ extern CCriticalSection cs_nLastNodeId;
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
 extern std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
+extern std::map<EncryptedCandidateTransaction, int64_t> mDandelionEncryptedCandidateEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsDandelionOutbound(const CNode* const pnode);
@@ -196,12 +198,16 @@ bool SetLocalDandelionDestination();
 CNode* GetDandelionDestination(CNode* pfrom);
 bool LocalDandelionDestinationPushInventory(const CInv& inv);
 bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& inv);
+bool LocalDandelionDestinationPushEncryptedCandidate(const EncryptedCandidateTransaction& ec);
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
 bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo);
 bool IsDandelionAggregationSessionEmbargoed(const uint256& hash);
 bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash);
+bool InsertDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec, const int64_t& embargo);
+bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction &ec);
+bool RemoveDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec);
 // Dandelion fields
 extern std::vector<CNode*> vDandelionInbound;
 extern std::vector<CNode*> vDandelionOutbound;
@@ -871,6 +877,7 @@ public:
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);
 void RelayAggregationSession(const AggregationSession& ms);
+void RelayEncryptedCandidate(const EncryptedCandidateTransaction& ec);
 
 /** Access to the (IP) address database (peers.dat) */
 class CAddrDB

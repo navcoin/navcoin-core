@@ -15,15 +15,11 @@
 #include <utiltime.h>
 #include <wallet/wallet.h>
 
-#define DEFAULT_MIX_FEE 10000000
-#define DEFAULT_MIN_OUTPUT_AMOUNT 10000000000
-#define DEFAULT_MAX_MIX_FEE 100000000
-#define DEFAULT_TX_MIXCOINS 5
-#define DEFAULT_MIX true
-
 extern CCriticalSection cs_aggregation;
 
+class CandidateTransaction;
 class COutput;
+class CWalletDB;
 
 class AggregationSession
 {
@@ -37,12 +33,17 @@ public:
     static CAmount GetMaxFee();
 
     static bool IsKnown(const AggregationSession& ms);
+    static bool IsKnown(const EncryptedCandidateTransaction& ec);
 
     bool GetState() const;
 
     void AnnounceHiddenService();
 
     bool AddCandidateTransaction(const std::vector<unsigned char>& v);
+
+    bool NewEncryptedCandidateTransaction(const EncryptedCandidateTransaction& v);
+
+    bool AddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& v);
 
     bool SelectCandidates(CandidateTransaction& ret);
 
@@ -52,6 +53,8 @@ public:
 
     bool CleanCandidateTransactions();
 
+    int GetVersion() { return nVersion; }
+
     uint256 GetHash() const
     {
         return SerializeHash(*this);
@@ -59,7 +62,11 @@ public:
 
     std::string GetHiddenService() const
     {
-        return sHiddenService;
+        if (nVersion == 1)
+            return sHiddenService;
+        else if (nVersion == 2)
+            return HexStr(vPublicKey);
+        return "";
     }
 
     std::vector<CandidateTransaction> GetTransactionCandidates() const
@@ -70,6 +77,10 @@ public:
     bool Join();
     static bool JoinSingle(int index, const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
     static bool JoinThread(const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinSingleV2(int index, std::vector<unsigned char> &vPublicKey, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinThreadV2(const std::vector<unsigned char> &vPublicKey, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
+
+    static bool BuildCandidateTransaction(const CWalletTx *prevcoin, const int &prevout, const CStateViewCache* inputs, CandidateTransaction& tx);
 
     friend inline  bool operator==(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() == b.GetHiddenService(); }
     friend inline  bool operator<(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() < b.GetHiddenService(); }
@@ -79,17 +90,29 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
-        READWRITE(sHiddenService);
+        if (this->nVersion == 1)
+        {
+            READWRITE(sHiddenService);
+        }
+        else if (this->nVersion == 2)
+        {
+            READWRITE(vPublicKey);
+        }
     }
 
 private:
     EphemeralServer *es;
     const CStateViewCache* inputs;
     std::string sHiddenService;
+    std::vector<unsigned char> vPublicKey;
     int fState;
     bool lock;
+    static bool fJoining;
+
+    std::vector<std::pair<uint256, bls::PrivateKey>> vKeys;
 
     boost::thread joinThread;
+    boost::thread_group candidateVerificationThreadGroup;
 
     int nVersion;
 

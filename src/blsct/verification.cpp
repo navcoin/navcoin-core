@@ -407,10 +407,8 @@ bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outT
         mutOutTx.vout.push_back(out);
     }
 
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(mutOutTx.vin.begin(), mutOutTx.vin.end(), g);
-    std::shuffle(mutOutTx.vout.begin(), mutOutTx.vout.end(), g);
+    std::random_shuffle(mutOutTx.vin.begin(), mutOutTx.vin.end(), GetRandInt);
+    std::random_shuffle(mutOutTx.vout.begin(), mutOutTx.vout.end(), GetRandInt);
 
     mutOutTx.vout.push_back(CTxOut(nFee, CScript(OP_RETURN)));
     mutOutTx.SetBalanceSignature(bls::AugSchemeMPL::Aggregate(balanceSigs));

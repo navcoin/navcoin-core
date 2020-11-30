@@ -40,8 +40,10 @@ const char *CMPCTBLOCK="cmpctblock";
 const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
 const char *DANDELIONTX="dandeliontx";
-const char *DANDELIONAGGREGATIONSESSION="daggsess";
 const char *AGGREGATIONSESSION="aggsess";
+const char *DANDELIONAGGREGATIONSESSION="daggsess";
+const char *ENCRYPTEDCANDIDATE="enccand";
+const char *DANDELIONENCRYPTEDCANDIDATE="danenccand";
 };
 
 /** All known message types. Keep this in the same order as the list of
@@ -75,6 +77,10 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::GETBLOCKTXN,
     NetMsgType::BLOCKTXN,
     NetMsgType::DANDELIONTX,
+    NetMsgType::AGGREGATIONSESSION,
+    NetMsgType::DANDELIONAGGREGATIONSESSION,
+    NetMsgType::ENCRYPTEDCANDIDATE,
+    NetMsgType::DANDELIONENCRYPTEDCANDIDATE
 };
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 

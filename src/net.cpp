@@ -113,6 +113,7 @@ boost::condition_variable messageHandlerCondition;
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
 std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
+std::map<EncryptedCandidateTransaction, int64_t> mDandelionEncryptedCandidateEmbargo;
 // Dandelion fields
 std::vector<CNode*> vDandelionInbound;
 std::vector<CNode*> vDandelionOutbound;
@@ -1556,6 +1557,18 @@ bool LocalDandelionDestinationPushInventory(const CInv& inv) {
     }
 }
 
+bool LocalDandelionDestinationPushEncryptedCandidate(const EncryptedCandidateTransaction& ec) {
+    if(IsLocalDandelionDestinationSet()) {
+        localDandelionDestination->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+        return true;
+    } else if (SetLocalDandelionDestination()) {
+        localDandelionDestination->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& ms) {
     if(IsLocalDandelionDestinationSet()) {
         localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
@@ -1614,6 +1627,33 @@ bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash) {
     for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
         if (iter->first==hash) {
             iter = mDandelionAggregationSessionEmbargo.erase(iter);
+            removed = true;
+        } else {
+            iter++;
+        }
+    }
+    return removed;
+}
+
+bool InsertDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec, const int64_t& embargo) {
+    auto pair = mDandelionEncryptedCandidateEmbargo.insert(std::make_pair(ec, embargo));
+    return pair.second;
+}
+
+bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction &ec) {
+    auto pair = mDandelionEncryptedCandidateEmbargo.find(ec);
+    if (pair != mDandelionEncryptedCandidateEmbargo.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool RemoveDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec) {
+    bool removed = false;
+    for (auto iter=mDandelionEncryptedCandidateEmbargo.begin(); iter!=mDandelionEncryptedCandidateEmbargo.end();) {
+        if (iter->first==ec) {
+            iter = mDandelionEncryptedCandidateEmbargo.erase(iter);
             removed = true;
         } else {
             iter++;
@@ -2527,6 +2567,15 @@ void RelayTransaction(const CTransaction& tx)
     for(CNode* pnode: vNodes)
     {
         pnode->PushInventory(inv);
+    }
+}
+
+void RelayEncryptedCandidate(const EncryptedCandidateTransaction& ec)
+{
+    LOCK(cs_vNodes);
+    for(CNode* pnode: vNodes)
+    {
+        pnode->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
     }
 }
 

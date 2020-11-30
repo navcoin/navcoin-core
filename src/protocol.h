@@ -249,6 +249,8 @@ extern const char *BLOCKTXN;
 extern const char *DANDELIONTX;
 extern const char *AGGREGATIONSESSION;
 extern const char *DANDELIONAGGREGATIONSESSION;
+extern const char *ENCRYPTEDCANDIDATE;
+extern const char *DANDELIONENCRYPTEDCANDIDATE;
 };
 
 /* Get a vector of all valid message types (see above) */

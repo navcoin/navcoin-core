@@ -65,9 +65,9 @@ UniValue stopaggregationsession(const UniValue& params, bool fHelp)
 
 UniValue viewaggregationsession(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() > 1)
         throw std::runtime_error(
-                "viewaggregationsession\n"
+                "viewaggregationsession <show_candidates>\n"
                 "Shows the active mix session if any\n"
                 );
 
@@ -77,17 +77,31 @@ UniValue viewaggregationsession(const UniValue& params, bool fHelp)
         LOCK(pwalletMain->cs_wallet);
         if (!pwalletMain->aggSession)
             return ret;
-        ret.pushKV("hiddenService",pwalletMain->aggSession->GetHiddenService());
+        ret.pushKV("nVersion",pwalletMain->aggSession->GetVersion());
+        if (pwalletMain->aggSession->GetVersion() == 1)
+            ret.pushKV("hiddenService",pwalletMain->aggSession->GetHiddenService());
+        else if (pwalletMain->aggSession->GetVersion() == 2)
+            ret.pushKV("pubKey",pwalletMain->aggSession->GetHiddenService());
         ret.pushKV("running",pwalletMain->aggSession->GetState());
         UniValue candidates(UniValue::VARR);
-        for(auto&it: pwalletMain->aggSession->GetTransactionCandidates())
+
+        bool fShow = false;
+
+        if (params.size() == 1)
+            fShow = params[0].get_bool();
+
+        if (fShow)
         {
-            UniValue obj(UniValue::VOBJ);
-            obj.pushKV("hex",EncodeHexTx(it.tx));
-            obj.pushKV("fee",it.fee);
-            candidates.push_back(obj);
+            for(auto&it: pwalletMain->aggSession->GetTransactionCandidates())
+            {
+                UniValue obj(UniValue::VOBJ);
+                obj.pushKV("hex",EncodeHexTx(it.tx));
+                obj.pushKV("fee",it.fee);
+                candidates.push_back(obj);
+            }
+            ret.pushKV("txCandidates",candidates);
         }
-        ret.pushKV("txCandidates",candidates);
+        ret.pushKV("txCandidatesCount", (uint64_t)pwalletMain->aggSession->GetTransactionCandidates().size());
     }
 
     return ret;
