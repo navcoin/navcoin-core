@@ -233,10 +233,10 @@ blsctPublicKey CWallet::GenerateNewBlindingKey()
         if (!CWalletDB(strWalletFile).WriteHDChain(hdChain))
             throw std::runtime_error("CWallet::GenerateNewBlindingKey(): Writing HD chain model failed");
     } else {
-        CPrivKey rand;
-        rand.reserve(32);
+        std::vector<unsigned char> rand;
+        rand.resize(32);
         GetRandBytes(rand.data(), 32);
-        secret = blsctKey(bls::PrivateKey::FromSeed(rand.data(), 32));
+        secret = bls::AugSchemeMPL::KeyGen(rand);
     }
 
     blsctPublicKey pubkey = secret.GetG1Element();
@@ -674,10 +674,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             {
                 CTxOut blsctOut;
 
-                CPrivKey rand;
-                rand.reserve(32);
+                std::vector<unsigned char> rand;
+                rand.resize(32);
                 GetRandBytes(rand.data(), 32);
-                bls::PrivateKey ephemeralKey = bls::PrivateKey::FromSeed(rand.data(), 32);
+                bls::PrivateKey ephemeralKey = bls::AugSchemeMPL::KeyGen(rand);
 
                 CAmount thisOut = nReward * entry.second/100.0;
                 blockValue -= thisOut;

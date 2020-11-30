@@ -1896,7 +1896,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     SetStaking(GetBoolArg("-staking", true));
     threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
     if (pwalletMain)
+    {
         threadGroup.create_thread(boost::bind(&AggregationSessionThread));
+        threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
+    }
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

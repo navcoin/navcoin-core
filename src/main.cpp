@@ -8548,7 +8548,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             {
                 RelayEncryptedCandidate(ec);
                 if (pwalletMain && pwalletMain->aggSession)
-                    pwalletMain->aggSession->NewEncryptedCandidateTransaction(ec);
+                {
+                    std::shared_ptr<EncryptedCandidateTransaction> pec = std::make_shared<EncryptedCandidateTransaction>(ec);
+                    pwalletMain->aggSession->NewEncryptedCandidateTransaction(pec);
+                }
             }
         }
         catch(...)

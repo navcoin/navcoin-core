@@ -15,7 +15,10 @@
 #include <utiltime.h>
 #include <wallet/wallet.h>
 
+#include <queue>
+
 extern CCriticalSection cs_aggregation;
+extern CCriticalSection cs_sessionKeys;
 
 class CandidateTransaction;
 class COutput;
@@ -25,6 +28,10 @@ class AggregationSession
 {
 public:
     AggregationSession(const CStateViewCache* inputs);
+
+    std::vector<CandidateTransaction> vTransactionCandidates;
+    std::vector<std::pair<uint256, bls::PrivateKey>> vKeys;
+    const CStateViewCache* inputs;
 
     bool Start();
     void Stop();
@@ -41,9 +48,7 @@ public:
 
     bool AddCandidateTransaction(const std::vector<unsigned char>& v);
 
-    bool NewEncryptedCandidateTransaction(const EncryptedCandidateTransaction& v);
-
-    bool AddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& v);
+    bool NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> v);
 
     bool SelectCandidates(CandidateTransaction& ret);
 
@@ -102,23 +107,56 @@ public:
 
 private:
     EphemeralServer *es;
-    const CStateViewCache* inputs;
     std::string sHiddenService;
     std::vector<unsigned char> vPublicKey;
     int fState;
     bool lock;
     static bool fJoining;
 
-    std::vector<std::pair<uint256, bls::PrivateKey>> vKeys;
-
     boost::thread joinThread;
     boost::thread_group candidateVerificationThreadGroup;
 
     int nVersion;
-
-    std::vector<CandidateTransaction> vTransactionCandidates;
 };
 
 void AggregationSessionThread();
+void CandidateVerificationThread();
+
+template <class T>
+class SafeQueue
+{
+public:
+    SafeQueue(void)
+        : q()
+        , m()
+    {}
+
+    ~SafeQueue(void)
+    {}
+
+    void push(T t)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        q.push(t);
+    }
+
+    bool pop(T& val)
+    {
+        while (q.empty())
+        {
+            MilliSleep(50);
+        }
+
+        std::unique_lock<std::mutex> lock(m);
+        val = q.front();
+        q.pop();
+
+        return true;
+    }
+
+private:
+    std::queue<T> q;
+    mutable std::mutex m;
+};
 
 #endif // AGGREGATIONSESSION_H

@@ -181,10 +181,10 @@ bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
 
 EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx)
 {
-    CPrivKey rand;
-    rand.reserve(32);
+    std::vector<unsigned char> rand;
+    rand.resize(32);
     GetRandBytes(rand.data(), 32);
-    bls::PrivateKey key = bls::PrivateKey::FromSeed(rand.data(), 32);
+    bls::PrivateKey key = bls::AugSchemeMPL::KeyGen(rand);
 
     vPublicKey  = key.GetG1Element().Serialize();
 

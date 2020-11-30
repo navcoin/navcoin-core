@@ -7,8 +7,10 @@
 
 std::set<uint256> setKnownSessions;
 CCriticalSection cs_aggregation;
+CCriticalSection cs_sessionKeys;
 
 bool AggregationSession::fJoining = false;
+SafeQueue<std::shared_ptr<EncryptedCandidateTransaction>> candidatesQueue;
 
 AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(2)
 {
@@ -44,18 +46,22 @@ bool AggregationSession::Start()
     }
     else
     {
-        CPrivKey rand;
-        rand.reserve(32);
+        std::vector<unsigned char> rand;
+        rand.resize(32);
         GetRandBytes(rand.data(), 32);
-        bls::PrivateKey key = bls::PrivateKey::FromSeed(rand.data(), 32);
+        bls::PrivateKey key = bls::AugSchemeMPL::KeyGen(rand);
 
         vPublicKey = key.GetG1Element().Serialize();
 
-        vKeys.push_back(std::make_pair(SerializeHash(vPublicKey), key));
-
-        while (vKeys.size() > 3)
         {
-            vKeys.erase(vKeys.begin());
+            LOCK(cs_sessionKeys);
+
+            vKeys.push_back(std::make_pair(SerializeHash(vPublicKey), key));
+
+            while (vKeys.size() > 3)
+            {
+                vKeys.erase(vKeys.begin());
+            }
         }
 
         fState = 1;
@@ -266,69 +272,14 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
     return true;
 }
 
-bool AggregationSession::NewEncryptedCandidateTransaction(const EncryptedCandidateTransaction& etx)
+bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> etx)
 {
-    setKnownSessions.insert(SerializeHash(etx));
+    setKnownSessions.insert(SerializeHash(*etx));
 
-    candidateVerificationThreadGroup.create_thread(boost::bind(&AggregationSession::AddEncryptedCandidateTransaction, this, etx));
+    candidatesQueue.push(etx);
 
     return true;
 }
-
-
-bool AggregationSession::AddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& etx)
-{
-    if (!inputs)
-        return false;
-
-    bool fSolved = false;
-    CandidateTransaction tx;
-
-    for (auto& it: vKeys)
-    {
-        try
-        {
-            if (etx.Decrypt(it.second, inputs, tx))
-            {
-                fSolved = true;
-                break;
-            }
-        }
-        catch(...)
-        {
-            continue;
-        }
-    }
-
-    if (!fSolved)
-        return false;
-
-    {
-        LOCK(cs_aggregation);
-
-        for (auto& it: vTransactionCandidates)
-        {
-            if (it.tx.vin == tx.tx.vin) // We already have this input
-                return true;
-        }
-
-
-        if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
-            return error ("CandidateTransaction::%s: Received transaction in mempool\n", __func__);
-        }
-
-        if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
-            return error ("CandidateTransaction::%s: Received transaction in stempool\n", __func__);
-        }
-
-        vTransactionCandidates.push_back(tx);
-    }
-
-    LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n", __func__);
-
-    return true;
-}
-
 
 void AggregationSession::AnnounceHiddenService()
 {
@@ -940,7 +891,7 @@ void AggregationSessionThread()
 {
     LogPrintf("NavCoinCandidateCoinsThread started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("navcoin-candidate-coins-thread");
+    RenameThread("navcoin-candidate-coins");
 
     try {
         while (true) {
@@ -990,6 +941,94 @@ void AggregationSessionThread()
     catch (const std::runtime_error &e)
     {
         LogPrintf("NavCoinCandidateCoinsThread runtime error: %s\n", e.what());
+        return;
+    }
+}
+
+void CandidateVerificationThread()
+{
+    LogPrintf("NavCoinCandidateVerificationThread started\n");
+    SetThreadPriority(THREAD_PRIORITY_LOWEST);
+    RenameThread("navcoin-candidate-coins-verification");
+
+    try {
+        while (true) {
+            do {
+                bool fvNodesEmpty;
+                {
+                    LOCK(cs_vNodes);
+                    fvNodesEmpty = vNodes.empty();
+                }
+                if (!fvNodesEmpty && !IsInitialBlockDownload() && pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->inputs)
+                    break;
+                MilliSleep(1000);
+            } while (true);
+
+            std::shared_ptr<EncryptedCandidateTransaction> etx;
+
+            while(candidatesQueue.pop(etx))
+            {
+                bool fSolved = false;
+                CandidateTransaction tx;
+
+                {
+                    LOCK(cs_sessionKeys);
+
+                    for (auto& it: pwalletMain->aggSession->vKeys)
+                    {
+                        try
+                        {
+                            if (etx->Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
+                            {
+                                fSolved = true;
+                                break;
+                            }
+                        }
+                        catch(...)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                if (!fSolved)
+                    continue;
+
+                {
+                    LOCK(cs_aggregation);
+
+                    for (auto& it: pwalletMain->aggSession->GetTransactionCandidates())
+                    {
+                        if (it.tx.vin == tx.tx.vin) // We already have this input
+                            continue;
+                    }
+
+
+                    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+                        continue;
+                    }
+
+                    if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+                        continue;
+                    }
+
+                    pwalletMain->aggSession->vTransactionCandidates.push_back(tx);
+                }
+
+                LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n", __func__);
+            }
+
+            MilliSleep(GetRand(50));
+        }
+    }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("NavCoinCandidateVerificationThread terminated\n");
+        throw;
+    }
+    catch (const std::runtime_error &e)
+    {
+        LogPrintf("NavCoinCandidateVerificationThread runtime error: %s\n", e.what());
         return;
     }
 }
