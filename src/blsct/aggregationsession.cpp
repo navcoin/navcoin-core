@@ -885,7 +885,7 @@ bool AggregationSession::JoinSingle(int index, const std::string &hiddenService,
 
 bool AggregationSession::JoinThreadV2(const std::vector<unsigned char> &vPublicKey, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs)
 {
-    auto nThreads = std::min(vAvailableCoins.size(), 5ul);
+    auto nThreads = std::min((int)vAvailableCoins.size(), 10);
 
     if (AggregationSession::fJoining)
         return true;
