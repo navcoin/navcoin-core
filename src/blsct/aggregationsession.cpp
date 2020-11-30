@@ -611,8 +611,6 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
     const CWalletTx *prevcoin = vAvailableCoins[index].tx;
     int prevout = vAvailableCoins[index].i;
 
-    LogPrintf("Sharing %s\n", prevcoin->GetHash().ToString());
-
     CandidateTransaction tx;
 
     if (!BuildCandidateTransaction(prevcoin, prevout, inputs, tx))
@@ -912,7 +910,7 @@ bool AggregationSession::JoinThreadV2(const std::vector<unsigned char> &vPublicK
 
 bool AggregationSession::JoinThread(const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs)
 {
-    auto nThreads = std::min(vAvailableCoins.size(), 10ul);
+    auto nThreads = std::min((int)vAvailableCoins.size(), 10);
 
     boost::thread_group sessionsThreadGroup;
 
