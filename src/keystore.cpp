@@ -72,7 +72,8 @@ bool CBasicKeyStore::GetBLSCTHashId(const std::vector<unsigned char>& outputKey,
         bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
         bls::PrivateKey k = privateBlsViewKey.GetKey();
         t = t * k;
-        bls::G1Element dh = bls::PrivateKey::FromBN(Scalar(HashG1Element(t, 0)).bn).GetG1Element();
+        Scalar hash_T = Scalar(HashG1Element(t, 0));
+        bls::G1Element dh = bls::PrivateKey::FromBN(hash_T.bn).GetG1Element();
         dh = dh.Inverse();
         t = bls::G1Element::FromByteVector(spendingKey);
         bls::G1Element D_prime = t + dh;
