@@ -171,7 +171,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 
     CValidationState state;
     std::vector<RangeproofEncodedData> blsctData;
-    std::vector<CTransaction> vTransactionsToCombine;
+    std::set<CTransaction> setTransactionsToCombine;
 
     unsigned int i = 0;
     unsigned int nSelected = 0;
@@ -194,6 +194,14 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
             continue;
         }
 
+        COutPoint prevOut = vTransactionCandidates[i].tx.vin[0].prevout;
+
+        if (pwalletMain->mapWallet.count(prevOut.hash) && pwalletMain->IsMine(pwalletMain->mapWallet[prevOut.hash].vout[prevOut.n]) != ISMINE_NO)
+        {
+            i++;
+            continue;
+        }
+
         try
         {
             if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
@@ -208,7 +216,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
             continue;
         }
 
-        vTransactionsToCombine.push_back(vTransactionCandidates[i].tx);
+        setTransactionsToCombine.insert(vTransactionCandidates[i].tx);
         nFee += vTransactionCandidates[i].fee;
         i++;
         nSelected++;
@@ -216,7 +224,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 
     CTransaction ctx;
 
-    if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *inputs, state, nFee))
+    if (!CombineBLSCTTransactions(setTransactionsToCombine, ctx, *inputs, state, nFee))
         return error("AggregationSession::%s: Failed %s\n", __func__,   state.GetRejectReason());
 
     ret = CandidateTransaction(ctx, nFee, DEFAULT_MIN_OUTPUT_AMOUNT, BulletproofsRangeproof());

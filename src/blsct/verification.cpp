@@ -310,7 +310,7 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
 }
 
 
-bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CStateViewCache& inputs, CValidationState& state, CAmount nMixFee)
+bool CombineBLSCTTransactions(std::set<CTransaction> &vTx, CTransaction& outTx, const CStateViewCache& inputs, CValidationState& state, CAmount nMixFee)
 {
     std::set<CTxIn> setInputs;
     std::set<CTxOut> setOutputs;

@@ -604,6 +604,11 @@ public:
         return a.hash != b.hash;
     }
 
+    friend bool operator<(const CTransaction& a, const CTransaction& b)
+    {
+        return a.hash < b.hash;
+    }
+
     std::string ToString() const;
 
     void UpdateHash() const;

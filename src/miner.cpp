@@ -625,7 +625,7 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemP
 
 void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
 {
-    std::vector<CTransaction> vToCombine;
+    std::set<CTransaction> setToCombine;
     std::vector<RangeproofEncodedData> blsctData;
     CValidationState state;
 
@@ -643,7 +643,7 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
             if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
             {
                 nMovedToPublic += inputs.GetValueIn(tx) - tx.GetValueOut();
-                vToCombine.push_back(tx);
+                setToCombine.insert(tx);
             }
             else
                 LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
@@ -658,23 +658,23 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
 
     if (pindexPrev->nPrivateMoneySupply + nMovedToPublic < 0)
     {
-        vToCombine.clear();
+        setToCombine.clear();
         error("%s: Did not add BLS transactions to block, it would bring the private pool in negative!", __func__);
     }
 
-    if (vToCombine.size() == 0)
+    if (setToCombine.size() == 0)
         return;
 
-    if (vToCombine.size() == 1)
+    if (setToCombine.size() == 1)
     {
-        nFees += vToCombine[0].GetFee();
-        pblock->vtx.push_back(vToCombine[0]);
+        nFees += setToCombine.begin()->GetFee();
+        pblock->vtx.push_back(*(setToCombine.begin()));
         return;
     }
 
     CTransaction combinedTx;
 
-    if (!CombineBLSCTTransactions(vToCombine, combinedTx, inputs, state))
+    if (!CombineBLSCTTransactions(setToCombine, combinedTx, inputs, state))
     {
         LogPrintf("%s: Could not combine BLSCT transactions: %s\n", __func__, FormatStateMessage(state));
         return;

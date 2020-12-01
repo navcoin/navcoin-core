@@ -4082,14 +4082,14 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     if (fPrivate && coinsToMix && coinsToMix->tx.vin.size() > 0)
     {
-        std::vector<CTransaction> vTransactionsToCombine;
-        vTransactionsToCombine.push_back(coinsToMix->tx);
-        vTransactionsToCombine.push_back(wtxNew);
+        std::set<CTransaction> setTransactionsToCombine;
+        setTransactionsToCombine.insert(coinsToMix->tx);
+        setTransactionsToCombine.insert(wtxNew);
 
         CTransaction ctx;
         CValidationState state;
 
-        if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *pcoinsTip, state))
+        if (!CombineBLSCTTransactions(setTransactionsToCombine, ctx, *pcoinsTip, state))
         {
             strFailReason = state.GetRejectReason();
             return error("CWallet::%s: Failed %s\n", __func__, state.GetRejectReason());
