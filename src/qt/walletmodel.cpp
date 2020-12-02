@@ -737,9 +737,16 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
         }
 
         CTxDestination address;
-        if(!out.fSpendable || !ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
+
+        if(!out.fSpendable)
             continue;
-        mapCoins[QString::fromStdString(CNavCoinAddress(address).ToString())].push_back(out);
+
+        std::string sAddress = "(none)";
+
+        if (ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
+            sAddress = CNavCoinAddress(address).ToString();
+
+        mapCoins[QString::fromStdString(sAddress)].push_back(out);
     }
 }
 

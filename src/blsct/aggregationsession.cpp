@@ -196,10 +196,14 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 
         COutPoint prevOut = vTransactionCandidates[i].tx.vin[0].prevout;
 
-        if (pwalletMain->mapWallet.count(prevOut.hash) && pwalletMain->IsMine(pwalletMain->mapWallet[prevOut.hash].vout[prevOut.n]) != ISMINE_NO)
         {
-            i++;
-            continue;
+            LOCK(pwalletMain->cs_wallet);
+
+            if (pwalletMain->mapWallet.count(prevOut.hash) && pwalletMain->IsMine(pwalletMain->mapWallet[prevOut.hash].vout[prevOut.n]) != ISMINE_NO)
+            {
+                i++;
+                continue;
+            }
         }
 
         try
