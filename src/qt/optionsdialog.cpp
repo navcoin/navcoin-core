@@ -167,7 +167,6 @@ void OptionsDialog::setModel(OptionsModel *model)
     ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
     ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
     ui->mixTimeout->setValue(settings.value("aggregationSessionWait", 15).toInt());
-    ui->mixincountBox->setValue(GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
 
     int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
 
@@ -340,11 +339,6 @@ void OptionsDialog::on_okButton_clicked()
     SoftSetArg("-aggregationfee", std::to_string(ui->mixfeeText->value()), true);
     RemoveConfigFile("aggregationfee");
     WriteConfigFile("aggregationfee", std::to_string(ui->mixfeeText->value()));
-
-
-    SoftSetArg("-defaultmixin", std::to_string(ui->mixincountBox->value()), true);
-    RemoveConfigFile("defaultmixin");
-    WriteConfigFile("defaultmixin", std::to_string(ui->mixincountBox->value()));
 
     SoftSetArg("-aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()), true);
     RemoveConfigFile("aggregationmaxfee");
