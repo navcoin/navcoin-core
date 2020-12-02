@@ -434,7 +434,7 @@ static bool Socks5(const std::string& strDest, int port, const ProxyCredentials 
     return true;
 }
 
-static bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRet, int nTimeout)
+bool static ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRet, int nTimeout)
 {
     hSocketRet = INVALID_SOCKET;
 
@@ -448,12 +448,6 @@ static bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRe
     SOCKET hSocket = socket(((struct sockaddr*)&sockaddr)->sa_family, SOCK_STREAM, IPPROTO_TCP);
     if (hSocket == INVALID_SOCKET)
         return false;
-
-    if (!IsSelectableSocket(hSocket))
-    {
-        CloseSocket(hSocket);
-        return error("Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
-    }
 
     int set = 1;
 #ifdef SO_NOSIGPIPE
