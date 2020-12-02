@@ -353,9 +353,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
 
             CAmount sent = nPrivateDebit + nPublicDebit;
-            CAmount delta = nPrivateCredit + nPublicCredit - nPrivateDebit;
-            bool fHasOtherThanMixingReward = false;
-            bool fHasMixingReward = false;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -375,23 +372,45 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                             sent -= wtx.vAmounts[nOut];
                             continue;
                         }
-                        sub.type = TransactionRecord::AnonTxRecv;
-                        if (wtx.vMemos[nOut].substr(0,13) != "Mixing Reward")
+                        if (wtx.vMemos[nOut].substr(0,13) == "Mixing Reward")
                         {
-                            fHasOtherThanMixingReward = true;
+                            CAmount reward = wtx.vMemos[nOut].size() > 13 ? std::stof(wtx.vMemos[nOut].substr(15)) * COIN : 0.1 * COIN;
+                            sent -= wtx.vAmounts[nOut] - reward;
+                            sub.credit = reward;
+                            sub.type = TransactionRecord::MixingReward;
+                            parts.append(sub);
                         }
                         else
                         {
-                            fHasMixingReward = true;
-                            sub.type = TransactionRecord::MixingReward;
+                            sub.type = TransactionRecord::AnonTxRecv;
+                            sub.memo = wtx.vMemos[nOut];
+                            sub.credit = wtx.vAmounts[nOut];
+                            parts.append(sub);
                         }
-                        sub.memo = wtx.vMemos[nOut];
-                        sub.credit = wtx.vAmounts[nOut];
-                        parts.append(sub);
                     }
                     else
                     {
-                        sent -= wtx.vout[nOut].nValue;
+                        sub.credit = txout.nValue;
+                        CTxDestination address;
+                        if (ExtractDestination(txout.scriptPubKey, address))
+                        {
+                            sub.address = CNavCoinAddress(address).ToString();
+
+                            if (IsMine(*wallet, address))
+                            {
+                                // Received by NavCoin Address
+                                sub.type = TransactionRecord::RecvWithAddress;
+                            }
+                            else
+                            {
+                                sub.type = TransactionRecord::Other;
+                            }
+                        }
+                        else
+                        {
+                            sub.type = TransactionRecord::Other;
+                        }
+                        parts.append(sub);
                     }
                 }
                 else
@@ -401,14 +420,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         if (wtx.vAmounts[nOut] == 0)
                             continue;
 
-                        if (wtx.vMemos[nOut].substr(0,13) != "Mixing Reward")
-                        {
-                            fHasOtherThanMixingReward = true;
-                        }
-                        else
-                        {
-                            fHasMixingReward = true;
-                        }
                         sub.type = TransactionRecord::AnonTxSend;
                         sub.memo = wtx.vMemos[nOut];
                         sub.debit = -wtx.vAmounts[nOut];
@@ -419,34 +430,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 }
             }
             CAmount nTxFee = wtx.GetFee();
-            if (wtx.IsBLSCT())
+            if (wtx.IsBLSInput())
             {
-                if (!fHasOtherThanMixingReward && fHasMixingReward)
+                if (sent > 0)
                 {
-                    parts.clear();
-                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::MixingReward, "", 0, nPrivateCredit+nPublicCredit-nPrivateDebit));
-                }
-                else if (sent > 0)
-                {
-                    if (parts.size() == 1)
-                    {
-                        parts.last().debit -= sent;
-                    }
-                    else
-                    {
-                        parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", -sent, 0));
-                    }
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", -sent, 0));
                 }
                 else if (sent < 0)
                 {
-                    if (parts.size() == 1)
-                    {
-                        parts.last().credit -= sent;
-                    }
-                    else
-                    {
-                        parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxRecv, "", 0, sent));
-                    }
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxRecv, "", 0, sent));
                 }
             }
             else
