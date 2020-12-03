@@ -29,16 +29,13 @@ UniValue startaggregationsession(const UniValue& params, bool fHelp)
                 "\nStarts a BLSCT mix session\n"
                 );
 
-    {
-        LOCK(pwalletMain->cs_wallet);
-        if (!pwalletMain->aggSession)
-            throw JSONRPCError(RPC_INTERNAL_ERROR, string("Error internal structures"));
+    if (!pwalletMain->aggSession)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, string("Error internal structures"));
 
-        if (!pwalletMain->aggSession->Start())
-            throw JSONRPCError(RPC_INTERNAL_ERROR, string("Could not start mix session"));
+    if (!pwalletMain->aggSession->Start())
+        throw JSONRPCError(RPC_INTERNAL_ERROR, string("Could not start mix session"));
 
-        return true;
-    }
+    return true;
 }
 
 UniValue stopaggregationsession(const UniValue& params, bool fHelp)

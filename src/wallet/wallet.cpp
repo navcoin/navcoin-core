@@ -846,8 +846,6 @@ bool CWallet::AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKe
 
 bool CWallet::WriteCandidateTransactions()
 {
-    AssertLockHeld(cs_wallet); // mapKeyMetadata
-
     if (!fFileBacked)
         return true;
 

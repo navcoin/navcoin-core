@@ -32,40 +32,38 @@ AggregationSessionDialog::AggregationSessionDialog(QWidget *parent)
     if (!pwalletMain)
         ShowError(tr("Wallet is not loaded."));
 
+    if (!pwalletMain->aggSession)
+        ShowError(tr("Error internal structures."));
+
+    auto nCount = 0;
+
+    if (pwalletMain && pwalletMain->aggSession)
+        nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
+    else
     {
-        LOCK(pwalletMain->cs_wallet);
-        if (!pwalletMain->aggSession)
-            ShowError(tr("Error internal structures."));
+        fReady = true;
+        this->done(false);
+        return;
+    }
 
-        auto nCount = 0;
-
-        if (pwalletMain && pwalletMain->aggSession)
-            nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
-        else
+    if (nCount > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*2)
+    {
+        fReady = true;
+    }
+    else
+    {
+        if (!pwalletMain->aggSession->Start())
         {
-            fReady = true;
-            this->done(false);
-            return;
-        }
-
-        if (nCount > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*2)
-        {
-            fReady = true;
-        }
-        else
-        {
+            pwalletMain->aggSession->Stop();
             if (!pwalletMain->aggSession->Start())
             {
-                pwalletMain->aggSession->Stop();
-                if (!pwalletMain->aggSession->Start())
-                {
-                    ShowError(tr("Could not start mix session, try restarting your wallet."));
-                }
+                ShowError(tr("Could not start mix session, try restarting your wallet."));
             }
         }
-
-        nStart = GetTime();
     }
+
+    nStart = GetTime();
+
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(CheckStatus()));

@@ -934,24 +934,21 @@ void AggregationSessionThread()
             MilliSleep(GetRand(120*1000));
 
             {
-                LOCK2(pwalletMain->cs_wallet, cs_aggregation);
+                LOCK(cs_aggregation);
 
                 pwalletMain->aggSession->CleanCandidateTransactions();
                 pwalletMain->WriteCandidateTransactions();
-            }
 
-            {
-                LOCK(pwalletMain->cs_wallet);
                 if (pwalletMain->aggSession->GetTransactionCandidates().size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
                     continue;
+            }
 
+            if (!pwalletMain->aggSession->Start())
+            {
+                pwalletMain->aggSession->Stop();
                 if (!pwalletMain->aggSession->Start())
                 {
-                    pwalletMain->aggSession->Stop();
-                    if (!pwalletMain->aggSession->Start())
-                    {
-                        continue;
-                    }
+                    continue;
                 }
             }
 
