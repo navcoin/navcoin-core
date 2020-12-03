@@ -236,18 +236,18 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Exclude voters
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 12;
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime = 1611964800; //Jan 30th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
 
         // Deployment of Cold Staking Pool Fee
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
-        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1611964800; // Jan 30th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of BLSCT
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 10;
-        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1611964800; // Jan 30th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
         /**

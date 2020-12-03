@@ -8,6 +8,7 @@
 #include <blsct/ephemeralserver.h>
 #include <blsct/key.h>
 #include <blsct/transaction.h>
+#include <chainparams.h>
 #include <net.h>
 #include <random.h>
 #include <util.h>

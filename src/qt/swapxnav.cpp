@@ -11,6 +11,13 @@ SwapXNAVDialog::SwapXNAVDialog(QWidget *parent) :
     this->resize(600,250);
     this->setLayout(layout);
 
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+    {
+        QMessageBox::warning(this, tr("Not available"),
+                "xNAV is not active yet!");
+        return;
+    }
+
     QFont amountFont("Sans Serif", 8, QFont::Bold);
     QFont titleFont("Sans Serif", 16, QFont::Bold);
     label1 = new QLabel("");

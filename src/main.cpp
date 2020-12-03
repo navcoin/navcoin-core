@@ -3163,8 +3163,14 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoConsensusVersionMask;
 
+#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+    bool fTestnet = GetBoolArg("-testnet", true);
+#else
+    bool fTestnet = GetBoolArg("-testnet", false);
+#endif
+
     if(IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nDaoExcludeVersionMask;
+        nVersion |= fTestnet ? 0x08000000 : nDaoExcludeVersionMask;
 
     if(IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nBLSCTVersionMask;
@@ -6012,7 +6018,13 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
 
-    if((block.nVersion & nDaoExcludeVersionMask) != nDaoExcludeVersionMask && IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
+#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+    bool fTestnet = GetBoolArg("-testnet", true);
+#else
+    bool fTestnet = GetBoolArg("-testnet", false);
+#endif
+
+    if((block.nVersion & (fTestnet?0x08000000:nDaoExcludeVersionMask)) != (fTestnet?0x08000000:nDaoExcludeVersionMask) && IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
 

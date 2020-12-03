@@ -740,6 +740,11 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+    {
+        return JSONRPCError(RPC_MISC_ERROR, "xNAV is not active yet");
+    }
+
     if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(
                 "privatesendtoaddress \"navcoinaddress\" amount \"comment\" ( \"comment-to\" \"strdzeel\" subtractfeefromamount )\n"
@@ -829,6 +834,11 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
+
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+    {
+        return JSONRPCError(RPC_MISC_ERROR, "xNAV is not active yet");
+    }
 
     if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(

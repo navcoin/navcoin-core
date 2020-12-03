@@ -18,6 +18,9 @@ AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs
 
 bool AggregationSession::Start()
 {
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+        return false;
+
     if (nVersion == 1)
     {
         if (fState && (es&&es->IsRunning()))
@@ -369,6 +372,9 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
 bool AggregationSession::Join()
 {
     setKnownSessions.insert(this->GetHash());
+
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+        return false;
 
     if (!pwalletMain)
         return false;

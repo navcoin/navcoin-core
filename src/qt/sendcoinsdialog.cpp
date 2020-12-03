@@ -175,6 +175,13 @@ void SendCoinsDialog::on_sendButton_clicked()
 
         int defaultPrivacy = settings.value("defaultPrivacy", 0).toInt();
 
+        if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+        {
+            QMessageBox::warning(this, tr("Not available"),
+                    "xNAV is not active yet!");
+            return;
+        }
+
         if (defaultPrivacy == 0)
         {
             QMessageBox msgBox;
