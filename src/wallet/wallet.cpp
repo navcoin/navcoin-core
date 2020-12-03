@@ -4539,6 +4539,11 @@ bool CWallet::TopUpBLSCTBlindingKeyPool(unsigned int kpSize)
         if (IsLocked())
             return false;
 
+        blsctKey ephemeralKey;
+
+        if (!GetBLSCTBlindingMasterKey(ephemeralKey))
+            return false;
+
         CWalletDB walletdb(strWalletFile);
 
         // Top up key pool
@@ -4672,16 +4677,17 @@ bool CWallet::NewBLSCTSubAddressKeyPool(const uint64_t& account)
 
         int64_t nKeys = max(GetArg("-keypool", DEFAULT_KEYPOOL_SIZE), (int64_t)0);
         blsctDoublePublicKey pk;
+        int64_t nIndex = 0;
         for (int i = 0; i < nKeys; i++)
         {
             if (GenerateNewSubAddress(account, pk))
             {
-                int64_t nIndex = i+1;
+                nIndex = i+1;
                 walletdb.WriteBLSCTSubAddressPool(account, nIndex, CBLSCTSubAddressKeyPool(pk.GetID()));
                 mapBLSCTSubAddressKeyPool[account].insert(nIndex);
             }
         }
-        LogPrintf("CWallet::%s: wrote %d new sub address keys\n", __func__, nKeys);
+        LogPrintf("CWallet::%s: wrote %d new sub address keys\n", __func__, nIndex);
     }
     return true;
 }
@@ -4718,6 +4724,10 @@ bool CWallet::TopUpBLSCTSubAddressKeyPool(const uint64_t& account, unsigned int 
                     throw runtime_error("TopUpBLSCTSubAddressKeyPool(): writing generated key failed");
                 mapBLSCTSubAddressKeyPool[account].insert(nEnd);
                 LogPrintf("blsctSubAddressKeyPool added key %d, size=%u\n", nEnd, mapBLSCTSubAddressKeyPool[account].size());
+            }
+            else
+            {
+                return false;
             }
         }
     }
