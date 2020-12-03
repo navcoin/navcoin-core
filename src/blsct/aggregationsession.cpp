@@ -202,7 +202,8 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
             if (pwalletMain->mapWallet.count(prevOut.hash))
             {
                 auto prevTx = pwalletMain->mapWallet[prevOut.hash];
-                if (prevTx.vGammas.size() < prevOut.n && !(prevTx.vGammas[prevOut.n] == Scalar(0)))
+                Scalar zero = 0;
+                if (prevTx.vGammas.size() > prevOut.n && !(prevTx.vGammas[prevOut.n] == zero))
                 {
                     i++;
                     continue;
