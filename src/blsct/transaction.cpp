@@ -48,7 +48,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     proofs.push_back(std::make_pair(0,bprp));
     std::vector<RangeproofEncodedData> data;
 
-    if (fVerify && !VerifyBulletproof(proofs, data, nonces))
+    if (GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces))
     {
         strFailReason = "Range proof failed";
         return false;

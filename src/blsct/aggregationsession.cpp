@@ -202,7 +202,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
             if (pwalletMain->mapWallet.count(prevOut.hash))
             {
                 auto prevTx = pwalletMain->mapWallet[prevOut.hash];
-                if (prevTx.vGammas.size() < prevOut.n && prevTx.vGammas[prevOut.n].size() > 0)
+                if (prevTx.vGammas.size() < prevOut.n && !(prevTx.vGammas[prevOut.n] == Scalar(0)))
                 {
                     i++;
                     continue;
@@ -547,18 +547,24 @@ bool AggregationSession::BuildCandidateTransaction(const CWalletTx *prevcoin, co
         return error("AggregationSession::%s: Catched balanceSigningKey exception.\n", __func__);
     }
 
-    std::vector<std::pair<int,BulletproofsRangeproof>> proofs;
-    proofs.push_back(std::make_pair(0,bprp));
-
-    if (!VerifyBulletproof(proofs, blsctData, nonces, false))
+    if (GetBoolArg("-blsctverify", false))
     {
-        return error("AggregationSession::%s: Failed validation of range proof\n", __func__);
+        std::vector<std::pair<int,BulletproofsRangeproof>> proofs;
+        proofs.push_back(std::make_pair(0,bprp));
+
+        if (!VerifyBulletproof(proofs, blsctData, nonces, false))
+        {
+            return error("AggregationSession::%s: Failed validation of range proof\n", __func__);
+        }
     }
 
     tx = CandidateTransaction(candidate, nAddedFee, DEFAULT_MIN_OUTPUT_AMOUNT, bprp);
 
-    if(!VerifyBLSCT(candidate, v.GetKey(), blsctData, *inputs, state, false, nAddedFee))
-        return error("AggregationSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+    if (GetBoolArg("-blsctverify", false))
+    {
+        if(!VerifyBLSCT(candidate, v.GetKey(), blsctData, *inputs, state, false, nAddedFee))
+            return error("AggregationSession::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
+    }
 
     return true;
 }

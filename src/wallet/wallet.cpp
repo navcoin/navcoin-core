@@ -1604,7 +1604,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
             }
         }
 
-        if (wtx.IsCTOutput())
+        if (fInsertedNew && wtx.IsCTOutput())
         {
             std::vector<RangeproofEncodedData> data;
 
