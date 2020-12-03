@@ -199,10 +199,14 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
         {
             LOCK(pwalletMain->cs_wallet);
 
-            if (pwalletMain->mapWallet.count(prevOut.hash) && pwalletMain->IsMine(pwalletMain->mapWallet[prevOut.hash].vout[prevOut.n]) != ISMINE_NO)
+            if (pwalletMain->mapWallet.count(prevOut.hash))
             {
-                i++;
-                continue;
+                auto prevTx = pwalletMain->mapWallet[prevOut.hash];
+                if (prevTx.vGammas.size() < prevOut.n && prevTx.vGammas[prevOut.n].size() > 0)
+                {
+                    i++;
+                    continue;
+                }
             }
         }
 
