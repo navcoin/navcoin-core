@@ -196,18 +196,14 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 
         COutPoint prevOut = vTransactionCandidates[i].tx.vin[0].prevout;
 
+        if (pwalletMain->mapWallet.count(prevOut.hash))
         {
-            LOCK(pwalletMain->cs_wallet);
-
-            if (pwalletMain->mapWallet.count(prevOut.hash))
+            auto prevTx = pwalletMain->mapWallet[prevOut.hash];
+            Scalar zero = 0;
+            if (prevTx.vGammas.size() > prevOut.n && !(prevTx.vGammas[prevOut.n] == zero))
             {
-                auto prevTx = pwalletMain->mapWallet[prevOut.hash];
-                Scalar zero = 0;
-                if (prevTx.vGammas.size() > prevOut.n && !(prevTx.vGammas[prevOut.n] == zero))
-                {
-                    i++;
-                    continue;
-                }
+                i++;
+                continue;
             }
         }
 

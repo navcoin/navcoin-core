@@ -1038,7 +1038,7 @@ bool TestLockPointValidity(const LockPoints* lp)
 bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool useExistingLockPoints)
 {
     AssertLockHeld(cs_main);
-    LOCK(mempool.cs);
+    LOCK2(mempool.cs, stempool.cs);
 
     CBlockIndex* tip = chainActive.Tip();
     CBlockIndex index;
@@ -1259,7 +1259,7 @@ bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin)
     return true;
 }
 
-bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree,
+bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection *spcs, CValidationState& state, const CTransaction& tx, bool fLimitFree,
                               bool* pfMissingInputs, bool fOverrideMempoolLimit, const CAmount& nAbsurdFee,
                               std::vector<uint256>& vHashTxnToUncache)
 {
@@ -1319,7 +1319,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     // Check for conflicts with in-memory transactions
     set<uint256> setConflicts;
     {
-    LOCK(pool.cs); // protect pool.mapNextTx
+    LOCK2(mpcs, spcs); // protect pool.mapNextTx
     for(const CTxIn &txin: tx.vin)
     {
         if (tx.IsBLSInput())
@@ -1377,7 +1377,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         CAmount nValueIn = 0;
         LockPoints lp;
         {
-        LOCK(pool.cs);
+        LOCK2(mpcs, spcs);
         CStateViewMemPool viewMemPool(pcoinsTip, pool);
         view.SetBackend(viewMemPool);
 
@@ -1692,7 +1692,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // If we don't hold the lock allConflicting might be incomplete; the
         // subsequent RemoveStaged() and addUnchecked() calls don't guarantee
         // mempool consistency for us.
-        LOCK(pool.cs);
+        LOCK2(mpcs, spcs);
         if (setConflicts.size())
         {
             CFeeRate newFeeRate(nModifiedFees, nSize);
@@ -1880,11 +1880,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     return true;
 }
 
-bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
+bool AcceptToMemoryPool(CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection *spcs, CValidationState &state, const CTransaction &tx, bool fLimitFree,
                         bool* pfMissingInputs, bool fOverrideMempoolLimit, const CAmount nAbsurdFee)
 {
     std::vector<uint256> vHashTxToUncache;
-    bool res = AcceptToMemoryPoolWorker(pool, state, tx, fLimitFree, pfMissingInputs, fOverrideMempoolLimit, nAbsurdFee, vHashTxToUncache);
+    bool res = AcceptToMemoryPoolWorker(pool, mpcs, spcs, state, tx, fLimitFree, pfMissingInputs, fOverrideMempoolLimit, nAbsurdFee, vHashTxToUncache);
     if (res)
         LogPrintf("%s: Successfully added txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
     else
@@ -4980,9 +4980,9 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
             // ignore validation errors in resurrected transactions
             list<CTransaction> removed;
             CValidationState stateDummy;
-            bool ret = AcceptToMemoryPool(mempool, stateDummy, tx, false, nullptr, true);
+            bool ret = AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, stateDummy, tx, false, nullptr, true);
             CValidationState dandelionStateDummy;
-            AcceptToMemoryPool(stempool, dandelionStateDummy, tx, false, nullptr, true, 0);
+            AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, dandelionStateDummy, tx, false, nullptr, true, 0);
             if (!(tx.IsCoinBase() || tx.IsCoinStake()) || !ret) {
                 mempool.removeRecursive(tx, removed);
                 stempool.removeRecursive(tx, removed);
@@ -8325,9 +8325,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         pfrom->setAskFor.erase(inv.hash);
         mapAlreadyAskedFor.erase(inv);
 
-        if (!AlreadyHave(inv) && AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs)) {
+        if (!AlreadyHave(inv) && AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, state, tx, true, &fMissingInputs)) {
             // Changes to mempool should also be made to Dandelion stempool
-            AcceptToMemoryPool(stempool, dummyState, tx, true, nullptr);
+            AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, dummyState, tx, true, nullptr);
             if (IsTxDandelionEmbargoed(tx.GetHash())) {
                 LogPrint("dandelion", "Embargoed dandeliontx %s found in mempool; removing from embargo map\n", tx.GetHash().ToString());
                 RemoveDandelionEmbargo(tx.GetHash());
@@ -8370,9 +8370,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
                     if (setMisbehaving.count(fromPeer))
                         continue;
-                    if (AcceptToMemoryPool(mempool, stateDummy, orphanTx, true, &fMissingInputs2)) {
+                    if (AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, stateDummy, orphanTx, true, &fMissingInputs2)) {
                         // Changes to mempool should also be made to Dandelion stempool
-                        AcceptToMemoryPool(stempool, stateDummyDandelion, orphanTx, true, nullptr);
+                        AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, stateDummyDandelion, orphanTx, true, nullptr);
                         LogPrint("mempool", "   accepted orphan tx %s\n", orphanHash.ToString());
                         RelayTransaction(orphanTx);
                         for (unsigned int i = 0; i < orphanTx.vout.size(); i++) {
@@ -8569,7 +8569,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         LOCK(cs_main);
         if (IsDandelionInbound(pfrom)) {
             if (!stempool.exists(inv.hash)) {
-                bool ret = AcceptToMemoryPool(stempool, state, tx, false, &fMissingInputs, false, 0);
+                bool ret = AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, state, tx, false, &fMissingInputs, false, 0);
                 if (ret) {
                     LogPrint("mempool", "AcceptToStemPool: peer=%d: accepted %s (poolsz %u txn, %u kB)\n",
                              pfrom->GetId(), tx.GetHash().ToString(), stempool.size(), stempool.DynamicMemoryUsage() / 1000);
@@ -10458,7 +10458,7 @@ static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom)
         CValidationState state;
         std::shared_ptr<const CTransaction> ptx = stempool.get(tx.GetHash());
         bool fMissingInputs = false;
-        AcceptToMemoryPool(mempool, state, *ptx, false, &fMissingInputs, false, 0);
+        AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, state, *ptx, false, &fMissingInputs, false, 0);
         LogPrint("mempool", "AcceptToMemoryPool: peer=%d: accepted %s (poolsz %u txn, %u kB)\n",
                  pfrom->GetId(), tx.GetHash().ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
         RelayTransaction(tx);
@@ -10538,7 +10538,7 @@ static void CheckDandelionEmbargoes()
                 continue;
             }
             bool fMissingInputs = false;
-            AcceptToMemoryPool(mempool, state, *ptx, false, &fMissingInputs, false, 0);
+            AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, state, *ptx, false, &fMissingInputs, false, 0);
             LogPrint("mempool", "AcceptToMemoryPool: accepted %s (poolsz %u txn, %u kB)\n",
                      iter->first.ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
             RelayTransaction(*ptx);

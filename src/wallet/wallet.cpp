@@ -2421,7 +2421,7 @@ void CWallet::ReacceptWalletTransactions()
     {
         CWalletTx& wtx = *(item.second);
 
-        LOCK2(stempool.cs, mempool.cs);
+        LOCK2(mempool.cs, stempool.cs);
         wtx.AcceptToMemoryPool(false, maxTxFee);
         // If Dandelion enabled, relay transaction once again.
         if (GetBoolArg("-dandelion", true)) {
@@ -5849,14 +5849,14 @@ bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
     CValidationState state;
     bool ret;
     if (GetBoolArg("-dandelion", true) && !(vNodes.size() <= 1 || !(IsLocalDandelionDestinationSet() || SetLocalDandelionDestination()))) {
-        ret = ::AcceptToMemoryPool(stempool, state, *this, fLimitFree /* pfMissingInputs */,
+        ret = ::AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, state, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     } else {
-        ret = ::AcceptToMemoryPool(mempool, state, *this, fLimitFree /* pfMissingInputs */,
+        ret = ::AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, state, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
         // Changes to mempool should also be made to Dandelion stempool
         CValidationState dummyState;
-        ret &= ::AcceptToMemoryPool(stempool, dummyState, *this, fLimitFree /* pfMissingInputs */,
+        ret &= ::AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, dummyState, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     }
     return ret;

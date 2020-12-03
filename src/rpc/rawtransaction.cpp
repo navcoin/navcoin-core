@@ -1122,7 +1122,7 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
         // push to local node and sync with wallets
         CValidationState state;
         bool fMissingInputs;
-        if (!AcceptToMemoryPool(mempool, state, tx, false, &fMissingInputs, false, nMaxRawTxFee)) {
+        if (!AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, state, tx, false, &fMissingInputs, false, nMaxRawTxFee)) {
             if (state.IsInvalid()) {
                 throw JSONRPCError(RPC_TRANSACTION_REJECTED, strprintf("%i: %s", state.GetRejectCode(), state.GetRejectReason()));
             } else {
