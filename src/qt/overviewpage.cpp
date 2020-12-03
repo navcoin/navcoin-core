@@ -275,6 +275,13 @@ void OverviewPage::updateDisplayUnit()
 
 void OverviewPage::ShowSwapDialog()
 {
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+    {
+        QMessageBox::warning(this, tr("Not available"),
+                "xNAV is not active yet!");
+        return;
+    }
+
     this->swapDialog->exec();
 }
 
