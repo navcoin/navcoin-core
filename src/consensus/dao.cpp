@@ -349,6 +349,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     bool fCFund = IsCommunityFundEnabled(pindexNew->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsDAOEnabled(pindexNew->pprev, Params().GetConsensus());
 
+    if (!fCFund && !fDAOConsultations)
+        return true;
+
     bool fScanningWholeCycle = false;
 
     std::map<uint256, bool> mapSeen;
