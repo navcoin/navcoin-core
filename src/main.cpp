@@ -4739,8 +4739,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (vBLSConflicted.size()) {
         for (auto& it: vBLSConflicted)
         {
-            RemoveBLSCTConflicting(stempool, it);
-            RemoveBLSCTConflicting(mempool, it);
+            RemoveBLSCTConflicting(stempool, it, &mempool.cs, &stempool.cs);
+            RemoveBLSCTConflicting(mempool, it, &mempool.cs, &stempool.cs);
         }
     }
 
