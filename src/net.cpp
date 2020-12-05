@@ -84,6 +84,7 @@ bool fListen = true;
 ServiceFlags nLocalServices = NODE_NETWORK;
 bool fRelayTxes = true;
 CCriticalSection cs_mapLocalHost;
+CCriticalSection cs_mapDandelionEmbargo;
 std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
 static bool vfLimited[NET_MAX] = {};
 static CNode* pnodeLocalHost = nullptr;
@@ -1610,11 +1611,13 @@ bool RemoveDandelionEmbargo(const uint256& hash) {
 }
 
 bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo) {
+    LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(ms->GetHash(), std::make_pair(ms, embargo)));
     return pair.second;
 }
 
 bool IsDandelionAggregationSessionEmbargoed(const uint256& hash) {
+    LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionAggregationSessionEmbargo.find(hash);
     if (pair != mDandelionAggregationSessionEmbargo.end()) {
         return true;
@@ -1624,6 +1627,7 @@ bool IsDandelionAggregationSessionEmbargoed(const uint256& hash) {
 }
 
 bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash) {
+    LOCK(cs_mapDandelionEmbargo);
     bool removed = false;
     for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
         if (iter->first==hash) {
@@ -1637,11 +1641,13 @@ bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash) {
 }
 
 bool InsertDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec, const int64_t& embargo) {
+    LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionEncryptedCandidateEmbargo.insert(std::make_pair(ec, embargo));
     return pair.second;
 }
 
 bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction &ec) {
+    LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionEncryptedCandidateEmbargo.find(ec);
     if (pair != mDandelionEncryptedCandidateEmbargo.end()) {
         return true;
@@ -1651,6 +1657,7 @@ bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction 
 }
 
 bool RemoveDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec) {
+    LOCK(cs_mapDandelionEmbargo);
     bool removed = false;
     for (auto iter=mDandelionEncryptedCandidateEmbargo.begin(); iter!=mDandelionEncryptedCandidateEmbargo.end();) {
         if (iter->first==ec) {
