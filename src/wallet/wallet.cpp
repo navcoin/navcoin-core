@@ -4041,13 +4041,13 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 if (fSendFreeTransactions && nBytes <= MAX_FREE_TRANSACTION_CREATE_SIZE)
                 {
                     // Not enough fee: enough priority?
-                    double dPriorityNeeded = mempool.estimateSmartPriority(nTxConfirmTarget);
+                    double dPriorityNeeded = mempool.estimateSmartPriority(nTxConfirmTarget, &mempool.cs, &stempool.cs);
                     // Require at least hard-coded AllowFree.
                     if (dPriority >= dPriorityNeeded && AllowFree(dPriority))
                         break;
                 }
 
-                CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
+                CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool, &mempool.cs, &stempool.cs);
 
                 if (fPrivate)
                     nFeeNeeded = (wtxNew.vin.size()+nInMix)*BLSCT_TX_INPUT_FEE+(wtxNew.vout.size()+nOutMix)*BLSCT_TX_OUTPUT_FEE;
@@ -4177,14 +4177,14 @@ CAmount CWallet::GetRequiredFee(unsigned int nTxBytes)
     return std::max(minTxFee.GetFee(nTxBytes), ::minRelayTxFee.GetFee(nTxBytes));
 }
 
-CAmount CWallet::GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool)
+CAmount CWallet::GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection* spcs)
 {
      // payTxFee is user-set "I want to pay this much"
      CAmount nFeeNeeded = payTxFee.GetFee(nTxBytes);
      // User didn't set: use -txconfirmtarget to estimate...
      if (nFeeNeeded == 0) {
          int estimateFoundTarget = nConfirmTarget;
-         nFeeNeeded = pool.estimateSmartFee(nConfirmTarget, &estimateFoundTarget).GetFee(nTxBytes);
+         nFeeNeeded = pool.estimateSmartFee(nConfirmTarget, mpcs, spcs, &estimateFoundTarget).GetFee(nTxBytes);
          // ... unless we don't have enough mempool data for estimatefee, then use fallbackFee
          if (nFeeNeeded == 0)
              nFeeNeeded = fallbackFee.GetFee(nTxBytes);

@@ -306,8 +306,8 @@ UniValue prioritisetransaction(const UniValue& params, bool fHelp)
     uint256 hash = ParseHashStr(params[0].get_str(), "txid");
     CAmount nAmount = params[2].get_int64();
 
-    mempool.PrioritiseTransaction(hash, params[0].get_str(), params[1].get_real(), nAmount);
-    stempool.PrioritiseTransaction(hash, params[0].get_str(), params[1].get_real(), nAmount);
+    mempool.PrioritiseTransaction(hash, params[0].get_str(), params[1].get_real(), nAmount, &mempool.cs, &stempool.cs);
+    stempool.PrioritiseTransaction(hash, params[0].get_str(), params[1].get_real(), nAmount, &mempool.cs, &stempool.cs);
     return true;
 }
 
@@ -525,7 +525,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
                 if (!cvBlockChange.timed_wait(lock, checktxtime))
                 {
                     // Timeout: Check transactions for update
-                    if (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLastLP)
+                    if (mempool.GetTransactionsUpdated(&mempool.cs, &stempool.cs) != nTransactionsUpdatedLastLP)
                         break;
                     checktxtime += boost::posix_time::seconds(10);
                 }
@@ -543,13 +543,13 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     static int64_t nStart;
     static CBlockTemplate* pblocktemplate;
     if (pindexPrev != chainActive.Tip() ||
-        (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 5))
+        (mempool.GetTransactionsUpdated(&mempool.cs, &stempool.cs) != nTransactionsUpdatedLast && GetTime() - nStart > 5))
     {
         // Clear pindexPrev so future calls make a new block, despite any failures from here on
         pindexPrev = nullptr;
 
         // Store the pindexBest used before CreateNewBlock, to avoid races
-        nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
+        nTransactionsUpdatedLast = mempool.GetTransactionsUpdated(&mempool.cs, &stempool.cs);
         CBlockIndex* pindexPrevNew = chainActive.Tip();
         nStart = GetTime();
 
@@ -826,7 +826,7 @@ UniValue estimatefee(const UniValue& params, bool fHelp)
     if (nBlocks < 1)
         nBlocks = 1;
 
-    CFeeRate feeRate = mempool.estimateFee(nBlocks);
+    CFeeRate feeRate = mempool.estimateFee(nBlocks, &mempool.cs, &stempool.cs);
     if (feeRate == CFeeRate(0))
         return -1.0;
 
@@ -857,7 +857,7 @@ UniValue estimatepriority(const UniValue& params, bool fHelp)
     if (nBlocks < 1)
         nBlocks = 1;
 
-    return mempool.estimatePriority(nBlocks);
+    return mempool.estimatePriority(nBlocks, &mempool.cs, &stempool.cs);
 }
 
 UniValue estimatesmartfee(const UniValue& params, bool fHelp)
@@ -890,7 +890,7 @@ UniValue estimatesmartfee(const UniValue& params, bool fHelp)
 
     UniValue result(UniValue::VOBJ);
     int answerFound;
-    CFeeRate feeRate = mempool.estimateSmartFee(nBlocks, &answerFound);
+    CFeeRate feeRate = mempool.estimateSmartFee(nBlocks, &mempool.cs, &stempool.cs, &answerFound);
     result.pushKV("feerate", feeRate == CFeeRate(0) ? -1.0 : ValueFromAmount(feeRate.GetFeePerK()));
     result.pushKV("blocks", answerFound);
     return result;
@@ -1086,7 +1086,7 @@ UniValue estimatesmartpriority(const UniValue& params, bool fHelp)
 
     UniValue result(UniValue::VOBJ);
     int answerFound;
-    double priority = mempool.estimateSmartPriority(nBlocks, &answerFound);
+    double priority = mempool.estimateSmartPriority(nBlocks, &mempool.cs, &stempool.cs, &answerFound);
     result.pushKV("priority", priority);
     result.pushKV("blocks", answerFound);
     return result;

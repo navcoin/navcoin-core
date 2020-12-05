@@ -252,9 +252,9 @@ void PrepareShutdown()
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
     RenameThread("navcoin-shutoff");
-    mempool.AddTransactionsUpdated(1);
+    mempool.AddTransactionsUpdated(1, &mempool.cs, &stempool.cs);
     // Changes to mempool should also be made to Dandelion stempool
-    stempool.AddTransactionsUpdated(1);
+    stempool.AddTransactionsUpdated(1, &mempool.cs, &stempool.cs);
 
     StopHTTPRPC();
     StopREST();
@@ -273,7 +273,7 @@ void PrepareShutdown()
         boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
         CAutoFile est_fileout(fopen(est_path.string().c_str(), "wb"), SER_DISK, CLIENT_VERSION);
         if (!est_fileout.IsNull())
-            mempool.WriteFeeEstimates(est_fileout);
+            mempool.WriteFeeEstimates(est_fileout, &mempool.cs, &stempool.cs);
         else
             LogPrintf("%s: Failed to write fee estimates to %s\n", __func__, est_path.string());
         fFeeEstimatesInitialized = false;
@@ -1795,7 +1795,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     CAutoFile est_filein(fopen(est_path.string().c_str(), "rb"), SER_DISK, CLIENT_VERSION);
     // Allowed to fail as this file IS missing on first startup.
     if (!est_filein.IsNull())
-        mempool.ReadFeeEstimates(est_filein);
+        mempool.ReadFeeEstimates(est_filein, &mempool.cs, &stempool.cs);
     fFeeEstimatesInitialized = true;
 
     // ********************************************************* Step 8: load wallet

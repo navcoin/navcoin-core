@@ -136,7 +136,7 @@ long ClientModel::getMempoolSize() const
 
 size_t ClientModel::getMempoolDynamicUsage() const
 {
-    return mempool.DynamicMemoryUsage();
+    return mempool.DynamicMemoryUsage(&mempool.cs, &stempool.cs);
 }
 
 double ClientModel::getVerificationProgress(const CBlockIndex *tipIn) const

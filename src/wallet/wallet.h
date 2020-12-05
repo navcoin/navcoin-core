@@ -989,7 +989,7 @@ public:
      * Estimate the minimum fee considering user set parameters
      * and the required fee
      */
-    static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool);
+    static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection* spcs);
     /**
      * Return the minimum required fee taking into account the
      * floating relay fee and user set minimum transaction fee
