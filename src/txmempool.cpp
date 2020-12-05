@@ -1307,8 +1307,6 @@ size_t CTxMemPool::DynamicMemoryUsage(CCriticalSection *mpcs, CCriticalSection *
 }
 
 void CTxMemPool::RemoveStaged(setEntries &stage, bool updateDescendants, CCriticalSection* mpcs, CCriticalSection* spcs) {
-    AssertLockHeld(mpcs);
-    AssertLockHeld(spcs);
     UpdateForRemoveFromMempool(stage, updateDescendants);
     for(const txiter& it: stage) {
         removeUnchecked(it, mpcs, spcs);
