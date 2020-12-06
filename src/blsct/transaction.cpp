@@ -132,7 +132,7 @@ CandidateTransaction::CandidateTransaction() : fee(0) {
 }
 
 bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
-    if (!(tx.IsBLSInput() && tx.IsCTOutput() && tx.vin.size() == 1 && tx.vout.size() == 1 && minAmountProofs.V.size() == tx.vout.size()))
+    if (!(tx.IsBLSInput() && tx.IsCTOutput() && tx.vin.size() > 0 && tx.vout.size() == 1 && minAmountProofs.V.size() == tx.vout.size()))
         return error("CandidateTransaction::%s: Received transaction is not BLSCT mix compliant", __func__);
 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;

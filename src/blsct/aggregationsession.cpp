@@ -197,18 +197,27 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
             continue;
         }
 
-        COutPoint prevOut = vTransactionCandidates[i].tx.vin[0].prevout;
+        bool fShouldIContinue = false;
 
-        if (pwalletMain->mapWallet.count(prevOut.hash))
+        for (unsigned int j = 0; j < vTransactionCandidates[i].tx.vin.size(); j++)
         {
-            auto prevTx = pwalletMain->mapWallet[prevOut.hash];
-            Scalar zero = 0;
-            if (prevTx.vGammas.size() > prevOut.n && !(prevTx.vGammas[prevOut.n] == zero))
+            COutPoint prevOut = vTransactionCandidates[i].tx.vin[j].prevout;
+
+            if (pwalletMain->mapWallet.count(prevOut.hash))
             {
-                i++;
-                continue;
+                auto prevTx = pwalletMain->mapWallet[prevOut.hash];
+                Scalar zero = 0;
+                if (prevTx.vGammas.size() > prevOut.n && !(prevTx.vGammas[prevOut.n] == zero))
+                {
+                    i++;
+                    fShouldIContinue = true;
+                    break;
+                }
             }
         }
+
+        if (fShouldIContinue)
+            continue;
 
         try
         {
