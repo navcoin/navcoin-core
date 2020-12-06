@@ -242,7 +242,7 @@ public:
 
         // Deployment of Cold Staking Pool Fee
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
-        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1611964800; // Jan 30th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of BLSCT
