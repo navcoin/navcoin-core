@@ -162,9 +162,7 @@ void OptionsDialog::setModel(OptionsModel *model)
 
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
     ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
-    ui->mixfeeText->setDisplayUnit(model->getDisplayUnit());
     ui->maxmixfeeText->setDisplayUnit(model->getDisplayUnit());
-    ui->mixfeeText->setValue(GetArg("-aggregationfee", DEFAULT_MIX_FEE));
     ui->maxmixfeeText->setValue(GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE));
     ui->mixTimeout->setValue(settings.value("aggregationSessionWait", 15).toInt());
 
@@ -313,10 +311,6 @@ void OptionsDialog::on_resetButton_clicked()
         if(btnRetVal == QMessageBox::Cancel)
             return;
 
-        SoftSetArg("-aggregationfee", std::to_string(GetArg("-aggregationfee", DEFAULT_MIX_FEE)), true);
-        RemoveConfigFile("aggregationfee");
-        WriteConfigFile("aggregationfee", std::to_string(GetArg("-aggregationfee", DEFAULT_MIX_FEE)));
-
         SoftSetArg("-defaultmixin", std::to_string(GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)), true);
         RemoveConfigFile("defaultmixin");
         WriteConfigFile("defaultmixin", std::to_string(GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)));
@@ -336,10 +330,6 @@ void OptionsDialog::on_resetButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
-    SoftSetArg("-aggregationfee", std::to_string(ui->mixfeeText->value()), true);
-    RemoveConfigFile("aggregationfee");
-    WriteConfigFile("aggregationfee", std::to_string(ui->mixfeeText->value()));
-
     SoftSetArg("-aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()), true);
     RemoveConfigFile("aggregationmaxfee");
     WriteConfigFile("aggregationmaxfee", std::to_string(ui->maxmixfeeText->value()));
