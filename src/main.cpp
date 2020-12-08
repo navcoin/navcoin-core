@@ -3023,6 +3023,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
     bool fStake = block.IsProofOfStake();
     bool fStakerIsColdStakingv2 = false;
+    bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
     if (fStake && block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
         fStakerIsColdStakingv2 = true;
 
