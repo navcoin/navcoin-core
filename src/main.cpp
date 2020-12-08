@@ -3669,7 +3669,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     if (fStake && block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
+    {
+        pindex->SetColdStakeV2();
         fStakerIsColdStakingv2 = true;
+    }
 
     std::map<std::pair<std::vector<unsigned char>, uint256>, int> votes;
 

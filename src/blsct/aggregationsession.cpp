@@ -591,7 +591,7 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
     }
 
     if (index > 0)
-        MilliSleep(GetRand(6*1000));
+        MilliSleep(GetRand(500));
 
     const CWalletTx *prevcoin = vAvailableCoins[index].tx;
     int prevout = vAvailableCoins[index].i;

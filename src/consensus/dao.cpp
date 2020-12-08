@@ -389,7 +389,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         mapSeen.clear();
         mapSeenSupport.clear();
 
-        if (pindexblock->nNonce & 1)
+        if (pindexblock->nNonce & 1 && !pindexblock->IsColdStakeV2())
         {
             nCacheExclude++;
         }
