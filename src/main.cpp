@@ -4097,6 +4097,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         txdata.emplace_back(tx);
 
+        if (tx.IsBLSCT())
+            pindex->SetBLSCTTransactions();
+
         if (!tx.IsCoinBase())
         {
             if (!tx.IsCoinStake())

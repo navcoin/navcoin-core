@@ -245,6 +245,9 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
         {
             nLastChecked = pindex->GetBlockTime();
 
+            if (!pindex->HasBLSCTTransactions())
+                continue;
+
             CBlock block;
             ReadBlockFromDisk(block, pindex, Params().GetConsensus());
 

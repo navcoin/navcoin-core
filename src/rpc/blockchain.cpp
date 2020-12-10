@@ -65,6 +65,9 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("flags", strprintf("%s%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work", blockindex->GeneratedStakeModifier()? " stake-modifier": ""));
     result.pushKV("proofhash", blockindex->hashProof.GetHex());
     result.pushKV("entropybit", (int)blockindex->GetStakeEntropyBit());
+    result.pushKV("hasblscttx", (int)blockindex->HasBLSCTTransactions());
+    result.pushKV("ispos", (int)blockindex->IsProofOfStake());
+    result.pushKV("iscs2", (int)blockindex->IsColdStakeV2());
     result.pushKV("modifier", strprintf("%016x", blockindex->nStakeModifier));
 
     UniValue votes(UniValue::VARR);

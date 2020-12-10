@@ -21,6 +21,7 @@
 #define BLOCK_STAKE_ENTROPY     0x02 // entropy bit for stake modifier
 #define BLOCK_STAKE_MODIFIER    0x04
 #define BLOCK_COLD_STAKE_V2     0x08
+#define BLOCK_BLSCT_TX          0x10
 
 /**
  * Maximum gap between node time and block time used
@@ -424,6 +425,16 @@ public:
     bool IsColdStakeV2() const
     {
         return (nFlags & BLOCK_COLD_STAKE_V2);
+    }
+
+    void SetBLSCTTransactions()
+    {
+        nFlags |= BLOCK_BLSCT_TX;
+    }
+
+    bool HasBLSCTTransactions() const
+    {
+        return (nFlags & BLOCK_BLSCT_TX);
     }
 
     void SetProofOfStake()
