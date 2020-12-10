@@ -1180,7 +1180,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     fServer = GetBoolArg("-server", false);
 
-    fTorServer = GetBoolArg("-torserver", true);
+    fTorServer = GetBoolArg("-torserver", false);
 
     if (fTorServer)
         TorThreadInit();
