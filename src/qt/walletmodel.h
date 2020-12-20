@@ -212,6 +212,9 @@ public:
     bool transactionCanBeAbandoned(uint256 hash) const;
     bool abandonTransaction(uint256 hash) const;
 
+    bool NeedsBLSCTGeneration() const { return wallet ? wallet->fNeedsBLSCTGeneration : false; };
+    bool GenerateBLSCT();
+
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;

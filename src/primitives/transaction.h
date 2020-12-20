@@ -9,6 +9,7 @@
 #include <amount.h>
 #include <blsct/bulletproofs.h>
 #include <consensus/dao.h>
+#include <sph_keccak.h>
 #include <script/script.h>
 #include <serialize.h>
 #include <uint256.h>

@@ -789,6 +789,8 @@ public:
 
     AggregationSession* aggSession;
 
+    bool fNeedsBLSCTGeneration;
+
     CAmount nCommunityFund;
 
     CWallet()
@@ -822,6 +824,7 @@ public:
         nLastResend = 0;
         nTimeFirstKey = 0;
         aggSession = 0;
+        fNeedsBLSCTGeneration = false;
         fBroadcastTransactions = false;
     }
 
@@ -881,6 +884,7 @@ public:
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key, CScript& kernelScriptPubKey);
     int64_t GetStake() const;
     int64_t GetNewMint() const;
+    bool GenerateBLSCT();
 
     /**
      * keystore implementation

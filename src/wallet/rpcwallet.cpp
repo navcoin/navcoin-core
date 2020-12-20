@@ -615,8 +615,6 @@ UniValue generateblsctkeys(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
-
     CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
     CKey key;
 
@@ -625,26 +623,7 @@ UniValue generateblsctkeys(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_MISC_ERROR, "Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet.");
     }
 
-    CHashWriter h(0, 0);
-    std::vector<unsigned char> vKey(key.begin(), key.end());
-
-    h << vKey;
-
-    uint256 hash = h.GetHash();
-    unsigned char h_[32];
-    memcpy(h_, &hash, 32);
-
-    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
-    blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
-    blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
-    bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
-    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-
-    pwalletMain->SetBLSCTKeys(viewKey, spendKey, blindingBLSKey);
-
-    pwalletMain->NewBLSCTBlindingKeyPool();
-    pwalletMain->NewBLSCTSubAddressKeyPool(0);
+    pwalletMain->GenerateBLSCT();
 
     LogPrintf("Generated BLSCT parameters.\n");
 

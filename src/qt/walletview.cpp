@@ -177,6 +177,48 @@ void WalletView::setWalletModel(WalletModel *walletModel)
 
         // Show progress dialog
         connect(walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
+
+        if (walletModel->NeedsBLSCTGeneration())
+        {
+            GenerateBLSCT();
+        }
+    }    
+}
+
+void WalletView::GenerateBLSCT()
+{
+    if(!walletModel)
+        return;
+
+    QMessageBox::information(this, tr("Generation of xNAV keys"),
+        tr("In order to generate your xNAV keys, you will be asked to unlock your wallet"));
+
+    bool fShouldLockAfter = false;
+
+    // Unlock wallet when requested by wallet model
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
+    {
+        AskPassphraseDialog dlg(AskPassphraseDialog::Unlock, this);
+        dlg.setModel(walletModel);
+        dlg.exec();
+
+        fShouldLockAfter = true;
+    }
+
+    if (!walletModel->GenerateBLSCT())
+    {
+        QMessageBox::information(this, tr("Generation of xNAV keys"),
+            tr("xNAV keys could not be generated."));
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Generation of xNAV keys"),
+            tr("xNAV keys have been generated."));
+    }
+
+    if (fShouldLockAfter)
+    {
+        walletModel->setWalletLocked(true);
     }
 }
 

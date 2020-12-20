@@ -401,9 +401,6 @@ bool CCryptoKeyStore::SetBLSCTSpendKey(const blsctKey& s)
     if (!IsCrypted())
         return CBasicKeyStore::SetBLSCTSpendKey(s);
 
-    if (!IsLocked())
-        return false;
-
     if (!s.IsValid())
         return false;
 

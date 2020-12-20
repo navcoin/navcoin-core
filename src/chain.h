@@ -164,6 +164,7 @@ enum BlockStatus: uint32_t {
 
     BLOCK_OPT_WITNESS        =   128, //! block data in blk*.data was received with a witness-enforcing client
     BLOCK_OPT_DAO            =   256, //! DAO data structures
+    BLOCK_OPT_SUPPLY         =   512, //! supply data structures
 };
 
 /** The block chain is a tree shaped structure starting with the
@@ -552,25 +553,8 @@ public:
         READWRITE(nNonce);
         READWRITE(blockHash);
         READWRITE(nCFSupply);
-        if (ser_action.ForRead())
-        {
-            READWRITE(nCFLocked);
-            if (nCFLocked == (uint64_t)-1)
-            {
-                READWRITE(nCFLocked);
-                READWRITE(nPrivateMoneySupply);
-                READWRITE(nPublicMoneySupply);
-            }
-        }
-        else
-        {
-            uint64_t nMarker = -1;
-            READWRITE(nMarker);
-            READWRITE(nCFLocked);
-            READWRITE(nPrivateMoneySupply);
-            READWRITE(nPublicMoneySupply);
-        }
-        // UPDATE if versionbits.h is modified
+        READWRITE(nCFLocked);
+
         if (this->nStatus & BLOCK_OPT_DAO)
         {
             READWRITE(vPaymentRequestVotes);
@@ -612,6 +596,12 @@ public:
         {
             READWRITE(mapSupport);
             READWRITE(mapConsultationVotes);
+        }
+
+        if (this->nStatus & BLOCK_OPT_SUPPLY)
+        {
+            READWRITE(nPrivateMoneySupply);
+            READWRITE(nPublicMoneySupply);
         }
     }
 

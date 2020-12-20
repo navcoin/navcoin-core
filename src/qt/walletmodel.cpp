@@ -680,6 +680,12 @@ bool WalletModel::isSpent(const COutPoint& outpoint) const
     return wallet->IsSpent(outpoint.hash, outpoint.n);
 }
 
+bool WalletModel::GenerateBLSCT()
+{
+    LOCK2(cs_main, wallet->cs_wallet);
+    return wallet->GenerateBLSCT();
+}
+
 void WalletModel::listPrivateCoins(std::map<QString, std::vector<COutput> >& mapCoins) const
 {
     std::vector<COutput> vCoins;

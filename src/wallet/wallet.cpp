@@ -5496,32 +5496,13 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
         if (!walletInstance->GetKey(masterKeyID, key))
         {
             if (!GetBoolArg("-suppressblsctwarning", DEFAULT_SUPPRESS_BLSCT_WARNING))
-                InitWarning("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then trigger manually the parameter generation before being able to use the BLSCT functionality!");
+                InitWarning("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then generate the keys before being able to use the BLSCT functionality!");
             LogPrintf("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then trigger manually the parameter generation before being able to use the BLSCT functionality!");
+            walletInstance->fNeedsBLSCTGeneration = true;
         }
         else
         {
-            CHashWriter h(0, 0);
-            std::vector<unsigned char> vKey(key.begin(), key.end());
-
-            h << vKey;
-
-            uint256 hash = h.GetHash();
-            unsigned char h_[32];
-            memcpy(h_, &hash, 32);
-
-            blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
-            blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
-            blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
-            bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-            bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
-            bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
-
-            walletInstance->SetBLSCTKeys(viewKey, spendKey, blindingBLSKey);
-
-            walletInstance->NewBLSCTBlindingKeyPool();
-            walletInstance->NewBLSCTSubAddressKeyPool(0);
-
+            walletInstance->GenerateBLSCT();
             LogPrintf("Generated BLSCT parameters.\n");
         }
     }
@@ -5608,6 +5589,40 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
     }
 
     pwalletMain = walletInstance;
+    return true;
+}
+
+bool CWallet::GenerateBLSCT()
+{
+    CKeyID masterKeyID = GetHDChain().masterKeyID;
+    CKey key;
+
+    if (!GetKey(masterKeyID, key))
+    {
+        return false;
+    }
+
+    CHashWriter h(0, 0);
+    std::vector<unsigned char> vKey(key.begin(), key.end());
+
+    h << vKey;
+
+    uint256 hash = h.GetHash();
+    unsigned char h_[32];
+    memcpy(h_, &hash, 32);
+
+    blsctKey masterBLSKey = blsctKey(bls::PrivateKey::FromSeed(h_, 32));
+    blsctKey childBLSKey = blsctKey(masterBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|130));
+    blsctKey transactionBLSKey = blsctKey(childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT));
+    bls::PrivateKey blindingBLSKey = childBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
+    bls::PrivateKey viewKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT);
+    bls::PrivateKey spendKey = transactionBLSKey.PrivateChild(BIP32_HARDENED_KEY_LIMIT|1);
+
+    SetBLSCTKeys(viewKey, spendKey, blindingBLSKey);
+
+    NewBLSCTBlindingKeyPool();
+    NewBLSCTSubAddressKeyPool(0);
+
     return true;
 }
 
