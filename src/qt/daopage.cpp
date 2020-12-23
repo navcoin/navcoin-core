@@ -561,6 +561,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             break;
         }
         case DAOFlags::EXPIRED:
+        case DAOFlags::ACCEPTED_EXPIRED:
         {
             p.color = "#ff6600";
             break;
