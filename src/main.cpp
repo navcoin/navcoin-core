@@ -1200,6 +1200,17 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         vInOutPoints.insert(txin.prevout);
     }
 
+    // Check for duplicate bls outputs
+    set<CTxOut> vBlsOut;
+    for(const CTxOut& txout: tx.vout)
+    {
+        if (!txout.IsBLSCT()) continue;
+        if (vBlsOut.count(txout))
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-ctout-duplicate");
+        vBlsOut.insert(txout);
+    }
+
+
     if (tx.IsCoinBase())
     {
         if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
