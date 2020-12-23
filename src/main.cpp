@@ -2395,9 +2395,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
         {
             blsctKey v;
 
-            if (pwalletMain)
-                pwalletMain->GetBLSCTViewKey(v);
-            else
+            if (!(pwalletMain && pwalletMain->GetBLSCTViewKey(v)))
                 v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
 
             if (!tx.IsCoinStake() && !VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state, false, allowedInPrivate))
@@ -2421,9 +2419,6 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateVi
     {
         if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData, allowedInPrivate))
             return false;
-
-        if (tx.IsBLSInput())
-            return true;
 
         if (pvChecks)
             pvChecks->reserve(tx.vin.size());
