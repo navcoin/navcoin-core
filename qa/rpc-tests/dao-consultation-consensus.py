@@ -56,7 +56,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
 
         #cycle 1
 
-        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "pending")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "waiting for support")
         assert_equal(self.nodes[0].getconsultation(proposal)["votingCyclesFromCreation"], 1)
 
         end_cycle(self.nodes[0])
@@ -149,7 +149,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
 
         #cycle 1
 
-        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "pending")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "waiting for support")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
