@@ -2854,11 +2854,11 @@ std::string CProposal::GetState(uint32_t currentTime, const CStateViewCache& vie
         if(fState != DAOFlags::REJECTED)
             sFlags = "pending";
     }
-    if(currentTime > 0 && IsExpired(currentTime, view)) {
+    if(fState == DAOFlags::ACCEPTED_EXPIRED)
+        sFlags = "accepted, expired";
+    else if(currentTime > 0 && IsExpired(currentTime, view)) {
         sFlags = "expired";
-        if(fState != DAOFlags::ACCEPTED_EXPIRED)
-            sFlags = "accepted, expired";
-        else if(fState != DAOFlags::EXPIRED)
+        if(fState != DAOFlags::EXPIRED)
             sFlags = "pending";
     }
     if(fState == DAOFlags::PENDING_VOTING_PREQ) {

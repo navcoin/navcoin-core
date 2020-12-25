@@ -66,7 +66,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
             blocks=slow_gen(self.nodes[0], 1)
             time.sleep(1)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
+        assert_equal(self.nodes[0].getproposal(proposalid0)["status"], "pending")
 
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
@@ -187,7 +187,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
 
         # Locked amount should be 0, as this was the only payment request and the proposal was expired
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
+        assert_equal(self.nodes[0].getproposal(proposalid0)["status"], "accepted, expired")
 
         # No more payment requests are allowed as the proposal is expired
         payment_request_not_created = True
