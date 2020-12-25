@@ -237,7 +237,7 @@ public:
 
         // Deployment of Exclude voters
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 12;
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime = 1611964800; //Jan 30th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime = 1612137600; //Feb 1st, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
 
         // Deployment of Cold Staking Pool Fee
@@ -247,7 +247,7 @@ public:
 
         // Deployment of BLSCT
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 10;
-        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1611964800; // Jan 30th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1612137600; // Feb 1st, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
         /**
