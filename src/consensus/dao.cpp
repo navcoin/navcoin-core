@@ -958,7 +958,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 {
                     if(prequest->IsExpired(view))
                     {
-                        if (oldState != DAOFlags::EXPIRED)
+                        if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::ACCEPTED && oldState != DAOFlags::REJECTED)
                         {
                             prequest->SetState(pindexNew, DAOFlags::EXPIRED);
                             prequest->fDirty = true;
@@ -1042,7 +1042,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 {
                     if(proposal->IsExpired(pindexNew->GetBlockTime(), view))
                     {
-                        if (oldState != DAOFlags::EXPIRED)
+                        if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::ACCEPTED_EXPIRED && oldState != DAOFlags::REJECTED)
                         {
                             if (proposal->HasPendingPaymentRequests(view))
                             {
@@ -1055,9 +1055,13 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                                 {
                                     pindexNew->nCFSupply += proposal->GetAvailable(view);
                                     pindexNew->nCFLocked -= proposal->GetAvailable(view);
+                                    proposal->SetState(pindexNew, DAOFlags::ACCEPTED_EXPIRED);
                                     LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                                } 
+                                else
+                                {
+                                    proposal->SetState(pindexNew, DAOFlags::EXPIRED);
                                 }
-                                proposal->SetState(pindexNew, DAOFlags::EXPIRED);
                                 proposal->fDirty = true;
                             }
                         }
@@ -2850,7 +2854,9 @@ std::string CProposal::GetState(uint32_t currentTime, const CStateViewCache& vie
         if(fState != DAOFlags::REJECTED)
             sFlags = "pending";
     }
-    if(currentTime > 0 && IsExpired(currentTime, view)) {
+    if(fState == DAOFlags::ACCEPTED_EXPIRED)
+        sFlags = "accepted, expired";
+    else if(currentTime > 0 && IsExpired(currentTime, view)) {
         sFlags = "expired";
         if(fState != DAOFlags::EXPIRED)
             sFlags = "pending";

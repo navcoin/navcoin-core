@@ -182,14 +182,14 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         start_new_cycle(self.nodes[0])
 
         # Should be expired now
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted, expired")
 
         slow_gen(self.nodes[0], 1)
 
         start_new_cycle(self.nodes[0])
 
         # Should still be expired
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted, expired")
 
 if __name__ == '__main__':
     CommunityFundProposalStateTest().main()

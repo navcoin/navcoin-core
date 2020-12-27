@@ -19,6 +19,7 @@ static const flags PAID = 0x6;
 static const flags PASSED = 0x7;
 static const flags REFLECTION = 0x8;
 static const flags SUPPORTED = 0x9;
+static const flags ACCEPTED_EXPIRED = 0x10;
 }
 namespace VoteFlags
 {
