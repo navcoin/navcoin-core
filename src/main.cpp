@@ -1176,6 +1176,9 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     if ((tx.IsBLSInput() && (tx.vchBalanceSig.size() == 0 || tx.vchTxSig.size() == 0)) || (!tx.IsBLSInput() && (tx.vchTxSig.size() > 0)))
         return state.DoS(100, false, REJECT_INVALID, "bad-blsinput-version-flag");
 
+    if (tx.IsCoinBase() && (tx.IsBLSInput() || tx.IsCTOutput()))
+        return state.DoS(100, false, REJECT_INVALID, "bad-blsct-coinbase");
+
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
     for(const CTxOut& txout: tx.vout)
