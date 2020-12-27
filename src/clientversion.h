@@ -20,13 +20,13 @@
 #define CLIENT_VERSION_BUILD 0
 
 //! Set to true for release, false for prerelease or test build
-#define CLIENT_VERSION_IS_RELEASE true
+#define CLIENT_VERSION_IS_RELEASE false
 
 /* Version is release */
-#define CLIENT_BUILD_IS_RELEASE_CANDIDATE false
+#define CLIENT_BUILD_IS_RELEASE_CANDIDATE true
 
 /* Build is a test release */
-#define CLIENT_BUILD_IS_TEST_RELEASE true
+#define CLIENT_BUILD_IS_TEST_RELEASE false
 
 /**
  * Copyright year (2009-this)
