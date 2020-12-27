@@ -4886,7 +4886,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                 "\nList the proposals and all the relating data including payment requests and status.\n"
                 "\nNote passing no argument returns all proposals regardless of state.\n"
                 "\nArguments:\n"
-                "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\" | \"mine\"\n"
+                "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\" | \"mine\" | \"accepted_expired\"\n"
                 "\nExamples:\n"
                 + HelpExampleCli("listproposal", "mine accepted")
                 + HelpExampleCli("listproposal", "accepted")
@@ -4901,6 +4901,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     bool showAccepted = false;
     bool showRejected = false;
     bool showExpired = false;
+    bool showAcceptedExpired = false;
     bool showPending = false;
     bool showMine = false;
     for(unsigned int i = 0; i < params.size(); i++) {
@@ -4923,6 +4924,10 @@ UniValue listproposals(const UniValue& params, bool fHelp)
         else if(params[i].get_str() == "mine") {
             showAll = false;
             showMine = true;
+        }
+        else if(params[i].get_str() == "accepted_expired") {
+            showAll = false;
+            showAcceptedExpired = true;
         }
     }
 
@@ -4955,6 +4960,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                     || (showPending  && (fLastState == DAOFlags::NIL || fLastState == DAOFlags::PENDING_VOTING_PREQ
                                          || fLastState == DAOFlags::PENDING_FUNDS))
                     || (showAccepted && (fLastState == DAOFlags::ACCEPTED))
+                    || (showAcceptedExpired && (fLastState == DAOFlags::ACCEPTED_EXPIRED))
                     || (showRejected && (fLastState == DAOFlags::REJECTED))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime(), view))) {
                 UniValue o(UniValue::VOBJ);

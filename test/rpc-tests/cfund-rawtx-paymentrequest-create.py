@@ -180,9 +180,10 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         start_new_cycle(self.nodes[0])
         start_new_cycle(self.nodes[0])
         start_new_cycle(self.nodes[0])
+        start_new_cycle(self.nodes[0])
 
         # Proposal 3 should be expired
-        assert (self.nodes[0].getproposal(proposalid3_expired_no_votes)["state"] == 3)
+        assert_equal(self.nodes[0].getproposal(proposalid3_expired_no_votes)["state"], 3)
         assert (self.nodes[0].getproposal(proposalid3_expired_no_votes)["status"] == "expired")
 
         # Create a payment request for an expired proposal
