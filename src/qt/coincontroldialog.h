@@ -39,12 +39,14 @@ public:
     void setModel(WalletModel *model);
 
     // static because also called from sendcoinsdialog
-    static void updateLabels(WalletModel*, QDialog*);
+    static void updateLabels(WalletModel*, QDialog*, CAmount& ccAmount);
     static QString getPriorityLabel(double dPriority, double mempoolEstimatePriority);
 
     static QList<CAmount> payAmounts;
     static CCoinControl *coinControl;
+    static CCoinControl *blscctCoinControl;
     static bool fSubtractFeeFromAmount;
+    static bool fPrivate;
 
 private:
     Ui::CoinControlDialog *ui;
@@ -72,11 +74,13 @@ private:
         COLUMN_ADDRESS,
         COLUMN_DATE,
         COLUMN_CONFIRMATIONS,
+        COLUMN_MIXCOUNT,
         COLUMN_PRIORITY,
         COLUMN_TXHASH,
         COLUMN_VOUT_INDEX,
         COLUMN_AMOUNT_INT64,
         COLUMN_CONFIRMATIONS_INT64,
+        COLUMN_MIXCOUNT_INT64,
         COLUMN_PRIORITY_INT64,
         COLUMN_DATE_INT64
     };
@@ -94,6 +98,8 @@ private:
                 return COLUMN_DATE;
             else if (column == COLUMN_CONFIRMATIONS_INT64)
                 return COLUMN_CONFIRMATIONS;
+            else if (column == COLUMN_MIXCOUNT_INT64)
+                return COLUMN_MIXCOUNT;
         }
         else
         {
@@ -105,6 +111,8 @@ private:
                 return COLUMN_DATE_INT64;
             else if (column == COLUMN_CONFIRMATIONS)
                 return COLUMN_CONFIRMATIONS_INT64;
+            else if (column == COLUMN_MIXCOUNT)
+                return COLUMN_MIXCOUNT_INT64;
         }
 
         return column;

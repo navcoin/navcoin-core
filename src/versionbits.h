@@ -32,6 +32,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 6 -> C FUND
 * Bit 7 -> C FUND ACCUMULATION
 * Bit 8 -> NTP SYNC
+* Bit 10 -> BLSCT
+* Bit 12 -> EXCLUDE
 * Bit 14 -> C FUND ACCUMULATION SPREAD
 * Bit 17 -> C FUND REDUCED QUORUM
 * Bit 18 -> COLD STAKING POOL FEE
@@ -40,7 +42,6 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 23 -> C FUND CONSULTATIONS
 * Bit 25 -> DAO CONSENSUS
 * Bit 27 -> COLD STAKING v2
-* Bit 28 -> EXCLUDE
 *
 * ACTIVATION
 *
@@ -48,6 +49,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 6  -> C FUND
 * Bit 7  -> NTP SYNC
 * Bit 8  -> CFUND ACCUMULATION
+* Bit 10 -> BLSCT
+* Bit 12 -> EXCLUDE
 * Bit 13 -> COLD STAKING
 * Bit 14 -> C FUND ACCUMULATION SPREAD
 * Bit 16 -< C FUND ACCUMULATION AMOUNT V2
@@ -56,7 +59,6 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 21 -> V452 FORK
 * Bit 24 -> C FUND CONSULTATIONS
 * Bit 26 -> DAO CONSENSUS
-* Bit 28 -> EXCLUDE
 *
 ***/
 
@@ -64,6 +66,7 @@ static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
 static const int32_t nCFundAccVersionMask = 0x00000100;
+static const int32_t nBLSCTVersionMask = 0x00000400;
 static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
 static const int32_t nCFundAmountV2Mask = 0x00010000;
@@ -73,7 +76,7 @@ static const int32_t nV451ForkMask = 0x00100000;
 static const int32_t nV452ForkMask = 0x00200000;
 static const int32_t nDAOVersionMask = 0x00800000;
 static const int32_t nDaoConsensusVersionMask = 0x02000000;
-static const int32_t nDaoExcludeVersionMask = 0x08000000;
+static const int32_t nDaoExcludeVersionMask = 0x00001000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};
 

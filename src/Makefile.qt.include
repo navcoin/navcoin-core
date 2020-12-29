@@ -130,13 +130,13 @@ QT_MOC_CPP = \
 	qt/moc_askpassphrasedialog.cpp \
 	qt/moc_bantablemodel.cpp \
 	qt/moc_clientmodel.cpp \
-  qt/moc_startoptionsdialog.cpp \
-  qt/moc_startoptions.cpp \
-  qt/moc_startoptionspassword.cpp \
-  qt/moc_startoptionsrestore.cpp \
-  qt/moc_startoptionssort.cpp \
-  qt/moc_startoptionsrevealed.cpp \
-  qt/moc_startoptionsmain.cpp \
+	qt/moc_startoptionsdialog.cpp \
+	qt/moc_startoptions.cpp \
+	qt/moc_startoptionspassword.cpp \
+	qt/moc_startoptionsrestore.cpp \
+	qt/moc_startoptionssort.cpp \
+	qt/moc_startoptionsrevealed.cpp \
+	qt/moc_startoptionsmain.cpp \
 	qt/moc_coincontroldialog.cpp \
 	qt/moc_coincontroltreewidget.cpp \
 	qt/moc_coldstakingwizard.cpp \
@@ -155,6 +155,7 @@ QT_MOC_CPP = \
 	qt/moc_macappnapinhibitor.cpp \
 	qt/moc_macdockiconhandler.cpp \
 	qt/moc_macnotificationhandler.cpp \
+	qt/moc_aggregationsession.cpp \
 	qt/moc_modaloverlay.cpp \
 	qt/moc_navcoinaddressvalidator.cpp \
 	qt/moc_navcoinamountfield.cpp \
@@ -172,7 +173,6 @@ QT_MOC_CPP = \
 	qt/moc_communityfundcreateproposaldialog.cpp \
 	qt/moc_communityfundcreatepaymentrequestdialog.cpp \
 	qt/moc_peertablemodel.cpp \
-	qt/moc_paymentserver.cpp \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_qjsonmodel.cpp \
 	qt/moc_qvalidatedlineedit.cpp \
@@ -203,6 +203,7 @@ QT_MOC_CPP = \
   qt/moc_daopage.cpp \
   qt/moc_daoconsultationvote.cpp \
   qt/moc_daoconsultationcreate.cpp \
+  qt/moc_swapxnav.cpp \
   qt/moc_navcoinlistwidget.cpp \
   qt/moc_navcoinpushbutton.cpp \
   qt/moc_daoproposeanswer.cpp \
@@ -236,23 +237,19 @@ QT_QRC = qt/navcoin.qrc
 QT_QRC_LOCALE_CPP = qt/qrc_navcoin_locale.cpp
 QT_QRC_LOCALE = qt/navcoin_locale.qrc
 
-PROTOBUF_CC = qt/paymentrequest.pb.cc
-PROTOBUF_H = qt/paymentrequest.pb.h
-PROTOBUF_PROTO = qt/paymentrequest.proto
-
 NAVCOIN_QT_H = \
 	qt/addressbookpage.h \
 	qt/addresstablemodel.h \
 	qt/askpassphrasedialog.h \
 	qt/bantablemodel.h \
 	qt/clientmodel.h \
-  qt/startoptionsdialog.h \
-  qt/startoptions.h \
-  qt/startoptionspassword.h \
-  qt/startoptionsrestore.h \
-  qt/startoptionssort.h \
-  qt/startoptionsrevealed.h \
-  qt/startoptionsmain.h \
+	qt/startoptionsdialog.h \
+	qt/startoptions.h \
+	qt/startoptionspassword.h \
+	qt/startoptionsrestore.h \
+	qt/startoptionssort.h \
+	qt/startoptionsrevealed.h \
+	qt/startoptionsmain.h \
 	qt/coincontroldialog.h \
 	qt/coincontroltreewidget.h \
 	qt/coldstakingwizard.h \
@@ -273,6 +270,7 @@ NAVCOIN_QT_H = \
 	qt/macappnapinhibitor.h \
 	qt/macdockiconhandler.h \
 	qt/macnotificationhandler.h \
+	qt/aggregationsession.h \
 	qt/modaloverlay.h \
 	qt/navcoinaddressvalidator.h \
 	qt/navcoinamountfield.h \
@@ -284,8 +282,6 @@ NAVCOIN_QT_H = \
 	qt/optionsdialog.h \
 	qt/optionsmodel.h \
 	qt/overviewpage.h \
-	qt/paymentrequestplus.h \
-	qt/paymentserver.h \
 	qt/peertablemodel.h \
 	qt/platformstyle.h \
 	qt/qjsonitem.h \
@@ -320,6 +316,7 @@ NAVCOIN_QT_H = \
 	qt/walletview.h \
   qt/winshutdownmonitor.h \
   qt/daopage.h \
+  qt/swapxnav.h \
   qt/daoconsultationvote.h \
   qt/daoconsultationcreate.h \
   qt/navcoinlistwidget.h \
@@ -333,6 +330,9 @@ RES_ICONS = \
 	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/navcoin.png \
+	qt/res/icons/mininav.svg \
+	qt/res/icons/swap.png \
+	qt/res/icons/minixnav.svg \
 	qt/res/icons/navcoin_full.png
 
 # Vector Icons
@@ -489,16 +489,16 @@ NAVCOIN_QT_CPP = \
 	qt/styles/dark.cpp \
 	qt/styles/light.cpp \
 	qt/trafficgraphwidget.cpp \
-  qt/utilitydialog.cpp \
-  qt/navcoinlistwidget.cpp \
-  qt/navcoinpushbutton.cpp \
-  qt/startoptionsdialog.cpp \
-  qt/startoptions.cpp \
-  qt/startoptionspassword.cpp \
-  qt/startoptionsrestore.cpp \
-  qt/startoptionssort.cpp \
-  qt/startoptionsrevealed.cpp \
-  qt/startoptionsmain.cpp \
+        qt/utilitydialog.cpp \
+        qt/navcoinlistwidget.cpp \
+        qt/navcoinpushbutton.cpp \
+        qt/startoptionsdialog.cpp \
+        qt/startoptions.cpp \
+        qt/startoptionspassword.cpp \
+        qt/startoptionsrestore.cpp \
+        qt/startoptionssort.cpp \
+        qt/startoptionsrevealed.cpp \
+        qt/startoptionsmain.cpp \
 	qt/utilitydialog.cpp
 
 if TARGET_WINDOWS
@@ -522,6 +522,7 @@ NAVCOIN_QT_CPP += \
 	qt/communityfundpage.cpp \
 	qt/communityfundsuccessdialog.cpp \
 	qt/editaddressdialog.cpp \
+	qt/aggregationsession.cpp \
 	qt/modaloverlay.cpp \
 	qt/openuridialog.cpp \
 	qt/overviewpage.cpp \
@@ -534,8 +535,6 @@ NAVCOIN_QT_CPP += \
 	qt/communityfundcreatepaymentrequestdialog.cpp \
   qt/qjsonitem.cpp \
   qt/qjsonmodel.cpp \
-	qt/paymentrequestplus.cpp \
-	qt/paymentserver.cpp \
 	qt/qjsonitem.cpp \
 	qt/qjsonmodel.cpp \
 	qt/receivecoinsdialog.cpp \
@@ -557,6 +556,7 @@ NAVCOIN_QT_CPP += \
 	qt/walletmodeltransaction.cpp \
   qt/walletview.cpp \
   qt/daopage.cpp \
+  qt/swapxnav.cpp \
   qt/daoconsultationvote.cpp \
   qt/daoconsultationcreate.cpp \
   qt/daoproposeanswer.cpp \
@@ -573,15 +573,15 @@ NAVCOIN_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
 	-I$(builddir)/qt/forms -DQT_NO_KEYWORDS
 
 qt_libnavcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
-  $(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS) $(CHARTS_CFLAGS)
+  $(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(QR_CFLAGS) $(CHARTS_CFLAGS)
 qt_libnavcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libnavcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libnavcoinqt_a_SOURCES = $(NAVCOIN_QT_CPP) $(NAVCOIN_QT_H) $(QT_FORMS_UI) \
-	$(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS)
+	$(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS)
 
-nodist_qt_libnavcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
-	$(PROTOBUF_H) $(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
+nodist_qt_libnavcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) \
+	$(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
 
 # forms/foo.h -> forms/ui_foo.h
 QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:.ui=.h))))
@@ -591,33 +591,63 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 $(QT_MOC): $(QT_FORMS_H)
 $(qt_libnavcoinqt_a_OBJECTS) $(qt_navcoin_qt_OBJECTS) : | $(QT_MOC)
 
-#Generating these with a half-written protobuf header leads to wacky results.
-#This makes sure it's done.
-$(QT_MOC): $(PROTOBUF_H)
-$(QT_MOC_CPP): $(PROTOBUF_H)
-
 # navcoin-qt binary #
 qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
-  $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS) $(CHARTS_CFLAGS)
+  $(QT_INCLUDES) $(QR_CFLAGS) $(CHARTS_CFLAGS)
 qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_navcoin_qt_SOURCES = qt/navcoin.cpp
+
 if TARGET_DARWIN
   qt_navcoin_qt_SOURCES += $(NAVCOIN_MM)
 endif
+
 if TARGET_WINDOWS
   qt_navcoin_qt_SOURCES += $(NAVCOIN_RC)
 endif
+
 qt_navcoin_qt_LDADD = qt/libnavcoinqt.a $(LIBNAVCOIN_SERVER)
+
 if ENABLE_WALLET
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_WALLET)
 endif
+
 if ENABLE_ZMQ
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_ZMQ) $(ZMQ_LIBS)
 endif
-qt_navcoin_qt_LDADD += $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
-  $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(CHARTS_LIBS) $(BDB_LIBS) $(UNBOUND_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
-	$(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+
+qt_navcoin_qt_LDADD += \
+                       $(LIBNAVCOIN_CLI) \
+                       $(LIBNAVCOIN_COMMON) \
+                       $(LIBNAVCOIN_UTIL) \
+                       $(LIBNAVCOIN_CONSENSUS) \
+                       $(LIBNAVCOIN_CRYPTO) \
+                       $(LIBUNIVALUE) \
+                       $(LIBLEVELDB) \
+                       $(LIBMEMENV) \
+                       $(BOOST_LIBS) \
+                       $(QT_LIBS) \
+                       $(QT_DBUS_LIBS) \
+                       $(QR_LIBS) \
+                       $(BDB_LIBS) \
+                       $(LIBTOR) \
+                       $(UNBOUND_LIBS) \
+                       $(ZLIB_LIBS) \
+                       $(SSL_LIBS) \
+                       $(CURL_LIBS) \
+                       $(CRYPTO_LIBS) \
+                       $(MINIUPNPC_LIBS) \
+                       $(LIBSECP256K1) \
+                       $(EVENT_PTHREADS_LIBS) \
+                       $(EVENT_LIBS) \
+                       $(LIBBLS) \
+                       $(SODIUM_LIBS) \
+                       $(CHARTS_LIBS) \
+                       $(LIBEVENT_LIBS) \
+                       $(LIBSECCOMP_LIBS) \
+                       $(LIBCAP_LIBS) \
+                       $(ZLIB_LIBS)
+
 qt_navcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_navcoin_qt_LIBTOOLFLAGS = $(AM_LIBTOOLFLAGS) --tag CXX
 
@@ -641,7 +671,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 		$(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLESHEETS)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name navcoin $< | \
 		$(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@

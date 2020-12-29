@@ -60,9 +60,14 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("ncfsupply", FormatMoney(blockindex->nCFSupply));
     result.pushKV("ncflocked", FormatMoney(blockindex->nCFLocked));
+    result.pushKV("publicmoneysupply", FormatMoney(blockindex->nPublicMoneySupply));
+    result.pushKV("privatemoneysupply", FormatMoney(blockindex->nPrivateMoneySupply));
     result.pushKV("flags", strprintf("%s%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work", blockindex->GeneratedStakeModifier()? " stake-modifier": ""));
     result.pushKV("proofhash", blockindex->hashProof.GetHex());
     result.pushKV("entropybit", (int)blockindex->GetStakeEntropyBit());
+    result.pushKV("hasblscttx", (int)blockindex->HasBLSCTTransactions());
+    result.pushKV("ispos", (int)blockindex->IsProofOfStake());
+    result.pushKV("iscs2", (int)blockindex->IsColdStakeV2());
     result.pushKV("modifier", strprintf("%016x", blockindex->nStakeModifier));
 
     UniValue votes(UniValue::VARR);
@@ -297,9 +302,9 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         }
         else
         {
-            if (tx.nVersion == CTransaction::PROPOSAL_VERSION)
+            if ((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION)
                 nCountProposals++;
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+            else if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION)
                 nCountPaymentRequests++;
             else
                 nCountTransactions++;
@@ -451,7 +456,7 @@ UniValue mempoolToJSON(bool fVerbose = false)
     else
     {
         vector<uint256> vtxid;
-        mempool.queryHashes(vtxid);
+        mempool.queryHashes(vtxid, &mempool.cs, &stempool.cs);
 
         UniValue a(UniValue::VARR);
         for(const uint256& hash: vtxid)
@@ -1346,9 +1351,9 @@ UniValue gettxout(const UniValue& params, bool fHelp)
     if (fMempool) {
         LOCK(mempool.cs);
         CStateViewMemPool view(pcoinsTip, mempool);
-        if (!view.GetCoins(hash, coins))
+        if (!view.GetCoins(hash, coins, &mempool.cs, &stempool.cs))
             return NullUniValue;
-        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CStateViewMemPool
+        mempool.pruneSpent(hash, coins, &mempool.cs, &stempool.cs); // TODO: this should be done by the CStateViewMemPool
     } else {
         if (!pcoinsTip->GetCoins(hash, coins))
             return NullUniValue;
@@ -1538,6 +1543,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_pool_fee", consensusParams, Consensus::DEPLOYMENT_POOL_FEE);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "blsct", consensusParams, Consensus::DEPLOYMENT_BLSCT);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     BIP9SoftForkDescPushBack(bip9_softforks, "votestatecache", consensusParams, Consensus::DEPLOYMENT_VOTE_STATE_CACHE);
@@ -1684,10 +1690,10 @@ UniValue mempoolInfoToJSON()
     UniValue ret(UniValue::VOBJ);
     ret.pushKV("size", (int64_t) mempool.size());
     ret.pushKV("bytes", (int64_t) mempool.GetTotalTxSize());
-    ret.pushKV("usage", (int64_t) mempool.DynamicMemoryUsage());
+    ret.pushKV("usage", (int64_t) mempool.DynamicMemoryUsage(&mempool.cs, &stempool.cs));
     size_t maxmempool = GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
     ret.pushKV("maxmempool", (int64_t) maxmempool);
-    ret.pushKV("mempoolminfee", ValueFromAmount(mempool.GetMinFee(maxmempool).GetFeePerK()));
+    ret.pushKV("mempoolminfee", ValueFromAmount(mempool.GetMinFee(maxmempool, &mempool.cs, &stempool.cs).GetFeePerK()));
 
     return ret;
 }

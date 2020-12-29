@@ -100,5 +100,4 @@ bool static inline IsSelectableSocket(SOCKET s) {
 #define THREAD_PRIORITY_ABOVE_NORMAL    (-2)
 #endif
 
-
 #endif // NAVCOIN_COMPAT_H

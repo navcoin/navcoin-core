@@ -114,12 +114,38 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (!ser_action.ForRead()) {
-            uint64_t nVal = CompressAmount(txout.nValue);
-            READWRITE(VARINT(nVal));
+            if (txout.IsBLSCT())
+            {
+                CAmount nMarker = MAX_MONEY;
+                READWRITE(VARINT(nMarker));
+                uint64_t nVal = CompressAmount(txout.nValue);
+                READWRITE(VARINT(nVal));
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                READWRITE(txout.bp);
+            }
+            else
+            {
+                uint64_t nVal = CompressAmount(txout.nValue);
+                READWRITE(VARINT(nVal));
+            }
         } else {
             uint64_t nVal = 0;
             READWRITE(VARINT(nVal));
-            txout.nValue = DecompressAmount(nVal);
+            if (nVal == MAX_MONEY)
+            {
+                READWRITE(VARINT(nVal));
+                txout.nValue = DecompressAmount(nVal);
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                READWRITE(txout.bp);
+            }
+            else
+            {
+                txout.nValue = DecompressAmount(nVal);
+            }
         }
         CScriptCompressor cscript(REF(txout.scriptPubKey));
         READWRITE(cscript);

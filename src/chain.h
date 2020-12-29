@@ -17,9 +17,11 @@
 
 #include <vector>
 
-#define BLOCK_PROOF_OF_STAKE 0x01 // is proof-of-stake block
-#define BLOCK_STAKE_ENTROPY  0x02 // entropy bit for stake modifier
-#define BLOCK_STAKE_MODIFIER 0x04
+#define BLOCK_PROOF_OF_STAKE    0x01 // is proof-of-stake block
+#define BLOCK_STAKE_ENTROPY     0x02 // entropy bit for stake modifier
+#define BLOCK_STAKE_MODIFIER    0x04
+#define BLOCK_COLD_STAKE_V2     0x08
+#define BLOCK_BLSCT_TX          0x10
 
 /**
  * Maximum gap between node time and block time used
@@ -162,6 +164,7 @@ enum BlockStatus: uint32_t {
 
     BLOCK_OPT_WITNESS        =   128, //! block data in blk*.data was received with a witness-enforcing client
     BLOCK_OPT_DAO            =   256, //! DAO data structures
+    BLOCK_OPT_SUPPLY         =   512, //! supply data structures
 };
 
 /** The block chain is a tree shaped structure starting with the
@@ -233,6 +236,9 @@ public:
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
 
+    CAmount nPrivateMoneySupply;
+    CAmount nPublicMoneySupply;
+
     void SetNull()
     {
         phashBlock = NULL;
@@ -250,6 +256,8 @@ public:
         nMint = 0;
         nCFSupply = 0;
         nCFLocked = 0;
+        nPrivateMoneySupply = 0;
+        nPublicMoneySupply = 0;
         nFlags = 0;
         nStakeModifier = 0;
         hashProof = arith_uint256();
@@ -410,6 +418,26 @@ public:
         return (nFlags & BLOCK_PROOF_OF_STAKE);
     }
 
+    void SetColdStakeV2()
+    {
+        nFlags |= BLOCK_COLD_STAKE_V2;
+    }
+
+    bool IsColdStakeV2() const
+    {
+        return (nFlags & BLOCK_COLD_STAKE_V2);
+    }
+
+    void SetBLSCTTransactions()
+    {
+        nFlags |= BLOCK_BLSCT_TX;
+    }
+
+    bool HasBLSCTTransactions() const
+    {
+        return (nFlags & BLOCK_BLSCT_TX);
+    }
+
     void SetProofOfStake()
     {
         nFlags |= BLOCK_PROOF_OF_STAKE;
@@ -526,7 +554,7 @@ public:
         READWRITE(blockHash);
         READWRITE(nCFSupply);
         READWRITE(nCFLocked);
-        // UPDATE if versionbits.h is modified
+
         if (this->nStatus & BLOCK_OPT_DAO)
         {
             READWRITE(vPaymentRequestVotes);
@@ -568,6 +596,12 @@ public:
         {
             READWRITE(mapSupport);
             READWRITE(mapConsultationVotes);
+        }
+
+        if (this->nStatus & BLOCK_OPT_SUPPLY)
+        {
+            READWRITE(nPrivateMoneySupply);
+            READWRITE(nPublicMoneySupply);
         }
     }
 

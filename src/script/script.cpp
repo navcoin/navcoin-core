@@ -219,42 +219,18 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
 
 bool CScript::IsColdStaking() const
 {
-    return (this->size() == 1+1+25+1+25+1 &&
+    return (this->size() > 2 &&
             (*this)[0] == OP_COINSTAKE &&
-            (*this)[1] == OP_IF &&
-            (*this)[2] == OP_DUP &&
-            (*this)[3] == OP_HASH160 &&
-            (*this)[4] == 0x14 &&
-            (*this)[25] == OP_EQUALVERIFY &&
-            (*this)[26] == OP_CHECKSIG &&
-            (*this)[27] == OP_ELSE &&
-            (*this)[28] == OP_DUP &&
-            (*this)[29] == OP_HASH160 &&
-            (*this)[30] == 0x14 &&
-            (*this)[51] == OP_EQUALVERIFY &&
-            (*this)[52] == OP_CHECKSIG &&
-            (*this)[53] == OP_ENDIF);
+            (*this)[1] == OP_IF);
 }
 
 bool CScript::IsColdStakingv2() const
 {
-    return (this->size() == 1+1+25+1+25+1+22 &&
+    return (this->size() > 24 &&
             (*this)[0] == 0x14 &&
             (*this)[21] == OP_DROP &&
             (*this)[22] == OP_COINSTAKE &&
-            (*this)[23] == OP_IF &&
-            (*this)[24] == OP_DUP &&
-            (*this)[25] == OP_HASH160 &&
-            (*this)[26] == 0x14 &&
-            (*this)[47] == OP_EQUALVERIFY &&
-            (*this)[48] == OP_CHECKSIG &&
-            (*this)[49] == OP_ELSE &&
-            (*this)[50] == OP_DUP &&
-            (*this)[51] == OP_HASH160 &&
-            (*this)[52] == 0x14 &&
-            (*this)[73] == OP_EQUALVERIFY &&
-            (*this)[74] == OP_CHECKSIG &&
-            (*this)[75] == OP_ENDIF);
+            (*this)[23] == OP_IF);
 }
 
 bool CScript::IsPayToPublicKeyHash() const
@@ -557,6 +533,12 @@ bool CScript::IsPushOnly(const_iterator pc) const
             return false;
     }
     return true;
+}
+
+bool CScript::IsFee() const
+{
+    return (this->size() == 1 &&
+            (*this)[0] == OP_RETURN);
 }
 
 bool CScript::IsPushOnly() const

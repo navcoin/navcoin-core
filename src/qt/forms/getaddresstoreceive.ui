@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1497</width>
-    <height>558</height>
+    <width>915</width>
+    <height>636</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,9 +45,9 @@
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_7">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -60,19 +60,10 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="font">
-          <font>
-           <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Use the following address to receive NavCoins:</string>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="typeBox"/>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <spacer name="horizontalSpacer_8">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -151,34 +142,31 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lblAddress">
+            <widget class="QTextEdit" name="textAddress">
              <property name="readOnly">
               <bool>true</bool>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="verticalLayout_13">
              <item>
-               <widget class="QPushButton" name="copyClipboardButton">
-                <property name="text">
-                 <string>&amp;Copy to clipboard</string>
-                </property>
-                <property name="default">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="newAddressButton">
-                <property name="text">
-                 <string>&amp;Generate a new address</string>
-                </property>
-               </widget>
-              </item>
+              <widget class="QPushButton" name="copyClipboardButton">
+               <property name="text">
+                <string>&amp;Copy to clipboard</string>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="newAddressButton">
+               <property name="text">
+                <string>&amp;Generate a new address</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
@@ -242,16 +230,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="requestPaymentButton">
+        <widget class="QPushButton" name="coldStakingButton">
          <property name="text">
-          <string>&amp;Request payment</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="requestNewAddressButton">
-         <property name="text">
-          <string>&amp;List old addresses</string>
+          <string>&amp;Create a Cold Staking address</string>
          </property>
         </widget>
        </item>
@@ -286,9 +267,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="coldStakingButton">
+        <widget class="QPushButton" name="requestNewAddressButton">
          <property name="text">
-          <string>&amp;Create a Cold Staking address</string>
+          <string>&amp;List old addresses</string>
          </property>
         </widget>
        </item>

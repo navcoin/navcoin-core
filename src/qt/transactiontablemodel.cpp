@@ -380,8 +380,14 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Sent to");
     case TransactionRecord::CFundPayment:
         return tr("Community Fund Payment");
-    case TransactionRecord::AnonTx:
-        return tr("Private Payment");
+    case TransactionRecord::AnonTxRecv:
+        return tr("Received Private Payment");
+    case TransactionRecord::MixingReward:
+        return tr("Mixing Reward");
+    case TransactionRecord::AnonTxSend:
+        return tr("Sent Private Payment");
+    case TransactionRecord::Fee:
+        return tr("Fee");
     case TransactionRecord::RecvWithAddress:
         return tr("Received with");
     case TransactionRecord::RecvFromOther:
@@ -391,6 +397,10 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Sent to");
     case TransactionRecord::SendToSelf:
         return tr("Payment to yourself");
+    case TransactionRecord::SendToSelfPrivate:
+        return tr("Converted to private");
+    case TransactionRecord::SendToSelfPublic:
+        return tr("Converted to public");
     case TransactionRecord::Staked:
         return tr(wtx->status.status == TransactionStatus::Orphan || !(wtx->status.depth > 0) ? "Orphan" : "Staked");
     case TransactionRecord::Generated:
@@ -404,8 +414,10 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
 {
     switch(wtx->type)
     {
-    case TransactionRecord::AnonTx:
+    case TransactionRecord::AnonTxSend:
+    case TransactionRecord::AnonTxRecv:
         return TxIcon(":/icons/ghost");
+    case TransactionRecord::MixingReward:
     case TransactionRecord::Staked:
     case TransactionRecord::Generated:
         return TxIcon(":/icons/tx_mined");
@@ -416,6 +428,7 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
     case TransactionRecord::CFund:
+    case TransactionRecord::Fee:
         return TxIcon(":/icons/tx_output");
     default:
         return TxIcon(":/icons/tx_inout");
@@ -434,8 +447,11 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     {
     case TransactionRecord::CFund:
         return tr("Community Fund Contribution");
-    case TransactionRecord::AnonTx:
-        return tr("Private Payment");
+    case TransactionRecord::AnonTxSend:
+    case TransactionRecord::AnonTxRecv:
+        return tr("Private Payment: %1").arg(QString::fromStdString(wtx->memo));
+    case TransactionRecord::MixingReward:
+        return tr("Mixing reward");
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
@@ -446,6 +462,10 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address) + watchAddress;
+    case TransactionRecord::Fee:
+        return tr("Fee");
+    case TransactionRecord::SendToSelfPrivate:
+        return tr("Private: %1").arg(QString::fromStdString(wtx->memo));
     case TransactionRecord::SendToSelf:
     default:
         return tr("(n/a)") + watchAddress;
@@ -457,7 +477,10 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
-    case TransactionRecord::AnonTx:
+    case TransactionRecord::AnonTxRecv:
+    case TransactionRecord::AnonTxSend:
+    case TransactionRecord::Fee:
+    case TransactionRecord::MixingReward:
         return QVariant();
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
@@ -557,6 +580,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
 
     switch(role)
     {
+    case PrivateRole:
+        return rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate;
     case RawDecorationRole:
         switch(index.column())
         {
@@ -644,9 +669,15 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case LongDescriptionRole:
         return priv->describe(rec, walletModel->getOptionsModel()->getDisplayUnit());
     case AddressRole:
-        return QString::fromStdString(rec->address);
+        if (rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate)
+            return formatTxToAddress(rec, false);
+        else
+            return QString::fromStdString(rec->address);
     case LabelRole:
-        return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
+        if (rec->type == TransactionRecord::AnonTxRecv || rec->type == TransactionRecord::MixingReward || rec->type == TransactionRecord::AnonTxSend || rec->type == TransactionRecord::SendToSelfPrivate)
+            return formatTxToAddress(rec, false);
+        else
+            return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
     case AmountRole:
         return qint64(rec->credit + rec->debit);
     case TxIDRole:

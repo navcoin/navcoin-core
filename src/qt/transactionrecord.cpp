@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include <boost/algorithm/string/join.hpp>
+
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
@@ -24,6 +26,15 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
             return false;
         }
     }
+
+    if (wtx.IsBLSCT())
+    {
+        if (wtx.isAbandoned())
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -36,18 +47,41 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     int64_t nTime = wtx.GetTxTime();
     isminefilter dCFilter = wtx.IsCoinStake() ? wallet->IsMine(wtx.vout[1]) : ISMINE_ALL;
     CAmount nCredit = wtx.GetCredit(dCFilter, false);
+    CAmount nPrivateCredit = wtx.GetCredit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicCredit = wtx.GetCredit(ISMINE_SPENDABLE);
     CAmount nDebit = wtx.GetDebit(dCFilter);
+    CAmount nPrivateDebit = wtx.GetDebit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicDebit = wtx.GetDebit(ISMINE_SPENDABLE);
     CAmount nCFundCredit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
+    std::vector<std::string> vMemos;
 
-    if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
+    for (auto &s:wtx.vMemos)
+    {
+        if (s != "" && s != "Fee" && s != "Change")
+        {
+            vMemos.push_back(s);
+        }
+    }
+
+    bool involvesWatchAddress = false;
+    isminetype fAllFromMe = ISMINE_SPENDABLE;
+    for(const CTxIn& txin: wtx.vin)
+    {
+        isminetype mine = wallet->IsMine(txin);
+        if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+        if(fAllFromMe > mine) fAllFromMe = mine;
+    }
+
+    if ((nNet > 0 && fAllFromMe) || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         //
         // Credit
         //
         unsigned int i = 0;
+        bool fBLSCT = false;
         CAmount nReward = -nDebit;
         if (wtx.IsCoinStake())
         {
@@ -109,38 +143,53 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     else
                     {
                         sub.type = TransactionRecord::Staked;
+                        if (wtx.IsCTOutput())
+                        {
+                            sub.type = TransactionRecord::AnonTxRecv;
+                            for(auto&it: wtx.vAmounts)
+                            {
+                                sub.credit += it;
+                            }
+                            sub.memo = "Staking Reward";
+                        }
                     }
                 }
-                if(wtx.fAnon)
+                else if(txout.HasRangeProof())
                 {
-                    sub.type = TransactionRecord::AnonTx;
+                    sub.type = TransactionRecord::AnonTxRecv;
+                    sub.memo = wtx.vMemos[i];
+                    sub.credit = wtx.vAmounts[i];
+                    if (sub.memo.substr(0,13) == "Mixing Reward")
+                    {
+                        sub.type = TransactionRecord::MixingReward;
+                        sub.credit += nReward;
+                    }
+                    fBLSCT = true;
                 }
+
                 if(txout.scriptPubKey.IsCommunityFundContribution())
                 {
                     sub.type = TransactionRecord::CFund;
                 }
 
-                parts.append(sub);
+                if (sub.credit > 0)
+                {
+                    parts.append(sub);
+                }
             }
             i++;
         }
     }
     else
     {
-        bool involvesWatchAddress = false;
-        isminetype fAllFromMe = ISMINE_SPENDABLE;
-        for(const CTxIn& txin: wtx.vin)
-        {
-            isminetype mine = wallet->IsMine(txin);
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
-            if(fAllFromMe > mine) fAllFromMe = mine;
-        }
-
         isminetype fAllToMe = ISMINE_SPENDABLE;
+        bool fHasSomeNormalOut = false;
         for(const CTxOut& txout: wtx.vout)
         {
+            if (txout.scriptPubKey.IsFee()) continue;
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+            if(mine & ISMINE_SPENDABLE) fHasSomeNormalOut = true;
             if(fAllToMe > mine) fAllToMe = mine;
         }
 
@@ -149,16 +198,29 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             // Payment to self
             CAmount nChange = wtx.GetChange();
 
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
+            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Fee, "",
                             -(nDebit - nChange), nCredit - nChange));
             parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
+
+            if (wtx.IsBLSInput() && fHasSomeNormalOut)
+            {
+                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPublic, "",
+                                                0, nPublicCredit));
+            }
+             else if (!wtx.IsBLSInput() && wtx.IsCTOutput())
+            {
+                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
+                                                0, nPrivateCredit));
+            }
         }
-        else if (fAllFromMe)
+        else if (fAllFromMe && !wtx.IsBLSInput())
         {
             //
             // Debit
             //
-            CAmount nTxFee = nDebit - wtx.GetValueOut();
+            CAmount blsFee = wtx.GetFee();
+            CAmount nTxFee = wtx.IsBLSCT() ? blsFee : nDebit - wtx.GetValueOut();
+            CAmount nSentToOthersPublic = 0;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -188,16 +250,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.address = mapValue["to"];
                 }
 
-                if(wtx.fAnon)
-                {
-                    sub.type = TransactionRecord::AnonTx;
-                }
-
-                if(txout.scriptPubKey.IsCommunityFundContribution())
-                {
-                    sub.type = TransactionRecord::CFund;
-                }
-
                 CAmount nValue = txout.nValue;
                 /* Add fee to first output */
                 if (nTxFee > 0)
@@ -207,7 +259,91 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 }
                 sub.debit = -nValue;
 
+                if(txout.HasRangeProof())
+                {
+                    sub.type = TransactionRecord::AnonTxSend;
+                    sub.memo = wtx.vMemos[nOut];
+                    sub.debit = -wtx.vAmounts[nOut];
+                }
+
+                else if (txout.scriptPubKey.IsCommunityFundContribution())
+                    sub.type = TransactionRecord::CFund;
+
+                else if (txout.scriptPubKey.IsFee())
+                {
+                    sub.type = TransactionRecord::Fee;
+                }
+
+                nSentToOthersPublic += -sub.debit;
+
                 parts.append(sub);
+            }
+        }
+        else if (fAllFromMe && wtx.IsBLSInput())
+        {
+            //
+            // Debit
+            //
+            CAmount blsFee = wtx.GetFee();
+            CAmount nTxFee = wtx.IsBLSCT() ? blsFee : nDebit - wtx.GetValueOut();
+            CAmount nSentToOthersPublic = 0;
+
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
+            {
+                const CTxOut& txout = wtx.vout[nOut];
+                TransactionRecord sub(hash, nTime);
+                sub.idx = parts.size();
+                sub.involvesWatchAddress = involvesWatchAddress;
+
+                if(wallet->IsMine(txout))
+                {
+                    // Ignore parts sent to self, as this is usually the change
+                    // from a transaction sent back to our own address.
+                    continue;
+                }
+
+                CTxDestination address;
+                if (ExtractDestination(txout.scriptPubKey, address))
+                {
+                    // Sent to NavCoin Address
+                    sub.type = TransactionRecord::SendToAddress;
+                    sub.address = CNavCoinAddress(address).ToString();
+                }
+                else
+                {
+                    // Sent to IP, or other non-address transaction like OP_EVAL
+                    sub.type = TransactionRecord::SendToOther;
+                    sub.address = mapValue["to"];
+                }
+
+                CAmount nValue = txout.nValue;
+
+                sub.debit = -nValue;
+
+                if (txout.scriptPubKey.IsCommunityFundContribution())
+                    sub.type = TransactionRecord::CFund;
+
+                if (txout.scriptPubKey.IsFee())
+                    sub.type = TransactionRecord::Fee;
+
+                if(txout.HasRangeProof())
+                {
+                    sub.type = TransactionRecord::AnonTxSend;
+                    sub.memo = wtx.vMemos[nOut];
+                    sub.debit = -wtx.vAmounts[nOut];
+                }
+
+                if (sub.debit == 0)
+                    continue;
+
+                nSentToOthersPublic += -sub.debit;
+
+                parts.append(sub);
+            }
+
+            if (nPrivateCredit > nPrivateDebit + nSentToOthersPublic)
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", nPrivateCredit-nSentToOthersPublic-nPrivateDebit, 0));
             }
         }
         else
@@ -215,8 +351,101 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Mixed debit transaction, can't break down payees
             //
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-            parts.last().involvesWatchAddress = involvesWatchAddress;
+
+            CAmount sent = nPrivateDebit + nPublicDebit;
+
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
+            {
+                const CTxOut& txout = wtx.vout[nOut];
+                TransactionRecord sub(hash, nTime);
+                sub.idx = parts.size();
+                sub.involvesWatchAddress = involvesWatchAddress;
+
+                if(wallet->IsMine(txout))
+                {
+                    // Ignore parts sent to self, as this is usually the change
+                    // from a transaction sent back to our own address.
+                    if(txout.HasRangeProof())
+                    {
+                        if (wtx.vMemos[nOut] == "Change" || wtx.vAmounts[nOut] == 0)
+                        {
+                            sent -= wtx.vAmounts[nOut];
+                            continue;
+                        }
+                        if (wtx.vMemos[nOut].substr(0,13) == "Mixing Reward")
+                        {
+                            CAmount reward = wtx.vMemos[nOut].size() > 13 ? std::stof(wtx.vMemos[nOut].substr(15)) * COIN : 0.1 * COIN;
+                            sent -= wtx.vAmounts[nOut] - reward;
+                            sub.credit = reward;
+                            sub.type = TransactionRecord::MixingReward;
+                            parts.append(sub);
+                        }
+                        else
+                        {
+                            sub.type = TransactionRecord::AnonTxRecv;
+                            sub.memo = wtx.vMemos[nOut];
+                            sub.credit = wtx.vAmounts[nOut];
+                            parts.append(sub);
+                        }
+                    }
+                    else
+                    {
+                        sub.credit = txout.nValue;
+                        CTxDestination address;
+                        if (ExtractDestination(txout.scriptPubKey, address))
+                        {
+                            sub.address = CNavCoinAddress(address).ToString();
+
+                            if (IsMine(*wallet, address))
+                            {
+                                // Received by NavCoin Address
+                                sub.type = TransactionRecord::RecvWithAddress;
+                            }
+                            else
+                            {
+                                sub.type = TransactionRecord::Other;
+                            }
+                        }
+                        else
+                        {
+                            sub.type = TransactionRecord::Other;
+                        }
+                        parts.append(sub);
+                    }
+                }
+                else
+                {
+                    if(txout.HasRangeProof())
+                    {
+                        if (wtx.vAmounts[nOut] == 0)
+                            continue;
+
+                        sub.type = TransactionRecord::AnonTxSend;
+                        sub.memo = wtx.vMemos[nOut];
+                        sub.debit = -wtx.vAmounts[nOut];
+                        sent -= -sub.debit;
+
+                        parts.append(sub);
+                    }
+                }
+            }
+            CAmount nTxFee = wtx.GetFee();
+            if (wtx.IsBLSInput())
+            {
+                if (sent > 0)
+                {
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxSend, "", -sent, 0));
+                }
+                else if (sent < 0)
+                {
+                    parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxRecv, "", 0, sent));
+                }
+            }
+            else
+            {
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+                parts.last().involvesWatchAddress = involvesWatchAddress;
+            }
         }
     }
 

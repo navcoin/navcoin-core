@@ -73,7 +73,6 @@ moc_openuridialog.cpp
 moc_optionsdialog.cpp
 moc_optionsmodel.cpp
 moc_overviewpage.cpp
-moc_paymentserver.cpp
 moc_peertablemodel.cpp
 moc_qvalidatedlineedit.cpp
 moc_qvaluecombobox.cpp
@@ -117,12 +116,6 @@ optionsmodel.cpp
 optionsmodel.h
 overviewpage.cpp
 overviewpage.h
-paymentrequest.pb.cc
-paymentrequest.pb.h
-paymentrequestplus.cpp
-paymentrequestplus.h
-paymentserver.cpp
-paymentserver.h
 peertablemodel.cpp
 peertablemodel.h
 platformstyle.cpp
@@ -149,9 +142,6 @@ signverifymessagedialog.cpp
 signverifymessagedialog.h
 splashscreen.cpp
 splashscreen.h
-test/paymentrequestdata.h
-test/paymentservertests.cpp
-test/paymentservertests.h
 test/test_main.cpp
 test/uritests.cpp
 test/uritests.h

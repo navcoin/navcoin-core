@@ -154,7 +154,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
-    LOCK2(cs_main, mempool.cs);
+    LOCK3(cs_main, mempool.cs, stempool.cs);
     CBlockIndex* pindexPrev = chainActive.Tip();
     nHeight = pindexPrev->nHeight + 1;
     CStateViewCache view(pcoinsTip);
@@ -182,6 +182,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        ? nMedianTimePast
                        : pblock->GetBlockTime();
 
+    addCombinedBLSCT(view);
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
 
@@ -205,7 +206,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     else
     {
         coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-        coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+        coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus()) + nFees;
     }
 
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
@@ -562,7 +563,7 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     if (fPrintPriority) {
         double dPriority = iter->GetPriority(nHeight);
         CAmount dummy;
-        mempool.ApplyDeltas(iter->GetTx().GetHash(), dPriority, dummy);
+        mempool.ApplyDeltas(iter->GetTx().GetHash(), dPriority, dummy, &mempool.cs, &stempool.cs);
         LogPrintf("priority %.1f fee %s txid %s\n",
                   dPriority,
                   CFeeRate(iter->GetModifiedFee(), iter->GetTxSize()).ToString(),
@@ -606,7 +607,7 @@ void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alread
 bool BlockAssembler::SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_transaction_set &mapModifiedTx, CTxMemPool::setEntries &failedTx)
 {
     assert (it != mempool.mapTx.end());
-    if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it))
+    if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it) || it->GetTx().IsBLSInput())
         return true;
     return false;
 }
@@ -620,6 +621,68 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemP
     sortedEntries.clear();
     sortedEntries.insert(sortedEntries.begin(), package.begin(), package.end());
     std::sort(sortedEntries.begin(), sortedEntries.end(), CompareTxIterByAncestorCount());
+}
+
+void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
+{
+    std::set<CTransaction> setToCombine;
+    std::vector<RangeproofEncodedData> blsctData;
+    CValidationState state;
+
+    CAmount nMovedToPublic = 0;
+
+    for (auto &it: stempool.mapTx)
+    {
+        CTransaction tx = it.GetTx();
+
+        if (!tx.IsBLSInput())
+            continue;
+
+        try
+        {
+            if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
+            {
+                nMovedToPublic += inputs.GetValueIn(tx) - tx.GetValueOut();
+                setToCombine.insert(tx);
+            }
+            else
+                LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+        }
+        catch(...)
+        {
+            continue;
+        }
+    }
+
+    CBlockIndex* pindexPrev = chainActive.Tip();
+
+    if (pindexPrev->nPrivateMoneySupply + nMovedToPublic < 0)
+    {
+        setToCombine.clear();
+        error("%s: Did not add BLS transactions to block, it would bring the private pool in negative!", __func__);
+    }
+
+    if (setToCombine.size() == 0)
+        return;
+
+    if (setToCombine.size() == 1)
+    {
+        nFees += setToCombine.begin()->GetFee();
+        pblock->vtx.push_back(*(setToCombine.begin()));
+        return;
+    }
+
+    CTransaction combinedTx;
+
+    if (!CombineBLSCTTransactions(setToCombine, combinedTx, inputs, state))
+    {
+        LogPrintf("%s: Could not combine BLSCT transactions: %s\n", __func__, FormatStateMessage(state));
+        return;
+    }
+
+    nFees += combinedTx.GetFee();
+    pblock->vtx.push_back(combinedTx);
+
 }
 
 // This transaction selection algorithm orders the mempool based
@@ -769,7 +832,7 @@ void BlockAssembler::addPriorityTxs(bool fProofOfStake, int blockTime)
     {
         double dPriority = mi->GetPriority(nHeight);
         CAmount dummy;
-        mempool.ApplyDeltas(mi->GetTx().GetHash(), dPriority, dummy);
+        mempool.ApplyDeltas(mi->GetTx().GetHash(), dPriority, dummy, &mempool.cs, &stempool.cs);
         vecPriority.push_back(TxCoinAgePriority(dPriority, mi));
     }
     std::make_heap(vecPriority.begin(), vecPriority.end(), pricomparer);
@@ -855,6 +918,7 @@ extern unsigned int nMinerSleep;
 
 void NavCoinStaker(const CChainParams& chainparams)
 {
+
     LogPrintf("NavCoinStaker started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-staker");
@@ -1013,7 +1077,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = CTransaction::TXDZEEL_VERSION_V2;
               txCoinStake.strDZeel = sCoinStakeStrDZeel == "" ?
                           GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION) :
                           sCoinStakeStrDZeel;

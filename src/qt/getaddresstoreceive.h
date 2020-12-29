@@ -1,6 +1,7 @@
 #ifndef GETADDRESSTORECEIVE_H
 #define GETADDRESSTORECEIVE_H
 
+#include <qt/guiutil.h>
 #include <qt/walletmodel.h>
 #include <QWidget>
 
@@ -18,6 +19,7 @@ public:
     void setModel(WalletModel *model);
 
 public Q_SLOTS:
+    void showPrivateAddress(int);
     void getNewAddress();
     void getColdStakingAddress();
     void showQR();

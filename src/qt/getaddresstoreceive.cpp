@@ -4,6 +4,7 @@
 #include <main.h>
 #include <qt/walletmodel.h>
 #include <wallet/wallet.h>
+#include <base58.h>
 
 #include <qt/coldstakingwizard.h>
 #include <qt/getaddresstoreceive.h>
@@ -30,23 +31,77 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
         bool fMine = IsMine(*pwalletMain, addressbook.Get());
         if(fMine)
         {
-          address = QString::fromStdString(addressbook.ToString());
-          break;
+            address = QString::fromStdString(addressbook.ToString());
+            break;
         }
     }
 
-    ui->lblAddress->setMinimumWidth(360 * GUIUtil::scale());
+    ui->textAddress->setMinimumWidth(260 * GUIUtil::scale());
 
-    connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
+    QPixmap p1(":/icons/mininav");
+    QPixmap p2(":/icons/minixnav");
+
+    ui->typeBox->insertItem(0,"Public NAV");
+    ui->typeBox->insertItem(1,"Private xNAV");
+    ui->typeBox->setItemData(0,p1,Qt::DecorationRole);
+    ui->typeBox->setItemData(1,p2,Qt::DecorationRole);
+    ui->typeBox->setIconSize(QSize(32,32));
+
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
     connect(ui->coldStakingButton,SIGNAL(clicked()),this,SLOT(getColdStakingAddress()));
     connect(ui->requestNewAddressButton,SIGNAL(clicked()),this,SLOT(showAddressHistory()));
+    connect(ui->typeBox,SIGNAL(currentIndexChanged(int)),this,SLOT(showPrivateAddress(int)));
+
+    ui->textAddress->setFont(GUIUtil::fixedPitchFont());
+
+    ui->textAddress->setText(address);
+
+    QSize size = ui->textAddress->document()->size().toSize();
+    ui->textAddress->setFixedHeight( size.height() + 3 );
+    ui->textAddress->setAlignment(Qt::AlignCenter);
 }
 
 getAddressToReceive::~getAddressToReceive()
 {
     delete ui;
+}
+
+void getAddressToReceive::showPrivateAddress(int what)
+{
+    if (!ui->typeBox->currentIndex())
+    {
+        LOCK(pwalletMain->cs_wallet);
+        for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
+        {
+            const CNavCoinAddress& addressbook = item.first;
+            bool fMine = IsMine(*pwalletMain, addressbook.Get());
+            if(fMine)
+            {
+                address = QString::fromStdString(addressbook.ToString());
+                break;
+            }
+        }
+        ui->requestNewAddressButton->show();
+        ui->coldStakingButton->show();
+        ui->newAddressButton->show();
+    }
+    else
+    {
+        LOCK2(cs_main, pwalletMain->cs_wallet);
+
+        blsctDoublePublicKey k;
+        if (pwalletMain->GetBLSCTSubAddressPublicKeys(std::make_pair(0, 0), k))
+            address = QString::fromStdString(CNavCoinAddress(k).ToString());
+        else
+            address = "Unavailable";
+
+        ui->requestNewAddressButton->hide();
+        ui->coldStakingButton->hide();
+        ui->newAddressButton->hide();
+    }
+
+    showQR();
 }
 
 void getAddressToReceive::showRequestPayment()
@@ -125,8 +180,11 @@ void getAddressToReceive::showQR()
             ui->lblQRCode->setMinimumSize(qrSize, qrSize);
 
             // Add the address to the label
-            ui->lblAddress->setText(address);
+            ui->textAddress->setText(address);
         }
     }
 #endif
+    QSize size = ui->textAddress->document()->size().toSize();
+    ui->textAddress->setFixedHeight( std::max(size.height() + 3, 22) );
+    ui->textAddress->setAlignment(Qt::AlignCenter);
 }

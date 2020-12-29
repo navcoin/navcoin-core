@@ -836,6 +836,10 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nFlags         = diskindex.nFlags;
                 pindexNew->nStakeModifier = diskindex.nStakeModifier;
                 pindexNew->hashProof      = diskindex.hashProof;
+                pindexNew->nPrivateMoneySupply
+                                          = diskindex.nPrivateMoneySupply;
+                pindexNew->nPublicMoneySupply
+                                          = diskindex.nPublicMoneySupply;
                 if (diskindex.vProposalVotes.size() > 0)
                 {
                     auto pVotes = insertProposalVotes(diskindex.GetBlockHash());

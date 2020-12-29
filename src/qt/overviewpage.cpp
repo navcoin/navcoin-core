@@ -55,6 +55,7 @@ public:
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
+        bool fPrivate = index.data(TransactionTableModel::PrivateRole).toBool();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
@@ -88,7 +89,7 @@ public:
             foreground = COLOR_POSITIVE;
         }
         painter->setPen(foreground);
-        QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways);
+        QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways, fPrivate);
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
@@ -122,6 +123,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentColdStakingBalance(-1),
     currentImmatureBalance(-1),
     currentTotalBalance(-1),
+    currentPrivateBalance(-1),
     currentWatchOnlyBalance(-1),
     currentWatchUnconfBalance(-1),
     currentWatchImmatureBalance(-1),
@@ -137,6 +139,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    connect(ui->swapButton, SIGNAL(clicked()), this, SLOT(ShowSwapDialog()));
+
+    swapDialog = new SwapXNAVDialog(this);
 
     // start with displaying the "out of sync" warnings
     updateStakeReportNow();
@@ -168,13 +173,19 @@ void OverviewPage::setBalance(
     const CAmount& watchOnlyBalance,
     const CAmount& watchUnconfBalance,
     const CAmount& watchImmatureBalance,
-    const CAmount& coldStakingBalance
+    const CAmount& coldStakingBalance,
+    const CAmount& privateBalance,
+    const CAmount& privPending,
+    const CAmount& privLocked
 ) {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     currentBalance = balance;
     currentUnconfirmedBalance = unconfirmedBalance;
     currentStakingBalance = stakingBalance;
     currentColdStakingBalance = coldStakingBalance;
+    currentPrivateBalance = privateBalance;
+    currentPrivateBalancePending = privPending;
+    currentPrivateBalanceLocked = privLocked;
     currentImmatureBalance = immatureBalance;
     currentTotalBalance = balance + unconfirmedBalance + immatureBalance;
     currentWatchOnlyBalance = watchOnlyBalance;
@@ -182,15 +193,20 @@ void OverviewPage::setBalance(
     currentWatchImmatureBalance = watchImmatureBalance;
     currentWatchOnlyTotalBalance = watchOnlyBalance + watchUnconfBalance + watchImmatureBalance;
     ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
+    ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(unit, privateBalance, false, NavCoinUnits::separatorAlways, true));
+    ui->labelPrivateBalancePending->setText(NavCoinUnits::formatWithUnit(unit, privPending, false, NavCoinUnits::separatorAlways, true));
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
     ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, currentColdStakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, currentImmatureBalance, false, NavCoinUnits::separatorAlways));
     ui->labelWatchedBalance->setText(NavCoinUnits::formatWithUnit(unit, currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentPrivateBalance + currentPrivateBalancePending + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
 
     updateStakeReportNow();
 
-    uiInterface.SetBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance);
+    swapDialog->SetPublicBalance(balance);
+    swapDialog->SetPrivateBalance(privateBalance);
+
+    uiInterface.SetBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance, currentPrivateBalance, currentPrivateBalancePending, currentPrivateBalanceLocked);
 }
 
 // show/hide watch-only labels
@@ -202,11 +218,13 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
+    this->swapDialog->setClientModel(model);
 }
 
 void OverviewPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
+    this->swapDialog->setModel(model);
     if(model && model->getOptionsModel())
     {
         // Set up transaction list
@@ -224,9 +242,10 @@ void OverviewPage::setWalletModel(WalletModel *model)
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getStake(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
-                   model->getColdStakingBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
+                   model->getColdStakingBalance(), model->getPrivateBalance(), model->getPrivateBalancePending(),
+                   model->getPrivateBalanceLocked());
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -244,7 +263,8 @@ void OverviewPage::updateDisplayUnit()
     {
         if(currentBalance != -1)
             setBalance(currentBalance, currentUnconfirmedBalance, currentStakingBalance, currentImmatureBalance,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance, currentColdStakingBalance);
+                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance, currentColdStakingBalance,
+                       currentPrivateBalance, currentPrivateBalancePending, currentPrivateBalanceLocked);
 
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
@@ -253,6 +273,17 @@ void OverviewPage::updateDisplayUnit()
     }
 }
 
+void OverviewPage::ShowSwapDialog()
+{
+    if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
+    {
+        QMessageBox::warning(this, tr("Not available"),
+                "xNAV is not active yet!");
+        return;
+    }
+
+    this->swapDialog->exec();
+}
 
 using namespace boost;
 using namespace std;
@@ -321,7 +352,7 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 }
 
 
-void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
+void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
 {
     OverviewPage::updateStakeReportNow();
 }

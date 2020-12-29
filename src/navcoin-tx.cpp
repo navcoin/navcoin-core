@@ -31,6 +31,8 @@ using namespace std;
 static bool fCreateBlank;
 static map<string,UniValue> registers;
 
+bool BLSInitResult = bls::BLS::Init();
+
 static bool AppInitRawTx(int argc, char* argv[])
 {
     //

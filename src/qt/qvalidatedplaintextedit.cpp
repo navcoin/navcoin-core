@@ -52,5 +52,7 @@ bool QValidatedPlainTextEdit::isValid()
         setValid(false);
     else
         setValid(true);
+
+    return this->valid;
     //Q_EMIT validationDidChange(this);
 }

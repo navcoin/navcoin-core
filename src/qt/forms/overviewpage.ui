@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>507</width>
-    <height>427</height>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,14 +49,14 @@
         <property name="formAlignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="labelAvailableText">
           <property name="text">
-           <string>Available</string>
+           <string>Available Public</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="QLabel" name="labelBalance">
           <property name="text">
            <string>1 000.00000000 NAV</string>
@@ -66,14 +66,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="labelPendingText">
           <property name="text">
-           <string>Pending</string>
+           <string>- Pending</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QLabel" name="labelUnconfirmed">
           <property name="text">
            <string>1 000.00000000 NAV</string>
@@ -84,14 +84,14 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="labelColdStakingText">
+         <widget class="QLabel" name="labelAvailableText_2">
           <property name="text">
-           <string>Cold Staking</string>
+           <string>Available Private</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLabel" name="labelColdStaking">
+         <widget class="QLabel" name="labelPrivateBalance">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
@@ -101,31 +101,14 @@
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="labelImmatureText">
+         <widget class="QLabel" name="labelAvailableText_3">
           <property name="text">
-           <string>Immature</string>
+           <string>- Pending</string>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLabel" name="labelImmature">
-          <property name="text">
-           <string>1 000.00000000 NAV</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="labelWatchedBalanceText">
-          <property name="text">
-           <string>Watched</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="labelWatchedBalance">
+         <widget class="QLabel" name="labelPrivateBalancePending">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
@@ -135,13 +118,64 @@
          </widget>
         </item>
         <item row="6" column="0">
+         <widget class="QLabel" name="labelColdStakingText">
+          <property name="text">
+           <string>Cold Staking</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="labelColdStaking">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="labelImmatureText">
+          <property name="text">
+           <string>Immature</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLabel" name="labelImmature">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="labelWatchedBalanceText">
+          <property name="text">
+           <string>Watched</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLabel" name="labelWatchedBalance">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
          <widget class="QLabel" name="labelTotalText">
           <property name="text">
            <string>Total</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="9" column="1">
          <widget class="QLabel" name="labelTotal">
           <property name="text">
            <string>1 000.00000000 NAV</string>
@@ -151,7 +185,17 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout"/>
+        </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="swapButton">
+       <property name="text">
+        <string>Swap NAV/xNAV</string>
+       </property>
       </widget>
      </item>
      <item>

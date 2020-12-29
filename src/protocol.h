@@ -247,6 +247,10 @@ extern const char *BLOCKTXN;
   * The Dandelion tx message transmits a single Dandelion transaction.
   */
 extern const char *DANDELIONTX;
+extern const char *AGGREGATIONSESSION;
+extern const char *DANDELIONAGGREGATIONSESSION;
+extern const char *ENCRYPTEDCANDIDATE;
+extern const char *DANDELIONENCRYPTEDCANDIDATE;
 };
 
 /* Get a vector of all valid message types (see above) */

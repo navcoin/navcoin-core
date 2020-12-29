@@ -16,9 +16,9 @@ LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
+NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) $(SODIUM_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -29,6 +29,7 @@ LIBNAVCOIN_UTIL=libnavcoin_util.a
 LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
+LIBBLS=bls/build/libbls.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -42,6 +43,63 @@ endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
+LIBTORUTIL = \
+        tor/src/lib/libtor-geoip.a \
+        tor/src/lib/libtor-process.a \
+        tor/src/lib/libtor-buf.a \
+        tor/src/lib/libtor-confmgt.a \
+        tor/src/lib/libtor-pubsub.a \
+        tor/src/lib/libtor-dispatch.a \
+        tor/src/lib/libtor-time.a \
+        tor/src/lib/libtor-fs.a \
+        tor/src/lib/libtor-encoding.a \
+        tor/src/lib/libtor-sandbox.a \
+        tor/src/lib/libtor-container.a \
+        tor/src/lib/libtor-net.a \
+        tor/src/lib/libtor-thread.a \
+        tor/src/lib/libtor-memarea.a \
+        tor/src/lib/libtor-math.a \
+        tor/src/lib/libtor-meminfo.a \
+        tor/src/lib/libtor-osinfo.a \
+        tor/src/lib/libtor-log.a \
+        tor/src/lib/libtor-lock.a \
+        tor/src/lib/libtor-fdio.a \
+        tor/src/lib/libtor-string.a \
+        tor/src/lib/libtor-term.a \
+        tor/src/lib/libtor-smartlist-core.a \
+        tor/src/lib/libtor-malloc.a \
+        tor/src/lib/libtor-wallclock.a \
+        tor/src/lib/libtor-err.a \
+        tor/src/lib/libtor-version.a \
+        tor/src/lib/libtor-intmath.a \
+        tor/src/lib/libtor-ctime.a
+
+LIBED25519_REF10 = tor/src/ext/ed25519/ref10/libed25519_ref10.a
+LIBED25519_DONNA = tor/src/ext/ed25519/donna/libed25519_donna.a
+LIBKECCAK_TINY = tor/src/ext/keccak-tiny/libkeccak-tiny.a
+
+LIBDONNA =\
+          tor/src/lib/libcurve25519_donna.a \
+          $(LIBED25519_REF10) \
+          $(LIBED25519_DONNA)
+
+# Internal crypto libraries used in Tor
+LIBTORCRYPTO = \
+        tor/src/lib/libtor-tls.a \
+        tor/src/lib/libtor-crypt-ops.a \
+        $(LIBKECCAK_TINY) \
+        $(LIBDONNA)
+
+# All static libraries used to link tor.
+LIBTOR = \
+        tor/src/core/libtor-app.a \
+        tor/src/lib/libtor-compress.a \
+        tor/src/lib/libtor-evloop.a \
+        $(LIBTORCRYPTO) \
+        $(LIBTORUTIL) \
+        tor/src/trunnel/libor-trunnel.a \
+        tor/src/lib/libtor-trace.a
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -79,6 +137,14 @@ NAVCOIN_CORE_H = \
   base58.h \
   bloom.h \
   blockencodings.h \
+  blsct/bulletproofs.h \
+  blsct/ephemeralserver.h \
+  blsct/key.h \
+  blsct/aggregationsession.h \
+  blsct/rpc.h \
+  blsct/scalar.h \
+  blsct/transaction.h \
+  blsct/verification.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -143,6 +209,7 @@ NAVCOIN_CORE_H = \
   threadsafety.h \
   timedata.h \
   torcontrol.h \
+  torthread.h \
   txdb.h \
   txmempool.h \
   ui_interface.h \
@@ -182,6 +249,8 @@ libnavcoin_server_a_SOURCES = \
   addrman.cpp \
   bloom.cpp \
   blockencodings.cpp \
+  blsct/ephemeralserver.cpp \
+  blsct/aggregationsession.cpp \
   chain.cpp \
   checkpoints.cpp \
   daoversionbit.cpp \
@@ -213,6 +282,7 @@ libnavcoin_server_a_SOURCES = \
   script/ismine.cpp \
   timedata.cpp \
   torcontrol.cpp \
+  torthread.cpp \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
@@ -237,6 +307,7 @@ endif
 libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
+  blsct/rpc.cpp \
   consensus/dao.cpp \
   mnemonic/dictionary.cpp \
   mnemonic/mnemonic.cpp \
@@ -292,6 +363,8 @@ libnavcoin_consensus_a_SOURCES = \
   amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
+  blsct/bulletproofs.cpp \
+  blsct/scalar.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -335,7 +408,6 @@ libnavcoin_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/navcoinconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -356,6 +428,10 @@ libnavcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
+  blsct/bulletproofs.cpp \
+  blsct/scalar.cpp \
+  blsct/transaction.cpp \
+  blsct/verification.cpp \
   chainparams.cpp \
   coins.cpp \
   compressor.cpp \
@@ -410,7 +486,7 @@ nodist_libnavcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 
 # navcoind binary #
 navcoind_SOURCES = navcoind.cpp
-navcoind_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
+navcoind_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(LIBEVENT_CFLAGS) $(LIBSECCOMP_CFLAGS) $(LIBCAP_CFLAGS) $(ZLIB_CFLAGS)
 navcoind_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 navcoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
@@ -419,19 +495,41 @@ navcoind_SOURCES += navcoind-res.rc
 endif
 
 navcoind_LDADD = \
-  $(LIBNAVCOIN_SERVER) \
-  $(LIBNAVCOIN_COMMON) \
-  $(LIBUNIVALUE) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_WALLET) \
-  $(LIBNAVCOIN_ZMQ) \
-  $(LIBNAVCOIN_CONSENSUS) \
-  $(LIBNAVCOIN_CRYPTO) \
-  $(LIBLEVELDB) \
-  $(LIBMEMENV) \
-  $(LIBSECP256K1)
+                 $(LIBNAVCOIN_SERVER) \
+                 $(LIBNAVCOIN_COMMON) \
+                 $(LIBUNIVALUE) \
+                 $(LIBNAVCOIN_UTIL) \
+                 $(LIBNAVCOIN_WALLET) \
+                 $(LIBNAVCOIN_ZMQ) \
+                 $(LIBNAVCOIN_CONSENSUS) \
+                 $(LIBNAVCOIN_CRYPTO) \
+                 $(LIBLEVELDB) \
+                 $(LIBMEMENV) \
+                 $(LIBSECP256K1) \
+                 $(LIBTOR) \
+                 $(LIBEVENT_LIBS) \
+                 $(LIBSECCOMP_LIBS) \
+                 $(LIBCAP_LIBS) \
+                 $(ZLIB_LIBS)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+navcoind_LDADD += \
+                  $(BOOST_LIBS) \
+                  $(BDB_LIBS) \
+                  $(ZLIB_LIBS) \
+                  $(SSL_LIBS) \
+                  $(UNBOUND_LIBS) \
+                  $(CURL_LIBS) \
+                  $(CRYPTO_LIBS) \
+                  $(MINIUPNPC_LIBS) \
+                  $(EVENT_PTHREADS_LIBS) \
+                  $(EVENT_LIBS) \
+                  $(ZMQ_LIBS) \
+                  $(LIBBLS) \
+                  $(SODIUM_LIBS) \
+                  $(LIBEVENT_LDFLAGS) \
+                  $(LIBSECCOMP_LDFLAGS) \
+                  $(LIBCAP_LDFLAGS) \
+                  $(ZLIB_LDFLAGS)
 
 # navcoin-cli binary #
 navcoin_cli_SOURCES = navcoin-cli.cpp
@@ -449,7 +547,7 @@ navcoin_cli_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CRYPTO)
 
-navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(SODIUM_LIBS) $(EVENT_LIBS)
 #
 
 # navcoin-tx binary #
@@ -470,7 +568,7 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBBLS) $(SODIUM_LIBS)
 #
 
 # navcoinconsensus library #
@@ -482,9 +580,9 @@ if GLIBC_BACK_COMPAT
   libnavcoinconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1)
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) $(SODIUM_LIBS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) $(SODIUM_LIBS)
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
@@ -516,7 +614,9 @@ EXTRA_DIST = $(CTAES_DIST)
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
+	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C bls/build clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__
@@ -531,15 +631,25 @@ clean-local:
 # 	  $(CPPFLAGS) $(AM_CXXFLAGS) $(QT_INCLUDES) $(AM_CXXFLAGS) $(PIE_FLAGS) $(CXXFLAGS) -c -o $@ $<
 
 check-symbols: $(bin_PROGRAMS)
+if TARGET_DARWIN
+	@echo "Checking macOS dynamic libraries..."
+	$(AM_V_at) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
+endif
+
+if TARGET_WINDOWS
+	@echo "Checking Windows dynamic libraries..."
+	$(AM_V_at) OBJDUMP=$(OBJDUMP) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
+endif
+
 if GLIBC_BACK_COMPAT
 	@echo "Checking glibc back compat..."
-	$(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py < $(bin_PROGRAMS)
+	$(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
 endif
 
 check-security: $(bin_PROGRAMS)
 if HARDEN
 	@echo "Checking binary security..."
-	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py < $(bin_PROGRAMS)
+	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
 endif
 
 %.pb.cc %.pb.h: %.proto

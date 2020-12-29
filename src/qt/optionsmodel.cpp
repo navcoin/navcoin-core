@@ -22,7 +22,6 @@
 #include <wallet/walletdb.h>
 #endif
 
-#include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
 
@@ -439,24 +438,6 @@ void OptionsModel::setCoinControlFeatures(const bool enabled)
     fCoinControlFeatures = enabled;
     settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
     Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
-}
-
-bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
-{
-    // Directly query current base proxy, because
-    // GUI settings can be overridden with -proxy.
-    proxyType curProxy;
-    if (GetProxy(NET_IPV4, curProxy)) {
-        proxy.setType(QNetworkProxy::Socks5Proxy);
-        proxy.setHostName(QString::fromStdString(curProxy.proxy.ToStringIP()));
-        proxy.setPort(curProxy.proxy.GetPort());
-
-        return true;
-    }
-    else
-        proxy.setType(QNetworkProxy::NoProxy);
-
-    return false;
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)

@@ -5,6 +5,7 @@
 
 #include <script/standard.h>
 
+#include <blsct/key.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <script/sign.h>
@@ -85,7 +86,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     }
 
     // Shortcut for cold stake, so we don't need to match a template
-    if (scriptPubKey.IsColdStaking())
+    if (scriptPubKey.IsColdStaking() && scriptPubKey.size() == 1+1+25+1+25+1)
     {
         typeRet = TX_COLDSTAKING;
         vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
@@ -95,7 +96,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         return true;
     }
 
-    if (scriptPubKey.IsColdStakingv2())
+    if (scriptPubKey.IsColdStakingv2() && scriptPubKey.size() == 1+1+25+1+25+1+22)
     {
         typeRet = TX_COLDSTAKING_V2;
         vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
@@ -428,6 +429,12 @@ public:
         script->clear();
         *script += scriptIn;
         return true;
+    }
+
+    bool operator()(const blsctDoublePublicKey &dest) const {
+        script->clear();
+        *script << OP_TRUE;
+        return false;
     }
 };
 }

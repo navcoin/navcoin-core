@@ -117,6 +117,8 @@ public Q_SLOTS:
     void exportMasterPrivateKeyAction();
     void exportMnemonicAction();
 
+    void GenerateBLSCT();
+
     void splitRewards();
 
     /** Show used sending addresses */

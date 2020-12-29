@@ -109,7 +109,7 @@ bool CCrypter::Decrypt(const std::vector<unsigned char>& vchCiphertext, CKeyingM
 }
 
 
-static bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMaterial &vchPlaintext, const uint256& nIV, std::vector<unsigned char> &vchCiphertext)
+bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMaterial &vchPlaintext, const uint256& nIV, std::vector<unsigned char> &vchCiphertext)
 {
     CCrypter cKeyCrypter;
     std::vector<unsigned char> chIV(WALLET_CRYPTO_IV_SIZE);
@@ -119,7 +119,7 @@ static bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMateri
     return cKeyCrypter.Encrypt(*((const CKeyingMaterial*)&vchPlaintext), vchCiphertext);
 }
 
-static bool DecryptSecret(const CKeyingMaterial& vMasterKey, const std::vector<unsigned char>& vchCiphertext, const uint256& nIV, CKeyingMaterial& vchPlaintext)
+bool DecryptSecret(const CKeyingMaterial& vMasterKey, const std::vector<unsigned char>& vchCiphertext, const uint256& nIV, CKeyingMaterial& vchPlaintext)
 {
     CCrypter cKeyCrypter;
     std::vector<unsigned char> chIV(WALLET_CRYPTO_IV_SIZE);
@@ -161,6 +161,7 @@ bool CCryptoKeyStore::Lock()
     {
         LOCK(cs_KeyStore);
         vMasterKey.clear();
+        privateBlsSpendKey.SetToZero();
     }
 
     NotifyStatusChanged(this);
@@ -297,5 +298,139 @@ bool CCryptoKeyStore::EncryptKeys(CKeyingMaterial& vMasterKeyIn)
         }
         mapKeys.clear();
     }
+    return true;
+}
+
+bool CCryptoKeyStore::EncryptBLSCTParameters(CKeyingMaterial& vMasterKeyIn)
+{
+    {
+        LOCK(cs_KeyStore);
+        if (!privateCryptedBlsKey.empty())
+            return false;
+
+        fUseCrypto = true;
+        CKeyingMaterial vchSecretK1(privateBlsSpendKey.k.begin(), privateBlsSpendKey.k.end());
+        std::vector<unsigned char> vchCryptedSecretK1;
+        if (!EncryptSecret(vMasterKeyIn, vchSecretK1, publicBlsKey.GetHash(), privateCryptedBlsKey))
+            return false;
+
+        privateBlsSpendKey.SetToZero();
+    }
+    return true;
+}
+
+bool CCryptoKeyStore::GetBLSCTSpendKey(blsctKey& k) const
+{
+    if (!IsCrypted() || privateCryptedBlsKey.empty())
+        return CBasicKeyStore::GetBLSCTSpendKey(k);
+
+    CKeyingMaterial vchSecret;
+    {
+        LOCK(cs_KeyStore);
+        if(!DecryptSecret(vMasterKey, privateCryptedBlsKey, publicBlsKey.GetHash(), vchSecret))
+            return false;
+    }
+
+    k = blsctKey(vchSecret);
+
+    return true;
+}
+
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::vector<uint8_t>& outputKey, const std::vector<uint8_t>& spendingKey, blsctKey& k) const
+{
+    CKeyID hashId;
+
+    if (!CBasicKeyStore::GetBLSCTHashId(outputKey, spendingKey, hashId))
+        return false;
+
+    return GetBLSCTSubAddressSpendingKeyForOutput(hashId, outputKey, k);
+}
+
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const CKeyID &hashId, const std::vector<uint8_t>& outputKey, blsctKey& k) const
+{
+    std::pair<uint64_t, uint64_t> index;
+
+    if (!CBasicKeyStore::GetBLSCTSubAddressIndex(hashId, index))
+        return false;
+
+    return GetBLSCTSubAddressSpendingKeyForOutput(index, outputKey, k);
+}
+
+bool CCryptoKeyStore::GetBLSCTSubAddressSpendingKeyForOutput(const std::pair<uint64_t, uint64_t>& index, const std::vector<uint8_t>& outputKey, blsctKey& k) const
+{
+    blsctKey s;
+
+    if (!GetBLSCTSpendKey(s))
+        return false;
+
+    CHashWriter string(SER_GETHASH, 0);
+
+    string << std::vector<unsigned char>(subAddressHeader.begin(), subAddressHeader.end());
+    string << privateBlsViewKey;
+    string << index.first;
+    string << index.second;
+
+    try
+    {
+        // Hs(a*R) + b + Hs("SubAddress\0" || a || acc || index)
+        bls::G1Element t = bls::G1Element::FromByteVector(outputKey);
+        Scalar s_ = privateBlsViewKey.GetScalar();
+        t = t * s_.bn;
+        k = blsctKey(bls::PrivateKey::FromBN((Scalar(HashG1Element(t, 0)) + s.GetScalar() + Scalar(string.GetHash())).bn));
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool CCryptoKeyStore::GetCryptedBLSCTSpendKey(std::vector<unsigned char>& k) const
+{
+    if (!IsCrypted() || privateCryptedBlsKey.empty())
+        return false;
+
+    k = privateCryptedBlsKey;
+
+    return true;
+}
+
+bool CCryptoKeyStore::SetBLSCTSpendKey(const blsctKey& s)
+{
+    if (!IsCrypted())
+        return CBasicKeyStore::SetBLSCTSpendKey(s);
+
+    if (!s.IsValid())
+        return false;
+
+    CKeyingMaterial vchSecret(s.k.begin(), s.k.end());
+
+    {
+        LOCK(cs_KeyStore);
+        if (!SetCrypted())
+            return false;
+
+        if (!EncryptSecret(vMasterKey, vchSecret, publicBlsKey.GetHash(), privateCryptedBlsKey))
+            return false;
+    }
+
+    privateBlsSpendKey.SetToZero();
+
+    return true;
+}
+
+
+bool CCryptoKeyStore::SetCryptedBLSCTSpendKey(const std::vector<unsigned char>& k)
+{
+    if (k.empty())
+        return false;
+
+    if (!SetCrypted())
+        return false;
+
+    privateCryptedBlsKey = k;
+    privateBlsSpendKey.SetToZero();
+
     return true;
 }

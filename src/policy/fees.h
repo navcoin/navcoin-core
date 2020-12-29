@@ -7,6 +7,7 @@
 
 #include <amount.h>
 #include <uint256.h>
+#include <sync.h>
 
 #include <map>
 #include <string>
@@ -247,7 +248,7 @@ public:
      *  confTarget blocks. If no answer can be given at confTarget, return an
      *  estimate at the lowest target where one can be given.
      */
-    CFeeRate estimateSmartFee(int confTarget, int *answerFoundAtTarget, const CTxMemPool& pool);
+    CFeeRate estimateSmartFee(int confTarget, int *answerFoundAtTarget, const CTxMemPool& pool, CCriticalSection* mpcs, CCriticalSection* spcs);
 
     /** Return a priority estimate */
     double estimatePriority(int confTarget);
@@ -256,7 +257,7 @@ public:
      *  confTarget blocks. If no answer can be given at confTarget, return an
      *  estimate at the lowest target where one can be given.
      */
-    double estimateSmartPriority(int confTarget, int *answerFoundAtTarget, const CTxMemPool& pool);
+    double estimateSmartPriority(int confTarget, int *answerFoundAtTarget, const CTxMemPool& pool, CCriticalSection* mpcs, CCriticalSection* spcs);
 
     /** Write estimation data to a file */
     void Write(CAutoFile& fileout);

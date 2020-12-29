@@ -236,8 +236,8 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Exclude voters
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 12;
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime = 1612137600; //Feb 1st, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
 
         // Deployment of Cold Staking Pool Fee
@@ -245,6 +245,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 10;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1612137600; // Feb 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -267,6 +271,9 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,36);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
@@ -473,6 +480,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         // Deployment of Exclude voters
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
@@ -483,19 +495,19 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa4;
-        pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x27;
+        pchMessageStart[0] = 0x32;
+        pchMessageStart[1] = 0x24;
+        pchMessageStart[2] = 0xf2;
+        pchMessageStart[3] = 0x17;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
-    
-        uint32_t nTimestamp = 1588962030;
-        uint256 hashGenesisBlock = uint256S("0x0000ca20010727d0fdf6343bc233ac5a5eb44631c89c1722b27c15017dbc2902");
-        uint256 hashMerkleRoot = uint256S("0x413d5d2f43cdb6375980973a56036d4a9c67408fe91240934e269c904677b88a");
-        uint32_t nNonce = 2043761685;
-	    
+
+        uint32_t nTimestamp = 1606327577;
+        uint256 hashGenesisBlock = uint256S("0x0000e0870ba071bb91a28a624f39d92959c4b6fd539d269b0dfcc46f253c3104");
+        uint256 hashMerkleRoot = uint256S("0x97148c18a758d7b06b25294d25e86608d7619f0eab79ab855691233050d6687f");
+        uint32_t nNonce = 2043919587;
+
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
@@ -518,6 +530,9 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,32);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -698,6 +713,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         // Deployment of Exclude voters
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
@@ -753,6 +773,9 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,40);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -933,6 +956,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         // Deployment of Exclude voters
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
@@ -978,6 +1006,9 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = boost::assign::list_of(73)(33).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_SPEND_KEY] = boost::assign::list_of(151)(181).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_BLSCT_VIEW_KEY] = boost::assign::list_of(152)(20).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[COLDSTAKING_ADDRESS_V2] = std::vector<unsigned char>(1,44);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);

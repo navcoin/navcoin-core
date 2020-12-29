@@ -708,6 +708,7 @@ public:
     bool IsConsultationVoteRemove() const;
 
     bool IsPool() const;
+    bool IsFee() const;
     bool ExtractVote(uint256 &hash, int64_t &vote) const;
     bool ExtractSupportVote(uint256 &hash, int64_t &vote) const;
     bool ExtractConsultationVote(uint256 &hash, int64_t &vote) const;

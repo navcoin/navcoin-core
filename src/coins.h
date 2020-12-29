@@ -130,7 +130,7 @@ public:
 
     void ClearUnspendable() {
         for(CTxOut &txout: vout) {
-            if (txout.scriptPubKey.IsUnspendable())
+            if (!txout.IsBLSCT() && txout.scriptPubKey.IsUnspendable())
                 txout.SetNull();
         }
         Cleanup();

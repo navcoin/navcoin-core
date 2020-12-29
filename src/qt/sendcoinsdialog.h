@@ -5,7 +5,9 @@
 #ifndef NAVCOIN_QT_SENDCOINSDIALOG_H
 #define NAVCOIN_QT_SENDCOINSDIALOG_H
 
+#include <blsct/transaction.h>
 #include <qt/walletmodel.h>
+#include <aggregationsession.h>
 
 #include <QDialog>
 #include <QMessageBox>
@@ -42,7 +44,7 @@ public:
 
     /** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases (issue https://bugreports.qt-project.org/browse/QTBUG-10907).
      */
-    QWidget *setupTabChain(QWidget *prev);
+//    QWidget *setupTabChain(QWidget *prev);
 
     void setAddress(const QString &address);
     void pasteEntry(const SendCoinsRecipient &rv);
@@ -55,7 +57,8 @@ public Q_SLOTS:
     SendCoinsEntry *addEntry();
     void updateTabsAndLabels();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
+                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
+                    const CAmount& privateBalance, const CAmount& privPending, const CAmount& privLocked);
 
 private:
     Ui::SendCoinsDialog *ui;
@@ -63,6 +66,12 @@ private:
     WalletModel *model;
     bool fNewRecipientAllowed;
     const PlatformStyle *platformStyle;
+    bool fPrivate;
+    QString sChangeAddress;
+
+    CAmount pubBalance;
+    CAmount privBalance;
+    CAmount ccAmount;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().
@@ -73,7 +82,7 @@ private Q_SLOTS:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void updateDisplayUnit();
-    void coinControlFeatureChanged(bool);
+    void updatePrivateOrPublic(bool fPrivate);
     void coinControlButtonClicked();
     void coinControlChangeChecked(int);
     void coinControlChangeEdited(const QString &);
@@ -86,6 +95,7 @@ private Q_SLOTS:
     void coinControlClipboardPriority();
     void coinControlClipboardLowOutput();
     void coinControlClipboardChange();
+    void reset();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user

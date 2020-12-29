@@ -5,9 +5,11 @@
 #ifndef NAVCOIN_QT_SENDCOINSENTRY_H
 #define NAVCOIN_QT_SENDCOINSENTRY_H
 
+#include <navcoinunits.h>
 #include <qt/walletmodel.h>
 
 #include <QStackedWidget>
+#include <QMessageBox>
 
 class WalletModel;
 class PlatformStyle;
@@ -42,13 +44,19 @@ public:
     /** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases
      *  (issue https://bugreports.qt-project.org/browse/QTBUG-10907).
      */
-    QWidget *setupTabChain(QWidget *prev);
+//    QWidget *setupTabChain(QWidget *prev);
 
     void setFocus();
 
     void setTotalAmount(const CAmount& amount);
+    void setTotalPrivateAmount(const CAmount& amount);
 
     CAmount totalAmount;
+    CAmount totalPrivateAmount;
+
+    int unit;
+
+    bool fPrivate;
 
 public Q_SLOTS:
     void clear();
@@ -57,6 +65,10 @@ Q_SIGNALS:
     void removeEntry(SendCoinsEntry *entry);
     void payAmountChanged();
     void subtractFeeFromAmountChanged();
+    void privateOrPublicChanged(bool fPrivate);
+    void openCoinControl();
+    void customChangeChanged(QString);
+    void coinControlChangeChecked(int state);
 
 private Q_SLOTS:
     void deleteClicked();
@@ -64,9 +76,9 @@ private Q_SLOTS:
     void on_addressBookButton_clicked();
     void updateDisplayUnit();
     void updateAddressBook();
+    void fromChanged(int);
     void useFullAmount();
-    void coinControlFeaturesChanged(bool enabled);
-    void _coinControlFeaturesChanged(bool enabled);
+    void coinControlChangeCheckedSlot(int state);
 
 private:
     SendCoinsRecipient recipient;

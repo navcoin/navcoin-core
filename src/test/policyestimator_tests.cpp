@@ -17,6 +17,7 @@ BOOST_FIXTURE_TEST_SUITE(policyestimator_tests, BasicTestingSetup)
 BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
 {
     CTxMemPool mpool(CFeeRate(1000));
+    CTxMemPool dummypool(CFeeRate(1000));
     TestMemPoolEntryHelper entry;
     CAmount basefee(2000);
     double basepri = 1e6;
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
             for (int k = 0; k < 5; k++) { // add 4 fee txs for every priority tx
                 tx.vin[0].prevout.n = 10000*blocknum+100*j+k; // make transaction unique
                 uint256 hash = tx.GetHash();
-                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool));
+                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool), &mpool.cs, &dummypool.cs);
                 txHashes[j].push_back(hash);
             }
         }
@@ -75,28 +76,28 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
             // 9/10 blocks add 2nd highest and so on until ...
             // 1/10 blocks add lowest fee/pri transactions
             while (txHashes[9-h].size()) {
-                std::shared_ptr<const CTransaction> ptx = mpool.get(txHashes[9-h].back());
+                std::shared_ptr<const CTransaction> ptx = mpool.get(txHashes[9-h].back(), &mpool.cs, &dummypool.cs);
                 if (ptx)
                     block.push_back(*ptx);
                 txHashes[9-h].pop_back();
             }
         }
-        mpool.removeForBlock(block, ++blocknum, dummyConflicted);
+        mpool.removeForBlock(block, &mpool.cs, &dummypool.cs, ++blocknum, dummyConflicted);
         block.clear();
         if (blocknum == 30) {
             // At this point we should need to combine 5 buckets to get enough data points
             // So estimateFee(1,2,3) should fail and estimateFee(4) should return somewhere around
             // 8*baserate.  estimateFee(4) %'s are 100,100,100,100,90 = average 98%
-            BOOST_CHECK(mpool.estimateFee(1) == CFeeRate(0));
-            BOOST_CHECK(mpool.estimateFee(2) == CFeeRate(0));
-            BOOST_CHECK(mpool.estimateFee(3) == CFeeRate(0));
+            BOOST_CHECK(mpool.estimateFee(1, &mpool.cs, &dummypool.cs) == CFeeRate(0));
+            BOOST_CHECK(mpool.estimateFee(2, &mpool.cs, &dummypool.cs) == CFeeRate(0));
+            BOOST_CHECK(mpool.estimateFee(3, &mpool.cs, &dummypool.cs) == CFeeRate(0));
             // BOOST_CHECK(mpool.estimateFee(4).GetFeePerK() < 8*baseRate.GetFeePerK() + deltaFee);
-            BOOST_CHECK(mpool.estimateFee(4).GetFeePerK() > 8*baseRate.GetFeePerK() - deltaFee);
+            BOOST_CHECK(mpool.estimateFee(4, &mpool.cs, &dummypool.cs).GetFeePerK() > 8*baseRate.GetFeePerK() - deltaFee);
             int answerFound;
-            BOOST_CHECK(mpool.estimateSmartFee(1, &answerFound) == mpool.estimateFee(4) && answerFound == 4);
-            BOOST_CHECK(mpool.estimateSmartFee(3, &answerFound) == mpool.estimateFee(4) && answerFound == 4);
-            BOOST_CHECK(mpool.estimateSmartFee(4, &answerFound) == mpool.estimateFee(4) && answerFound == 4);
-            BOOST_CHECK(mpool.estimateSmartFee(8, &answerFound) == mpool.estimateFee(8) && answerFound == 8);
+            BOOST_CHECK(mpool.estimateSmartFee(1, &mpool.cs, &dummypool.cs, &answerFound) == mpool.estimateFee(4, &mpool.cs, &dummypool.cs) && answerFound == 4);
+            BOOST_CHECK(mpool.estimateSmartFee(3, &mpool.cs, &dummypool.cs, &answerFound) == mpool.estimateFee(4, &mpool.cs, &dummypool.cs) && answerFound == 4);
+            BOOST_CHECK(mpool.estimateSmartFee(4, &mpool.cs, &dummypool.cs, &answerFound) == mpool.estimateFee(4, &mpool.cs, &dummypool.cs) && answerFound == 4);
+            BOOST_CHECK(mpool.estimateSmartFee(8, &mpool.cs, &dummypool.cs, &answerFound) == mpool.estimateFee(8, &mpool.cs, &dummypool.cs) && answerFound == 8);
         }
     }
 
@@ -109,8 +110,8 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     // Second highest feerate has 100% chance of being included by 2 blocks,
     // so estimateFee(2) should return 9*baseRate etc...
     for (int i = 1; i < 10;i++) {
-        origFeeEst.push_back(mpool.estimateFee(i).GetFeePerK());
-        origPriEst.push_back(mpool.estimatePriority(i));
+        origFeeEst.push_back(mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK());
+        origPriEst.push_back(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs));
         if (i > 1) { // Fee estimates should be monotonically decreasing
             BOOST_CHECK(origFeeEst[i-1] <= origFeeEst[i-2]);
             BOOST_CHECK(origPriEst[i-1] <= origPriEst[i-2]);
@@ -125,13 +126,13 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     // Mine 50 more blocks with no transactions happening, estimates shouldn't change
     // We haven't decayed the moving average enough so we still have enough data points in every bucket
     while (blocknum < 250)
-        mpool.removeForBlock(block, ++blocknum, dummyConflicted);
+        mpool.removeForBlock(block,  &mpool.cs, &dummypool.cs, ++blocknum, dummyConflicted);
 
     for (int i = 1; i < 10;i++) {
-        BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() < origFeeEst[i-1] + deltaFee);
-        BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
-        BOOST_CHECK(mpool.estimatePriority(i) < origPriEst[i-1] + deltaPri);
-        BOOST_CHECK(mpool.estimatePriority(i) > origPriEst[i-1] - deltaPri);
+        BOOST_CHECK(mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() < origFeeEst[i-1] + deltaFee);
+        BOOST_CHECK(mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() > origFeeEst[i-1] - deltaFee);
+        BOOST_CHECK(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) < origPriEst[i-1] + deltaPri);
+        BOOST_CHECK(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) > origPriEst[i-1] - deltaPri);
     }
 
 
@@ -142,36 +143,36 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
             for (int k = 0; k < 5; k++) { // add 4 fee txs for every priority tx
                 tx.vin[0].prevout.n = 10000*blocknum+100*j+k;
                 uint256 hash = tx.GetHash();
-                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool));
+                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool), &mpool.cs, &dummypool.cs);
                 txHashes[j].push_back(hash);
             }
         }
-        mpool.removeForBlock(block, ++blocknum, dummyConflicted);
+        mpool.removeForBlock(block, &mpool.cs, &dummypool.cs, ++blocknum, dummyConflicted);
     }
 
     int answerFound;
     for (int i = 1; i < 10;i++) {
-        BOOST_CHECK(mpool.estimateFee(i) == CFeeRate(0) || mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
-        BOOST_CHECK(mpool.estimateSmartFee(i, &answerFound).GetFeePerK() > origFeeEst[answerFound-1] - deltaFee);
-        BOOST_CHECK(mpool.estimatePriority(i) == -1 || mpool.estimatePriority(i) > origPriEst[i-1] - deltaPri);
-        BOOST_CHECK(mpool.estimateSmartPriority(i, &answerFound) > origPriEst[answerFound-1] - deltaPri);
+        BOOST_CHECK(mpool.estimateFee(i, &mpool.cs, &dummypool.cs) == CFeeRate(0) || mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() > origFeeEst[i-1] - deltaFee);
+        BOOST_CHECK(mpool.estimateSmartFee(i, &mpool.cs, &dummypool.cs, &answerFound).GetFeePerK() > origFeeEst[answerFound-1] - deltaFee);
+        BOOST_CHECK(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) == -1 || mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) > origPriEst[i-1] - deltaPri);
+        BOOST_CHECK(mpool.estimateSmartPriority(i, &mpool.cs, &dummypool.cs, &answerFound) > origPriEst[answerFound-1] - deltaPri);
     }
 
     // Mine all those transactions
     // Estimates should still not be below original
     for (int j = 0; j < 10; j++) {
         while(txHashes[j].size()) {
-            std::shared_ptr<const CTransaction> ptx = mpool.get(txHashes[j].back());
+            std::shared_ptr<const CTransaction> ptx = mpool.get(txHashes[j].back(), &mpool.cs, &dummypool.cs);
             if (ptx)
                 block.push_back(*ptx);
             txHashes[j].pop_back();
         }
     }
-    mpool.removeForBlock(block, 265, dummyConflicted);
+    mpool.removeForBlock(block, &mpool.cs, &dummypool.cs, 265, dummyConflicted);
     block.clear();
     for (int i = 1; i < 10;i++) {
-        BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
-        BOOST_CHECK(mpool.estimatePriority(i) > origPriEst[i-1] - deltaPri);
+        BOOST_CHECK(mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() > origFeeEst[i-1] - deltaFee);
+        BOOST_CHECK(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) > origPriEst[i-1] - deltaPri);
     }
 
     // Mine 200 more blocks where everything is mined every block
@@ -181,30 +182,30 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
             for (int k = 0; k < 5; k++) { // add 4 fee txs for every priority tx
                 tx.vin[0].prevout.n = 10000*blocknum+100*j+k;
                 uint256 hash = tx.GetHash();
-                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool));
-                std::shared_ptr<const CTransaction> ptx = mpool.get(hash);
+                mpool.addUnchecked(hash, entry.Fee(feeV[k/4][j]).Time(GetTime()).Priority(priV[k/4][j]).Height(blocknum).FromTx(tx, &mpool), &mpool.cs, &dummypool.cs);
+                std::shared_ptr<const CTransaction> ptx = mpool.get(hash, &mpool.cs, &dummypool.cs);
                 if (ptx)
                     block.push_back(*ptx);
             }
         }
-        mpool.removeForBlock(block, ++blocknum, dummyConflicted);
+        mpool.removeForBlock(block, &mpool.cs, &dummypool.cs, ++blocknum, dummyConflicted);
         block.clear();
     }
     for (int i = 1; i < 10; i++) {
-        BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() < origFeeEst[i-1] - deltaFee);
-        BOOST_CHECK(mpool.estimatePriority(i) < origPriEst[i-1] - deltaPri);
+        BOOST_CHECK(mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() < origFeeEst[i-1] - deltaFee);
+        BOOST_CHECK(mpool.estimatePriority(i, &mpool.cs, &dummypool.cs) < origPriEst[i-1] - deltaPri);
     }
 
     // Test that if the mempool is limited, estimateSmartFee won't return a value below the mempool min fee
     // and that estimateSmartPriority returns essentially an infinite value
-    mpool.addUnchecked(tx.GetHash(),  entry.Fee(feeV[0][5]).Time(GetTime()).Priority(priV[1][5]).Height(blocknum).FromTx(tx, &mpool));
+    mpool.addUnchecked(tx.GetHash(),  entry.Fee(feeV[0][5]).Time(GetTime()).Priority(priV[1][5]).Height(blocknum).FromTx(tx, &mpool), &mpool.cs, &dummypool.cs);
     // evict that transaction which should set a mempool min fee of minRelayTxFee + feeV[0][5]
-    mpool.TrimToSize(1);
-    BOOST_CHECK(mpool.GetMinFee(1).GetFeePerK() > feeV[0][5]);
+    mpool.TrimToSize(1, &mpool.cs, &dummypool.cs);
+    BOOST_CHECK(mpool.GetMinFee(1, &mpool.cs, &dummypool.cs).GetFeePerK() > feeV[0][5]);
     for (int i = 1; i < 10; i++) {
-        BOOST_CHECK(mpool.estimateSmartFee(i).GetFeePerK() >= mpool.estimateFee(i).GetFeePerK());
-        BOOST_CHECK(mpool.estimateSmartFee(i).GetFeePerK() >= mpool.GetMinFee(1).GetFeePerK());
-        BOOST_CHECK(mpool.estimateSmartPriority(i) == INF_PRIORITY);
+        BOOST_CHECK(mpool.estimateSmartFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() >= mpool.estimateFee(i, &mpool.cs, &dummypool.cs).GetFeePerK());
+        BOOST_CHECK(mpool.estimateSmartFee(i, &mpool.cs, &dummypool.cs).GetFeePerK() >= mpool.GetMinFee(1, &mpool.cs, &dummypool.cs).GetFeePerK());
+        BOOST_CHECK(mpool.estimateSmartPriority(i, &mpool.cs, &dummypool.cs) == INF_PRIORITY);
     }
 }
 

@@ -1,0 +1,30 @@
+diff --git a/src/bls/contrib/relic/include/relic_alloc.h b/src/bls/contrib/relic/include/relic_alloc.h
+index 9fe54dae..7bf6f9e5 100644
+--- a/src/bls/contrib/relic/include/relic_alloc.h
++++ b/src/bls/contrib/relic/include/relic_alloc.h
+@@ -31,7 +31,7 @@
+
+ #include "relic_conf.h"
+
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+
+ #include <malloc.h>
+
+diff --git a/src/bls/contrib/relic/src/rand/relic_rand_core.c b/src/bls/contrib/relic/src/rand/relic_rand_core.c
+index b8c0f254..502d17bb 100644
+--- a/src/bls/contrib/relic/src/rand/relic_rand_core.c
++++ b/src/bls/contrib/relic/src/rand/relic_rand_core.c
+@@ -54,7 +54,12 @@
+ #undef DOUBLE
+
+ #include <windows.h>
++
++#if defined(__MINGW32__) || defined(__MINGW64__)
++#include <wincrypt.h>
++#else
+ #include <Wincrypt.h>
++#endif
+
+ #elif SEED == RDRND
+

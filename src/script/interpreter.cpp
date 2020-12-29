@@ -1149,6 +1149,14 @@ public:
         ::Serialize(s, txTo.nLockTime, nType, nVersion);
         // Serialize strDZeel
         ::Serialize(s, txTo.strDZeel, nType, nVersion);
+        if (txTo.nVersion & TX_BLS_CT_FLAG)
+        {
+            ::Serialize(s, txTo.vchBalanceSig, nType, nVersion);
+        }
+        if (txTo.nVersion & TX_BLS_INPUT_FLAG)
+        {
+            ::Serialize(s, txTo.vchTxSig, nType, nVersion);
+        }
     }
 };
 

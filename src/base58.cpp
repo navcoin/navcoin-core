@@ -204,7 +204,7 @@ bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes)
 
 bool CBase58Data::SetString(const std::string& str)
 {
-    return SetString(str.c_str());
+    return SetString(str.c_str(), str.substr(0,2) == "xN" ? 2 : 1);
 }
 
 std::string CBase58Data::ToString() const
@@ -238,6 +238,7 @@ public:
     CNavCoinAddressVisitor(CNavCoinAddress* addrIn) : addr(addrIn) {}
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
+    bool operator()(const blsctDoublePublicKey &id) const { return addr->Set(id); }
     bool operator()(const std::pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
     bool operator()(const std::pair<CKeyID, std::pair<CKeyID, CKeyID>>& id) const { return addr->Set(id.first, id.second.first, id.second.second); }
     bool operator()(const CScriptID& id) const { return addr->Set(id); }
@@ -255,6 +256,12 @@ bool CNavCoinAddress::Set(const CKeyID& id)
 bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
 {
     SetData(Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS), &id, 20, &id2, 20);
+    return true;
+}
+
+bool CNavCoinAddress::Set(const blsctDoublePublicKey &id)
+{
+    SetData(Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS), id.GetVkVch().data(), bls::G1Element::SIZE, id.GetSkVch().data(), bls::G1Element::SIZE);
     return true;
 }
 
@@ -284,6 +291,11 @@ bool CNavCoinAddress::Set(const CTxDestination& dest)
 bool CNavCoinAddress::IsValid() const
 {
     return IsValid(Params());
+}
+
+bool CNavCoinAddress::IsPrivateAddress(const CChainParams& params) const
+{
+    return vchVersion == params.Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS);
 }
 
 bool CNavCoinAddress::GetSpendingAddress(CNavCoinAddress &address) const
@@ -324,6 +336,10 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
         return vchData.size() == 60;
     if (vchVersion == params.Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
         return vchData.size() > 0;
+    if (vchVersion == params.Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+        return vchData.size() == 2*bls::G1Element::SIZE;
+    if (vchVersion == params.Base58Prefix(CChainParams::SECRET_BLSCT_VIEW_KEY) || vchVersion == params.Base58Prefix(CChainParams::SECRET_BLSCT_SPEND_KEY))
+        return vchData.size() == bls::PrivateKey::PRIVATE_KEY_SIZE;
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -361,6 +377,22 @@ CTxDestination CNavCoinAddress::Get() const
     }
     if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
+    else if (vchVersion == Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+    {
+        uint8_t vData[bls::G1Element::SIZE];
+        uint8_t sData[bls::G1Element::SIZE];
+
+        memcpy(&vData[0], &vchData[0], bls::G1Element::SIZE);
+        memcpy(&sData[0], &vchData[bls::G1Element::SIZE], bls::G1Element::SIZE);
+        try
+        {
+            return blsctDoublePublicKey(bls::G1Element::FromBytes(vData), bls::G1Element::FromBytes(sData));
+        }
+        catch(...)
+        {
+            return CNoDestination();
+        }
+    }
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
@@ -468,6 +500,24 @@ CKey CNavCoinSecret::GetKey()
 
 bool CNavCoinSecret::IsValid() const
 {
+    if (vchVersion == Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+    {
+        uint8_t vData[bls::G1Element::SIZE];
+        uint8_t sData[bls::G1Element::SIZE];
+
+        memcpy(&vData[0], &vchData[0], bls::G1Element::SIZE);
+        memcpy(&sData[0], &vchData[bls::G1Element::SIZE], bls::G1Element::SIZE);
+        try
+        {
+            blsctDoublePublicKey test = blsctDoublePublicKey(bls::G1Element::FromBytes(vData), bls::G1Element::FromBytes(sData));
+            return true;
+        }
+        catch(...)
+        {
+            return false;
+        }
+    }
+
     bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
     bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
     return fExpectedFormat && fCorrectVersion;

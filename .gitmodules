@@ -1,0 +1,9 @@
+[submodule "src/bls/contrib/pybind11"]
+        path = src/bls/contrib/pybind11
+        url = https://github.com/pybind/pybind11.git
+[submodule "src/bls/contrib/relic"]
+        path = src/bls/contrib/relic
+        url = https://github.com/Chia-Network/relic
+[submodule "src/tor/src/ext/rust"]
+ 	path = src/tor/src/ext/rust
+ 	url = https://git.torproject.org/tor-rust-dependencies

@@ -85,7 +85,7 @@ public:
     bool checkSettingsSaved();
 
     /** Sets the balance for the wallet GUI header */
-    void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
+    void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat, const CAmount &priv, const CAmount& privpending, const CAmount& privlocked);
 
     /** Sets the staked amounts for the wallet GUI header */
     void setStaked(const CAmount &all, const CAmount &today, const CAmount &week);
@@ -136,6 +136,9 @@ private:
     QLabel* balanceAvail;
     QLabel* balancePendi;
     QLabel* balanceImmat;
+    QLabel* privAvail;
+    QLabel* privPendi;
+    QLabel* privLocked;
     QLabel* stakedAvail;
     QLabel* stakedPendi;
     QLabel* stakedImmat;
@@ -342,6 +345,9 @@ private Q_SLOTS:
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+#else
+    /** Handle macOS Dock icon clicked */
+    void macosDockIconActivated();
 #endif
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */

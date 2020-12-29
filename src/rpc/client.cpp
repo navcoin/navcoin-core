@@ -35,6 +35,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getnetworkhashps", 1 },
     { "sendtoaddress", 1 },
     { "sendtoaddress", 5 },
+    { "setaggregationfee", 0},
     { "settxfee", 0 },
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
@@ -47,6 +48,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getbalance", 1 },
     { "getbalance", 2 },
     { "getblockhash", 0 },
+    { "viewaggregatesession", 0},
     { "move", 2 },
     { "move", 3 },
     { "sendfrom", 2 },
@@ -97,6 +99,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "listunspent", 0 },
     { "listunspent", 1 },
     { "listunspent", 2 },
+    { "listprivateunspent", 0 },
+    { "listprivateunspent", 1 },
+    { "listprivateunspent", 2 },
     { "getblock", 1 },
     { "getblockheader", 1 },
     { "gettransaction", 1 },
@@ -150,6 +155,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "coinstakeinputs", 0 },
     { "forcetransactions", 0 },
     { "donatefund", 1 },
+    { "getnewprivateaddress", 0 },
+    { "scanviewkey", 1 },
 };
 
 class CRPCConvertTable

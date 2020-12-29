@@ -7,6 +7,7 @@
 #define NAVCOIN_UINT256_H
 
 #include <assert.h>
+#include <bls.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <stdint.h>

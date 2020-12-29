@@ -120,6 +120,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     balanceAvail(0),
     balancePendi(0),
     balanceImmat(0),
+    privAvail(0),
+    privLocked(0),
+    privPendi(0),
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
@@ -154,7 +157,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     openAction(0),
     showHelpMessageAction(0),
     trayIcon(0),
-    trayIconMenu(0),
+    trayIconMenu{new QMenu()},
     notificator(0),
     rpcConsole(0),
     helpMessageDialog(0),
@@ -199,12 +202,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     windowTitle += " " + networkStyle->getTitleAddText();
 
 
-#ifndef Q_OS_MAC
     QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowIcon(networkStyle->getTrayAndWindowIcon());
-#else
-    MacDockIconHandler::instance()->setIcon(networkStyle->getAppIcon());
-#endif
     setWindowTitle(windowTitle);
 
 #if defined(Q_OS_MAC)
@@ -496,8 +495,8 @@ void NavCoinGUI::createActions()
     encryptTxAction = new QAction(platformStyle->IconAlt(":/icons/lock_closed"), tr("&Encrypt Txdata..."), this);
     encryptTxAction->setStatusTip(tr("Encrypt the transaction history data in your wallet"));
     encryptTxAction->setCheckable(true);
-    unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking..."), this);
-    unlockWalletAction->setToolTip(tr("Unlock wallet for Staking"));
+    unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking and Mixing..."), this);
+    unlockWalletAction->setToolTip(tr("Unlock wallet for Staking and Mixing"));
     backupWalletAction = new QAction(platformStyle->IconAlt(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->IconAlt(":/icons/key"), tr("&Change Passphrase..."), this);
@@ -672,6 +671,8 @@ void NavCoinGUI::createHeaderWidgets()
 
     QWidget* balanceContainer = new QWidget();
     balanceContainer->setObjectName("balanceContainer");
+    QWidget* privateContainer = new QWidget();
+    privateContainer->setObjectName("privateContainer");
     QWidget* stakedContainer = new QWidget();
     stakedContainer->setObjectName("stakedContainer");
 
@@ -679,6 +680,11 @@ void NavCoinGUI::createHeaderWidgets()
     balanceLayout->setContentsMargins(0, 0, 20 * GUIUtil::scale(), 0);
     balanceLayout->setSpacing(5 * GUIUtil::scale());
     balanceContainer->setLayout(balanceLayout);
+
+    QVBoxLayout* privateLayout = new QVBoxLayout();
+    privateLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 20 * GUIUtil::scale(), 0);
+    privateLayout->setSpacing(5 * GUIUtil::scale());
+    privateContainer->setLayout(privateLayout);
 
     QVBoxLayout* stakedLayout = new QVBoxLayout();
     stakedLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 0, 0);
@@ -692,6 +698,11 @@ void NavCoinGUI::createHeaderWidgets()
     balancePendiContainer->setObjectName("balancePendiContainer");
     QWidget* balanceImmatContainer = new QWidget();
     balanceImmatContainer->setObjectName("balanceImmatContainer");
+
+    QWidget* privateAvailContainer = new QWidget();
+    privateAvailContainer->setObjectName("privateAvailContainer");
+    QWidget* privatePendiContainer = new QWidget();
+    privatePendiContainer->setObjectName("privatePendiContainer");
 
     QWidget* stakedAvailContainer = new QWidget();
     stakedAvailContainer->setObjectName("stakedAvailContainer");
@@ -711,6 +722,14 @@ void NavCoinGUI::createHeaderWidgets()
     balanceImmatLayout->setContentsMargins(0, 0, 0, 0);
     balanceImmatLayout->setSpacing(0);
 
+    // Layouts for the sub private sections
+    QVBoxLayout* privateAvailLayout = new QVBoxLayout();
+    privateAvailLayout->setContentsMargins(0, 0, 0, 0);
+    privateAvailLayout->setSpacing(0);
+    QVBoxLayout* privatePendiLayout = new QVBoxLayout();
+    privatePendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
+    privatePendiLayout->setSpacing(0);
+
     // Layouts for the sub staked sections
     QVBoxLayout* stakedAvailLayout = new QVBoxLayout();
     stakedAvailLayout->setContentsMargins(0, 0, 0, 0);
@@ -726,6 +745,8 @@ void NavCoinGUI::createHeaderWidgets()
     balanceAvailContainer->setLayout(balanceAvailLayout);
     balancePendiContainer->setLayout(balancePendiLayout);
     balanceImmatContainer->setLayout(balanceImmatLayout);
+    privateAvailContainer->setLayout(privateAvailLayout);
+    privatePendiContainer->setLayout(privatePendiLayout);
     stakedAvailContainer->setLayout(stakedAvailLayout);
     stakedPendiContainer->setLayout(stakedPendiLayout);
     stakedImmatContainer->setLayout(stakedImmatLayout);
@@ -741,6 +762,14 @@ void NavCoinGUI::createHeaderWidgets()
     balanceImmat->setObjectName("balanceImmat");
     balanceImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
+    // Create our private labels
+    privAvail = new QLabel();
+    privAvail->setObjectName("privAvail");
+    privAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    privPendi = new QLabel();
+    privPendi->setObjectName("privPendi");
+    privPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
     // Create our staked labels
     stakedAvail = new QLabel();
     stakedAvail->setObjectName("stakedAvail");
@@ -754,7 +783,7 @@ void NavCoinGUI::createHeaderWidgets()
 
     // Labels above the actual values
     QLabel* balanceAvailLabel = new QLabel();
-    balanceAvailLabel->setText(tr("Available"));
+    balanceAvailLabel->setText(tr("Public Available"));
     balanceAvailLabel->setObjectName("balanceAvailLabel");
     QLabel* balancePendiLabel = new QLabel();
     balancePendiLabel->setText(tr("Pending"));
@@ -762,6 +791,12 @@ void NavCoinGUI::createHeaderWidgets()
     QLabel* balanceImmatLabel = new QLabel();
     balanceImmatLabel->setText(tr("Immature"));
     balanceImmatLabel->setObjectName("balanceImmatLabel");
+    QLabel *privAvailLabel = new QLabel();
+    privAvailLabel->setText(tr("Private Available"));
+    privAvailLabel->setObjectName("privAvailLabel");
+    QLabel *privPendiLabel = new QLabel();
+    privPendiLabel->setText(tr("Pending"));
+    privPendiLabel->setObjectName("privPendiLabel");
     QLabel* stakedAvailLabel = new QLabel();
     stakedAvailLabel->setText(tr("Staked"));
     stakedAvailLabel->setObjectName("stakedAvailLabel");
@@ -779,6 +814,10 @@ void NavCoinGUI::createHeaderWidgets()
     balancePendiLayout->addWidget(balancePendi);
     balanceImmatLayout->addWidget(balanceImmatLabel);
     balanceImmatLayout->addWidget(balanceImmat);
+    privateAvailLayout->addWidget(privAvailLabel);
+    privateAvailLayout->addWidget(privAvail);
+    privatePendiLayout->addWidget(privPendiLabel);
+    privatePendiLayout->addWidget(privPendi);
     stakedAvailLayout->addWidget(stakedAvailLabel);
     stakedAvailLayout->addWidget(stakedAvail);
     stakedPendiLayout->addWidget(stakedPendiLabel);
@@ -794,6 +833,12 @@ void NavCoinGUI::createHeaderWidgets()
     balanceSubLayout->addWidget(balanceImmatContainer);
 
     // Sub layout
+    QHBoxLayout* privateSubLayout = new QHBoxLayout();
+    privateSubLayout->setContentsMargins(0, 0, 0, 0);
+    privateSubLayout->setSpacing(0);
+    privateSubLayout->addWidget(privatePendiContainer);
+
+    // Sub layout
     QHBoxLayout* stakedSubLayout = new QHBoxLayout();
     stakedSubLayout->setContentsMargins(0, 0, 0, 0);
     stakedSubLayout->setSpacing(0);
@@ -807,6 +852,12 @@ void NavCoinGUI::createHeaderWidgets()
     balanceLayout->addWidget(balanceAvailContainer);
     balanceLayout->addWidget(balanceSub);
 
+    // Private sub
+    QWidget* privateSub = new QWidget();
+    privateSub->setLayout(privateSubLayout);
+    privateLayout->addWidget(privateAvailContainer);
+    privateLayout->addWidget(privateSub);
+
     // Staked sub
     QWidget* stakedSub = new QWidget();
     stakedSub->setLayout(stakedSubLayout);
@@ -816,6 +867,7 @@ void NavCoinGUI::createHeaderWidgets()
 
     // The balance amd staked
     walletFrame->balanceLayout->addWidget(balanceContainer);
+    walletFrame->balanceLayout->addWidget(privateContainer);
     walletFrame->balanceLayout->addWidget(stakedContainer);
 
     // Add the header spacer and header bar
@@ -970,7 +1022,7 @@ bool NavCoinGUI::checkSettingsSaved()
     return true;
 }
 
-void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat)
+void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat, const CAmount& priv, const CAmount& privpending, const CAmount& privlocked)
 {
     if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
         return;
@@ -980,6 +1032,8 @@ void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CA
     balanceAvail->setText(NavCoinUnits::prettyWithUnit(unit, avail, false, NavCoinUnits::separatorAlways));
     balancePendi->setText(NavCoinUnits::prettyWithUnit(unit, pendi, false, NavCoinUnits::separatorAlways));
     balanceImmat->setText(NavCoinUnits::prettyWithUnit(unit, immat, false, NavCoinUnits::separatorAlways));
+    privAvail->setText(NavCoinUnits::prettyWithUnit(unit, priv, false, NavCoinUnits::separatorAlways, true));
+    privPendi->setText(NavCoinUnits::prettyWithUnit(unit, privpending, false, NavCoinUnits::separatorAlways, true));
 }
 
 void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmount &week)
@@ -1157,6 +1211,8 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
 
 void NavCoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
 {
+    assert(QSystemTrayIcon::isSystemTrayAvailable());
+
 #ifndef Q_OS_MAC
     trayIcon = new QSystemTrayIcon(this);
     QString toolTip = tr("%1 client").arg(tr(PACKAGE_NAME)) + " " + networkStyle->getTitleAddText();
@@ -1183,8 +1239,8 @@ void NavCoinGUI::createTrayIconMenu()
 #else
     // Note: On Mac, the dock icon is used to provide the tray's functionality.
     MacDockIconHandler *dockIconHandler = MacDockIconHandler::instance();
-    dockIconHandler->setMainWindow((QMainWindow *)this);
-    trayIconMenu = dockIconHandler->dockMenu();
+    connect(dockIconHandler, &MacDockIconHandler::dockIconClicked, this, &NavCoinGUI::macosDockIconActivated);
+    trayIconMenu->setAsDockMenu();
 #endif
 
     // Configuration of the tray icon (or dock icon) icon menu
@@ -1212,6 +1268,12 @@ void NavCoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
         // Click on system tray icon triggers show/hide of the main window
         toggleHidden();
     }
+}
+#else
+void NavCoinGUI::macosDockIconActivated()
+{
+    show();
+    activateWindow();
 }
 #endif
 
@@ -1654,7 +1716,7 @@ void NavCoinGUI::incomingTransaction(const QString& date, int unit, const CAmoun
 {
     // On new transaction, make an info balloon
     QString msg = tr("Date: %1\n").arg(date) +
-                  tr("Amount: %1\n").arg(NavCoinUnits::formatWithUnit(unit, amount, true)) +
+                  tr("Amount: %1\n").arg(NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::SeparatorStyle::separatorStandard, type.contains("Private Payment"))) +
                   tr("Type: %1\n").arg(type);
     if (!label.isEmpty())
         msg += tr("Label: %1\n").arg(label);
@@ -1714,7 +1776,7 @@ void NavCoinGUI::setEncryptionStatus(int status)
     if(fWalletUnlockStakingOnly)
     {
         labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
+        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking or mixing only</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false);
@@ -1875,10 +1937,10 @@ void NavCoinGUI::askForPin(std::string *ret)
         *ret = "=";
 }
 
-void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
+void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat, const CAmount& priv, const CAmount& privpending, const CAmount& privlocked)
 {
     // Call our instance method
-    gui->setBalance(total, avail, immat);
+    gui->setBalance(total, avail, immat, priv, privpending, privlocked);
 }
 
 void SetStaked(NavCoinGUI *gui, const CAmount& all, const CAmount& today, const CAmount &week)
@@ -1892,8 +1954,8 @@ void NavCoinGUI::subscribeToCoreSignals()
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
     uiInterface.AskForPin.connect(boost::bind(AskForPin, this));
-    uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
@@ -1902,8 +1964,8 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
     uiInterface.AskForPin.disconnect(boost::bind(AskForPin, this));
-    uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 

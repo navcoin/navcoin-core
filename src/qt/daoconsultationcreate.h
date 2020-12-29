@@ -10,6 +10,8 @@
 #include "navcoinlistwidget.h"
 #include "walletmodel.h"
 
+#include <base58.h>
+
 #include <QCheckBox>
 #include <QDialog>
 #include <QLabel>

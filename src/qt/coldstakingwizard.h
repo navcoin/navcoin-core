@@ -8,6 +8,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/receiverequestdialog.h>
+#include <base58.h>
 
 #include <QGridLayout>
 #include <QLabel>

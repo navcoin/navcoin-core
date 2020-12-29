@@ -17,6 +17,8 @@
 #include <checkpoints.h>
 #include <compat/sanity.h>
 #include <consensus/validation.h>
+#include <blsct/aggregationsession.h>
+#include <blsct/rpc.h>
 #include <httpserver.h>
 #include <httprpc.h>
 #include <kernel.h>
@@ -35,6 +37,7 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
+#include <torthread.h>
 #include <ui_interface.h>
 #include <untar.h>
 #include <util.h>
@@ -65,7 +68,6 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/aes.h>
-
 
 #if ENABLE_ZMQ
 #include <zmq/zmqnotificationinterface.h>
@@ -220,6 +222,7 @@ public:
 static CStateViewDB *pcoinsdbview = nullptr;
 static CStateViewErrorCatcher *pcoinscatcher = nullptr;
 static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
+static TorControlThread torController = TorControlThread();
 
 void Interrupt(boost::thread_group& threadGroup)
 {
@@ -227,7 +230,9 @@ void Interrupt(boost::thread_group& threadGroup)
     InterruptHTTPRPC();
     InterruptRPC();
     InterruptREST();
-    InterruptTorControl();
+    torController.Interrupt();
+    if (fTorServer)
+        TorThreadInterrupt();
     threadGroup.interrupt_all();
 }
 
@@ -247,9 +252,9 @@ void PrepareShutdown()
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
     RenameThread("navcoin-shutoff");
-    mempool.AddTransactionsUpdated(1);
+    mempool.AddTransactionsUpdated(1, &mempool.cs, &stempool.cs);
     // Changes to mempool should also be made to Dandelion stempool
-    stempool.AddTransactionsUpdated(1);
+    stempool.AddTransactionsUpdated(1, &mempool.cs, &stempool.cs);
 
     StopHTTPRPC();
     StopREST();
@@ -260,6 +265,7 @@ void PrepareShutdown()
         pwalletMain->Flush(false);
 #endif
     StopNode();
+    torController.Stop();
     UnregisterNodeSignals(GetNodeSignals());
 
     if (fFeeEstimatesInitialized)
@@ -267,7 +273,7 @@ void PrepareShutdown()
         boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
         CAutoFile est_fileout(fopen(est_path.string().c_str(), "wb"), SER_DISK, CLIENT_VERSION);
         if (!est_fileout.IsNull())
-            mempool.WriteFeeEstimates(est_fileout);
+            mempool.WriteFeeEstimates(est_fileout, &mempool.cs, &stempool.cs);
         else
             LogPrintf("%s: Failed to write fee estimates to %s\n", __func__, est_path.string());
         fFeeEstimatesInitialized = false;
@@ -326,7 +332,7 @@ void Shutdown()
         PrepareShutdown();
     }
     // Shutdown part 2: Stop TOR thread and delete wallet instance
-    StopTorControl();
+    torController.Stop();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = nullptr;
@@ -988,6 +994,11 @@ void DownloadBlockchain(std::string url)
     }
 }
 
+void ttt(std::string d)
+{
+    LogPrintf("created %s\n", d);
+}
+
 /** Initialize navcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -1023,6 +1034,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     {
         SoftSetBoolArg("-rescan", true);
     }
+
+    BulletproofsRangeproof::Init();
 
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
@@ -1065,6 +1078,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     sa.sa_handler = HandleSIGTERM;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
+
     sigaction(SIGTERM, &sa, nullptr);
     sigaction(SIGINT, &sa, nullptr);
 
@@ -1166,6 +1180,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     fServer = GetBoolArg("-server", false);
 
+    fTorServer = GetBoolArg("-torserver", false);
+
+    if (fTorServer)
+        TorThreadInit();
+
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nSignedPruneTarget = GetArg("-prune", 0) * 1024 * 1024;
     if (nSignedPruneTarget < 0) {
@@ -1184,7 +1203,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 #ifdef ENABLE_WALLET
     bool fDisableWallet = GetBoolArg("-disablewallet", false);
     if (!fDisableWallet)
+    {
         RegisterWalletRPCCommands(tableRPC);
+        RegisterBLSCTRPCCommands(tableRPC);
+    }
 #endif
 
     nConnectTimeout = GetArg("-timeout", DEFAULT_CONNECT_TIMEOUT);
@@ -1417,7 +1439,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     std::string proxyArg = GetArg("-proxy", "");
     SetLimited(NET_TOR);
     if (proxyArg != "" && proxyArg != "0") {
-        proxyType addrProxy = proxyType(CService(proxyArg, 9050), proxyRandomize);
+        proxyType addrProxy = proxyType(CService(proxyArg, GetArg("-torsocksport", 9044)), proxyRandomize);
         if (!addrProxy.IsValid())
             return InitError(strprintf(_("Invalid -proxy address: '%s'"), proxyArg));
 
@@ -1431,12 +1453,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // -onion can be used to set only a proxy for .onion, or override normal proxy for .onion addresses
     // -noonion (or -onion=0) disables connecting to .onion entirely
     // An empty string is used to not override the onion proxy (in which case it defaults to -proxy set above, or none)
-    std::string onionArg = GetArg("-onion", "");
+    std::string onionArg = GetArg("-onion", "127.0.0.1:" + std::to_string( GetArg("-torsocksport", 9044)));
     if (onionArg != "") {
         if (onionArg == "0") { // Handle -noonion/-onion=0
             SetLimited(NET_TOR); // set onions as unreachable
         } else {
-            proxyType addrOnion = proxyType(CService(onionArg, 9050), proxyRandomize);
+            proxyType addrOnion = proxyType(CService(onionArg, GetArg("-torsocksport", 9044)), proxyRandomize);
             if (!addrOnion.IsValid())
                 return InitError(strprintf(_("Invalid -onion address: '%s'"), onionArg));
             SetProxy(NET_TOR, addrOnion);
@@ -1773,7 +1795,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     CAutoFile est_filein(fopen(est_path.string().c_str(), "rb"), SER_DISK, CLIENT_VERSION);
     // Allowed to fail as this file IS missing on first startup.
     if (!est_filein.IsNull())
-        mempool.ReadFeeEstimates(est_filein);
+        mempool.ReadFeeEstimates(est_filein, &mempool.cs, &stempool.cs);
     fFeeEstimatesInitialized = true;
 
     // ********************************************************* Step 8: load wallet
@@ -1854,12 +1876,14 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
+    LogPrintf("setBLSCTBlindingKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setBLSCTBlindingKeyPool.size() : 0);
+    LogPrintf("mapBLSCTSubAddressKeyPool.size() = %u\n",    pwalletMain ? pwalletMain->mapBLSCTSubAddressKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %u\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 
     if (GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
-        StartTorControl(threadGroup, scheduler);
+        torController.Start();
 
     StartNode(threadGroup, scheduler);
 
@@ -1871,6 +1895,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
     threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    if (pwalletMain)
+    {
+        threadGroup.create_thread(boost::bind(&AggregationSessionThread));
+        threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
+    }
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

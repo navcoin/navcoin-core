@@ -87,6 +87,10 @@ public:
     {
         return (exp_addrType == "coldstaking");
     }
+    bool operator()(const blsctDoublePublicKey &id) const
+    {
+        return (exp_addrType == "private");
+    }
     bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &id) const
     {
         return (exp_addrType == "coldstaking_v2");

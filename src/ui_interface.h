@@ -76,7 +76,7 @@ public:
     };
 
     /** Update the balance in the wallet header. */
-    boost::signals2::signal<void (const CAmount &avail, const CAmount &pending, const CAmount &immat)> SetBalance;
+    boost::signals2::signal<void (const CAmount &avail, const CAmount &pending, const CAmount &immat, const CAmount &priv, const CAmount& privpending, const CAmount& privlocked)> SetBalance;
 
     /** Update the staked stats in the wallet header */
     boost::signals2::signal<void (const CAmount &all, const CAmount &today, const CAmount &week)> SetStaked;
@@ -109,6 +109,9 @@ public:
 
     /** New block has been accepted */
     boost::signals2::signal<void (bool, const CBlockIndex *)> NotifyBlockTip;
+
+    /** New AggregationSession has been received */
+    boost::signals2::signal<void (std::string)> NewAggregationSession;
 
     /** Best header has changed */
     boost::signals2::signal<void (bool, const CBlockIndex *)> NotifyHeaderTip;

@@ -343,9 +343,6 @@
     </message>
 </context>
 <context>
-    <name>PaymentServer</name>
-    </context>
-<context>
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>

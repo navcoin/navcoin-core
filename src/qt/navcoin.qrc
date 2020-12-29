@@ -3,7 +3,6 @@
         <file alias="navcoin">res/icons/navcoin.png</file>
         <file alias="navcoin_full">res/icons/navcoin_full.png</file>
         <file alias="logo_n">res/icons/logo_n.png</file>
-
         <file alias="about">res/icons/about.svg</file>
         <file alias="about_qt">res/icons/about_qt.svg</file>
         <file alias="add">res/icons/add.svg</file>
@@ -59,13 +58,15 @@
         <file alias="tx_output">res/icons/tx_output.svg</file>
         <file alias="verify">res/icons/verify.svg</file>
         <file alias="warning">res/icons/warning.svg</file>
-
         <file alias="roboto">res/fonts/roboto.ttf</file>
         <file alias="roboto-black">res/fonts/roboto-black.ttf</file>
         <file alias="roboto-bold">res/fonts/roboto-bold.ttf</file>
         <file alias="roboto-medium">res/fonts/roboto-medium.ttf</file>
         <file alias="robotoreg">res/fonts/roboto-regular.ttf</file>
         <file alias="source">res/fonts/source.ttf</file>
+        <file alias="swap">res/icons/swap.png</file>
+        <file alias="mininav">res/icons/mininav.svg</file>
+        <file alias="minixnav">res/icons/minixnav.svg</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>
@@ -108,7 +109,6 @@
     <qresource prefix="/themes">
         <file alias="app">res/themes/app.qss</file>
         <file alias="shared">res/themes/shared.qss</file>
-
         <file alias="dark">res/themes/dark/styles.qss</file>
         <file alias="light">res/themes/light/styles.qss</file>
     </qresource>

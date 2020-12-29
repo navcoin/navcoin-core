@@ -9,9 +9,9 @@ WalletTestingSetup::WalletTestingSetup(const std::string& chainName):
 {
     bitdb.MakeMock();
 
-    bool fFirstRun;
+    bool fFirstRun, fBLSCTFirstRun;
     pwalletMain = new CWallet("wallet_test.dat");
-    pwalletMain->LoadWallet(fFirstRun);
+    pwalletMain->LoadWallet(fFirstRun, fBLSCTFirstRun);
     RegisterValidationInterface(pwalletMain);
 
     RegisterWalletRPCCommands(tableRPC);

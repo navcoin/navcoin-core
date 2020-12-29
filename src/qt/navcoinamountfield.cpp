@@ -178,7 +178,7 @@ Q_SIGNALS:
 
 #include <qt/navcoinamountfield.moc>
 
-NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
+NavCoinAmountField::NavCoinAmountField(QWidget *parent, bool fUnit) :
     QWidget(parent),
     amount(0)
 {
@@ -188,8 +188,9 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
-    unit = new QLabel(this);
-    layout->addWidget(unit);
+    unit = new QLabel(fUnit?this:0);
+    if (fUnit)
+        layout->addWidget(unit);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);

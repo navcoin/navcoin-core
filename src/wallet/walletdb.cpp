@@ -54,6 +54,32 @@ bool CWalletDB::ErasePurpose(const string& strPurpose)
     return Erase(make_pair(string("purpose"), strPurpose));
 }
 
+bool CWalletDB::WritePrivateName(const string& strAddress, const string& strName)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("privatename"), strAddress), strName);
+}
+
+bool CWalletDB::ErasePrivateName(const string& strAddress)
+{
+    // This should only be used for sending addresses, never for receiving addresses,
+    // receiving addresses must always have an address book entry if they're not change return.
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("privatename"), strAddress));
+}
+
+bool CWalletDB::WritePrivatePurpose(const string& strAddress, const string& strPurpose)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("privatepurpose"), strAddress), strPurpose);
+}
+
+bool CWalletDB::ErasePrivatePurpose(const string& strPurpose)
+{
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("privatepurpose"), strPurpose));
+}
+
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
     nWalletDBUpdated++;
@@ -81,6 +107,41 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
 
     return Write(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
+}
+
+bool CWalletDB::WriteCandidateTransactions(const std::vector<CandidateTransaction>& candidates)
+{
+    nWalletDBUpdated++;
+
+    LogPrintf("Writing %d candidate transactions\n", candidates.size());
+
+    return Write(std::string("candidatetransactions"), candidates);
+}
+
+bool CWalletDB::WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce)
+{
+    nWalletDBUpdated++;
+
+    return Write(std::make_pair(std::string("outputnonce"), hash), nonce);
+}
+
+
+bool CWalletDB::WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta)
+{
+    nWalletDBUpdated++;
+
+    if (!Write(std::make_pair(std::string("blsctblindingkeymeta"), vchPubKey),
+               keyMeta, false))
+        return false;
+
+    return Write(std::make_pair(std::string("blsctblindingkey"), vchPubKey), vchPrivKey, false);
+}
+
+bool CWalletDB::WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index)
+{
+    nWalletDBUpdated++;
+
+    return Write(std::make_pair(std::string("blsctsubaddress"), hashId), index, false);
 }
 
 bool CWalletDB::WriteCryptedKey(const CPubKey& vchPubKey,
@@ -153,6 +214,77 @@ bool CWalletDB::WriteDefaultKey(const CPubKey& vchPubKey)
     return Write(std::string("defaultkey"), vchPubKey);
 }
 
+bool CWalletDB::WriteBLSCTSpendKey(const blsctKey& key)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("blsctspendkey"), key);
+}
+
+bool CWalletDB::WriteBLSCTViewKey(const blsctKey& key)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("blsctviewkey"), key);
+}
+
+bool CWalletDB::WriteBLSCTBlindingMasterKey(const blsctKey& key)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("blsctblindingmasterkey"), key);
+}
+
+bool CWalletDB::WriteBLSCTDoublePublicKey(const blsctDoublePublicKey& key)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("blsctDoublePublicKey"), key);
+}
+
+bool CWalletDB::WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("crypted_blsctspendkey"), ck) &&
+            Erase(std::string("blsctspendkey"));
+}
+
+bool CWalletDB::WriteBLSCTKey(const CWallet* pwallet)
+{
+    std::vector<unsigned char> vchCk;
+    blsctKey v, s;
+    blsctDoublePublicKey p;
+    blsctKey b;
+
+    if (!pwallet->GetCryptedBLSCTSpendKey(vchCk))
+        if (!pwallet->GetBLSCTSpendKey(s))
+            return false;
+
+    if (vchCk.empty()) {
+        if (!WriteBLSCTSpendKey(s))
+            return false;
+    } else if (!WriteBLSCTCryptedKey(vchCk))
+        return false;
+
+    s.SetToZero();
+
+    if (!pwallet->GetBLSCTViewKey(v))
+        return false;
+
+    if (!WriteBLSCTViewKey(v))
+        return false;
+
+    if (!pwallet->GetBLSCTDoublePublicKey(p))
+        return false;
+
+    if (!WriteBLSCTDoublePublicKey(p))
+        return false;
+
+    if (!pwallet->GetBLSCTBlindingMasterKey(b))
+        return false;
+
+    if (!WriteBLSCTBlindingMasterKey(b))
+        return false;
+
+    return true;
+}
+
 bool CWalletDB::ReadPool(int64_t nPool, CKeyPool& keypool)
 {
     return Read(std::make_pair(std::string("pool"), nPool), keypool);
@@ -168,6 +300,40 @@ bool CWalletDB::ErasePool(int64_t nPool)
 {
     nWalletDBUpdated++;
     return Erase(std::make_pair(std::string("pool"), nPool));
+}
+
+bool CWalletDB::ReadBLSCTSubAddressPool(uint64_t account, uint64_t nPool, CBLSCTSubAddressKeyPool& keypool)
+{
+    return Read(std::make_pair(std::string("blsctsubaddresspool"), std::make_pair(account, nPool)), keypool);
+}
+
+bool CWalletDB::WriteBLSCTSubAddressPool(uint64_t account, uint64_t nPool, const CBLSCTSubAddressKeyPool& keypool)
+{
+    nWalletDBUpdated++;
+    return Write(std::make_pair(std::string("blsctsubaddresspool"), std::make_pair(account, nPool)), keypool);
+}
+
+bool CWalletDB::EraseBLSCTSubAddressPool(uint64_t account, uint64_t nPool)
+{
+    nWalletDBUpdated++;
+    return Erase(std::make_pair(std::string("blsctsubaddresspool"), std::make_pair(account, nPool)));
+}
+
+bool CWalletDB::ReadBLSCTBlindingPool(int64_t nPool, CBLSCTBlindingKeyPool& keypool)
+{
+    return Read(std::make_pair(std::string("blsctpool"), nPool), keypool);
+}
+
+bool CWalletDB::WriteBLSCTBlindingPool(int64_t nPool, const CBLSCTBlindingKeyPool& keypool)
+{
+    nWalletDBUpdated++;
+    return Write(std::make_pair(std::string("blsctpool"), nPool), keypool);
+}
+
+bool CWalletDB::EraseBLSCTBlindingPool(int64_t nPool)
+{
+    nWalletDBUpdated++;
+    return Erase(std::make_pair(std::string("blsctpool"), nPool));
 }
 
 bool CWalletDB::WriteMinVersion(int nVersion)
@@ -330,15 +496,18 @@ DBErrors CWalletDB::ReorderTransactions(CWallet* pwallet)
 class CWalletScanState {
 public:
     unsigned int nKeys;
+    unsigned int nBLSCTKeys;
+    unsigned int nSubAddresses;
     unsigned int nCKeys;
     unsigned int nKeyMeta;
+    unsigned int nBLSCTBlindingKeyMeta;
     bool fIsEncrypted;
     bool fAnyUnordered;
     int nFileVersion;
     vector<uint256> vWalletUpgrade;
 
     CWalletScanState() {
-        nKeys = nCKeys = nKeyMeta = 0;
+        nKeys = nCKeys = nKeyMeta = nSubAddresses = nBLSCTBlindingKeyMeta = nBLSCTKeys = 0;
         fIsEncrypted = false;
         fAnyUnordered = false;
         nFileVersion = 0;
@@ -365,6 +534,18 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             string strAddress;
             ssKey >> strAddress;
             ssValue >> pwallet->mapAddressBook[CNavCoinAddress(strAddress).Get()].purpose;
+        }
+        else if (strType == "privatename")
+        {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapPrivateAddressBook[strAddress].name;
+        }
+        else if (strType == "privatepurpose")
+        {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapPrivateAddressBook[strAddress].purpose;
         }
         else if (strType == "tx")
         {
@@ -495,6 +676,42 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 return false;
             }
         }
+        else if (strType == "blsctblindingkey")
+        {
+            blsctPublicKey vchPubKey;
+            ssKey >> vchPubKey;
+            if (!vchPubKey.IsValid())
+            {
+                strErr = "Error reading wallet database: blsctDoublePublicKey corrupt";
+                return false;
+            }
+            blsctKey key;
+
+            wss.nBLSCTKeys++;
+            ssValue >> key;
+
+            if (!pwallet->LoadBLSCTBlindingKey(key, vchPubKey))
+            {
+                strErr = "Error reading wallet database: LoadBLSCTBlindingKey failed";
+                return false;
+            }
+        }
+        else if (strType == "blsctsubaddress")
+        {
+            CKeyID hashId;
+            ssKey >> hashId;
+
+            std::pair<uint64_t, uint64_t> index;
+
+            wss.nSubAddresses++;
+            ssValue >> index;
+
+            if (!pwallet->LoadBLSCTSubAddress(hashId, index))
+            {
+                strErr = "Error reading wallet database: LoadBLSCTSubAddress failed";
+                return false;
+            }
+        }
         else if (strType == "mkey")
         {
             unsigned int nID;
@@ -545,9 +762,64 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 (keyMeta.nCreateTime < pwallet->nTimeFirstKey))
                 pwallet->nTimeFirstKey = keyMeta.nCreateTime;
         }
+        else if (strType == "blsctblindingkeymeta")
+        {
+            blsctPublicKey vchPubKey;
+            ssKey >> vchPubKey;
+            CBLSCTBlindingKeyMetadata keyMeta;
+            ssValue >> keyMeta;
+            wss.nBLSCTBlindingKeyMeta++;
+
+            pwallet->LoadBLSCTBlindingKeyMetadata(vchPubKey, keyMeta);
+        }
         else if (strType == "defaultkey")
         {
             ssValue >> pwallet->vchDefaultKey;
+        }
+        else if (strType == "candidatetransactions")
+        {
+            std::vector<CandidateTransaction> ct;
+            ssValue >> ct;
+            LogPrintf("Read %d candidate transactions\n", ct.size());
+            pwallet->aggSession->SetCandidateTransactions(ct);
+        }
+        else if (strType == "outputnonce")
+        {
+            uint256 hash;
+            std::vector<unsigned char> nonce;
+            ssKey >> hash;
+            ssValue >> nonce;
+            pwallet->mapNonces[hash] = nonce;
+        }
+        else if (strType == "blsctviewkey")
+        {
+            blsctKey v;
+            ssValue >> v;
+            pwallet->SetBLSCTViewKey(v);
+        }
+        else if (strType == "blsctblindingmasterkey")
+        {
+            blsctKey v;
+            ssValue >> v;
+            pwallet->SetBLSCTBlindingMasterKey(v);
+        }
+        else if (strType == "blsctspendkey")
+        {
+            blsctKey s;
+            ssValue >> s;
+            pwallet->SetBLSCTSpendKey(s);
+        }
+        else if (strType == "blsctDoublePublicKey")
+        {
+            blsctDoublePublicKey k;
+            ssValue >> k;
+            pwallet->SetBLSCTDoublePublicKey(k);
+        }
+        else if (strType == "crypted_blsctspendkey")
+        {
+            std::vector<unsigned char> ok;
+            ssValue >> ok;
+            pwallet->SetCryptedBLSCTSpendKey(ok);
         }
         else if (strType == "pool")
         {
@@ -563,6 +835,31 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             CKeyID keyid = keypool.vchPubKey.GetID();
             if (pwallet->mapKeyMetadata.count(keyid) == 0)
                 pwallet->mapKeyMetadata[keyid] = CKeyMetadata(keypool.nTime);
+        }
+        else if (strType == "blsctpool")
+        {
+            int64_t nIndex;
+            ssKey >> nIndex;
+            CBLSCTBlindingKeyPool keypool;
+            ssValue >> keypool;
+            pwallet->setBLSCTBlindingKeyPool.insert(nIndex);
+
+            // If no metadata exists yet, create a default with the pool key's
+            // creation time. Note that this may be overwritten by actually
+            // stored metadata for that key later, which is fine.
+            CKeyID keyid = keypool.vchPubKey.GetID();
+            if (pwallet->mapBLSCTBlindingKeyMetadata.count(keyid) == 0)
+                pwallet->mapBLSCTBlindingKeyMetadata[keyid] = CBLSCTBlindingKeyMetadata(keypool.nTime);
+        }
+        else if (strType == "blsctsubaddresspool")
+        {
+            std::pair<uint64_t, uint64_t> nIndex;
+            ssKey >> nIndex;
+            CBLSCTSubAddressKeyPool keypool;
+            ssValue >> keypool;
+            if (pwallet->mapBLSCTSubAddressKeyPool.count(nIndex.first) == 0)
+                pwallet->mapBLSCTSubAddressKeyPool.insert(std::make_pair(nIndex.first, std::set<uint64_t>()));
+            pwallet->mapBLSCTSubAddressKeyPool[nIndex.first].insert(nIndex.second);
         }
         else if (strType == "version")
         {
@@ -699,8 +996,8 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
 
     LogPrintf("nFileVersion = %d\n", wss.nFileVersion);
 
-    LogPrintf("Keys: %u plaintext, %u encrypted, %u w/ metadata, %u total\n",
-           wss.nKeys, wss.nCKeys, wss.nKeyMeta, wss.nKeys + wss.nCKeys);
+    LogPrintf("Keys: %u plaintext, %u blsct, %u subaddresses, %u encrypted, %u w/ metadata, %u total\n",
+           wss.nKeys, wss.nBLSCTKeys, wss.nSubAddresses, wss.nCKeys, wss.nKeyMeta, wss.nBLSCTKeys + wss.nKeys + wss.nCKeys + wss.nSubAddresses);
 
     // nTimeFirstKey is only reliable if all keys have metadata
     if ((wss.nKeys + wss.nCKeys) != wss.nKeyMeta)
@@ -1012,7 +1309,6 @@ bool CWalletDB::EraseDestData(const std::string &address, const std::string &key
     nWalletDBUpdated++;
     return Erase(std::make_pair(std::string("destdata"), std::make_pair(address, key)));
 }
-
 
 bool CWalletDB::WriteHDChain(const CHDChain& chain)
 {

@@ -1,28 +1,43 @@
 ---
-name: "navcoin-win-4.0.0"
+name: "navcoin-win-5.0.1"
 enable_cache: true
+sudo: true
 distro: "ubuntu"
 suites:
 - "bionic"
 architectures:
 - "amd64"
 packages:
-- "curl"
-- "g++"
-- "git"
-- "pkg-config"
+- "sudo"
 - "autoconf"
-- "libtool"
 - "automake"
-- "faketime"
 - "bsdmainutils"
-- "mingw-w64"
-- "g++-mingw-w64"
-- "nsis"
-- "zip"
 - "ca-certificates"
+- "cmake"
+- "curl"
+- "faketime"
+- "g++"
+- "g++-mingw-w64"
+- "git"
+- "libtool"
+- "mingw-w64"
+- "nsis"
+- "pkg-config"
 - "python3"
+- "python3-dev"
+- "python3-distutils"
 - "rename"
+- "zip"
+- "libcap-dev"
+- "libtinfo5"
+- 'libattr1-dev'
+repositories:
+- "distribution": "bionic"
+  "source": "deb https://apt.kitware.com/ubuntu/ bionic main"
+  "key": "https://apt.kitware.com/keys/kitware-archive-latest.asc"
+  "name": "kitware"
+  packages:
+  - "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
@@ -35,8 +50,8 @@ script: |
   CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"
   FAKETIME_HOST_PROGS="ar ranlib nm windres strip objcopy"
   FAKETIME_PROGS="date makensis zip"
-  HOST_CFLAGS="-O2 -g"
-  HOST_CXXFLAGS="-O2 -g"
+  HOST_CFLAGS="-O1 -g"
+  HOST_CXXFLAGS="-O1 -g"
 
   export QT_RCC_TEST=1
   export QT_RCC_SOURCE_DATE_OVERRIDE=1
@@ -99,6 +114,9 @@ script: |
   done
   }
 
+  EXTRA_INCLUDES_BASE=$WRAP_DIR/extra_includes
+  mkdir -p $EXTRA_INCLUDES_BASE
+
   # Faketime for depends so intermediate results are comparable
   export PATH_orig=${PATH}
   create_global_faketime_wrappers "2000-01-01 12:00:00"
@@ -111,6 +129,13 @@ script: |
   # Build dependencies for each host
   for i in $HOSTS; do
     make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
+  done
+
+  # mingw32 needs alloca.h and Wincrypt.h for building relic
+  # but we can't write there. Instead, create a link here
+  for i in $HOSTS; do
+    sudo cp /usr/$i/include/malloc.h /usr/$i/include/alloca.h
+    sudo cp /usr/$i/include/wincrypt.h /usr/$i/include/Wincrypt.h
   done
 
   # Faketime for binaries
@@ -156,7 +181,6 @@ script: |
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
     make ${MAKEOPTS}
-    make ${MAKEOPTS} -C src check-security
     make deploy
     make install DESTDIR=${INSTALLPATH}
     rename 's/-setup\.exe$/-setup-unsigned.exe/' *-setup.exe

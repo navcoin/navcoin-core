@@ -57,7 +57,7 @@ QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
     unitlist.append(SEK); // Swedish krona
     unitlist.append(SGD); // Singapore dollar
     unitlist.append(THB); // Thai baht
-    unitlist.append(TRY); // Turkish lira
+    unitlist.append(TRYy); // Turkish lira
     unitlist.append(TWD); // New Taiwan dollar
     unitlist.append(ZAR); // South African rand
 
@@ -99,7 +99,7 @@ bool NavCoinUnits::valid(int unit)
         case SEK:
         case SGD:
         case THB:
-        case TRY:
+        case TRYy:
         case TWD:
         case ZAR:
             return true;
@@ -108,11 +108,11 @@ bool NavCoinUnits::valid(int unit)
     }
 }
 
-QString NavCoinUnits::name(int unit)
+QString NavCoinUnits::name(int unit, bool fPrivate)
 {
     switch(unit)
     {
-        case NAV: return QString("NAV");
+        case NAV: if (fPrivate) return QString("xNAV"); else return QString("NAV");
         case BTC: return QString("BTC");
         case EUR: return QString("EUR");
         case USD: return QString("USD");
@@ -143,7 +143,7 @@ QString NavCoinUnits::name(int unit)
         case SEK: return QString("SEK");
         case SGD: return QString("SGD");
         case THB: return QString("THB");
-        case TRY: return QString("TRY");
+        case TRYy: return QString("TRY");
         case TWD: return QString("TWD");
         case ZAR: return QString("ZAR");
         default: return QString("???");
@@ -185,7 +185,7 @@ QString NavCoinUnits::description(int unit)
         case SEK: return QString("Swedish krona");
         case SGD: return QString("Singapore dollar");
         case THB: return QString("Thai baht");
-        case TRY: return QString("Turkish lira");
+        case TRYy: return QString("Turkish lira");
         case TWD: return QString("New Taiwan dollar");
         case ZAR: return QString("South African rand");
         default: return QString("???");
@@ -230,7 +230,7 @@ qint64 NavCoinUnits::factor(int unit)
         case SEK: return settings.value("sekFactor", 0).toFloat();
         case SGD: return settings.value("sgdFactor", 0).toFloat();
         case THB: return settings.value("thbFactor", 0).toFloat();
-        case TRY: return settings.value("tryFactor", 0).toFloat();
+        case TRYy: return settings.value("tryFactor", 0).toFloat();
         case TWD: return settings.value("twdFactor", 0).toFloat();
         case ZAR: return settings.value("zarFactor", 0).toFloat();
         default:  return 100000000;
@@ -272,7 +272,7 @@ int NavCoinUnits::decimals(int unit)
         case SEK:
         case SGD:
         case THB:
-        case TRY:
+        case TRYy:
         case TWD:
         case ZAR:
             return 6;
@@ -344,19 +344,19 @@ QString NavCoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, Separator
 //
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
-QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
-    return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit));
+    return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
-    return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit));
+    return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
+QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing, bool fPrivate)
 {
-    QString str(formatWithUnit(unit, amount, plussign, separators));
+    QString str(formatWithUnit(unit, amount, plussign, separators, fPrivate));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
