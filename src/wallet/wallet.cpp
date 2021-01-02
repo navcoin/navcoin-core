@@ -5855,7 +5855,7 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet) const
 
 int CMerkleTx::GetBlocksToMaturity() const
 {
-#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+#if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestNet = GetBoolArg("-testnet", true);
 #else
     bool fTestNet = GetBoolArg("-testnet", false);

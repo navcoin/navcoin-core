@@ -2366,7 +2366,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
                                  REJECT_INVALID, "bad-mix-bls-inputs",
                                  "transaction mixes bls and legacy inputs");
 
-#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+#if CLIENT_BUILD_IS_TEST_RELEASE
         bool fTestNet = GetBoolArg("-testnet", true);
 #else
         bool fTestNet = GetBoolArg("-testnet", false);
@@ -3175,7 +3175,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoConsensusVersionMask;
 
-#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+#if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
 #else
     bool fTestnet = GetBoolArg("-testnet", false);
@@ -5988,7 +5988,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nCFundVersionMask) != nCFundVersionMask && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
-#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+#if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestNet = GetBoolArg("-testnet", true);
 #else
     bool fTestNet = GetBoolArg("-testnet", false);
@@ -6038,7 +6038,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
 
-#if defined(CLIENT_BUILD_IS_TEST_RELEASE)
+#if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
 #else
     bool fTestnet = GetBoolArg("-testnet", false);
