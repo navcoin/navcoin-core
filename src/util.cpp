@@ -616,13 +616,21 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 
     fs::path &path = fNetSpecific ? pathCachedNetSpecific : pathCached;
 
-    // This can be called during exceptions by LogPrintf(), so we cache the
-    // value so we don't have to do memory allocations after that.
-    if (!path.empty())
-        return path;
+    // Cache the path to avoid calling fs::create_directories on every call of
+    // this function
+    if (!path.empty()) return path;
 
-    if (mapArgs.count("-datadir")) {
-        path = fs::system_complete(mapArgs["-datadir"]);
+    std::string datadir = GetArg("-datadir", "");
+    if (!datadir.empty()) {
+        if (datadir[0] == '~') {
+            char const* home = getenv("HOME");
+            if (home or ((home = getenv("USERPROFILE")))) {
+                datadir.replace(0, 1, home);
+            }
+        }
+
+        path = fs::system_complete(datadir);
+
         if (!fs::is_directory(path)) {
             path = "";
             return path;
