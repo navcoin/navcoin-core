@@ -334,8 +334,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
         std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
 
-        CWalletTx *newTx;
-        newTx = new CWalletTx();
+        CWalletTx *newTx = transaction.getTransaction();
 
         fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true, selectedCoins);
         if (newTx->fSpendsColdStaking)
