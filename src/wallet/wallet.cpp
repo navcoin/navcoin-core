@@ -5496,8 +5496,8 @@ bool CWallet::InitLoadWallet(const std::string& wordlist, const std::string& pas
         if (!walletInstance->GetKey(masterKeyID, key))
         {
             if (!GetBoolArg("-suppressblsctwarning", DEFAULT_SUPPRESS_BLSCT_WARNING))
-                InitWarning("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then generate the keys before being able to use the BLSCT functionality!");
-            LogPrintf("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then trigger manually the parameter generation before being able to use the BLSCT functionality!");
+                InitWarning("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then generate the keys by running the generateblsctkeys command before being able to use the BLSCT functionality!");
+            LogPrintf("Could not generate BLSCT parameters. If your wallet is encrypted, you must first unlock your wallet and then trigger manually the parameter generation by running the generateblsctkeys command before being able to use the BLSCT functionality!");
             walletInstance->fNeedsBLSCTGeneration = true;
         }
         else
