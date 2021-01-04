@@ -48,7 +48,7 @@ public:
     bool fSpendsColdStaking;
 
 private:
-    CWalletTx *walletTransaction;
+    CWalletTx *walletTransaction = new CWalletTx();
     CReserveKey *keyChange;
     std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *blsctBlindingKey;
     CAmount fee;
