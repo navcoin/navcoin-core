@@ -1113,7 +1113,7 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             if((showNotEnoughAnswers && fState == DAOFlags::NIL && vAnswers.size() < 2) ||
                     (showLookingForSupport && fState == DAOFlags::NIL) ||
                     (showReflection && fState == DAOFlags::REFLECTION) ||
-                    (showReflection && fState == DAOFlags::ACCEPTED) ||
+                    (showVoting && fState == DAOFlags::ACCEPTED) ||
                     (showFinished && fState == DAOFlags::EXPIRED) ||
                     showAll) {
                 UniValue o(UniValue::VOBJ);
