@@ -11,6 +11,7 @@ remotes:
   "dir": "signature"
 files:
 - "navcoin-osx-unsigned.tar.gz"
+- "signature-osx.tar.gz"
 script: |
   WRAP_DIR=$HOME/wrapped
   mkdir -p ${WRAP_DIR}
@@ -29,6 +30,13 @@ script: |
 
   UNSIGNED=navcoin-osx-unsigned.tar.gz
   SIGNED=navcoin-osx-signed.dmg
+
+  # use local signatures if present
+  if [ -f signature-osx.tar.gz ]
+  then
+    mkdir -p signature
+    tar -xzf signature-osx.tar.gz -C signature
+  fi
 
   tar -xf ${UNSIGNED}
   OSX_VOLNAME="$(cat osx_volname)"
