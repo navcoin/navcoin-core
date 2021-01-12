@@ -23,7 +23,7 @@
 #define CLIENT_VERSION_IS_RELEASE false
 
 /* Version is release */
-#define CLIENT_BUILD_IS_RELEASE_CANDIDATE true
+#define CLIENT_BUILD_IS_RELEASE_CANDIDATE false
 
 /* Build is a test release */
 #define CLIENT_BUILD_IS_TEST_RELEASE false
