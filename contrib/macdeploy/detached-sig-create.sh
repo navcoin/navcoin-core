@@ -22,8 +22,8 @@ ${CODESIGN} --options runtime --timestamp -f --file-list ${TEMPLIST} "$@" "${BUN
 
 grep -v --color=never CodeResources < "${TEMPLIST}" | while read i; do
   TARGETFILE="${BUNDLE}/`echo "${i}" | sed "s|.*${BUNDLE}/||"`"
-  SIZE=`pagestuff "$i" -p | tail -2 | grep size | sed 's/[^0-9]*//g'`
-  OFFSET=`pagestuff "$i" -p | tail -2 | grep offset | sed 's/[^0-9]*//g'`
+  SIZE=`pagestuff "$i" -p | tail -2 | grep --color=never size | sed 's/[^0-9]*//g'`
+  OFFSET=`pagestuff "$i" -p | tail -2 | grep --color=never offset | sed 's/[^0-9]*//g'`
   SIGNFILE="${TEMPDIR}/${OUTROOT}/${TARGETFILE}.sign"
   DIRNAME="`dirname "${SIGNFILE}"`"
   mkdir -p "${DIRNAME}"
