@@ -26,6 +26,12 @@ Blocks are labeled to be excluded by activating the right-most bit of their nOnc
 
 This PR introduces wallet transaction data encryption and updates LevelDB to the version 5.8. Wallets created or upgraded with NavCoin Core 6.0 are not compatible with previous versions of NavCoin Core.
 
+## Binary notarization for MacOS
+
+<[Pull Request 767](https://github.com/navcoin/navcoin-core/pull/757)>
+
+MacOS binaries are now notarized and do not show a warning for unidentified developer.
+
 ## [TEST] Fixed qa/rpc-tests/cfunddb-statehash.py
 
 <[Pull Request 715](https://github.com/navcoin/navcoin-core/pull/715)>
@@ -86,3 +92,14 @@ This PR introduces wallet transaction data encryption and updates LevelDB to the
 
 <[Pull Request 744](https://github.com/navcoin/navcoin-core/pull/744)>
 
+## Added tilde (~) support to the datadir param for navcoin
+
+<[Pull Request 751](https://github.com/navcoin/navcoin-core/pull/751)>
+
+## Fixed the missing transaction size in send coins dialog 
+
+<[Pull Request 752](https://github.com/navcoin/navcoin-core/pull/752)>
+
+## Update blsct key generation warning message
+
+<[Pull Request 753](https://github.com/navcoin/navcoin-core/pull/753)>
