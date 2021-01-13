@@ -4,7 +4,7 @@
 
 <[Pull Request 743](https://github.com/navcoin/navcoin-core/pull/743)>
 
-This PR proposes a consensus change signaled by version bit 10 to signal the activation of the blsCT protocol in the mainnet starting on January 15, 2021.
+This PR proposes a consensus change signaled by version bit 10 to signal the activation of the blsCT protocol in the mainnet starting on February 1, 2021.
 
 Read more details about blsCT in [doc.nav.community](https://doc.nav.community/blsct.html)
 
