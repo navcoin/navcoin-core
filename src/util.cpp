@@ -1128,32 +1128,26 @@ bool BdbEncrypted(boost::filesystem::path wallet)
     file.seekg(0, std::ios::end);
     size_t length = file.tellg();
 
-    // Check if we can even go that far
-    if (length < 8190)
-        return true;
+    // Loop the file contents
+    for (int i = 0; i < length; i++) {
+        // Reset our cursor
+        file.seekg(i, file.beg);
 
-    // Reset our cursor
-    file.seekg(8187, file.beg);
+        // Read data from the file
+        file.read(buffer, 5);
 
-    // Read data from the file
-    file.read(buffer, 5);
+        // Check if we have it
+        if (string(buffer) == "main") {
+            // Close the file
+            file.close();
 
-    // Check if we have it
-    if (string(buffer) == "main")
-        return false;
-
-    // Reset our cursor for older wallet formats
-    file.seekg(16379, file.beg);
-
-    // Read data from the file
-    file.read(buffer, 5);
+            // It's not encrypted
+            return false;
+        }
+    }
 
     // Close the file
     file.close();
-
-    // Check if we have it
-    if (string(buffer) == "main")
-        return false;
 
     // It's encrypted
     return true;

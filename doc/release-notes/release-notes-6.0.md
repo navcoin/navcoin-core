@@ -4,7 +4,7 @@
 
 <[Pull Request 743](https://github.com/navcoin/navcoin-core/pull/743)>
 
-This PR proposes a consensus change signaled by version bit 10 to signal the activation of the blsCT protocol in the mainnet starting on January 15, 2021.
+This PR proposes a consensus change signaled by version bit 10 to signal the activation of the blsCT protocol in the mainnet starting on February 1, 2021.
 
 Read more details about blsCT in [doc.nav.community](https://doc.nav.community/blsct.html)
 
@@ -12,7 +12,7 @@ Read more details about blsCT in [doc.nav.community](https://doc.nav.community/b
 
 <[Pull Request 745](https://github.com/navcoin/navcoin-core/pull/745)>
 
-This PR proposes a consensus change signaled by version bit 12 starting on January 15, 2021 to allow excluding stakers from the DAO votings.
+This PR proposes a consensus change signaled by version bit 12 starting on February 1, 2021 to allow excluding stakers from the DAO votings.
 
 Nodes (like users who do not want to participate in the votings or exchanges which activate staking) will be able to exclude their staked blocks from the quorum by indicating the option -excludevote=1, preventing a scenario where a big enough amount of staking coins not engaging in the governance process could make impossible to reach the acceptance/rejection thresholds.
 
