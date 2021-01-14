@@ -6,7 +6,7 @@ BUNDLE="${ROOTDIR}/NavCoin-Qt.app"
 CODESIGN=codesign
 TEMPDIR=sign.temp
 TEMPLIST=${TEMPDIR}/signatures.txt
-OUT=signature.tar.gz
+OUT=signature-osx.tar.gz
 OUTROOT=osx
 
 if [ ! -n "$1" ]; then
@@ -18,12 +18,12 @@ fi
 rm -rf ${TEMPDIR} ${TEMPLIST}
 mkdir -p ${TEMPDIR}
 
-${CODESIGN} -f --file-list ${TEMPLIST} "$@" "${BUNDLE}"
+${CODESIGN} --options runtime --timestamp -f --file-list ${TEMPLIST} "$@" "${BUNDLE}"
 
-grep -v CodeResources < "${TEMPLIST}" | while read i; do
+grep -v --color=never CodeResources < "${TEMPLIST}" | while read i; do
   TARGETFILE="${BUNDLE}/`echo "${i}" | sed "s|.*${BUNDLE}/||"`"
-  SIZE=`pagestuff "$i" -p | tail -2 | grep size | sed 's/[^0-9]*//g'`
-  OFFSET=`pagestuff "$i" -p | tail -2 | grep offset | sed 's/[^0-9]*//g'`
+  SIZE=`pagestuff "$i" -p | tail -2 | grep --color=never size | sed 's/[^0-9]*//g'`
+  OFFSET=`pagestuff "$i" -p | tail -2 | grep --color=never offset | sed 's/[^0-9]*//g'`
   SIGNFILE="${TEMPDIR}/${OUTROOT}/${TARGETFILE}.sign"
   DIRNAME="`dirname "${SIGNFILE}"`"
   mkdir -p "${DIRNAME}"
@@ -31,7 +31,7 @@ grep -v CodeResources < "${TEMPLIST}" | while read i; do
   dd if="$i" of="${SIGNFILE}" bs=1 skip=${OFFSET} count=${SIZE} 2>/dev/null
 done
 
-grep CodeResources < "${TEMPLIST}" | while read i; do
+grep --color=never CodeResources < "${TEMPLIST}" | while read i; do
   TARGETFILE="${BUNDLE}/`echo "${i}" | sed "s|.*${BUNDLE}/||"`"
   RESOURCE="${TEMPDIR}/${OUTROOT}/${TARGETFILE}"
   DIRNAME="`dirname "${RESOURCE}"`"

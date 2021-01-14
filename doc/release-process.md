@@ -154,6 +154,96 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
     mv build/out/navcoin-*.tar.gz build/out/navcoin-*.dmg ../
     popd
 
+### Next steps:
+
+Commit your signature to gitian.sigs:
+
+    pushd gitian.sigs
+    git add ${VERSION}-linux/"${SIGNER}"
+    git add ${VERSION}-win-unsigned/"${SIGNER}"
+    git add ${VERSION}-osx-unsigned/"${SIGNER}"
+    git commit -m "Add ${VERSION} unsigned sigs for ${SIGNER}"
+    git push  # Assuming you can push to the gitian.sigs tree
+    popd
+
+Codesigner only: Create Windows/macOS detached signatures:
+- Only one person handles codesigning. Everyone else should skip to the next step.
+- Only once the Windows/macOS builds each have 3 matching signatures may they be signed with their respective release keys.
+
+Codesigner only: Sign the macOS binary:
+
+    transfer navcoin-osx-unsigned.tar.gz to macOS for signing
+    tar xf navcoin-osx-unsigned.tar.gz
+    ./detached-sig-create.sh -s "Key ID"
+    Enter the keychain password and authorize the signature
+
+Now a manual deterministic disk image (dmg) creation is required (gbuilt with `gitian-osx-signer.yml` while having the signatures-osx.tar.gz file in the inputs)
+
+notarize the disk image:
+
+    xcrun altool --notarize-app --primary-bundle-id "org.navcoin.Navcoin-Qt" -u "<code-signer-apple-developer-account-username>" -p "<password>" --file navcoin-${VERSION}-osx.dmg
+
+The notarization takes a few minutes. Check the status:
+
+    xcrun altool --notarization-info <RequestUUID-from-notarize-app-step> -u "<code-signer-apple-developer-account-username>" -p "<password>"
+
+Staple the notarization ticket onto the application
+
+    xcrun stapler staple dist/NavCoin-Qt.app
+
+Codesigner only: Sign the windows binaries:
+
+    tar xf navcoin-win-unsigned.tar.gz
+    ./detached-sig-create.sh -key /path/to/codesign.key
+    Enter the passphrase for the key when prompted
+    signature-win.tar.gz will be created
+
+Codesigner only: Commit the detached codesign payloads:
+
+    cd ~/navcoin-detached-sigs
+    #checkout the appropriate branch for this release series
+    rm -rf *
+    tar xf signature-osx.tar.gz
+    tar xf signature-win.tar.gz
+    #copy the notarization ticket
+    cp dist/NavCoin-Qt.app/Contents/CodeResources osx/dist/NavCoin-Qt.app/Contents/
+    git add -a
+    git commit -m "point to ${VERSION}"
+    git tag -s v${VERSION} HEAD
+    git push the current branch and new tag
+
+Non-codesigners: wait for Windows/macOS detached signatures:
+
+- Once the Windows/macOS builds each have 3 matching signatures, they will be signed with their respective release keys.
+- Detached signatures will then be committed to the [navcoin-detached-sigs](https://github.com/navcoin/navcoin-detached-sigs) repository, which can be combined with the unsigned apps to create signed binaries.
+
+Create (and optionally verify) the signed macOS binary:
+
+    pushd ./gitian-builder
+    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
+    mv build/out/navcoin-osx-signed.dmg ../navcoin-${VERSION}-osx.dmg
+    popd
+
+Create (and optionally verify) the signed Windows binaries:
+
+    pushd ./gitian-builder
+    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-signed ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
+    mv build/out/navcoin-*win64-setup.exe ../navcoin-${VERSION}-win64-setup.exe
+    popd
+
+Commit your signature for the signed macOS/Windows binaries:
+
+    pushd gitian.sigs
+    git add ${VERSION}-osx-signed/"${SIGNER}"
+    git add ${VERSION}-win-signed/"${SIGNER}"
+    git commit -m "Add ${SIGNER} ${VERSION} signed binaries signatures"
+    git push  # Assuming you can push to the gitian.sigs tree
+    popd
+
 Build output expected:
 
   1. source tarball (`navcoin-${VERSION}.tar.gz`)
