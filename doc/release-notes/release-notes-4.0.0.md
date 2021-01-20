@@ -1,10 +1,10 @@
-# NavCoin 4.0
+# Navcoin 4.0
 
 ## RELEASE NOTES
 
 ### Faster synchronization
 
-NavCoin Core now uses 'headers-first synchronization'. This means that we first ask peers for block headers and validate those. In a second stage, when the headers have been discovered, we download the blocks. However, as we already know about the whole chain in advance, the blocks can be downloaded in parallel from all available peers.
+Navcoin Core now uses 'headers-first synchronization'. This means that we first ask peers for block headers and validate those. In a second stage, when the headers have been discovered, we download the blocks. However, as we already know about the whole chain in advance, the blocks can be downloaded in parallel from all available peers.
 
 In practice, this means a much faster and more robust synchronization. On recent hardware with a decent network link, it can be as little as 1 hour for an initial full synchronization. You may notice a slower progress in the very first few minutes, when headers are still being fetched and verified, but it should gain speed afterwards.
 
@@ -65,7 +65,7 @@ This new behaviour can be useful for clients to know that a server is already st
 ### navcoin-tx
 
 It has been observed that many of the RPC functions offered by navcoind are "pure functions", and operate independently of the navcoind wallet. This included many of the RPC "raw transaction" API functions, such as createrawtransaction.
-navcoin-tx is a newly introduced command line utility designed to enable easy manipulation of NavCoin transactions. A summary of its operation may be obtained via "navcoin-tx --help"
+navcoin-tx is a newly introduced command line utility designed to enable easy manipulation of Navcoin transactions. A summary of its operation may be obtained via "navcoin-tx --help"
 
 Transactions may be created or signed in a manner similar to the RPC raw tx API. Transactions may be updated, deleting inputs or outputs, or appending new inputs and outputs.
 
@@ -125,11 +125,11 @@ When running in pruned mode, the client will now relay new blocks. When respondi
 
 ### Privacy: Automatically use Tor hidden services
 
-Starting with Tor version 0.2.7.1 it is possible, through Tor's control socket API, to create and destroy 'ephemeral' hidden services programmatically. NavCoin Core has been updated to make use of this.
+Starting with Tor version 0.2.7.1 it is possible, through Tor's control socket API, to create and destroy 'ephemeral' hidden services programmatically. Navcoin Core has been updated to make use of this.
 
-This means that if Tor is running (and proper authorization is available), NavCoin Core automatically creates a hidden service to listen on, without manual configuration. NavCoin Core will also use Tor automatically to connect to other .onion nodes if the control socket can be successfully opened. This will positively affect the number of available .onion nodes and their usage.
+This means that if Tor is running (and proper authorization is available), Navcoin Core automatically creates a hidden service to listen on, without manual configuration. Navcoin Core will also use Tor automatically to connect to other .onion nodes if the control socket can be successfully opened. This will positively affect the number of available .onion nodes and their usage.
 
-This new feature is enabled by default if NavCoin Core is listening, and a connection to Tor can be made. It can be configured with the -listenonion, -torcontrol and -torpassword settings. To show verbose debugging information, pass -debug=tor.
+This new feature is enabled by default if Navcoin Core is listening, and a connection to Tor can be made. It can be configured with the -listenonion, -torcontrol and -torpassword settings. To show verbose debugging information, pass -debug=tor.
 
 ### Notifications through ZMQ
 
@@ -167,7 +167,7 @@ Wallet dumps (created using the dumpwallet RPC) will contain the deterministic s
 
 HD key generation for new wallets can be disabled by -usehd=0. Keep in mind that this flag only has affect on newly created wallets. You can't disable HD key generation once you have created a HD wallet.
 
-There is no distinction between internal (change) and external keys. HD wallets are incompatible with older versions of NavCoin Core. Segregated Witness
+There is no distinction between internal (change) and external keys. HD wallets are incompatible with older versions of Navcoin Core. Segregated Witness
 
 The code preparations for Segregated Witness ("segwit"), as described in BIP 141, BIP 143, BIP 144, and BIP 145 are finished and included in this release. However, BIP 141 does not yet specify activation parameters on mainnet, and so this release does not support segwit use on mainnet.
 
@@ -179,7 +179,7 @@ Block size has been reduced to 2MB to prevent flood attacks. A possible reductio
 
 ### New NAVTech RPC Commands
 
-A command to generate a private payment has been added. NavCoin Core will take care of the negotiation with the NAVTech nodes and will create and broadcast the transaction. The syntax is:
+A command to generate a private payment has been added. Navcoin Core will take care of the negotiation with the NAVTech nodes and will create and broadcast the transaction. The syntax is:
 
 `anonsend address amount`
 

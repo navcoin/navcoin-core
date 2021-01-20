@@ -1,4 +1,4 @@
-# NavCoin v4.7.1 Release Notes
+# Navcoin v4.7.1 Release Notes
 
 ## Fix CFund DB read after nullified entry
 

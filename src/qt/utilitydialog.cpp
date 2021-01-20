@@ -162,7 +162,7 @@ ShutdownWindow::ShutdownWindow(QWidget *parent, Qt::WindowFlags f):
     setLayout(layout);
 }
 
-void ShutdownWindow::showShutdownWindow(NavCoinGUI *window)
+void ShutdownWindow::showShutdownWindow(NavcoinGUI *window)
 {
     if (!window)
         return;

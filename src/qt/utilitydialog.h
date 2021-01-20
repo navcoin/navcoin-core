@@ -8,7 +8,7 @@
 #include <QDialog>
 #include <QObject>
 
-class NavCoinGUI;
+class NavcoinGUI;
 class ClientModel;
 
 namespace Ui {
@@ -43,7 +43,7 @@ class ShutdownWindow : public QWidget
 
 public:
     ShutdownWindow(QWidget *parent=0, Qt::WindowFlags f=0);
-    static void showShutdownWindow(NavCoinGUI *window);
+    static void showShutdownWindow(NavcoinGUI *window);
 
 protected:
     void closeEvent(QCloseEvent *event);

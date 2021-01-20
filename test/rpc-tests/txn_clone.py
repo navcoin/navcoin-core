@@ -7,10 +7,10 @@
 # Test proper accounting with an equivalent malleability clone
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
-class TxnMallTest(NavCoinTestFramework):
+class TxnMallTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

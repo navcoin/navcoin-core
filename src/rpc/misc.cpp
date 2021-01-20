@@ -189,7 +189,7 @@ public:
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
             for(const CTxDestination& addr: addresses)
-                a.push_back(CNavCoinAddress(addr).ToString());
+                a.push_back(CNavcoinAddress(addr).ToString());
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
                 obj.pushKV("sigsrequired", nRequired);
@@ -257,7 +257,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
 
     }
 
-    CNavCoinAddress address(address_str);
+    CNavcoinAddress address(address_str);
     bool isValid = address.IsValid();
 
     UniValue ret(UniValue::VOBJ);
@@ -276,19 +276,19 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
 #ifdef ENABLE_WALLET
         isminetype mine = pwalletMain ? IsMine(*pwalletMain, dest) : ISMINE_NO;
         if (address.IsColdStakingAddress(Params())) {
-            CNavCoinAddress stakingAddress;
+            CNavcoinAddress stakingAddress;
             address.GetStakingAddress(stakingAddress);
-            CNavCoinAddress spendingAddress;
+            CNavcoinAddress spendingAddress;
             address.GetSpendingAddress(spendingAddress);
             ret.pushKV("stakingaddress", stakingAddress.ToString());
             ret.pushKV("spendingaddress", spendingAddress.ToString());
         }
         else if(address.IsColdStakingv2Address(Params())) {
-            CNavCoinAddress stakingAddress;
+            CNavcoinAddress stakingAddress;
             address.GetStakingAddress(stakingAddress);
-            CNavCoinAddress spendingAddress;
+            CNavcoinAddress spendingAddress;
             address.GetSpendingAddress(spendingAddress);
-            CNavCoinAddress votingAddress;
+            CNavcoinAddress votingAddress;
             address.GetVotingAddress(votingAddress);
             ret.pushKV("stakingaddress", stakingAddress.ToString());
             ret.pushKV("spendingaddress", spendingAddress.ToString());
@@ -336,8 +336,8 @@ CScript _createmultisig_redeemScript(const UniValue& params)
     {
         const std::string& ks = keys[i].get_str();
 #ifdef ENABLE_WALLET
-        // Case 1: NavCoin address and we have full public key:
-        CNavCoinAddress address(ks);
+        // Case 1: Navcoin address and we have full public key:
+        CNavcoinAddress address(ks);
         if (pwalletMain && address.IsValid())
         {
             CKeyID keyID;
@@ -411,7 +411,7 @@ UniValue createmultisig(const UniValue& params, bool fHelp)
     // Construct using pay-to-script-hash:
     CScript inner = _createmultisig_redeemScript(params);
     CScriptID innerID(inner);
-    CNavCoinAddress address(innerID);
+    CNavcoinAddress address(innerID);
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", address.ToString());
@@ -448,7 +448,7 @@ UniValue createwitnessaddress(const UniValue& params, bool fHelp)
     CScript script(code.begin(), code.end());
     CScript witscript = GetScriptForWitness(script);
     CScriptID witscriptid(witscript);
-    CNavCoinAddress address(witscriptid);
+    CNavcoinAddress address(witscriptid);
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", address.ToString());
@@ -486,7 +486,7 @@ UniValue verifymessage(const UniValue& params, bool fHelp)
     string strSign     = params[1].get_str();
     string strMessage  = params[2].get_str();
 
-    CNavCoinAddress addr(strAddress);
+    CNavcoinAddress addr(strAddress);
     if (!addr.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
 
@@ -534,7 +534,7 @@ UniValue signmessagewithprivkey(const UniValue& params, bool fHelp)
     string strPrivkey = params[0].get_str();
     string strMessage = params[1].get_str();
 
-    CNavCoinSecret vchSecret;
+    CNavcoinSecret vchSecret;
     bool fGood = vchSecret.SetString(strPrivkey);
     if (!fGood)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
@@ -587,9 +587,9 @@ UniValue setmocktime(const UniValue& params, bool fHelp)
 bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &address)
 {
     if (type == 2) {
-        address = CNavCoinAddress(CScriptID(hash)).ToString();
+        address = CNavcoinAddress(CScriptID(hash)).ToString();
     } else if (type == 1) {
-        address = CNavCoinAddress(CKeyID(hash)).ToString();
+        address = CNavcoinAddress(CKeyID(hash)).ToString();
     } else {
         return false;
     }
@@ -600,7 +600,7 @@ bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &addr
 bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint160, int> > &addresses)
 {
     if (params[0].isStr()) {
-        CNavCoinAddress address(params[0].get_str());
+        CNavcoinAddress address(params[0].get_str());
         uint160 hashBytes;
         int type = 0;
         if (!address.GetIndexKey(hashBytes, type)) {
@@ -618,7 +618,7 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
 
         for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
 
-            CNavCoinAddress address(it->get_str());
+            CNavcoinAddress address(it->get_str());
             uint160 hashBytes;
             int type = 0;
             if (!address.GetIndexKey(hashBytes, type)) {
@@ -636,10 +636,10 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
 bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::pair<std::pair<uint160, uint160>, AddressHistoryFilter>> &addresses)
 {
     if (params[0].isStr()) {
-        CNavCoinAddress address(params[0].get_str());
+        CNavcoinAddress address(params[0].get_str());
         if (address.IsColdStakingv2Address(Params()))
         {
-            CNavCoinAddress addressVoting, addressStaking, addressSpending;
+            CNavcoinAddress addressVoting, addressStaking, addressSpending;
             uint160 hashBytes, hashBytesSpending, hashBytesVoting, hashBytesStaking;
             int type = 0;
 
@@ -668,7 +668,7 @@ bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::p
         }
         else if (address.IsColdStakingAddress(Params()))
         {
-            CNavCoinAddress addressStaking, addressSpending;
+            CNavcoinAddress addressStaking, addressSpending;
             uint160 hashBytes, hashBytesStaking, hashBytesSpending;
             int type = 0;
 
@@ -709,10 +709,10 @@ bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::p
 
         for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
 
-            CNavCoinAddress address(it->get_str());
+            CNavcoinAddress address(it->get_str());
             if (address.IsColdStakingv2Address(Params()))
             {
-                CNavCoinAddress addressSpending, addressVoting, addressStaking;
+                CNavcoinAddress addressSpending, addressVoting, addressStaking;
                 uint160 hashBytes, hashBytesSpending, hashBytesVoting, hashBytesStaking;
                 int type = 0;
 
@@ -741,7 +741,7 @@ bool getAddressesFromParamsForHistory(const UniValue& params, std::vector<std::p
             }
             else if (address.IsColdStakingAddress(Params()))
             {
-                CNavCoinAddress addressStaking, addressSpending;
+                CNavcoinAddress addressStaking, addressSpending;
                 uint160 hashBytes, hashBytesStaking, hashBytesSpending;
                 int type = 0;
 
@@ -1234,12 +1234,12 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         CAmount voting_weight;
     };
     
-    std::map<CNavCoinAddress, balStruct> balance;
+    std::map<CNavcoinAddress, balStruct> balance;
 
     UniValue result(UniValue::VARR);
 
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=addressHistory.begin(); it!=addressHistory.end(); it++) {
-        CNavCoinAddress address;
+        CNavcoinAddress address;
         address.Set(CKeyID((*it).first.hashBytes2));
 
         if (balance.count(address) == 0) {

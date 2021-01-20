@@ -1,11 +1,11 @@
-# NavCoin v4.5.0 Release Notes
+# Navcoin v4.5.0 Release Notes
 
 ## Cold Staking Protocol Upgrade
 
 <[Pull Request 249](https://github.com/navcoin/navcoin-core/pull/249)>
 <[Commit b1c776c](https://github.com/navcoin/navcoin-core/commit/b1c776c605e5bace1d4f6bee50182b92951fd327 )>
 
-This Protocol Upgrade will implement the [NPIP_0002](https://github.com/navcoin/npips/blob/master/npip-0002.mediawiki) which will introduce a new opcode (OP_COINSTAKE) for the NavCoin scripting language and a new standard transaction type using the new opcode.
+This Protocol Upgrade will implement the [NPIP_0002](https://github.com/navcoin/npips/blob/master/npip-0002.mediawiki) which will introduce a new opcode (OP_COINSTAKE) for the Navcoin scripting language and a new standard transaction type using the new opcode.
 
 The wallet will vote this Protocol Upgrade with `YES` by default.
 
@@ -38,7 +38,7 @@ To not vote for this Protocol Upgrade, add the following line to your `navcoin.c
 <[Pull Request 328](https://github.com/navcoin/navcoin-core/pull/328)>
 <[Commit 9601f85](https://github.com/navcoin/navcoin-core/commit/9601f8501526cba19ded59ae685e393345ef430c)>
 
-This Protocol Upgrade will change the NavCoin Staking block reward to a fixed amount of 2 NAV per block. You can read more about this upgrade at its NPIP page, [NPIP_0004](https://github.com/navcoin/npips/blob/master/npip-0004.mediawiki).
+This Protocol Upgrade will change the Navcoin Staking block reward to a fixed amount of 2 NAV per block. You can read more about this upgrade at its NPIP page, [NPIP_0004](https://github.com/navcoin/npips/blob/master/npip-0004.mediawiki).
 
 The wallet will vote this Protocol Upgrade with `YES` by default.
 
@@ -101,11 +101,11 @@ The new launch arguments are:
 - Categorises cfund rpc commands under own category.
 - Updates RPC tests for these commands.
 
-### Other modifications in the NavCoin client, docs and codebase
+### Other modifications in the Navcoin client, docs and codebase
 
 - Added github issue and pull request templates. <[Pull Request 347](https://github.com/navcoin/navcoin-core/pull/347)> <[Commit ce2e282](https://github.com/navcoin/navcoin-core/commit/ce2e28295e97398d538f23d795cf20b0544973b2)>.
 - Updated link to bootstrap file in wallet gui. <[Pull Request 338](https://github.com/navcoin/navcoin-core/pull/338)> <[Commit 8aa7cdd](https://github.com/navcoin/navcoin-core/commit/8aa7cddc74acac9d1e8e5f7eb50627ec064896fe)>.
 - Community Fund RPC Tests clean up. <[Pull Request 318](https://github.com/navcoin/navcoin-core/pull/318)> <[Commit 7730c7b](https://github.com/navcoin/navcoin-core/commit/7730c7bc84256ddb995408c1bc775015f0219d2d)>.
 - Fixed changelog link to NPIP. <[Pull Request 317](https://github.com/navcoin/navcoin-core/pull/317)> <[Commit f0ea24c](https://github.com/navcoin/navcoin-core/commit/f0ea24c2228107f765735ec2136f9f20e6eda456)>.
-- Updated link to NavCoin github repo. <[Pull Request 314](https://github.com/navcoin/navcoin-core/pull/314)> <[Commit dcdece2](https://github.com/navcoin/navcoin-core/commit/dcdece2be47b4ab55b6231024aef2bc20e7d3b0c)>
+- Updated link to Navcoin github repo. <[Pull Request 314](https://github.com/navcoin/navcoin-core/pull/314)> <[Commit dcdece2](https://github.com/navcoin/navcoin-core/commit/dcdece2be47b4ab55b6231024aef2bc20e7d3b0c)>
 - New genesis block for testnet.

@@ -75,7 +75,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     </context>
 <context>
     <name>OpenURIDialog</name>

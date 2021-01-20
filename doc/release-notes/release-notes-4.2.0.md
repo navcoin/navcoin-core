@@ -1,5 +1,5 @@
 
-# NavCoin v4.2.0 Release Notes
+# Navcoin v4.2.0 Release Notes
 
 ## Introduces two new Soft Forks:
 

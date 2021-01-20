@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment, WITNESS_COMMITMENT_HEADER
@@ -167,7 +167,7 @@ class UTXO(object):
         self.nValue = nValue
 
 
-class SegWitTest(NavCoinTestFramework):
+class SegWitTest(NavcoinTestFramework):
     def setup_chain(self):
         initialize_chain_clean(self.options.tmpdir, 3)
 

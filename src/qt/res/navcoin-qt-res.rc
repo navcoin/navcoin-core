@@ -18,8 +18,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "NavCoin"
-            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for NavCoin)"
+            VALUE "CompanyName",        "Navcoin"
+            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Navcoin)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "navcoin-qt"
             VALUE "LegalCopyright",     COPYRIGHT_STR

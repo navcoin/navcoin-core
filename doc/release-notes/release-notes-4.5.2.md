@@ -1,4 +1,4 @@
-# NavCoin v4.5.2 Release Notes
+# Navcoin v4.5.2 Release Notes
 
 ## Community Fund Duplicate Payment Hard Fork
 <[Pull Request 413](https://github.com/navcoin/navcoin-core/pull/413)> 
@@ -22,7 +22,7 @@ The RPC unit test work mainly involved fixing broken RPC tests inherited from Bi
 - Added rpc help test <[Pull Request 392](https://github.com/navcoin/navcoin-core/pull/392)> <[Commit 6707a98](https://github.com/navcoin/navcoin-core/commit/6707a98f4788251fdc5afcea914a456f38926349)>
 - Fixes to cfund rpc tests <[Pull Request 376](https://github.com/navcoin/navcoin-core/pull/376)> <[Commit 6f157e4](https://github.com/navcoin/navcoin-core/commit/6f157e4ba2c92f3f038798baa30eb0aaa563b43d)>
 
-## Other updates to the NavCoin client, docs and codebase
+## Other updates to the Navcoin client, docs and codebase
 - Restart of testnet <[Pull Request 402](https://github.com/navcoin/navcoin-core/pull/402)> <[Commit c821bad](https://github.com/navcoin/navcoin-core/commit/c821badee5bfc4910671e37680b731ce52aadd6e)>
 - RPC paymentrequestvotelist and proposalvotelist output changed to JSON <[Pull Request 380](https://github.com/navcoin/navcoin-core/pull/380)> <[Commit b2ed39a](https://github.com/navcoin/navcoin-core/commit/b2ed39a45d190b06b25eb404c02b4c8a3c90f5a7)>
 - Disables dark mode on MacOS Mojave <[Pull Request 403](https://github.com/navcoin/navcoin-core/pull/403)> <[Commit e436506](https://github.com/navcoin/navcoin-core/commit/e4365060007ae08b17fe2de99971677c7d32ce11)>

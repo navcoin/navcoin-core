@@ -1,4 +1,4 @@
-# NavCoin v4.2.1 Release Notes
+# Navcoin v4.2.1 Release Notes
 
 ### Hot Fix:
 

@@ -175,9 +175,9 @@ UniValue blockToDeltasJSON(const CBlock& block, const CBlockIndex* blockindex)
 
                 if (GetSpentIndex(spentKey, spentInfo)) {
                     if (spentInfo.addressType == 1) {
-                        delta.pushKV("address", CNavCoinAddress(CKeyID(spentInfo.addressHash)).ToString());
+                        delta.pushKV("address", CNavcoinAddress(CKeyID(spentInfo.addressHash)).ToString());
                     } else if (spentInfo.addressType == 2)  {
-                        delta.pushKV("address", CNavCoinAddress(CScriptID(spentInfo.addressHash)).ToString());
+                        delta.pushKV("address", CNavcoinAddress(CScriptID(spentInfo.addressHash)).ToString());
                     } else {
                         continue;
                     }
@@ -205,11 +205,11 @@ UniValue blockToDeltasJSON(const CBlock& block, const CBlockIndex* blockindex)
 
             if (out.scriptPubKey.IsPayToScriptHash()) {
                 vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
-                delta.pushKV("address", CNavCoinAddress(CScriptID(uint160(hashBytes))).ToString());
+                delta.pushKV("address", CNavcoinAddress(CScriptID(uint160(hashBytes))).ToString());
 
             } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
                 vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
-                delta.pushKV("address", CNavCoinAddress(CKeyID(uint160(hashBytes))).ToString());
+                delta.pushKV("address", CNavcoinAddress(CKeyID(uint160(hashBytes))).ToString());
             } else {
                 continue;
             }

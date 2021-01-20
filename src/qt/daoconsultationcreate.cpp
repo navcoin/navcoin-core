@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The NavCoin Core developers
+// Copyright (c) 2019-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     minLbl(new QLabel),
     maxLbl(new QLabel),
     warningLbl(new QLabel),
-    listWidget(new NavCoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
+    listWidget(new NavcoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
     moreAnswersBox(new QCheckBox)
 {
     this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
@@ -84,7 +84,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
 
-    listWidget = new NavCoinListWidget(this, tr("Possible answers"), [](QString s)->bool{return !s.isEmpty();});
+    listWidget = new NavcoinListWidget(this, tr("Possible answers"), [](QString s)->bool{return !s.isEmpty();});
 
     layout->addWidget(topBox);
     layout->addSpacing(15);
@@ -113,7 +113,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
     minLbl(new QLabel),
     maxLbl(new QLabel),
     warningLbl(new QLabel),
-    listWidget(new NavCoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
+    listWidget(new NavcoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
     moreAnswersBox(new QCheckBox),
     cpos(consensuspos),
     title(title)
@@ -139,7 +139,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
 
-    listWidget = new NavCoinListWidget(this, tr("Possible answers"), [this](QString s)->bool{
+    listWidget = new NavcoinListWidget(this, tr("Possible answers"), [this](QString s)->bool{
             try
             {
                 return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip(), *pcoinsTip);
@@ -184,7 +184,7 @@ void DaoConsultationCreate::onCreate()
 
     CStateViewCache view(pcoinsTip);
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
@@ -348,7 +348,7 @@ void DaoConsultationCreate::onCreateConsensus()
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CStateViewCache view(pcoinsTip);
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;

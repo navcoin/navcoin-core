@@ -38,7 +38,7 @@ Source30:	https://raw.githubusercontent.com/navcoin/navcoin/v%{version}/contrib/
 Source31:	https://raw.githubusercontent.com/navcoin/navcoin/v%{version}/contrib/rpm/navcoin.fc
 Source32:	https://raw.githubusercontent.com/navcoin/navcoin/v%{version}/contrib/rpm/navcoin.if
 
-Source100:	https://upload.wikimedia.org/wikipedia/commons/4/46/NavCoin.svg
+Source100:	https://upload.wikimedia.org/wikipedia/commons/4/46/Navcoin.svg
 
 %if 0%{?_use_libressl:1}
 BuildRequires:	libressl-devel
@@ -55,7 +55,7 @@ Patch0:		navcoin-0.12.0-libressl.patch
 
 
 %description
-NavCoin is a digital cryptographic currency that uses peer-to-peer technology to
+Navcoin is a digital cryptographic currency that uses peer-to-peer technology to
 operate with no central authority or banks; managing transactions and the
 issuing of navcoins is carried out collectively by the network.
 
@@ -80,17 +80,17 @@ BuildRequires:	%{_bindir}/inkscape
 BuildRequires:	%{_bindir}/convert
 
 %description core
-NavCoin is a digital cryptographic currency that uses peer-to-peer technology to
+Navcoin is a digital cryptographic currency that uses peer-to-peer technology to
 operate with no central authority or banks; managing transactions and the
 issuing of navcoins is carried out collectively by the network.
 
 This package contains the Qt based graphical client and node. If you are looking
-to run a NavCoin wallet, this is probably the package you want.
+to run a Navcoin wallet, this is probably the package you want.
 %endif
 
 
 %package libs
-Summary:	NavCoin shared libraries
+Summary:	Navcoin shared libraries
 Group:		System Environment/Libraries
 
 %description libs
@@ -135,7 +135,7 @@ If you use the graphical navcoin-core client then you almost certainly do not
 need this package.
 
 %package utils
-Summary:	NavCoin utilities
+Summary:	Navcoin utilities
 Group:		Applications/System
 
 %description utils
@@ -210,7 +210,7 @@ touch -a -m -t 201504280000 %{buildroot}%{_sysconfdir}/sysconfig/navcoin
 mkdir -p %{buildroot}%{_unitdir}
 cat <<EOF > %{buildroot}%{_unitdir}/navcoin.service
 [Unit]
-Description=NavCoin daemon
+Description=Navcoin daemon
 After=syslog.target network.target
 
 [Service]
@@ -266,10 +266,10 @@ mkdir -p %{buildroot}%{_datadir}/applications
 cat <<EOF > %{buildroot}%{_datadir}/applications/navcoin-core.desktop
 [Desktop Entry]
 Encoding=UTF-8
-Name=NavCoin
-Comment=NavCoin P2P Cryptocurrency
-Comment[fr]=NavCoin, monnaie virtuelle cryptographique pair à pair
-Comment[tr]=NavCoin, eşten eşe kriptografik sanal para birimi
+Name=Navcoin
+Comment=Navcoin P2P Cryptocurrency
+Comment[fr]=Navcoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Navcoin, eşten eşe kriptografik sanal para birimi
 Exec=navcoin-qt %u
 Terminal=false
 Type=Application
@@ -326,7 +326,7 @@ test/pull-tester/rpc-tests.py -extended
 getent group navcoin >/dev/null || groupadd -r navcoin
 getent passwd navcoin >/dev/null ||
 	useradd -r -g navcoin -d /var/lib/navcoin -s /sbin/nologin \
-	-c "NavCoin wallet server" navcoin
+	-c "Navcoin wallet server" navcoin
 exit 0
 
 %post server

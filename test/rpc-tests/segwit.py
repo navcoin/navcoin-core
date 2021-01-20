@@ -7,7 +7,7 @@
 # Test the SegWit changeover logic
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.mininode import sha256, ripemd160
 import os
@@ -74,7 +74,7 @@ def find_unspent(node, min_value):
         if utxo['amount'] >= min_value:
             return utxo
 
-class SegWitTest(NavCoinTestFramework):
+class SegWitTest(NavcoinTestFramework):
 
     def setup_chain(self):
         print("Initializing test directory "+self.options.tmpdir)

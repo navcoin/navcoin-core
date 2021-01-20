@@ -30,7 +30,7 @@ from .util import (
 from .authproxy import JSONRPCException
 
 
-class NavCoinTestFramework(object):
+class NavcoinTestFramework(object):
 
     def __init__(self):
         self.num_nodes = 4
@@ -192,7 +192,7 @@ class NavCoinTestFramework(object):
 # 2 binaries: 1 test binary, 1 ref binary
 # n>2 binaries: 1 test binary, n-1 ref binaries
 
-class ComparisonTestFramework(NavCoinTestFramework):
+class ComparisonTestFramework(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

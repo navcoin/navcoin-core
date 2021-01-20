@@ -115,14 +115,14 @@ void SendCoinsEntry::setTotalPrivateAmount(const CAmount& amount)
 {
     totalPrivateAmount = amount;
     if (fPrivate)
-        ui->availableLabel->setText(tr("Available: %1").arg(NavCoinUnits::formatWithUnit(unit, amount, false, NavCoinUnits::separatorAlways, fPrivate)));
+        ui->availableLabel->setText(tr("Available: %1").arg(NavcoinUnits::formatWithUnit(unit, amount, false, NavcoinUnits::separatorAlways, fPrivate)));
 }
 
 void SendCoinsEntry::setTotalAmount(const CAmount& amount)
 {
     totalAmount = amount;
     if (!fPrivate)
-        ui->availableLabel->setText(tr("Available: %1").arg(NavCoinUnits::formatWithUnit(unit, amount, false, NavCoinUnits::separatorAlways, fPrivate)));
+        ui->availableLabel->setText(tr("Available: %1").arg(NavcoinUnits::formatWithUnit(unit, amount, false, NavcoinUnits::separatorAlways, fPrivate)));
 }
 
 void SendCoinsEntry::useFullAmount()
@@ -151,7 +151,7 @@ void SendCoinsEntry::on_addressBookButton_clicked()
 
 void SendCoinsEntry::on_payTo_textChanged(const QString &address)
 {
-    CNavCoinAddress a(address.toStdString());
+    CNavcoinAddress a(address.toStdString());
 
     bool fShowmemo = (a.IsPrivateAddress(Params()));
 

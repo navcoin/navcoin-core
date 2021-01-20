@@ -103,7 +103,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Firmar &amp;mensaje...</translation>
@@ -181,8 +181,8 @@
         <translation>Reindexando bloques en el disco...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Envia monedas a una dirección NavCoin</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Envia monedas a una dirección Navcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

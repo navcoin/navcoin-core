@@ -3,7 +3,7 @@ Shared Libraries
 
 ## navcoinconsensus
 
-The purpose of this library is to make the verification functionality that is critical to NavCoin's consensus available to other applications, e.g. to language bindings.
+The purpose of this library is to make the verification functionality that is critical to Navcoin's consensus available to other applications, e.g. to language bindings.
 
 ### API
 
@@ -38,7 +38,7 @@ The interface is defined in the C header `navcoinconsensus.h` located in  `src/s
 - `navcoinconsensus_ERR_DESERIALIZE` - An error deserializing `txTo`
 
 ### Example Implementations
-- [NNavCoin](https://github.com/NicolasDorier/NNavCoin/blob/master/NNavCoin/Script.cs#L814) (.NET Bindings)
+- [NNavcoin](https://github.com/NicolasDorier/NNavcoin/blob/master/NNavcoin/Script.cs#L814) (.NET Bindings)
 - [node-libnavcoinconsensus](https://github.com/bitpay/node-libnavcoinconsensus) (Node.js Bindings)
 - [java-libnavcoinconsensus](https://github.com/dexX7/java-libnavcoinconsensus) (Java Bindings)
 - [navcoinconsensus-php](https://github.com/Bit-Wasp/navcoinconsensus-php) (PHP Bindings)

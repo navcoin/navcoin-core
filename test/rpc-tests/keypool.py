@@ -5,10 +5,10 @@
 
 # Exercise the wallet keypool, and interaction with wallet encryption/locking
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
-class KeyPoolTest(NavCoinTestFramework):
+class KeyPoolTest(NavcoinTestFramework):
 
     def run_test(self):
         nodes = self.nodes

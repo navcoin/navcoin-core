@@ -7,7 +7,7 @@
 #  spendfrom.py  # Lists available funds
 #  spendfrom.py --from=ADDRESS --to=ADDRESS --amount=11.00
 #
-# Assumes it will talk to a navcoind or NavCoin-Qt running
+# Assumes it will talk to a navcoind or Navcoin-Qt running
 # on localhost.
 #
 # Depends on jsonrpc
@@ -35,9 +35,9 @@ def check_json_precision():
 def determine_db_dir():
     """Return the default location of the navcoin data directory"""
     if platform.system() == "Darwin":
-        return os.path.expanduser("~/Library/Application Support/NavCoin/")
+        return os.path.expanduser("~/Library/Application Support/Navcoin/")
     elif platform.system() == "Windows":
-        return os.path.join(os.environ['APPDATA'], "NavCoin")
+        return os.path.join(os.environ['APPDATA'], "Navcoin")
     return os.path.expanduser("~/.navcoin")
 
 def read_navcoin_config(dbdir):

@@ -569,10 +569,10 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\NavCoin
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\NavCoin
-    // Mac: ~/Library/Application Support/NavCoin
-    // Unix: ~/.navcoin
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\NavCoin4
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\NavCoin4
+    // Mac: ~/Library/Application Support/NavCoin4
+    // Unix: ~/.navcoin4
 #ifdef WIN32
     // Windows
     return GetSpecialFolderPath(CSIDL_APPDATA) / "NavCoin4";

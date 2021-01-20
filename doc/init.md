@@ -68,9 +68,9 @@ can then be controlled by group membership.
 3b) Mac OS X
 
 Binary:              `/usr/local/bin/navcoind`  
-Configuration file:  `~/Library/Application Support/NavCoin/navcoin.conf`  
-Data directory:      `~/Library/Application Support/NavCoin`
-Lock file:           `~/Library/Application Support/NavCoin/.lock`
+Configuration file:  `~/Library/Application Support/Navcoin/navcoin.conf`  
+Data directory:      `~/Library/Application Support/Navcoin`
+Lock file:           `~/Library/Application Support/Navcoin/.lock`
 
 4. Installing Service Configuration
 -----------------------------------

@@ -1,4 +1,4 @@
-# NavCoin DAO Test Plan
+# Navcoin DAO Test Plan
 
 This file is a map of the tests scenarios which will be covered to ensure the DAO is fully tested before release. This is currently a work in progress, so if you notice there are missing scenarios please add them to this file following the same format/template. If you want to create a test based on a scenario here then please go ahead and claim it. Just make sure you claim and check off any scenarios which you write so others are aware of what is still todo.
 

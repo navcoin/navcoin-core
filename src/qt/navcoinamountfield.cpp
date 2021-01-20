@@ -49,7 +49,7 @@ public:
         CAmount val = parse(input, &valid);
         if(valid)
         {
-            input = NavCoinUnits::format(NavCoinUnits::NAV, val, false, NavCoinUnits::separatorAlways);
+            input = NavcoinUnits::format(NavcoinUnits::NAV, val, false, NavcoinUnits::separatorAlways);
             lineEdit()->setText(input);
         }
     }
@@ -61,7 +61,7 @@ public:
 
     void setValue(CAmount val)
     {
-        lineEdit()->setText(NavCoinUnits::format(NavCoinUnits::NAV, val, false, NavCoinUnits::separatorAlways));
+        lineEdit()->setText(NavcoinUnits::format(NavcoinUnits::NAV, val, false, NavcoinUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
@@ -70,7 +70,7 @@ public:
         bool valid = false;
         CAmount val = value(&valid);
         val = val + steps * singleStep;
-        val = qMin(qMax(val, CAmount(0)), NavCoinUnits::maxMoney());
+        val = qMin(qMax(val, CAmount(0)), NavcoinUnits::maxMoney());
         setValue(val);
     }
 
@@ -87,7 +87,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = fm.width(NavCoinUnits::format(NavCoinUnits::NAV, NavCoinUnits::maxMoney(), false, NavCoinUnits::separatorAlways));
+            int w = fm.width(NavcoinUnits::format(NavcoinUnits::NAV, NavcoinUnits::maxMoney(), false, NavcoinUnits::separatorAlways));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;
@@ -124,10 +124,10 @@ private:
     CAmount parse(const QString &text, bool *valid_out=0) const
     {
         CAmount val = 0;
-        bool valid = NavCoinUnits::parse(NavCoinUnits::NAV, text, &val);
+        bool valid = NavcoinUnits::parse(NavcoinUnits::NAV, text, &val);
         if(valid)
         {
-            if(val < 0 || val > NavCoinUnits::maxMoney())
+            if(val < 0 || val > NavcoinUnits::maxMoney())
                 valid = false;
         }
         if(valid_out)
@@ -165,7 +165,7 @@ protected:
         {
             if(val > 0)
                 rv |= StepDownEnabled;
-            if(val < NavCoinUnits::maxMoney())
+            if(val < NavcoinUnits::maxMoney())
                 rv |= StepUpEnabled;
         }
         return rv;
@@ -178,7 +178,7 @@ Q_SIGNALS:
 
 #include <qt/navcoinamountfield.moc>
 
-NavCoinAmountField::NavCoinAmountField(QWidget *parent, bool fUnit) :
+NavcoinAmountField::NavcoinAmountField(QWidget *parent, bool fUnit) :
     QWidget(parent),
     amount(0)
 {
@@ -203,17 +203,17 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent, bool fUnit) :
     connect(amount, SIGNAL(valueChanged()), this, SLOT(valueDidChange()));
 }
 
-void NavCoinAmountField::clear()
+void NavcoinAmountField::clear()
 {
     amount->clear();
 }
 
-void NavCoinAmountField::setEnabled(bool fEnabled)
+void NavcoinAmountField::setEnabled(bool fEnabled)
 {
     amount->setEnabled(fEnabled);
 }
 
-bool NavCoinAmountField::validate()
+bool NavcoinAmountField::validate()
 {
     bool valid = false;
     value(&valid);
@@ -221,7 +221,7 @@ bool NavCoinAmountField::validate()
     return valid;
 }
 
-void NavCoinAmountField::setValid(bool valid)
+void NavcoinAmountField::setValid(bool valid)
 {
     if (valid)
         amount->setStyleSheet("");
@@ -229,7 +229,7 @@ void NavCoinAmountField::setValid(bool valid)
         amount->setStyleSheet(STYLE_INVALID);
 }
 
-bool NavCoinAmountField::eventFilter(QObject *object, QEvent *event)
+bool NavcoinAmountField::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn)
     {
@@ -239,43 +239,43 @@ bool NavCoinAmountField::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-QWidget *NavCoinAmountField::setupTabChain(QWidget *prev)
+QWidget *NavcoinAmountField::setupTabChain(QWidget *prev)
 {
     QWidget::setTabOrder(prev, amount);
     QWidget::setTabOrder(amount, unit);
     return unit;
 }
 
-CAmount NavCoinAmountField::value(bool *valid_out) const
+CAmount NavcoinAmountField::value(bool *valid_out) const
 {
     return amount->value(valid_out);
 }
 
-void NavCoinAmountField::setValue(const CAmount& value)
+void NavcoinAmountField::setValue(const CAmount& value)
 {
     amount->setValue(value);
 }
 
-void NavCoinAmountField::setReadOnly(bool fReadOnly)
+void NavcoinAmountField::setReadOnly(bool fReadOnly)
 {
     amount->setReadOnly(fReadOnly);
 }
 
-void NavCoinAmountField::setDisplayUnit(int newUnit)
+void NavcoinAmountField::setDisplayUnit(int newUnit)
 {
     nCurrentUnit = newUnit;
     valueDidChange();
 }
 
-void NavCoinAmountField::valueDidChange()
+void NavcoinAmountField::valueDidChange()
 {
-    if (nCurrentUnit != NavCoinUnits::NAV)
-        unit->setText(" " + tr("or") + " " + NavCoinUnits::formatWithUnit(nCurrentUnit, value()));
+    if (nCurrentUnit != NavcoinUnits::NAV)
+        unit->setText(" " + tr("or") + " " + NavcoinUnits::formatWithUnit(nCurrentUnit, value()));
     else
-        unit->setText(" " + tr("or") + " " + NavCoinUnits::formatWithUnit(NavCoinUnits::BTC, value()));
+        unit->setText(" " + tr("or") + " " + NavcoinUnits::formatWithUnit(NavcoinUnits::BTC, value()));
 }
 
-void NavCoinAmountField::setSingleStep(const CAmount& step)
+void NavcoinAmountField::setSingleStep(const CAmount& step)
 {
     amount->setSingleStep(step);
 }
