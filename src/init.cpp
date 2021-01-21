@@ -37,7 +37,6 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
-#include <torthread.h>
 #include <ui_interface.h>
 #include <untar.h>
 #include <util.h>
@@ -231,8 +230,6 @@ void Interrupt(boost::thread_group& threadGroup)
     InterruptRPC();
     InterruptREST();
     torController.Interrupt();
-    if (fTorServer)
-        TorThreadInterrupt();
     threadGroup.interrupt_all();
 }
 
@@ -1179,11 +1176,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         nScriptCheckThreads = MAX_SCRIPTCHECK_THREADS;
 
     fServer = GetBoolArg("-server", false);
-
-    fTorServer = GetBoolArg("-torserver", false);
-
-    if (fTorServer)
-        TorThreadInit();
 
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nSignedPruneTarget = GetArg("-prune", 0) * 1024 * 1024;

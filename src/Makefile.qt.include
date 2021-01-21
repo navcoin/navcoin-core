@@ -630,7 +630,6 @@ qt_navcoin_qt_LDADD += \
                        $(QT_DBUS_LIBS) \
                        $(QR_LIBS) \
                        $(BDB_LIBS) \
-                       $(LIBTOR) \
                        $(UNBOUND_LIBS) \
                        $(ZLIB_LIBS) \
                        $(SSL_LIBS) \
