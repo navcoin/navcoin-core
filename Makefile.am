@@ -158,12 +158,10 @@ $(NAVCOIN_CLI_BIN): FORCE
 
 check-recursive:
 	$(MAKE) -C src/bls/build
-	$(MAKE) -C src/tor
 	$(MAKE) -C src check
 
 install-recursive:
 	$(MAKE) -C src/bls/build
-	$(MAKE) -C src/tor
 	$(MAKE) -C src install
 
 if USE_LCOV
