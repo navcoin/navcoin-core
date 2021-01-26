@@ -5225,7 +5225,6 @@ static bool ActivateBestChainStep(CValidationState& state, const CChainParams& c
 
         // Connect new blocks.
         for(CBlockIndex *pindexConnect: boost::adaptors::reverse(vpindexToConnect)) {
-            int64_t nTime1 = GetTimeMicros();
             if (!ConnectTip(state, chainparams, pindexConnect, pindexConnect == pindexMostWork ? pblock : nullptr)) {
                 if (state.IsInvalid()) {
                     // The block violates a consensus rule.
