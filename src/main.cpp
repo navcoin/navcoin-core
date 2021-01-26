@@ -3478,8 +3478,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTimeStart = GetTimeMicros();
     int64_t nStakeReward = 0;
 
+    bool fScriptChecks = true;
+    if (fCheckpointsEnabled) {
+        CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
+        if (pindexLastCheckpoint && pindexLastCheckpoint->GetAncestor(pindex->nHeight) == pindex) {
+            // This block is an ancestor of a checkpoint: disable script checks
+            fScriptChecks = false;
+        }
+    }
+
     // Check it again in case a previous version let a bad block in
-    if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck, !fJustCheck))
+    if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck, !fJustCheck, fScriptChecks))
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
 
     // verify that the view's current state corresponds to the previous block
@@ -3489,7 +3498,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     // Special case for the genesis block, skipping connection of its transactions
     // (its coinbase is unspendable)
-
     if (block.GetHash() == chainparams.GetConsensus().hashGenesisBlock) {
         if (!fJustCheck)
             view.SetBestBlock(pindex->GetBlockHash());
@@ -3505,7 +3513,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t nCoinAge;
 
     // Verify hash target and signature of coinstake tx
-    if (block.IsProofOfStake())
+    if (block.IsProofOfStake() && fScriptChecks)
     {
         arith_uint256 targetProofOfStake;
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
@@ -3527,10 +3535,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     // Record proof hash value
     pindex->hashProof = hashProof;
-
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
-    if (!ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier))
+    if (fScriptChecks && !ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier))
         return state.DoS(1, error("ContextualCheckBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
 
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
@@ -3540,16 +3547,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         pindex->RaiseValidity(BLOCK_VALID_STAKE);
         setDirtyBlockIndex.insert(pindex);
-    }
-
-
-    bool fScriptChecks = true;
-    if (fCheckpointsEnabled) {
-        CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
-        if (pindexLastCheckpoint && pindexLastCheckpoint->GetAncestor(pindex->nHeight) == pindex) {
-            // This block is an ancestor of a checkpoint: disable script checks
-            fScriptChecks = false;
-        }
     }
 
     int64_t nTime1 = GetTimeMicros(); nTimeCheck += nTime1 - nTimeStart;
@@ -3660,7 +3657,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     std::vector<unsigned char> stakerScript;
 
-    if (fStake)
+    if (fStake && fColdStakingv2)
     {
         const CTransaction &txRead = block.vtx[1];
         CTransaction txPrev;
@@ -4625,7 +4622,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees, pindex->pprev, view);
 
-        if (nStakeReward > nCalculatedStakeReward)
+        if (fScriptChecks && nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
 
         if (block.vtx[1].IsCTOutput()) // coinstake moving to private is checked after the loop
@@ -5228,6 +5225,7 @@ static bool ActivateBestChainStep(CValidationState& state, const CChainParams& c
 
         // Connect new blocks.
         for(CBlockIndex *pindexConnect: boost::adaptors::reverse(vpindexToConnect)) {
+            int64_t nTime1 = GetTimeMicros();
             if (!ConnectTip(state, chainparams, pindexConnect, pindexConnect == pindexMostWork ? pblock : nullptr)) {
                 if (state.IsInvalid()) {
                     // The block violates a consensus rule.
@@ -5645,7 +5643,7 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
     return true;
 }
 
-bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig)
+bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig, bool fScriptChecks)
 {
     // These are checks that are independent of context.
     if (block.fChecked)
@@ -5700,7 +5698,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
     // Check proof-of-stake block signature
-    if (fCheckSig && !CheckBlockSignature(block))
+    if (fCheckSig && fScriptChecks && !CheckBlockSignature(block))
     {
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
