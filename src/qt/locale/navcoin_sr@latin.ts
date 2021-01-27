@@ -115,7 +115,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Error</source>
         <translation>Greska</translation>
@@ -238,8 +238,8 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>Insufficient funds</source>

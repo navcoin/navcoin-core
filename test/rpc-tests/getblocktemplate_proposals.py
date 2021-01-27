@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 from binascii import a2b_hex, b2a_hex
@@ -65,7 +65,7 @@ def assert_template(node, tmpl, txlist, expect):
     if rsp != expect:
         raise AssertionError('unexpected: %s' % (rsp,))
 
-class GetBlockTemplateProposalTest(NavCoinTestFramework):
+class GetBlockTemplateProposalTest(NavcoinTestFramework):
     '''
     Test block proposals with getblocktemplate.
     '''

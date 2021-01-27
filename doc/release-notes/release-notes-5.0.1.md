@@ -1,4 +1,4 @@
-# NavCoin v5.0.1 Release Notes
+# Navcoin v5.0.1 Release Notes
 
 ## Fix getaddressbalance for address reuse
 

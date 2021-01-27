@@ -10,7 +10,7 @@
 
 /**
  * CBaseChainParams defines the base parameters (shared between navcoin-cli and navcoind)
- * of a given instance of the NavCoin system.
+ * of a given instance of the Navcoin system.
  */
 class CBaseChainParams
 {

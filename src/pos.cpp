@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018-2020 The NavCoin Core developers
+// Copyright (c) 2018-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -90,7 +90,7 @@ std::pair<CAmount, std::pair<CAmount, CAmount>> GetStakingCoins()
 
     CBlockIndex* pindex = chainActive.Tip();
 
-    std::set<CNavCoinAddress> stakers;
+    std::set<CNavcoinAddress> stakers;
 
     while (pindex && nStakesHandled < nPoSInterval)
     {
@@ -107,7 +107,7 @@ std::pair<CAmount, std::pair<CAmount, CAmount>> GetStakingCoins()
                 CScript script = coinstake.vout[1].scriptPubKey;
                 CTxDestination destination;
                 if (ExtractDestination(script, destination)) {
-                    stakers.insert(CNavCoinAddress(destination));
+                    stakers.insert(CNavcoinAddress(destination));
                 }
             }
             nStakesHandled++;
@@ -125,7 +125,7 @@ std::pair<CAmount, std::pair<CAmount, CAmount>> GetStakingCoins()
 
         if (address.IsColdStakingv2Address(Params()))
         {
-            CNavCoinAddress addressStaking;
+            CNavcoinAddress addressStaking;
             uint160 hashBytes, hashBytesStaking;
             int type = 0;
 
@@ -142,7 +142,7 @@ std::pair<CAmount, std::pair<CAmount, CAmount>> GetStakingCoins()
         }
         else if (address.IsColdStakingAddress(Params()))
         {
-            CNavCoinAddress addressStaking, addressSpending;
+            CNavcoinAddress addressStaking, addressSpending;
             uint160 hashBytes, hashBytesStaking, hashBytesSpending;
             int type = 0;
 

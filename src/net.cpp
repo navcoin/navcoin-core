@@ -732,7 +732,7 @@ void CNode::copyStats(CNodeStats &stats)
         nPingUsecWait = GetTimeMicros() - nPingUsecStart;
     }
 
-    // Raw ping time is in microseconds, but show it to user as whole seconds (NavCoin users should be well used to small numbers with many decimal places by now :)
+    // Raw ping time is in microseconds, but show it to user as whole seconds (Navcoin users should be well used to small numbers with many decimal places by now :)
     stats.dPingTime = (((double)nPingUsecTime) / 1e6);
     stats.dPingMin  = (((double)nMinPingUsecTime) / 1e6);
     stats.dPingWait = (((double)nPingUsecWait) / 1e6);
@@ -1440,7 +1440,7 @@ void ThreadMapPort()
             }
         }
 
-        std::string strDesc = "NavCoin " + FormatFullVersion();
+        std::string strDesc = "Navcoin " + FormatFullVersion();
 
         try {
             while (true) {

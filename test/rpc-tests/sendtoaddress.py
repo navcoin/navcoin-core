@@ -4,11 +4,11 @@
 # Tests valid transactions with amounts of different types,
 # Invalid addresses and invalid amounts
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 
-class SendToAddressTest (NavCoinTestFramework):
+class SendToAddressTest (NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()
@@ -61,7 +61,7 @@ class SendToAddressTest (NavCoinTestFramework):
         try:
             txid2 = self.nodes[0].sendtoaddress("n2USJi4FFP9HVgxskVA44rMr8RUgRhvKXm", 5)
         except JSONRPCException as e:
-            if "Invalid NavCoin address" in e.error["message"]:
+            if "Invalid Navcoin address" in e.error["message"]:
                 exception_assert = True
             # Correct format but non-existant address
         assert(exception_assert)
@@ -69,7 +69,7 @@ class SendToAddressTest (NavCoinTestFramework):
         try:
             txid3 = self.nodes[0].sendtoaddress("", 5)
         except JSONRPCException as e:
-            if "Invalid NavCoin address" in e.error["message"]:
+            if "Invalid Navcoin address" in e.error["message"]:
                 exception_assert = True
                 # Empty string
         assert(exception_assert)

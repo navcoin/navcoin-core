@@ -5,14 +5,14 @@
 
 # Test descendant package tracking code
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.mininode import COIN
 
 MAX_ANCESTORS = 25
 MAX_DESCENDANTS = 25
 
-class MempoolPackagesTest(NavCoinTestFramework):
+class MempoolPackagesTest(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 2

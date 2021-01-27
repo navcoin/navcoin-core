@@ -18,7 +18,7 @@ QT_END_NAMESPACE
 
 /** Widget for entering navcoin amounts.
   */
-class NavCoinAmountField: public QWidget
+class NavcoinAmountField: public QWidget
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ class NavCoinAmountField: public QWidget
     Q_PROPERTY(qint64 value READ value WRITE setValue NOTIFY valueChanged USER true)
 
 public:
-    explicit NavCoinAmountField(QWidget *parent = 0, bool fUnit = false);
+    explicit NavcoinAmountField(QWidget *parent = 0, bool fUnit = false);
 
     CAmount value(bool *value=0) const;
 

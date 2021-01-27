@@ -4,10 +4,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 import decimal
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.staticr_util import *
 
-class ColdStakingSpending(NavCoinTestFramework):
+class ColdStakingSpending(NavcoinTestFramework):
     """Tests spending and staking to/from a spending wallet."""
     # set up num of nodes
     def __init__(self):

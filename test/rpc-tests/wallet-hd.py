@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import (
     start_nodes,
     start_node,
@@ -15,7 +15,7 @@ import os
 import shutil
 
 
-class WalletHDTest(NavCoinTestFramework):
+class WalletHDTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

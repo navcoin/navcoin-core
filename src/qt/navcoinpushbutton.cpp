@@ -1,26 +1,26 @@
-// Copyright (c) 2019-2020 The NavCoin Core developers
+// Copyright (c) 2019-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "navcoinpushbutton.h"
 
-NavCoinPushButton::NavCoinPushButton(QString label) :
+NavcoinPushButton::NavcoinPushButton(QString label) :
     QPushButton(label)
 {
     this->setLayoutDirection(Qt::RightToLeft);
 }
 
-void NavCoinPushButton::setBadge(int nValue)
+void NavcoinPushButton::setBadge(int nValue)
 {
     this->setIcon(nValue <= 0 ? QIcon() : getBadgeIcon(nValue));
 }
 
-void NavCoinPushButton::paintEvent(QPaintEvent *e)
+void NavcoinPushButton::paintEvent(QPaintEvent *e)
 {
     QPushButton::paintEvent(e);
 }
 
-QIcon NavCoinPushButton::getBadgeIcon(int nValue)
+QIcon NavcoinPushButton::getBadgeIcon(int nValue)
 {
     QImage img(32, 32, QImage::Format_ARGB32);
     img.fill(QColor(0, 0, 0, 0));

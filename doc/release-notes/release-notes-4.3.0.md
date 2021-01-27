@@ -1,8 +1,8 @@
-# NavCoin v4.3.0 Release Notes
+# Navcoin v4.3.0 Release Notes
 
 ## Introduces OpenAlias:
 
-This PR https://github.com/navcoin/navcoin-core/pull/213 completes the implementation of the OpenAlias protocol into the NavCoin Core client.
+This PR https://github.com/navcoin/navcoin-core/pull/213 completes the implementation of the OpenAlias protocol into the Navcoin Core client.
 
 OpenAlias is an standard created by the Monero Core project used in the Monero wallet and some other clients like Bitcoin Electrum which allows the wallet to translate email addresses into cryptocurrency addresses using custom TXT entries in the DNS records of a domain.
 
@@ -12,7 +12,7 @@ Part of the code is based in the original Monero implementation. The main differ
 
 - Prefix of the TXT entry is required to be set to oa1:nav
 - The only parsed parameter is recipient_address
-- NavCoin enforces by default the use of DNSSEC
+- Navcoin enforces by default the use of DNSSEC
 
 ### OpenAlias registration
 You can now register a OpenAlias address at http://openalias.nav.community/
@@ -43,15 +43,15 @@ Staking can now be toggled "on-the-fly" without restarting the client through th
 
 # Updates secp256k1 Lib
 
-The secp256k1 lib from bitcoin 16.2 release was included into the codebase. While there are a number of improvements, the update was mainly needed due to the better build options for developers and allows newer OS's to build. This reduces the friction in getting setup and working with NavCoin
+The secp256k1 lib from bitcoin 16.2 release was included into the codebase. While there are a number of improvements, the update was mainly needed due to the better build options for developers and allows newer OS's to build. This reduces the friction in getting setup and working with Navcoin
 
 # Transalations
 
 The Wallet GUI is now fully translated to Spanish and Italian.
 
-### Other modifications in the NavCoin client:
+### Other modifications in the Navcoin client:
 
-- New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
+- New RPC command `resolveopenalias` resolves an OpenAlias address to a Navcoin address
 - Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands validateaddress and sendtoaddress
 - New argument `-requirednssec` to set whether DNSSEC validation is required to resolve openalias addresses (true by default)
 - New argument `-mininputvalue` to set the minimum value for an output to be considered as a possible coinstake input

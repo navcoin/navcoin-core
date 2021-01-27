@@ -131,7 +131,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         }
 
         // Get Address
-        CNavCoinAddress address(proposal.GetOwnerAddress());
+        CNavcoinAddress address(proposal.GetOwnerAddress());
         if(!address.IsValid()) {
             QMessageBox msgBox(this);
             std::string str = "The address of the Proposal is not valid\n";
@@ -216,8 +216,8 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             if (nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
                 str = tr("Requested amount %1 is more than avaible coins in the proposal (%2)\n")
                     .arg(
-                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, nReqAmount),
-                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))
+                        NavcoinUnits::formatWithUnit(NavcoinUnits::NAV, nReqAmount),
+                        NavcoinUnits::formatWithUnit(NavcoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))
                     );
             }
             msgBox.setText(str);
@@ -295,7 +295,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             }
             else {
                 // User accepted making the prequest
-                // Parse NavCoin address
+                // Parse Navcoin address
                 CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
                 SetScriptForCommunityFundContribution(scriptPubKey);

@@ -1,5 +1,5 @@
 [Unit]
-Description=NavCoin's distributed currency daemon
+Description=Navcoin's distributed currency daemon
 After=network.target
 
 [Service]

@@ -30,7 +30,7 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 Libunbound needs to be compiled from source. Download last version from http://www.unbound.net, untar, cd to the folder and then `./configure`, `make` and `make install-all`.
 
 
-## Build NavCoin Core
+## Build Navcoin Core
 
 1.  Clone the navcoin source code and cd into `navcoin`
 
@@ -66,7 +66,7 @@ Libunbound needs to be compiled from source. Download last version from http://w
 
 ## Running
 
-NavCoin Core is now available at `./src/navcoind`
+Navcoin Core is now available at `./src/navcoind`
 
 Before running, it's recommended you create an RPC configuration file.
 

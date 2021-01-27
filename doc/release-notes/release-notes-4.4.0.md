@@ -1,4 +1,4 @@
-# NavCoin v4.4.0 Release Notes
+# Navcoin v4.4.0 Release Notes
 
 ## Community Fund:
 
@@ -146,6 +146,6 @@ cfundstats
 Returns the current status of the Community Fund
 ```
 
-### Other modifications in the NavCoin client:
+### Other modifications in the Navcoin client:
 
 - RPC Tests fix.

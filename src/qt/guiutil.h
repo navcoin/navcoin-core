@@ -32,7 +32,7 @@ class QUrl;
 class QWidget;
 QT_END_NAMESPACE
 
-/** Utility functions used by the NavCoin Qt UI.
+/** Utility functions used by the Navcoin Qt UI.
  */
 namespace GUIUtil
 {
@@ -51,9 +51,9 @@ namespace GUIUtil
     void setupAmountWidget(QLineEdit *widget, QWidget *parent);
 
     // Parse "navcoin:" URI into recipient object, return true on successful parsing
-    bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out);
-    bool parseNavCoinURI(QString uri, SendCoinsRecipient *out);
-    QString formatNavCoinURI(const SendCoinsRecipient &info);
+    bool parseNavcoinURI(const QUrl &uri, SendCoinsRecipient *out);
+    bool parseNavcoinURI(QString uri, SendCoinsRecipient *out);
+    QString formatNavcoinURI(const SendCoinsRecipient &info);
 
     // Returns true if given address+amount meets "dust" definition
     bool isDust(const QString& address, const CAmount& amount);
@@ -121,7 +121,7 @@ namespace GUIUtil
     void openDebugLogfile();
 
     // Open the config file
-    void openNavCoinConf();
+    void openNavcoinConf();
 
     // Replace invalid default fonts with known good ones
     void SubstituteFonts(const QString& language);

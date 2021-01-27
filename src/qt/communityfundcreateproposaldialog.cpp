@@ -120,7 +120,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         CStateViewCache view(pcoinsTip);
 
-        CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+        CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
         CWalletTx wtx;
         bool fSubtractFeeFromAmount = false;

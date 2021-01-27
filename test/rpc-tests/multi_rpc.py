@@ -7,14 +7,14 @@
 # Test mulitple rpc user config option rpcauth
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import str_to_b64str, assert_equal
 
 import os
 import http.client
 import urllib.parse
 
-class HTTPBasicsTest (NavCoinTestFramework):
+class HTTPBasicsTest (NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

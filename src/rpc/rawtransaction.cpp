@@ -80,7 +80,7 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     {
         UniValue a(UniValue::VARR);
         for(const CTxDestination& addr: addresses)
-            a.push_back(CNavCoinAddress(addr).ToString());
+            a.push_back(CNavcoinAddress(addr).ToString());
         out.pushKV("addresses", a);
     }
 }
@@ -120,9 +120,9 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
                 in.pushKV("value", ValueFromAmount(spentInfo.satoshis));
                 in.pushKV("valueSat", spentInfo.satoshis);
                 if (spentInfo.addressType == 1) {
-                    in.pushKV("address", CNavCoinAddress(CKeyID(spentInfo.addressHash)).ToString());
+                    in.pushKV("address", CNavcoinAddress(CKeyID(spentInfo.addressHash)).ToString());
                 } else if (spentInfo.addressType == 2)  {
-                    in.pushKV("address", CNavCoinAddress(CScriptID(spentInfo.addressHash)).ToString());
+                    in.pushKV("address", CNavcoinAddress(CScriptID(spentInfo.addressHash)).ToString());
                 }
             }
 
@@ -659,10 +659,10 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         rawTx.vin.push_back(in);
     }
 
-    set<CNavCoinAddress> setAddress;
+    set<CNavcoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
     for(const string& name_: addrList) {
-        CNavCoinAddress address(name_);
+        CNavcoinAddress address(name_);
         if (address.IsValid()) {
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
@@ -798,7 +798,7 @@ UniValue decodescript(const UniValue& params, bool fHelp)
     }
     ScriptPubKeyToJSON(script, r, false);
 
-    r.pushKV("p2sh", CNavCoinAddress(CScriptID(script)).ToString());
+    r.pushKV("p2sh", CNavcoinAddress(CScriptID(script)).ToString());
     return r;
 }
 
@@ -928,7 +928,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
         UniValue keys = params[2].get_array();
         for (unsigned int idx = 0; idx < keys.size(); idx++) {
             UniValue k = keys[idx];
-            CNavCoinSecret vchSecret;
+            CNavcoinSecret vchSecret;
             bool fGood = vchSecret.SetString(k.get_str());
             if (!fGood)
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");

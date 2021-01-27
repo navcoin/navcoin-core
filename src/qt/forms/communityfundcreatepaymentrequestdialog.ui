@@ -72,7 +72,7 @@
       </widget>
      </item>
      <item>
-      <widget class="NavCoinAmountField" name="lineEditRequestedAmount"/>
+      <widget class="NavcoinAmountField" name="lineEditRequestedAmount"/>
      </item>
      <item>
       <widget class="QLabel" name="labelDescriptionTitle">
@@ -130,7 +130,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>NavCoinAmountField</class>
+   <class>NavcoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>

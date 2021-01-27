@@ -41,17 +41,17 @@
 #define THIN_SP_UTF8 REAL_THIN_SP_UTF8
 #define THIN_SP_HTML HTML_HACK_SP
 
-/** NavCoin unit definitions. Encapsulates parsing and formatting
+/** Navcoin unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
-class NavCoinUnits: public QAbstractListModel
+class NavcoinUnits: public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit NavCoinUnits(QObject *parent);
+    explicit NavcoinUnits(QObject *parent);
 
-    /** NavCoin units.
+    /** Navcoin units.
       @note Source: https://en.navcoin.it/wiki/Units . Please add only sensible ones
      */
     enum Unit
@@ -161,8 +161,8 @@ public:
     static CAmount maxMoney();
 
 private:
-    QList<NavCoinUnits::Unit> unitlist;
+    QList<NavcoinUnits::Unit> unitlist;
 };
-typedef NavCoinUnits::Unit NavCoinUnit;
+typedef NavcoinUnits::Unit NavcoinUnit;
 
 #endif // NAVCOIN_QT_NAVCOINUNITS_H

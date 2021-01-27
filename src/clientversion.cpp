@@ -13,7 +13,7 @@
  * for both navcoind and navcoin-core, to make it harder for attackers to
  * target servers or GUI users specifically.
  */
-const std::string CLIENT_NAME("NavCoin");
+const std::string CLIENT_NAME("Navcoin");
 
 /**
  * Client version number

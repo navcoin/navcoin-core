@@ -5,7 +5,7 @@ from test_framework.blocktools import *
 from test_framework.key import *
 from test_framework.mininode import *
 from test_framework.script import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 import time
 import json
@@ -24,7 +24,7 @@ CHAIN_SIZE = 20
 NUM_TRANSACTIONS_IN_BLOCK = 2000
 
 
-class NothingAtStakeDoSTest(NavCoinTestFramework):
+class NothingAtStakeDoSTest(NavcoinTestFramework):
 
     def create_block_header(self, hashPrevBlock, nTime, hashMerkleRoot):
         block = CBlockHeader()

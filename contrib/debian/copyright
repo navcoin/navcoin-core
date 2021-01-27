@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: NavCoin
+Upstream-Name: Navcoin
 Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
  irc://#navcoin@freenode.net
 Source: https://github.com/navcoin/navcoin
@@ -7,7 +7,7 @@ Source: https://github.com/navcoin/navcoin
 Files: *
 Copyright: 2009-2016, Bitcoin Core Developers
 License: Expat
-Comment: The NavCoin Core Developers encompasses the current developers listed on navcoin.org,
+Comment: The Navcoin Core Developers encompasses the current developers listed on navcoin.org,
          as well as the numerous contributors to the project.
 
 Files: debian/*

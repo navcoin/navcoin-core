@@ -230,7 +230,7 @@
     </message>
     <message>
         <location line="-135"/>
-        <source>NavCoin Address:</source>
+        <source>Navcoin Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -832,7 +832,7 @@
     </message>
     <message>
         <location line="+10"/>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</source>
+        <source>%1 will download and store a copy of the Navcoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -907,10 +907,10 @@
     </message>
 </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <location filename="../navcoin.cpp" line="+519"/>
-        <source>A fatal error occurred. NavCoin can no longer continue safely and will quit.</source>
+        <source>A fatal error occurred. Navcoin can no longer continue safely and will quit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1083,8 +1083,8 @@
     </message>
     <message>
         <location line="+30"/>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <location line="+17"/>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1148,7 +1148,7 @@
     </message>
     <message>
         <location line="+25"/>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1671,7 +1671,7 @@
     <message>
         <location line="+14"/>
         <location line="+26"/>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1930,7 +1930,7 @@
     </message>
     <message>
         <location line="+180"/>
-        <source>The NavCoin address to send the payment to</source>
+        <source>The Navcoin address to send the payment to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1976,7 +1976,7 @@
     </message>
     <message>
         <location line="+39"/>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2099,7 +2099,7 @@
     </message>
     <message>
         <location line="+18"/>
-        <source>The NavCoin address to sign the message with</source>
+        <source>The Navcoin address to sign the message with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2141,8 +2141,8 @@
     </message>
     <message>
         <location line="+24"/>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Sign the message to prove you own this NavCoin address</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Sign the message to prove you own this Navcoin address</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -2172,13 +2172,13 @@
     </message>
     <message>
         <location line="+21"/>
-        <source>The NavCoin address the message was signed with</source>
+        <source>The Navcoin address the message was signed with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+51"/>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Verify the message to ensure it was signed with the specified NavCoin address</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Verify the message to ensure it was signed with the specified Navcoin address</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -2276,7 +2276,7 @@
     </message>
     <message>
         <location line="+47"/>
-        <source>Use the following address to receive NavCoins:</source>
+        <source>Use the following address to receive Navcoins:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2394,8 +2394,8 @@
     </message>
     <message>
         <location line="-291"/>
-        <source>NavCoin Core</source>
-        <translation type="unfinished">NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation type="unfinished">Navcoin Core</translation>
     </message>
     <message>
         <location line="+1"/>

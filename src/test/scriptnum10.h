@@ -23,7 +23,7 @@ public:
 class CScriptNum10
 {
 /**
- * The ScriptNum implementation from NavCoin Core 0.10.0, for cross-comparison.
+ * The ScriptNum implementation from Navcoin Core 0.10.0, for cross-comparison.
  */
 public:
 

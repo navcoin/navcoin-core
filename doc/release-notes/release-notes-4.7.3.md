@@ -1,4 +1,4 @@
-# NavCoin v4.7.3 Release Notes
+# Navcoin v4.7.3 Release Notes
 
 ## Anti Header Spam v2
 
@@ -19,7 +19,7 @@ Features:
 
 #### Considerations
 
-- The maximum size of the `points` list by default is 4,000. With a block time of 30 seconds, NavCoin sees an average of 2,880 blocks per day. A maximum value of 4000 is roughly one and a half times more than the count of blocks a peer needs to be behind the chain tip to be in Initial Block Download mode. When on IBD, the header spam filter is turned off. This ensures that normal synchronisation is not affected by this filter.
+- The maximum size of the `points` list by default is 4,000. With a block time of 30 seconds, Navcoin sees an average of 2,880 blocks per day. A maximum value of 4000 is roughly one and a half times more than the count of blocks a peer needs to be behind the chain tip to be in Initial Block Download mode. When on IBD, the header spam filter is turned off. This ensures that normal synchronisation is not affected by this filter.
 - An attacker would be able to exhaust 32 bytes from the hash inserted in the `points` list + 181 bytes from the `CBlockIndex` inserted in `mapBlockIndex` for every invalid header/block before being banned. The `points` list is cleared when the attacker is banned, but those headers are not removed from `mapBlockIndex` or the hard disk in the current implementation. The size of CBlockIndex has been measured with:
 ```c++
     CBlockIndex* pindex = new CBlockIndex();

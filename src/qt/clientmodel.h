@@ -37,7 +37,7 @@ enum NumConnections {
     CONNECTIONS_ALL  = (CONNECTIONS_IN | CONNECTIONS_OUT),
 };
 
-/** Model for NavCoin network client. */
+/** Model for Navcoin network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT

@@ -103,7 +103,7 @@ WalletView::~WalletView()
 {
 }
 
-void WalletView::setNavCoinGUI(NavCoinGUI *gui)
+void WalletView::setNavcoinGUI(NavcoinGUI *gui)
 {
     if (gui)
     {
@@ -432,7 +432,7 @@ void WalletView::exportMasterPrivateKeyAction()
          CExtKey masterKey;
          masterKey.SetMaster(key.begin(), key.size());
 
-         CNavCoinExtKey b58extkey;
+         CNavcoinExtKey b58extkey;
          b58extkey.SetKey(masterKey);
 
          QMessageBox::information(this, tr("Show Master Private Key"),
@@ -515,7 +515,7 @@ void WalletView::importPrivateKey()
         return;
       }
 
-      CNavCoinSecret vchSecret;
+      CNavcoinSecret vchSecret;
       bool fGood = vchSecret.SetString(privKey.toStdString());
 
       if (!fGood)
@@ -558,7 +558,7 @@ void WalletView::importPrivateKey()
         }
 
         QMessageBox::information(0, tr(PACKAGE_NAME),
-            tr("NavCoin needs to scan the chain... Please, wait."));
+            tr("Navcoin needs to scan the chain... Please, wait."));
 
         // whenever a key is imported, we need to scan the whole chain
         pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'

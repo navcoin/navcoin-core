@@ -146,14 +146,14 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
     LogPrint(category, "GUI: %s\n", msg.toStdString());
 }
 
-/** Class encapsulating NavCoin Core startup and shutdown.
+/** Class encapsulating Navcoin Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
-class NavCoinCore: public QObject
+class NavcoinCore: public QObject
 {
     Q_OBJECT
 public:
-    explicit NavCoinCore(std::string& wordlist, std::string& password);
+    explicit NavcoinCore(std::string& wordlist, std::string& password);
 
 public Q_SLOTS:
     void initialize();
@@ -179,13 +179,13 @@ private:
     std::string password;
 };
 
-/** Main NavCoin application object */
-class NavCoinApplication: public QApplication
+/** Main Navcoin application object */
+class NavcoinApplication: public QApplication
 {
     Q_OBJECT
 public:
-    explicit NavCoinApplication(int &argc, char **argv);
-    ~NavCoinApplication();
+    explicit NavcoinApplication(int &argc, char **argv);
+    ~NavcoinApplication();
 
     /** Load the stylesheet and base style for the app */
     void loadTheme();
@@ -210,7 +210,7 @@ public:
     /// Get process return value
     int getReturnValue() { return returnValue; }
 
-    /// Get window identifier of QMainWindow (NavCoinGUI)
+    /// Get window identifier of QMainWindow (NavcoinGUI)
     WId getMainWinId() const;
 
 public Q_SLOTS:
@@ -229,7 +229,7 @@ private:
     QThread *coreThread;
     OptionsModel *optionsModel;
     ClientModel *clientModel;
-    NavCoinGUI *window;
+    NavcoinGUI *window;
     QTimer *pollShutdownTimer;
 #ifdef ENABLE_WALLET
     WalletModel *walletModel;
@@ -245,20 +245,20 @@ private:
 
 #include <qt/navcoin.moc>
 
-NavCoinCore::NavCoinCore(std::string& wordlist, std::string& password):
+NavcoinCore::NavcoinCore(std::string& wordlist, std::string& password):
     QObject(),
     words(wordlist),
     password(password)
 {
 }
 
-void NavCoinCore::handleRunawayException(const std::exception *e)
+void NavcoinCore::handleRunawayException(const std::exception *e)
 {
     PrintExceptionContinue(e, "Runaway exception");
     Q_EMIT runawayException(QString::fromStdString(strMiscWarning));
 }
 
-void NavCoinCore::initialize()
+void NavcoinCore::initialize()
 {
     execute_restart = true;
     try
@@ -273,7 +273,7 @@ void NavCoinCore::initialize()
     }
 }
 
-void NavCoinCore::restart(QStringList args)
+void NavcoinCore::restart(QStringList args)
 {
     if (execute_restart) { // Only restart 1x, no matter how often a user clicks on a restart-button
         execute_restart = false;
@@ -296,7 +296,7 @@ void NavCoinCore::restart(QStringList args)
     }
 }
 
-void NavCoinCore::shutdown()
+void NavcoinCore::shutdown()
 {
     try
     {
@@ -313,7 +313,7 @@ void NavCoinCore::shutdown()
     }
 }
 
-NavCoinApplication::NavCoinApplication(int &argc, char **argv):
+NavcoinApplication::NavcoinApplication(int &argc, char **argv):
     QApplication(argc, argv),
     coreThread(0),
     optionsModel(0),
@@ -328,7 +328,7 @@ NavCoinApplication::NavCoinApplication(int &argc, char **argv):
     setQuitOnLastWindowClosed(false);
 }
 
-NavCoinApplication::~NavCoinApplication()
+NavcoinApplication::~NavcoinApplication()
 {
     if(coreThread)
     {
@@ -346,7 +346,7 @@ NavCoinApplication::~NavCoinApplication()
     platformStyle = 0;
 }
 
-void NavCoinApplication::loadTheme()
+void NavcoinApplication::loadTheme()
 {
     // Get an instance of settings
     QSettings settings;
@@ -393,19 +393,19 @@ void NavCoinApplication::loadTheme()
     }
 
     // UI per-platform customization
-    // This must be done inside the NavCoinApplication constructor, or after it, because
+    // This must be done inside the NavcoinApplication constructor, or after it, because
     // PlatformStyle::instantiate requires a QApplication
     platformStyle = PlatformStyle::instantiate();
     assert(platformStyle);
 }
 
-void NavCoinApplication::createOptionsModel(bool resetSettings)
+void NavcoinApplication::createOptionsModel(bool resetSettings)
 {
     optionsModel = new OptionsModel(NULL, resetSettings);
 }
 
 // this will be used to get mnemonic words
-bool NavCoinApplication::setupMnemonicWords(std::string& wordlist, std::string& password) {
+bool NavcoinApplication::setupMnemonicWords(std::string& wordlist, std::string& password) {
     namespace fs = boost::filesystem;
     if (GetBoolArg("-disablewallet", false)) {
         LogPrintf("Wallet disabled!\n");
@@ -424,13 +424,13 @@ bool NavCoinApplication::setupMnemonicWords(std::string& wordlist, std::string& 
     return false;
 }
 
-bool NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
+bool NavcoinApplication::createWindow(const NetworkStyle *networkStyle)
 {
     if (!setupMnemonicWords(wordlist, password)) {
         if (wordlist.empty()) return false;
     }
 
-    window = new NavCoinGUI(platformStyle, networkStyle, 0);
+    window = new NavcoinGUI(platformStyle, networkStyle, 0);
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
@@ -438,7 +438,7 @@ bool NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
     return true;
 }
 
-void NavCoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
+void NavcoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
 {
     SplashScreen *splash = new SplashScreen(0, networkStyle);
     // We don't hold a direct pointer to the splash screen after creation, so use
@@ -448,12 +448,12 @@ void NavCoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
     connect(this, SIGNAL(requestedShutdown()), splash, SLOT(close()));
 }
 
-void NavCoinApplication::startThread()
+void NavcoinApplication::startThread()
 {
     if(coreThread)
         return;
     coreThread = new QThread(this);
-    NavCoinCore *executor = new NavCoinCore(wordlist, password);
+    NavcoinCore *executor = new NavcoinCore(wordlist, password);
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
@@ -470,20 +470,20 @@ void NavCoinApplication::startThread()
     coreThread->start();
 }
 
-void NavCoinApplication::parameterSetup()
+void NavcoinApplication::parameterSetup()
 {
     InitLogging();
     InitParameterInteraction();
 }
 
-void NavCoinApplication::requestInitialize()
+void NavcoinApplication::requestInitialize()
 {
     qDebug() << __func__ << ": Requesting initialize";
     startThread();
     Q_EMIT requestedInitialize();
 }
 
-void NavCoinApplication::requestShutdown()
+void NavcoinApplication::requestShutdown()
 {
     qDebug() << __func__ << ": Requesting shutdown";
     startThread();
@@ -506,7 +506,7 @@ void NavCoinApplication::requestShutdown()
     Q_EMIT requestedShutdown();
 }
 
-void NavCoinApplication::initializeResult(int retval)
+void NavcoinApplication::initializeResult(int retval)
 {
     qDebug() << __func__ << ": Initialization result: " << retval;
     // Set exit result: 0 if successful, 1 if failure
@@ -524,8 +524,8 @@ void NavCoinApplication::initializeResult(int retval)
         {
             walletModel = new WalletModel(platformStyle, pwalletMain, optionsModel);
 
-            window->addWallet(NavCoinGUI::DEFAULT_WALLET, walletModel);
-            window->setCurrentWallet(NavCoinGUI::DEFAULT_WALLET);
+            window->addWallet(NavcoinGUI::DEFAULT_WALLET, walletModel);
+            window->setCurrentWallet(NavcoinGUI::DEFAULT_WALLET);
         }
 #endif
 
@@ -551,19 +551,19 @@ void NavCoinApplication::initializeResult(int retval)
     }
 }
 
-void NavCoinApplication::shutdownResult(int retval)
+void NavcoinApplication::shutdownResult(int retval)
 {
     qDebug() << __func__ << ": Shutdown result: " << retval;
     quit(); // Exit main loop after shutdown finished
 }
 
-void NavCoinApplication::handleRunawayException(const QString &message)
+void NavcoinApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(0, "Runaway exception", NavCoinGUI::tr("A fatal error occurred. NavCoin can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(0, "Runaway exception", NavcoinGUI::tr("A fatal error occurred. Navcoin can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(1);
 }
 
-WId NavCoinApplication::getMainWinId() const
+WId NavcoinApplication::getMainWinId() const
 {
     if (!window)
         return 0;
@@ -589,7 +589,7 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(navcoin_locale);
 
     // Load the app
-    NavCoinApplication app(argc, argv);
+    NavcoinApplication app(argc, argv);
 
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

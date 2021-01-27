@@ -29,16 +29,16 @@
   <string>????</string>
 
   <key>CFBundleExecutable</key>
-  <string>NavCoin-Qt</string>
+  <string>Navcoin-Qt</string>
   
   <key>CFBundleName</key>
-  <string>NavCoin-Qt</string>
+  <string>Navcoin-Qt</string>
 
   <key>LSHasLocalizedDisplayName</key>
   <true/>
 
   <key>CFBundleIdentifier</key>
-  <string>org.navcoinfoundation.NavCoin-Qt</string>
+  <string>org.navcoinfoundation.Navcoin-Qt</string>
 
   <key>CFBundleURLTypes</key>
   <array>
@@ -46,7 +46,7 @@
       <key>CFBundleTypeRole</key>
       <string>Editor</string>
       <key>CFBundleURLName</key>
-      <string>org.navcoin.NavCoinPayment</string>
+      <string>org.navcoin.NavcoinPayment</string>
       <key>CFBundleURLSchemes</key>
       <array>
         <string>navcoin</string>
@@ -60,7 +60,7 @@
       <key>UTTypeIdentifier</key>
       <string>org.navcoin.paymentrequest</string>
       <key>UTTypeDescription</key>
-      <string>NavCoin payment request</string>
+      <string>Navcoin payment request</string>
       <key>UTTypeConformsTo</key>
       <array>
         <string>public.data</string>

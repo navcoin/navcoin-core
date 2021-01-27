@@ -91,8 +91,8 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
             return ISMINE_STAKABLE;
 
         // if spending/staking address is being watched
-        CNavCoinAddress spendingAddress(keyID);
-        CNavCoinAddress stakingAddress(keyID2);
+        CNavcoinAddress spendingAddress(keyID);
+        CNavcoinAddress stakingAddress(keyID2);
         CScript spendingScript = GetScriptForDestination(spendingAddress.Get());
         CScript stakingScript = GetScriptForDestination(stakingAddress.Get());
         SignatureData sigs;
