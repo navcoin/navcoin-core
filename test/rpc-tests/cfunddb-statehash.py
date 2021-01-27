@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019 The NavCoin Core developers
+# Copyright (c) 2019 The Navcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.cfund_util import *
 import urllib.parse
 
-class CFundDBStateHash(NavCoinTestFramework):
+class CFundDBStateHash(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 2

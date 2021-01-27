@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2015 The Bitcoin Core developers
-// Copyright (c) 2018-2020 The NavCoin Core developers
+// Copyright (c) 2018-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 

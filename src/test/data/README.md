@@ -1,7 +1,7 @@
 Description
 ------------
 
-This directory contains data-driven tests for various aspects of NavCoin.
+This directory contains data-driven tests for various aspects of Navcoin.
 
 License
 --------

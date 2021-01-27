@@ -11,13 +11,13 @@
 # This test takes 30 mins or more (up to 2 hours)
 # ********
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 def calc_usage(blockdir):
     return sum(os.path.getsize(blockdir+f) for f in os.listdir(blockdir) if os.path.isfile(blockdir+f)) / (1024. * 1024.)
 
-class PruneTest(NavCoinTestFramework):
+class PruneTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

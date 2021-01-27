@@ -16,8 +16,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "NavCoin"
-            VALUE "FileDescription",    "navcoin-tx (CLI NavCoin transaction editor utility)"
+            VALUE "CompanyName",        "Navcoin"
+            VALUE "FileDescription",    "navcoin-tx (CLI Navcoin transaction editor utility)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "navcoin-tx"
             VALUE "LegalCopyright",     COPYRIGHT_STR

@@ -95,7 +95,7 @@ public:
     }
 };
 
-/** Interface to NavCoin wallet from Qt view code. */
+/** Interface to Navcoin wallet from Qt view code. */
 class WalletModel : public QObject
 {
     Q_OBJECT

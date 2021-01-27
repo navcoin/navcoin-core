@@ -1,4 +1,4 @@
-# NavCoin v4.6.0 Release Notes
+# Navcoin v4.6.0 Release Notes
 
 ## Community Fund UI
 
@@ -14,10 +14,10 @@
 
 <[Pull Request 401](https://github.com/navcoin/navcoin-core/pull/401)>
 <[Commit 2fb7b47](https://github.com/navcoin/navcoin-core/commit/2fb7b47625dfe866f6079d8c7ac8c1dfb9f9de1d)>
-This features introduces support for the `-stakingaddress` launch argument which sets a NavCoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first address's staking rewards will be deposited in the second address.
+This features introduces support for the `-stakingaddress` launch argument which sets a Navcoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first address's staking rewards will be deposited in the second address.
 
 `stakingaddress` can take:
-- one argument (i.e. one NavCoin address), e.g. `-stakingaddress=NxxxxMyNavCoinAddressxxxxxxxxxxxxx`; or
+- one argument (i.e. one Navcoin address), e.g. `-stakingaddress=NxxxxMyNavcoinAddressxxxxxxxxxxxxx`; or
 - a JSON argument, mapping several staking addresses to corresponding receiving addresses, e.g. `-stakingaddress={"NxxxxMyStakingAddress1xxxxxxxxxxxx":"NxxxxMyReceivingAddress1xxxxxxxxxx","NxxxxMyStakingAddress2xxxxxxxxxxxx":"NxxxxMyReceivingAddress2xxxxxxxxxx","NxxxxMyStakingAddress3xxxxxxxxxxxx":"NxxxxMyReceivingAddress3xxxxxxxxxx"}`. One staking address in the JSON argument can also be set to `all` and stakes from any staking address will be sent to the receiving address unless otherwise specified, e.g. `-stakingaddress={"all":"NxxxxMyReceivingAddressALLxxxxxxxx",...}`
 
 Not compatible with cold staking.
@@ -47,7 +47,7 @@ When running a node with -addressindex=1 executing the RPC command “getaddress
 
 This PR prevents payment requests with invalid hashes (not set yet or out of the main chain) to count for the already requested balance of a proposal.
 
-## Other updates to the NavCoin client, docs and codebase
+## Other updates to the Navcoin client, docs and codebase
 
 - Missing increased buffer for cfund gui <[Pull Request 459](https://github.com/navcoin/navcoin-core/pull/459)> <[Commit 073ef14](https://github.com/navcoin/navcoin-core/commit/073ef14a9b46c92d03da20c3b279a8156f6cdaf9)>
 - Updated the help text for 'getcoldstakingaddress' RPC/cli call <[Pull Request 458](https://github.com/navcoin/navcoin-core/pull/458)> <[Commit b4a1db5](https://github.com/navcoin/navcoin-core/commit/b4a1db5cdd3afe8e1e7f4a50068b15d162548447)>

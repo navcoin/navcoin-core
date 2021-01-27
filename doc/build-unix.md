@@ -1,13 +1,13 @@
 # UNIX BUILD NOTES
 
-Some notes on how to build NavCoin Core in Unix.
+Some notes on how to build Navcoin Core in Unix.
 
 (for OpenBSD specific instructions, see [build-openbsd.md](build-openbsd.md))
 
 
 ## Building in Ubuntu 18.04
 
-You can easily build the dependencies by running the [NavCoin dev tools script](https://github.com/navcoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh) using the command bellow.
+You can easily build the dependencies by running the [Navcoin dev tools script](https://github.com/navcoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh) using the command bellow.
 
 ```bash
 curl -o- https://raw.githubusercontent.com/navcoin/navcoin-dev-tools/master/ubuntu-18.04-navcoin-core-dev-setup.sh | bash
@@ -78,7 +78,7 @@ For the versions used in the release, see [release-process.md](release-process.m
 ### Memory Requirements
 
 C++ compilers are memory-hungry. It is recommended to have at least 1.5 GB of
-memory available when compiling NavCoin Core. On systems with less, gcc can be
+memory available when compiling Navcoin Core. On systems with less, gcc can be
 tuned to conserve memory with additional CXXFLAGS:
 
 
@@ -114,7 +114,7 @@ BerkeleyDB 5.1 or later, which break binary wallet compatibility with the distri
 are based on BerkeleyDB 4.8. If you do not care about wallet compatibility,
 pass `--with-incompatible-bdb` to configure.
 
-See the section "Disable-wallet mode" to build NavCoin Core without wallet.
+See the section "Disable-wallet mode" to build Navcoin Core without wallet.
 
 Optional:
 
@@ -126,7 +126,7 @@ ZMQ dependencies:
 
 ### Dependencies for the GUI: Ubuntu (earlier versions) & Debian
 
-If you want to build NavCoin-Qt, make sure that the required packages for Qt development
+If you want to build Navcoin-Qt, make sure that the required packages for Qt development
 are installed. Either Qt 5 or Qt 4 are necessary to build the GUI.
 If both Qt 4 and Qt 5 are installed, Qt 5 will be used. Pass `--with-gui=qt4` to configure to choose Qt4.
 To build without GUI pass `--without-gui`.
@@ -205,7 +205,7 @@ cd db-4.8.30.NC/build_unix/
 ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
 make install
 
-# Configure NavCoin Core to use our own-built instance of BDB
+# Configure Navcoin Core to use our own-built instance of BDB
 cd $NAVCOIN_ROOT
 ./autogen.sh
 ./configure LDFLAGS="-L${BDB_PREFIX}/lib/" CPPFLAGS="-I${BDB_PREFIX}/include/" # (other args...)
@@ -305,7 +305,7 @@ Note:
 Enabling wallet support requires either compiling against a Berkeley DB newer than 4.8 (package `db`) using `--with-incompatible-bdb`,
 or building and depending on a local version of Berkeley DB 4.8. The readily available Arch Linux packages are currently built using
 `--with-incompatible-bdb` according to the [PKGBUILD](https://projects.archlinux.org/svntogit/community.git/tree/navcoin/trunk/PKGBUILD).
-As mentioned above, when maintaining portability of the wallet between the standard NavCoin Core distributions and independently built
+As mentioned above, when maintaining portability of the wallet between the standard Navcoin Core distributions and independently built
 node software is desired, Berkeley DB 4.8 must be used.
 
 

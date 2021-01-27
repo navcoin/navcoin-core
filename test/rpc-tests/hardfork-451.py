@@ -3,12 +3,12 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.hardfork_util import *
 
 import time
 
-class Hardfork451(NavCoinTestFramework):
+class Hardfork451(NavcoinTestFramework):
     """Tests rejection of obsolete blocks."""
 
     def __init__(self):

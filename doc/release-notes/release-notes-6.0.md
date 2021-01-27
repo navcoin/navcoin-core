@@ -1,4 +1,4 @@
-# NavCoin v6.0 Release Notes
+# Navcoin v6.0 Release Notes
 
 ## blsCT: Boneh–Lynn–Shacham Confidential Transactions
 
@@ -24,7 +24,7 @@ Blocks are labeled to be excluded by activating the right-most bit of their nOnc
 
 <[Pull Request 717](https://github.com/navcoin/navcoin-core/pull/717)>
 
-This PR introduces wallet transaction data encryption and updates LevelDB to the version 5.8. Wallets created or upgraded with NavCoin Core 6.0 are not compatible with previous versions of NavCoin Core.
+This PR introduces wallet transaction data encryption and updates LevelDB to the version 5.8. Wallets created or upgraded with Navcoin Core 6.0 are not compatible with previous versions of Navcoin Core.
 
 ## Binary notarization for MacOS
 

@@ -53,11 +53,11 @@ see `contrib/debian/examples/navcoin.conf`.
 
 All three configurations assume several paths that might need to be adjusted.
 
-Binary:              `/usr/bin/navcoind`  
-Configuration file:  `/etc/navcoin/navcoin.conf`  
-Data directory:      `/var/lib/navcoind`  
-PID file:            `/var/run/navcoind/navcoind.pid` (OpenRC and Upstart) or `/var/lib/navcoind/navcoind.pid` (systemd)  
-Lock file:           `/var/lock/subsys/navcoind` (CentOS)  
+Binary:              `/usr/bin/navcoind`
+Configuration file:  `/etc/navcoin/navcoin.conf`
+Data directory:      `/var/lib/navcoind`
+PID file:            `/var/run/navcoind/navcoind.pid` (OpenRC and Upstart) or `/var/lib/navcoind/navcoind.pid` (systemd)
+Lock file:           `/var/lock/subsys/navcoind` (CentOS)
 
 The configuration file, PID directory (if applicable) and data directory
 should all be owned by the navcoin user and group.  It is advised for security
@@ -67,10 +67,10 @@ can then be controlled by group membership.
 
 3b) Mac OS X
 
-Binary:              `/usr/local/bin/navcoind`  
-Configuration file:  `~/Library/Application Support/NavCoin/navcoin.conf`  
-Data directory:      `~/Library/Application Support/NavCoin`
-Lock file:           `~/Library/Application Support/NavCoin/.lock`
+Binary:              `/usr/local/bin/navcoind`
+Configuration file:  `~/Library/Application Support/NavCoin4/navcoin.conf`
+Data directory:      `~/Library/Application Support/NavCoin4`
+Lock file:           `~/Library/Application Support/NavCoin4/.lock`
 
 4. Installing Service Configuration
 -----------------------------------

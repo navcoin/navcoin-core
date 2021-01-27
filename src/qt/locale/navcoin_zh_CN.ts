@@ -255,7 +255,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>消息签名(&amp;M)...</translation>
@@ -341,7 +341,7 @@
         <translation>正在为数据块重建索引...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
+        <source>Send coins to a Navcoin address</source>
         <translation>向一个比特币地址发送比特币</translation>
     </message>
     <message>
@@ -365,7 +365,7 @@
         <translation>验证消息(&amp;V)...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
+        <source>Navcoin</source>
         <translation>比特币</translation>
     </message>
     <message>
@@ -393,11 +393,11 @@
         <translation>对钱包中的私钥加密</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
         <translation>用比特币地址关联的私钥为消息签名，以证明您拥有这个比特币地址</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
         <translation>校验消息，确保该消息是由指定的比特币地址所有者签名的</translation>
     </message>
     <message>
@@ -433,7 +433,7 @@
         <translation>命令行选项(&amp;C)</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
+        <source>%n active connection(s) to Navcoin network</source>
         <translation><numerusform>%n 个到比特币网络的活动连接</numerusform></translation>
     </message>
     <message>
@@ -657,7 +657,7 @@
         <translation>使用未经确认的零钱(&amp;S)</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>自动在路由器中打开比特币端口。只有当您的路由器开启了 UPnP 选项时此功能才有效。</translation>
     </message>
     <message>
@@ -665,7 +665,7 @@
         <translation>使用 &amp;UPnP 映射端口</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
         <translation>通过 SOCKS5 代理连接比特币网络。</translation>
     </message>
     <message>
@@ -705,7 +705,7 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
         <translation>在Tor匿名网络下通过不同的SOCKS5代理连接比特币网络</translation>
     </message>
     <message>
@@ -822,7 +822,7 @@
         <translation>金额</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
+        <source>Enter a Navcoin address (e.g. %1)</source>
         <translation>请输入一个比特币地址 (例如 %1)</translation>
     </message>
     <message>
@@ -1151,7 +1151,7 @@
         <translation>重用现有的接收地址（不推荐）</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
         <translation>可在付款请求上备注一条信息，在打开付款请求时可以看到。注意：该消息不是通过比特币网络传送。</translation>
     </message>
     <message>
@@ -1363,7 +1363,7 @@
         <translation>这是笔正常的支付。</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
+        <source>The Navcoin address to send the payment to</source>
         <translation>付款目的地址</translation>
     </message>
     <message>
@@ -1399,7 +1399,7 @@
         <translation>请为此地址输入一个标签以将它加入用过的地址列表</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
         <translation>navcoin:URI 附带的备注信息，将会和交易一起存储，备查。 注意：该消息不会通过比特币网络传输。</translation>
     </message>
     <message>
@@ -1440,7 +1440,7 @@
         <translation>您可以用你的地址对消息/协议进行签名，以证明您可以接收发送到该地址的比特币。注意不要对任何模棱两可或者随机的消息进行签名，以免遭受钓鱼式攻击。请确保消息内容准确的表达了您的真实意愿。</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
+        <source>The Navcoin address to sign the message with</source>
         <translation>用来对消息签名的地址 </translation>
     </message>
     <message>
@@ -1472,7 +1472,7 @@
         <translation>复制当前签名至剪切板</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
+        <source>Sign the message to prove you own this Navcoin address</source>
         <translation>签名消息，证明这个地址属于您。</translation>
     </message>
     <message>
@@ -1496,11 +1496,11 @@
         <translation>请在下面输入接收者地址、消息（确保换行符、空格符、制表符等完全相同）和签名以验证消息。请仔细核对签名信息，以提防中间人攻击。请注意，这只是证明接收方签名的地址，它不能证明任何交易！</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
+        <source>The Navcoin address the message was signed with</source>
         <translation>消息使用的签名地址</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
         <translation>验证消息，确保消息是由指定的比特币地址签名过的。</translation>
     </message>
     <message>
@@ -1673,7 +1673,7 @@
         <translation>接受来自外部的连接 (缺省: 如果不带 -proxy or -connect 参数设置为1)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
+        <source>Navcoin Core</source>
         <translation>比特币核心</translation>
     </message>
     <message>

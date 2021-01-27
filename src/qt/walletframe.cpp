@@ -16,7 +16,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
+WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavcoinGUI *_gui) :
     QFrame(_gui),
     gui(_gui),
     platformStyle(platformStyle)
@@ -91,7 +91,7 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
         return false;
 
     WalletView *walletView = new WalletView(platformStyle, this);
-    walletView->setNavCoinGUI(gui);
+    walletView->setNavcoinGUI(gui);
     walletView->setClientModel(clientModel);
     walletView->setWalletModel(walletModel);
 

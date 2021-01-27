@@ -225,7 +225,7 @@ bool WalletModel::validateAddress(const QString &address)
   std::string address_str = address.toStdString();
   utils::DNSResolver* DNS = nullptr;;
 
-  // Validate the passed NavCoin address
+  // Validate the passed Navcoin address
   if(DNS->check_address_syntax(address_str.c_str()))
   {
 
@@ -239,7 +239,7 @@ bool WalletModel::validateAddress(const QString &address)
 
   }
 
-  CNavCoinAddress addressParsed(address_str);
+  CNavcoinAddress addressParsed(address_str);
   return addressParsed.IsValid();
 }
 
@@ -281,7 +281,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         setAddress.insert(rcp.address);
         ++nAddresses;
 
-        CTxDestination address = CNavCoinAddress(rcp.address.toStdString()).Get();
+        CTxDestination address = CNavcoinAddress(rcp.address.toStdString()).Get();
         CScript scriptPubKey = GetScriptForDestination(address);
         bool fBLSCT = address.type() == typeid(blsctDoublePublicKey);
         CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount, fBLSCT};
@@ -417,7 +417,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     for(const SendCoinsRecipient &rcp: transaction.getRecipients())
     {
         std::string strAddress = rcp.address.toStdString();
-        CTxDestination dest = CNavCoinAddress(strAddress).Get();
+        CTxDestination dest = CNavcoinAddress(strAddress).Get();
         std::string strLabel = rcp.label.toStdString();
         {
             LOCK(wallet->cs_wallet);
@@ -545,7 +545,7 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
         const CTxDestination &address, const std::string &label, bool isMine,
         const std::string &purpose, ChangeType status)
 {
-    QString strAddress = QString::fromStdString(CNavCoinAddress(address).ToString());
+    QString strAddress = QString::fromStdString(CNavcoinAddress(address).ToString());
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
 
@@ -749,7 +749,7 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
         std::string sAddress = "(none)";
 
         if (ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
-            sAddress = CNavCoinAddress(address).ToString();
+            sAddress = CNavcoinAddress(address).ToString();
 
         mapCoins[QString::fromStdString(sAddress)].push_back(out);
     }
@@ -790,7 +790,7 @@ void WalletModel::loadReceiveRequests(std::vector<std::string>& vReceiveRequests
 
 bool WalletModel::saveReceiveRequest(const std::string &sAddress, const int64_t nId, const std::string &sRequest)
 {
-    CTxDestination dest = CNavCoinAddress(sAddress).Get();
+    CTxDestination dest = CNavcoinAddress(sAddress).Get();
 
     std::stringstream ss;
     ss << nId;

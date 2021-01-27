@@ -6,7 +6,7 @@
 import socket
 
 from test_framework.socks5 import Socks5Configuration, Socks5Command, Socks5Server, AddressType
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.netutil import test_ipv6_local
 '''
@@ -34,7 +34,7 @@ addnode connect to generic DNS name
 '''
 
 
-class ProxyTest(NavCoinTestFramework):
+class ProxyTest(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 4

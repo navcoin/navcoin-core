@@ -135,7 +135,7 @@ public:
 };
 
 /**
- * NavCoin RPC command dispatcher.
+ * Navcoin RPC command dispatcher.
  */
 class CRPCTable
 {

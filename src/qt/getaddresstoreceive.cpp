@@ -27,7 +27,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     LOCK(pwalletMain->cs_wallet);
     for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
-        const CNavCoinAddress& addressbook = item.first;
+        const CNavcoinAddress& addressbook = item.first;
         bool fMine = IsMine(*pwalletMain, addressbook.Get());
         if(fMine)
         {
@@ -74,7 +74,7 @@ void getAddressToReceive::showPrivateAddress(int what)
         LOCK(pwalletMain->cs_wallet);
         for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
         {
-            const CNavCoinAddress& addressbook = item.first;
+            const CNavcoinAddress& addressbook = item.first;
             bool fMine = IsMine(*pwalletMain, addressbook.Get());
             if(fMine)
             {
@@ -92,7 +92,7 @@ void getAddressToReceive::showPrivateAddress(int what)
 
         blsctDoublePublicKey k;
         if (pwalletMain->GetBLSCTSubAddressPublicKeys(std::make_pair(0, 0), k))
-            address = QString::fromStdString(CNavCoinAddress(k).ToString());
+            address = QString::fromStdString(CNavcoinAddress(k).ToString());
         else
             address = "Unavailable";
 

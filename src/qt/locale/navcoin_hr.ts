@@ -156,7 +156,7 @@
     </message>
     <message>
         <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>NavCoin adresa. Izmjene adrese su moguće samo za adrese za slanje.</translation>
+        <translation>Navcoin adresa. Izmjene adrese su moguće samo za adrese za slanje.</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -207,7 +207,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>P&amp;otpišite poruku...</translation>
@@ -289,7 +289,7 @@
         <translation>Re-indeksiranje blokova na disku...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
+        <source>Send coins to a Navcoin address</source>
         <translation>Slanje novca na navcoin adresu</translation>
     </message>
     <message>
@@ -313,8 +313,8 @@
         <translation>&amp;Potvrdite poruku...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -341,11 +341,11 @@
         <translation>Šifriranje privatnih ključeva koji u novčaniku</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
         <translation>Poruku potpišemo s navcoin adresom, kako bi dokazali vlasništvo nad tom adresom</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
         <translation>Provjeravanje poruke, kao dokaz, da je potpisana navedenom navcoin adresom</translation>
     </message>
     <message>
@@ -381,8 +381,8 @@
         <translation>Opcije &amp;naredbene linije</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n aktivna veza na NavCoin mrežu</numerusform><numerusform>%n aktivnih veza na NavCoin mrežu</numerusform><numerusform>%n aktivnih veza na NavCoin mrežu</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n aktivna veza na Navcoin mrežu</numerusform><numerusform>%n aktivnih veza na Navcoin mrežu</numerusform><numerusform>%n aktivnih veza na Navcoin mrežu</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
@@ -557,8 +557,8 @@
         <translation>&amp;Trošenje nepotvrđenih vraćenih iznosa</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatski otvori port NavCoin klijenta na ruteru. To radi samo ako ruter podržava UPnP i ako je omogućen.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatski otvori port Navcoin klijenta na ruteru. To radi samo ako ruter podržava UPnP i ako je omogućen.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1032,8 +1032,8 @@
         <translation>Izvršavaj u pozadini kao uslužnik i prihvaćaj komande</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>Block creation options:</source>

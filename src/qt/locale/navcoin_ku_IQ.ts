@@ -99,7 +99,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>&amp;Send</source>
         <translation>&amp;ناردن</translation>

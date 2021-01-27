@@ -6,11 +6,11 @@
 #
 # Test -reindex and -reindex-chainstate with CheckBlockIndex
 #
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 import time
 
-class ReindexTest(NavCoinTestFramework):
+class ReindexTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

@@ -31,10 +31,10 @@ Package: navcoind
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - daemon
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ Navcoin is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. Navcoin uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. Navcoin Core
  is the name of the open source software which enables the use of this currency.
  .
  This package provides the daemon, navcoind, and the CLI tool
@@ -44,22 +44,22 @@ Package: navcoin-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - Qt GUI
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ Navcoin is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. Navcoin uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. Navcoin Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides NavCoin-Qt, a GUI for NavCoin based on Qt.
+ This package provides Navcoin-Qt, a GUI for Navcoin based on Qt.
 
 Package: navcoin-tx
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer digital currency - standalone transaction tool
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ Navcoin is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. Navcoin uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. Navcoin Core
  is the name of the open source software which enables the use of this currency.
  .
  This package provides navcoin-tx, a command-line transaction creation

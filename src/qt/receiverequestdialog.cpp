@@ -132,7 +132,7 @@ void ReceiveRequestDialog::update()
         target = info.address;
     setWindowTitle(tr("Request payment to %1").arg(target));
 
-    QString uri = GUIUtil::formatNavCoinURI(info);
+    QString uri = GUIUtil::formatNavcoinURI(info);
     ui->btnSaveAs->setEnabled(false);
     QString html;
     html += "<html><font face='verdana, arial, helvetica, sans-serif'>";
@@ -141,7 +141,7 @@ void ReceiveRequestDialog::update()
     html += "<a href=\""+uri+"\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
     html += "<b>"+tr("Address")+"</b>: " + GUIUtil::HtmlEscape(info.address) + "<br>";
     if(info.amount)
-        html += "<b>"+tr("Amount")+"</b>: " + NavCoinUnits::formatHtmlWithUnit(model->getDisplayUnit(), info.amount) + "<br>";
+        html += "<b>"+tr("Amount")+"</b>: " + NavcoinUnits::formatHtmlWithUnit(model->getDisplayUnit(), info.amount) + "<br>";
     if(!info.label.isEmpty())
         html += "<b>"+tr("Label")+"</b>: " + GUIUtil::HtmlEscape(info.label) + "<br>";
     if(!info.message.isEmpty())
@@ -195,7 +195,7 @@ void ReceiveRequestDialog::update()
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()
 {
-    GUIUtil::setClipboard(GUIUtil::formatNavCoinURI(info));
+    GUIUtil::setClipboard(GUIUtil::formatNavcoinURI(info));
 }
 
 void ReceiveRequestDialog::on_btnCopyAddress_clicked()

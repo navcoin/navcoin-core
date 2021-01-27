@@ -1,4 +1,4 @@
-# NavCoin v4.5.1 Release Notes
+# Navcoin v4.5.1 Release Notes
 
 4.5.1 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.0 and below) signalled by version bit 20. Upgrading to 4.5.1 will avoid a potential network fork (as described below) and ensure you remain on the same blockchain as the rest of the network.
 
@@ -25,7 +25,7 @@ Currently if a node reindexes their chainstate db, the node will recalculate the
 
 Currently if a block included both a static reward and some transaction(s), the network will reject such blocks since the total amount of fees would be verified incorrectly. This patch fixes the verification and adds tests to check the blocks are correctly accepted.
 
-## Other modifications in the NavCoin client, docs and codebase
+## Other modifications in the Navcoin client, docs and codebase
 
 - Fixed output of `cfundstats` rpc command. <[Pull Request 374](https://github.com/navcoin/navcoin-core/pull/374)> <[Commit fe5f8c7](https://github.com/navcoin/navcoin-core/commit/fe5f8c79ea5708692181dfb913e8b17d5517c4ea)>.
 - Improvements to core wallet CFund voting window. <[Pull Request 368](https://github.com/navcoin/navcoin-core/pull/368)> <[Commit 1b1077b](https://github.com/navcoin/navcoin-core/commit/1b1077be384c1a230d7c568a7fa05d4b43a4111b)>

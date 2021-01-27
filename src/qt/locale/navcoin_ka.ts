@@ -199,7 +199,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>ხელ&amp;მოწერა</translation>
@@ -277,8 +277,8 @@
         <translation>დისკზე ბლოკების რეინდექსაცია...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>მონეტების გაგზავნა NavCoin-მისამართზე</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>მონეტების გაგზავნა Navcoin-მისამართზე</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -301,8 +301,8 @@
         <translation>&amp;ვერიფიკაცია</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -329,12 +329,12 @@
         <translation>თქვენი საფულის პირადი გასაღებების დაშიფრვა</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>მესიჯებზე ხელმოწერა თქვენი NavCoin-მისამართებით იმის დასტურად, რომ ის თქვენია</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>მესიჯებზე ხელმოწერა თქვენი Navcoin-მისამართებით იმის დასტურად, რომ ის თქვენია</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>შეამოწმეთ, რომ მესიჯები ხელმოწერილია მითითებული NavCoin-მისამართით</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>შეამოწმეთ, რომ მესიჯები ხელმოწერილია მითითებული Navcoin-მისამართით</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -495,8 +495,8 @@
         <translation>დაუდასტურებელი ხურდის გამოყენების აკრძალვის შემდეგ მათი გამოყენება შეუძლებელი იქნება, სანამ ტრანსაქციას არ ექნება ერთი დასტური მაინც. ეს აისახება თქვენი ნაშთის დათვლაზეც.</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>როუტერში NavCoin-კლიენტის პორტის ავტომატური გახსნა. მუშაობს, თუ თქვენს როუტერს ჩართული აქვს UPnP.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>როუტერში Navcoin-კლიენტის პორტის ავტომატური გახსნა. მუშაობს, თუ თქვენს როუტერს ჩართული აქვს UPnP.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -761,7 +761,7 @@
         <translation>ად&amp;რე გამოყენებული მიღების მისამართის გამოყენება (არ არის რეკომენდებული)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
         <translation>არააუცილებელი მესიჯი, რომელიც ერთვის გადახდის მოთხოვნას და ნაჩვენები იქნება მოთხოვნის გახსნისას. შენიშვნა: მესიჯი არ გაყვება გადახდას ბითქოინის ქსელში.</translation>
     </message>
     <message>
@@ -941,7 +941,7 @@
         <translation>შეიყვანეთ ამ მისამართის ნიშნული გამოყენებული მისამართების სიაში დასამატებლად</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
         <translation>მესიჯი, რომელიც თან ერთვის მონეტებს:  URI, რომელიც შეინახება ტრანსაქციასთან ერთად თქვენთვის. შენიშვნა: მესიჯი არ გაყვება გადახდას ბითქოინის ქსელში.</translation>
     </message>
     <message>
@@ -1002,7 +1002,7 @@
         <translation>მიმდინარე ხელმოწერის კოპირება კლიპბორდში</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
+        <source>Sign the message to prove you own this Navcoin address</source>
         <translation>მოაწერეთ ხელი იმის დასადასტურებლად, რომ ეს მისამართი თქვენია</translation>
     </message>
     <message>
@@ -1022,8 +1022,8 @@
         <translation>მესიჯის &amp;ვერიფიკაცია</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>შეამოწმეთ, რომ მესიჯი ხელმოწერილია მითითებული NavCoin-მისამართით</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>შეამოწმეთ, რომ მესიჯი ხელმოწერილია მითითებული Navcoin-მისამართით</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1150,8 +1150,8 @@
         <translation>გარედან შეერთებების დაშვება (ნაგულისხმევი: 1 თუ არ გამოიყენება -proxy ან -connect)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>

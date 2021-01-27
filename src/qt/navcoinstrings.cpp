@@ -9,7 +9,7 @@
 #define UNUSED
 #endif
 static const char UNUSED *navcoin_strings[] = {
-QT_TRANSLATE_NOOP("navcoin-core", "NavCoin Core"),
+QT_TRANSLATE_NOOP("navcoin-core", "Navcoin Core"),
 QT_TRANSLATE_NOOP("navcoin-core", "The %s developers"),
 QT_TRANSLATE_NOOP("navcoin-core", "   conditions and the following disclaimer."),
 QT_TRANSLATE_NOOP("navcoin-core", "   materials provided with the distribution."),

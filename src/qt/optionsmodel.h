@@ -9,7 +9,7 @@
 
 #include <QAbstractListModel>
 
-/** Interface from Qt to configuration data structure for NavCoin client.
+/** Interface from Qt to configuration data structure for Navcoin client.
    To Qt, the options are presented as a list with the different options
    laid out vertically.
    This can be changed to a tree once the settings become sufficiently
@@ -34,7 +34,7 @@ public:
         ProxyUseTor,            // bool
         ProxyIPTor,             // QString
         ProxyPortTor,           // int
-        DisplayUnit,            // NavCoinUnits::Unit
+        DisplayUnit,            // NavcoinUnits::Unit
         ThirdPartyTxUrls,       // QString
         Theme,                  // QString
         Scaling,                // int

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The NavCoin developers
+// Copyright (c) 2020 The Navcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -923,7 +923,7 @@ CAmount AggregationSession::GetMaxFee()
 
 void AggregationSessionThread()
 {
-    LogPrintf("NavCoinCandidateCoinsThread started\n");
+    LogPrintf("NavcoinCandidateCoinsThread started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-candidate-coins");
 
@@ -966,19 +966,19 @@ void AggregationSessionThread()
     }
     catch (const boost::thread_interrupted&)
     {
-        LogPrintf("NavCoinCandidateCoinsThread terminated\n");
+        LogPrintf("NavcoinCandidateCoinsThread terminated\n");
         throw;
     }
     catch (const std::runtime_error &e)
     {
-        LogPrintf("NavCoinCandidateCoinsThread runtime error: %s\n", e.what());
+        LogPrintf("NavcoinCandidateCoinsThread runtime error: %s\n", e.what());
         return;
     }
 }
 
 void CandidateVerificationThread()
 {
-    LogPrintf("NavCoinCandidateVerificationThread started\n");
+    LogPrintf("NavcoinCandidateVerificationThread started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-candidate-coins-verification");
 
@@ -1054,12 +1054,12 @@ void CandidateVerificationThread()
     }
     catch (const boost::thread_interrupted&)
     {
-        LogPrintf("NavCoinCandidateVerificationThread terminated\n");
+        LogPrintf("NavcoinCandidateVerificationThread terminated\n");
         throw;
     }
     catch (const std::runtime_error &e)
     {
-        LogPrintf("NavCoinCandidateVerificationThread runtime error: %s\n", e.what());
+        LogPrintf("NavcoinCandidateVerificationThread runtime error: %s\n", e.what());
         return;
     }
 }

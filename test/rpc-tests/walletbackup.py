@@ -33,13 +33,13 @@ Shutdown again, restore using importwallet,
 and confirm again balances are correct.
 """
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from random import randint
 import logging
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO, stream=sys.stdout)
 
-class WalletBackupTest(NavCoinTestFramework):
+class WalletBackupTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

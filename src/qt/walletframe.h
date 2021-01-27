@@ -11,7 +11,7 @@
 #include <QPushButton>
 
 
-class NavCoinGUI;
+class NavcoinGUI;
 class ClientModel;
 class PlatformStyle;
 class SendCoinsRecipient;
@@ -27,7 +27,7 @@ class WalletFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui = 0);
+    explicit WalletFrame(const PlatformStyle *platformStyle, NavcoinGUI *_gui = 0);
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
@@ -56,7 +56,7 @@ Q_SIGNALS:
 
 private:
     QStackedWidget *walletStack;
-    NavCoinGUI *gui;
+    NavcoinGUI *gui;
     ClientModel *clientModel;
     QMap<QString, WalletView*> mapWalletViews;
 

@@ -6,7 +6,7 @@
 import sys, os #include the parent folder so the test_framework is available
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..')))
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.cfund_util import *
 
 from dao.given import *
@@ -15,7 +15,7 @@ from dao.then import *
 
 import time
 
-class CFund003ProposalAccepted(NavCoinTestFramework):
+class CFund003ProposalAccepted(NavcoinTestFramework):
   """It should create a proposal and the network should reject the proposal"""
 
   def __init__(self):

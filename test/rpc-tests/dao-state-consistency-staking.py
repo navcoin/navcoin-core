@@ -3,14 +3,14 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.cfund_util import *
 
 import time
 import http.client
 import urllib.parse
 
-class DaoStateConsistency(NavCoinTestFramework):
+class DaoStateConsistency(NavcoinTestFramework):
     """Tests the consistency of the dao state between different nodes with reorganizations."""
 
     def __init__(self):

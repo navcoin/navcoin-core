@@ -27,7 +27,7 @@ Tests:
 
 from collections import defaultdict
 from test_framework.mininode import *                          # NodeConnCB
-from test_framework.test_framework import NavCoinTestFramework # NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework # NavcoinTestFramework
 from test_framework.util import *                              # other stuff
 import time                                                    # sleep
 
@@ -91,7 +91,7 @@ class TestP2PConn(NodeConnCB):
         self.connection.send_message(msg)
 
 
-class DandelionTest(NavCoinTestFramework):
+class DandelionTest(NavcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3

@@ -3,12 +3,12 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.cfund_util import *
 
 import urllib.parse
 
-class CfundForkReorgPreq(NavCoinTestFramework):
+class CfundForkReorgPreq(NavcoinTestFramework):
     """Tests that reorg with 2 chains with same proposals/requests does not cause a fork"""
 
     def __init__(self):

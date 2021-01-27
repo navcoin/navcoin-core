@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 import time
 
@@ -71,7 +71,7 @@ class TestNode(NodeConnCB):
         self.lastInv = []
         self.send_message(msg_mempool())
 
-class P2PMempoolTests(NavCoinTestFramework):
+class P2PMempoolTests(NavcoinTestFramework):
     def setup_chain(self):
         initialize_chain_clean(self.options.tmpdir, 2)
 

@@ -1,5 +1,5 @@
 '''
-NavCoin base58 encoding and decoding.
+Navcoin base58 encoding and decoding.
 
 Based on https://navcointalk.org/index.php?topic=1026.0 (public domain)
 '''
@@ -34,7 +34,7 @@ def b58encode(v):
         long_value = div
     result = __b58chars[long_value] + result
 
-    # NavCoin does a little leading-zero-compression:
+    # Navcoin does a little leading-zero-compression:
     # leading 0-bytes in the input become leading-1s
     nPad = 0
     for c in v:

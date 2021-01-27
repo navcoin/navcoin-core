@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2017-2020 The NavCoin Core developers
+// Copyright (c) 2017-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,7 +29,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     // txNew.vout[0].scriptPubKey.clear();
     txNew.vout[0].nValue = genesisReward;
     txNew.vout[0].scriptPubKey.clear();
-    txNew.strDZeel = "NavCoin genesis block";
+    txNew.strDZeel = "Navcoin genesis block";
 
     CBlock genesis;
     genesis.nTime    = nTime;

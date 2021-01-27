@@ -51,7 +51,7 @@
          <item>
           <widget class="QValidatedLineEdit" name="addressIn_SM">
            <property name="toolTip">
-            <string>The NavCoin address to sign the message with</string>
+            <string>The Navcoin address to sign the message with</string>
            </property>
           </widget>
          </item>
@@ -164,7 +164,7 @@
          <item>
           <widget class="QPushButton" name="signMessageButton_SM">
            <property name="toolTip">
-            <string>Sign the message to prove you own this NavCoin address</string>
+            <string>Sign the message to prove you own this Navcoin address</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -276,7 +276,7 @@
          <item>
           <widget class="QValidatedLineEdit" name="addressIn_VM">
            <property name="toolTip">
-            <string>The NavCoin address the message was signed with</string>
+            <string>The Navcoin address the message was signed with</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -327,7 +327,7 @@
          <item>
           <widget class="QPushButton" name="verifyMessageButton_VM">
            <property name="toolTip">
-            <string>Verify the message to ensure it was signed with the specified NavCoin address</string>
+            <string>Verify the message to ensure it was signed with the specified Navcoin address</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>

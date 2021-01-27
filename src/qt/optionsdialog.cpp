@@ -133,7 +133,7 @@ OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent
 
     ui->thirdPartyTxUrls->setPlaceholderText("https://www.navexplorer.com/tx/%s");
 
-    ui->unit->setModel(new NavCoinUnits(this));
+    ui->unit->setModel(new NavcoinUnits(this));
 
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);
@@ -344,12 +344,12 @@ void OptionsDialog::on_okButton_clicked()
     QMessageBox::information(this, tr("Changes saved"), tr("Changes have been saved!"));
 }
 
-void OptionsDialog::on_openNavCoinConfButton_clicked()
+void OptionsDialog::on_openNavcoinConfButton_clicked()
 {
     QMessageBox::information(this, tr("Configuration options"),
             tr("The configuration is used to specify advanced user options less any command-line or Qt options. "
                 "Any command-line options will override this configuration file."));
-    GUIUtil::openNavCoinConf();
+    GUIUtil::openNavcoinConf();
 }
 
 void OptionsDialog::on_cancelButton_clicked()

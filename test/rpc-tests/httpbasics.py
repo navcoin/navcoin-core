@@ -7,13 +7,13 @@
 # Test rpc http basics
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 import http.client
 import urllib.parse
 
-class HTTPBasicsTest (NavCoinTestFramework):
+class HTTPBasicsTest (NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 3

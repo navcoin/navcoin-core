@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # Tests RPC help output at runtime
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 import os
 
 
-class HelpRpcTest(NavCoinTestFramework):
+class HelpRpcTest(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True

@@ -1,4 +1,4 @@
-NavCoin Core version 0.13.0 is now available from:
+Navcoin Core version 0.13.0 is now available from:
 
   <https://navcoin.org/bin/navcoin-core-0.13.0/>
 
@@ -21,7 +21,7 @@ an OS initially released in 2001. This means that not even critical security
 updates will be released anymore. Without security updates, using a navcoin
 wallet on a XP machine is irresponsible at least.
 
-In addition to that, with 0.12.x there have been varied reports of NavCoin Core
+In addition to that, with 0.12.x there have been varied reports of Navcoin Core
 randomly crashing on Windows XP. It is [not clear](https://github.com/navcoin/navcoin/issues/7681#issuecomment-217439891)
 what the source of these crashes is, but it is likely that upstream
 libraries such as Qt are no longer being tested on XP.
@@ -76,7 +76,7 @@ table by any user on the system.
 C++11 and Python 3
 ------------------
 
-Various code modernizations have been done. The NavCoin Core code base has
+Various code modernizations have been done. The Navcoin Core code base has
 started using C++11. This means that a C++11-capable compiler is now needed for
 building. Effectively this means GCC 4.7 or higher, or Clang 3.3 or higher.
 
@@ -151,7 +151,7 @@ You can't disable HD key generation once you have created a HD wallet.
 
 There is no distinction between internal (change) and external keys.
 
-HD wallets are incompatible with older versions of NavCoin Core.
+HD wallets are incompatible with older versions of Navcoin Core.
 
 [Pull request](https://github.com/navcoin/navcoin/pull/8035/files), [BIP 32](https://github.com/navcoin/bips/blob/master/bip-0032.mediawiki)
 
@@ -167,7 +167,7 @@ The code preparations for Segregated Witness ("segwit"), as described in [BIP
 finished and included in this release.  However, BIP 141 does not yet specify
 activation parameters on mainnet, and so this release does not support segwit
 use on mainnet.  Testnet use is supported, and after BIP 141 is updated with
-proposed parameters, a future release of NavCoin Core is expected that
+proposed parameters, a future release of Navcoin Core is expected that
 implements those parameters for mainnet.
 
 Furthermore, because segwit activation is not yet specified for mainnet,
@@ -227,7 +227,7 @@ files on disk. These two have now been split up, so that all blocks are known
 before validation starts. This was necessary to make certain optimizations that
 are available during normal synchronizations also available during reindexing.
 
-The two phases are distinct in the NavCoin-Qt GUI. During the first one,
+The two phases are distinct in the Navcoin-Qt GUI. During the first one,
 "Reindexing blocks on disk" is shown. During the second (slower) one,
 "Processing blocks on disk" is shown.
 
@@ -558,7 +558,7 @@ git merge commit are mentioned.
 - #8257 `ff03c50` Do not ask a UI question from navcoind (sipa)
 - #8288 `91abb77` Network-specific example address (laanwj)
 - #7707 `a914968` UI support for abandoned transactions (jonasschnelli)
-- #8207 `f7a403b` Add a link to the NavCoin-Core repository and website to the About Dialog (MarcoFalke)
+- #8207 `f7a403b` Add a link to the Navcoin-Core repository and website to the About Dialog (MarcoFalke)
 - #8281 `6a87eb0` Remove client name from debug window (laanwj)
 - #8407 `45eba4b` Add dbcache migration path (jonasschnelli)
 
@@ -655,7 +655,7 @@ git merge commit are mentioned.
 - #8090 `a2df115` Adding P2SH(p2pkh) script test case (Christewart)
 - #7992 `ec45cc5` Extend #7956 with one more test (TheBlueMatt)
 - #8139 `ae5575b` Fix interrupted HTTP RPC connection workaround for Python 3.5+ (sipa)
-- #8164 `0f24eaf` [NavCoin-Tx] fix missing test fixtures, fix 32bit atoi issue (jonasschnelli)
+- #8164 `0f24eaf` [Navcoin-Tx] fix missing test fixtures, fix 32bit atoi issue (jonasschnelli)
 - #8166 `0b5279f` Src/test: Do not shadow local variables (paveljanik)
 - #8141 `44c1b1c` Continuing port of java comparison tool (mrbandrews)
 - #8201 `36b7400` fundrawtransaction: Fix race, assert amounts (MarcoFalke)

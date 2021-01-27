@@ -11,7 +11,7 @@
 #include <QStackedWidget>
 #include <QPushButton>
 
-class NavCoinGUI;
+class NavcoinGUI;
 class ClientModel;
 class OverviewPage;
 class OptionsDialog;
@@ -44,7 +44,7 @@ public:
     explicit WalletView(const PlatformStyle *platformStyle, QWidget *parent);
     ~WalletView();
 
-    void setNavCoinGUI(NavCoinGUI *gui);
+    void setNavcoinGUI(NavcoinGUI *gui);
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
     */
@@ -161,7 +161,7 @@ Q_SIGNALS:
 
     void openAddressHistory();
 
-    friend NavCoinGUI;
+    friend NavcoinGUI;
 };
 
 #endif // NAVCOIN_QT_WALLETVIEW_H

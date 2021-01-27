@@ -1,15 +1,15 @@
 Release Process
 ====================
 
-Before any code can be accepted into NavCoin Core a Release Candidate branch and PR must be presented to the community for a minimum stand-down period - as detailed below.
+Before any code can be accepted into Navcoin Core a Release Candidate branch and PR must be presented to the community for a minimum stand-down period - as detailed below.
 
 ### Release Candidates
 
-Release candidates are critical to the NavCoin release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
+Release candidates are critical to the Navcoin release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
 
 #### Release Candidates and Release Version Convention
 
-NavCoin follows the Semantic Versioning.
+Navcoin follows the Semantic Versioning.
 
 e.g `v(MAJOR).(MINOR).(PATCH)` = `v4.2.1`
 
@@ -62,7 +62,7 @@ Check out the source code in the following directory hierarchy.
     cd /path/to/your/toplevel/build
     git clone https://github.com/navcoin/navcoin-core.git
 
-### NavCoin maintainers/release engineers, update version in sources
+### Navcoin maintainers/release engineers, update version in sources
 
 Update the following:
 
@@ -136,7 +136,7 @@ NOTE: Offline builds must use the --url flag to ensure Gitian fetches only from 
 
 The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 
-### Build and sign NavCoin Core for Linux, Windows, and OS X:
+### Build and sign Navcoin Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
     ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
@@ -189,7 +189,7 @@ The notarization takes a few minutes. Check the status:
 
 Staple the notarization ticket onto the application
 
-    xcrun stapler staple dist/NavCoin-Qt.app
+    xcrun stapler staple dist/Navcoin-Qt.app
 
 Codesigner only: Sign the windows binaries:
 
@@ -206,7 +206,7 @@ Codesigner only: Commit the detached codesign payloads:
     tar xf signature-osx.tar.gz
     tar xf signature-win.tar.gz
     #copy the notarization ticket
-    cp dist/NavCoin-Qt.app/Contents/CodeResources osx/dist/NavCoin-Qt.app/Contents/
+    cp dist/Navcoin-Qt.app/Contents/CodeResources osx/dist/Navcoin-Qt.app/Contents/
     git add -a
     git commit -m "point to ${VERSION}"
     git tag -s v${VERSION} HEAD
@@ -301,7 +301,7 @@ Once the release candidate is approved and promoted to a final release, a new re
 
 Before publicly announcing the release the Bootstrap & NavPay servers should be updated to the new version.
 
-### Update The NavCoin Website
+### Update The Navcoin Website
 
 Update the version number and download links on all translations of the Wallets page;
 
@@ -317,7 +317,7 @@ The hero image for the release notice is usually generated with the navoin canva
 
 ### Publicly Announce the release
 
-To ensure resonable due diligence is done to inform the communtiy of new software releases the final release should be announced on all possible NavCoin platforms;
+To ensure resonable due diligence is done to inform the communtiy of new software releases the final release should be announced on all possible Navcoin platforms;
 
 [Reddit](https://reddit.com/r/navcoin), [Twitter](https://twitter.com/navcoin), [Facebook](https://facebook.com/navcoin), [Telegram](https://t.me/navcoin), [Discord](https://discord.gg/y4Vu9jw), [BitcoinTalk](https://bitcointalk.org/index.php?topic=679791.new#new), [Medium](https://medium.com/nav-coin/), Blockfolio Signal & MailChimp.
 
