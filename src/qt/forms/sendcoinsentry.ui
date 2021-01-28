@@ -218,7 +218,7 @@
     <item row="17" column="2">
      <widget class="QLabel" name="messageTextLabel">
       <property name="toolTip">
-       <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</string>
+       <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
@@ -279,7 +279,7 @@
          <enum>Qt::StrongFocus</enum>
         </property>
         <property name="toolTip">
-         <string>The NavCoin address to send the payment to</string>
+         <string>The Navcoin address to send the payment to</string>
         </property>
        </widget>
       </item>
@@ -408,7 +408,7 @@
     <item row="9" column="2">
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0,0,0,0,0,0">
       <item>
-       <widget class="NavCoinAmountField" name="payAmount">
+       <widget class="NavcoinAmountField" name="payAmount">
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -1069,7 +1069,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="NavCoinAmountField" name="payAmount_is">
+     <widget class="NavcoinAmountField" name="payAmount_is">
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
@@ -1632,7 +1632,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="NavCoinAmountField" name="payAmount_s">
+     <widget class="NavcoinAmountField" name="payAmount_s">
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
@@ -1648,7 +1648,7 @@
    <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>NavCoinAmountField</class>
+   <class>NavcoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>

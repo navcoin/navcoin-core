@@ -1,10 +1,10 @@
-// Copyright (c) 2019-2020 The NavCoin Core developers
+// Copyright (c) 2019-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "navcoinlistwidget.h"
 
-NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title, ValidatorFunc validator) :
+NavcoinListWidget::NavcoinListWidget(QWidget *parent, QString title, ValidatorFunc validator) :
     QWidget(parent),
     listWidget(new QListWidget),
     addInput(new QLineEdit),
@@ -49,17 +49,17 @@ NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title, ValidatorFu
     listWidget->setSortingEnabled(true);
 }
 
-void NavCoinListWidget::onRemove()
+void NavcoinListWidget::onRemove()
 {
     listWidget->takeItem(listWidget->row(listWidget->currentItem()));
 }
 
-void NavCoinListWidget::onSelect(QListWidgetItem* item)
+void NavcoinListWidget::onSelect(QListWidgetItem* item)
 {
     removeBtn->setVisible(item != nullptr);
 }
 
-void NavCoinListWidget::onInsert()
+void NavcoinListWidget::onInsert()
 {
     QString itemText = addInput->text();
 
@@ -92,7 +92,7 @@ void NavCoinListWidget::onInsert()
     listWidget->insertItem(row, newItem);
 }
 
-QStringList NavCoinListWidget::getEntries()
+QStringList NavcoinListWidget::getEntries()
 {
     QStringList ret;
 

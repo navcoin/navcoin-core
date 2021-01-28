@@ -37,7 +37,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="labelNavCoinAddressTitle">
+      <widget class="QLabel" name="labelNavcoinAddressTitle">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
@@ -51,7 +51,7 @@
         </font>
        </property>
        <property name="text">
-        <string>NavCoin Address:</string>
+        <string>Navcoin Address:</string>
        </property>
       </widget>
      </item>
@@ -78,7 +78,7 @@
       </widget>
      </item>
      <item>
-      <widget class="NavCoinAmountField" name="lineEditRequestedAmount"/>
+      <widget class="NavcoinAmountField" name="lineEditRequestedAmount"/>
      </item>
      <item>
       <widget class="QLabel" name="labelDescriptionTitle">
@@ -213,7 +213,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>NavCoinAmountField</class>
+   <class>NavcoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>

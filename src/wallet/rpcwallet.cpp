@@ -118,7 +118,7 @@ UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
                 "createrawscriptaddress \"hex script\"\n"
-                "\nReturns the NavCoin address for the specified raw hex script.\n"
+                "\nReturns the Navcoin address for the specified raw hex script.\n"
                 "\nArguments:\n"
                 "1. \"hex script\"        (string) The hex script to encode in the address.\n"
                 "\nResult:\n"
@@ -141,7 +141,7 @@ UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
     if (strAsm.find("[error]") != std::string::npos || strAsm.find("OP_UNKNOWN") != std::string::npos)
         throw JSONRPCError(RPC_MISC_ERROR, "the script includes invalid or unknown op codes");
 
-    CNavCoinAddress address(script);
+    CNavcoinAddress address(script);
 
     if (!address.IsValid())
         throw JSONRPCError(RPC_MISC_ERROR, "the generated address is not valid");
@@ -218,7 +218,7 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
                 "getnewaddress ( \"account\" )\n"
-                "\nReturns a new NavCoin address for receiving payments.\n"
+                "\nReturns a new Navcoin address for receiving payments.\n"
                 "If 'account' is specified (DEPRECATED), it is added to the address book \n"
                 "so payments received with the address will be credited to 'account'.\n"
                 "\nArguments:\n"
@@ -248,7 +248,7 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
 
     pwalletMain->SetAddressBook(keyID, strAccount, "receive");
 
-    return CNavCoinAddress(keyID).ToString();
+    return CNavcoinAddress(keyID).ToString();
 }
 
 UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
@@ -282,42 +282,42 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
                 );
 
 
-    CNavCoinAddress stakingAddress(params[0].get_str());
+    CNavcoinAddress stakingAddress(params[0].get_str());
     CKeyID stakingKeyID;
     if (!stakingAddress.IsValid() || !stakingAddress.GetKeyID(stakingKeyID))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid Navcoin address");
 
-    CNavCoinAddress spendingAddress(params[1].get_str());
+    CNavcoinAddress spendingAddress(params[1].get_str());
     CKeyID spendingKeyID;
     if (!spendingAddress.IsValid() || !spendingAddress.GetKeyID(spendingKeyID))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid Navcoin address");
 
     spendingAddress.GetKeyID(spendingKeyID);
 
     if (params.size() == 3)
     {
-        CNavCoinAddress votingAddress(params[2].get_str());
+        CNavcoinAddress votingAddress(params[2].get_str());
         CKeyID votingKeyID;
         if (!votingAddress.IsValid() || !votingAddress.GetKeyID(votingKeyID))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Voting address is not a valid NavCoin address");
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Voting address is not a valid Navcoin address");
 
         votingAddress.GetKeyID(votingKeyID);
 
-        return CNavCoinAddress(stakingKeyID, spendingKeyID, votingKeyID).ToString();
+        return CNavcoinAddress(stakingKeyID, spendingKeyID, votingKeyID).ToString();
     }
 
-    return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
+    return CNavcoinAddress(stakingKeyID, spendingKeyID).ToString();
 }
 
 
-CNavCoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
+CNavcoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
 {
     CPubKey pubKey;
     if (!pwalletMain->GetAccountPubkey(pubKey, strAccount, bForceNew)) {
         throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
     }
 
-    return CNavCoinAddress(pubKey.GetID());
+    return CNavcoinAddress(pubKey.GetID());
 }
 
 UniValue getaccountaddress(const UniValue& params, bool fHelp)
@@ -328,7 +328,7 @@ UniValue getaccountaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
                 "getaccountaddress \"account\"\n"
-                "\nDEPRECATED. Returns the current NavCoin address for receiving payments to this account.\n"
+                "\nDEPRECATED. Returns the current Navcoin address for receiving payments to this account.\n"
                 "\nArguments:\n"
                 "1. \"account\"       (string, required) The account name for the address. It can also be set to the empty string \"\" to represent the default account. The account does not need to exist, it will be created and a new address created  if there is no account by the given name.\n"
                 "\nResult:\n"
@@ -360,7 +360,7 @@ UniValue getrawchangeaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
                 "getrawchangeaddress\n"
-                "\nReturns a new NavCoin address, for receiving change.\n"
+                "\nReturns a new Navcoin address, for receiving change.\n"
                 "This is for use with raw transactions, NOT normal use.\n"
                 "\nResult:\n"
                 "\"address\"    (string) The address\n"
@@ -383,7 +383,7 @@ UniValue getrawchangeaddress(const UniValue& params, bool fHelp)
 
     CKeyID keyID = vchPubKey.GetID();
 
-    return CNavCoinAddress(keyID).ToString();
+    return CNavcoinAddress(keyID).ToString();
 }
 
 
@@ -406,9 +406,9 @@ UniValue setaccount(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    CNavcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     string strAccount;
     if (params.size() > 1)
@@ -453,9 +453,9 @@ UniValue getaccount(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    CNavcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     string strAccount;
     map<CTxDestination, CAddressBookData>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
@@ -492,9 +492,9 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(CNavcoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
-        const CNavCoinAddress& address = item.first;
+        const CNavcoinAddress& address = item.first;
         const string& strName = item.second.name;
         if (strName == strAccount && strName != "blsct receive")
             ret.push_back(address.ToString());
@@ -548,7 +548,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
     CScript CFContributionScript;
 
-    // Parse NavCoin address
+    // Parse Navcoin address
     CScript scriptPubKey = GetScriptForDestination(address);
 
     if(donate)
@@ -683,9 +683,9 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             address_str = addresses.front();
         }
     }
-    CNavCoinAddress address(address_str);
+    CNavcoinAddress address(address_str);
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -772,9 +772,9 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
 
     }
 
-    CNavCoinAddress address(address_str);
+    CNavcoinAddress address(address_str);
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -867,9 +867,9 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
 
     }
 
-    CNavCoinAddress address(address_str);
+    CNavcoinAddress address(address_str);
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -996,7 +996,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!Params().GetConsensus().fDaoClientActivated)
         throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
     CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
@@ -1011,11 +1011,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     string paymentAddress = params[0].get_str();
     string ownerAddress = params.size() == 7 ? params[6].get_str() : paymentAddress;
 
-    CNavCoinAddress paddress(paymentAddress);
+    CNavcoinAddress paddress(paymentAddress);
     if (!paddress.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for payment");
 
-    CNavCoinAddress oaddress(ownerAddress);
+    CNavcoinAddress oaddress(ownerAddress);
     if (!oaddress.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for the owner");
 
@@ -1138,7 +1138,7 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
             + HelpExampleCli("proposeconsensuschange", "1 10")
         );
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
 
     // Amount
@@ -1234,11 +1234,11 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
             "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createconsultation", "\"Who should be the CEO of NavCoin? /s\" 1 1")
-            + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 true")
+            + HelpExampleCli("createconsultation", "\"Who should be the CEO of Navcoin? /s\" 1 1")
+            + HelpExampleCli("createconsultation", "\"How much should Navcoin's CEO earn per month? /s\" 1000 5000 true")
         );
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     bool fRange = params.size() >= 4 && params[3].isBool() ? params[3].getBool() : false;
 
@@ -1330,10 +1330,10 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
             "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of NavCoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
+            + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of Navcoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
         );
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     bool fRange = false;
     UniValue answers = params[1].get_array();
@@ -1454,10 +1454,10 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(proposal.GetLastState() != DAOFlags::ACCEPTED)
         throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
-    CNavCoinAddress address(proposal.GetOwnerAddress());
+    CNavcoinAddress address(proposal.GetOwnerAddress());
 
     if(!address.IsValid())
-        throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid Navcoin address.");
 
     CKeyID keyID;
     if (!address.GetKeyID(keyID))
@@ -1576,7 +1576,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
             + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
         );
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
     CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
@@ -1677,7 +1677,7 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
     CAmount nAmount = AmountFromValue(params[0]);
@@ -1734,11 +1734,11 @@ UniValue listaddressgroupings(const UniValue& params, bool fHelp)
         for(CTxDestination address: grouping)
         {
             UniValue addressInfo(UniValue::VARR);
-            addressInfo.push_back(CNavCoinAddress(address).ToString());
+            addressInfo.push_back(CNavcoinAddress(address).ToString());
             addressInfo.push_back(ValueFromAmount(balances[address]));
             {
-                if (pwalletMain->mapAddressBook.find(CNavCoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
-                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CNavCoinAddress(address).Get())->second.name);
+                if (pwalletMain->mapAddressBook.find(CNavcoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
+                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CNavcoinAddress(address).Get())->second.name);
             }
             jsonGrouping.push_back(addressInfo);
         }
@@ -1780,7 +1780,7 @@ UniValue signmessage(const UniValue& params, bool fHelp)
     string strAddress = params[0].get_str();
     string strMessage = params[1].get_str();
 
-    CNavCoinAddress addr(strAddress);
+    CNavcoinAddress addr(strAddress);
     if (!addr.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
 
@@ -1830,10 +1830,10 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    // NavCoin address
-    CNavCoinAddress address = CNavCoinAddress(params[0].get_str());
+    // Navcoin address
+    CNavcoinAddress address = CNavcoinAddress(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
     CScript scriptPubKey = GetScriptForDestination(address.Get());
     if (!IsMine(*pwalletMain, scriptPubKey))
         return ValueFromAmount(0);
@@ -2092,9 +2092,9 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     string strAccount = AccountFromValue(params[0]);
-    CNavCoinAddress address(params[1].get_str());
+    CNavcoinAddress address(params[1].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
     CAmount nAmount = AmountFromValue(params[2]);
     if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
@@ -2180,7 +2180,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
     if (params.size() > 4)
         subtractFeeFromAmount = params[4].get_array();
 
-    set<CNavCoinAddress> setAddress;
+    set<CNavcoinAddress> setAddress;
     vector<CRecipient> vecSend;
 
     CAmount totalAmount = 0;
@@ -2191,9 +2191,9 @@ UniValue sendmany(const UniValue& params, bool fHelp)
 
     for(const string& name_: keys)
     {
-        CNavCoinAddress address(name_);
+        CNavcoinAddress address(name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid NavCoin address: ")+name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Navcoin address: ")+name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
@@ -2272,7 +2272,7 @@ UniValue getnewprivateaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
                 "getnewprivateaddress ( account_id )\n"
-                "\nReturns a new NavCoin private address for receiving payments.\n"
+                "\nReturns a new Navcoin private address for receiving payments.\n"
                 "If 'account_id' is specified, it is associated with the account \n"
                 "with the given index.\n"
                 "\nArguments:\n"
@@ -2309,9 +2309,9 @@ UniValue getnewprivateaddress(const UniValue& params, bool fHelp)
     if (!pwalletMain->GetBLSCTSubAddressIndex(keyID, index))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not get subaddress index");
 
-    pwalletMain->SetPrivateAddressBook(CNavCoinAddress(k).ToString(), "blsct receive", std::to_string(index.first) + "/" + std::to_string(index.second));
+    pwalletMain->SetPrivateAddressBook(CNavcoinAddress(k).ToString(), "blsct receive", std::to_string(index.first) + "/" + std::to_string(index.second));
 
-    return CNavCoinAddress(k).ToString();
+    return CNavcoinAddress(k).ToString();
 }
 
 // Defined in rpc/misc.cpp
@@ -2326,7 +2326,7 @@ UniValue addmultisigaddress(const UniValue& params, bool fHelp)
     {
         string msg = "addmultisigaddress nrequired [\"key\",...] ( \"account\" )\n"
                      "\nAdd a nrequired-to-sign multisignature address to the wallet.\n"
-                     "Each key is a NavCoin address or hex-encoded public key.\n"
+                     "Each key is a Navcoin address or hex-encoded public key.\n"
                      "If 'account' is specified (DEPRECATED), assign address to that account.\n"
 
                      "\nArguments:\n"
@@ -2362,7 +2362,7 @@ UniValue addmultisigaddress(const UniValue& params, bool fHelp)
     pwalletMain->AddCScript(inner);
 
     pwalletMain->SetAddressBook(innerID, strAccount, "send");
-    return CNavCoinAddress(innerID).ToString();
+    return CNavcoinAddress(innerID).ToString();
 }
 
 class Witnessifier : public boost::static_visitor<bool>
@@ -2437,9 +2437,9 @@ UniValue addwitnessaddress(const UniValue& params, bool fHelp)
         }
     }
 
-    CNavCoinAddress address(params[0].get_str());
+    CNavcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     Witnessifier w;
     CTxDestination dest = address.Get();
@@ -2448,7 +2448,7 @@ UniValue addwitnessaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_ERROR, "Public key or redeemscript not known to wallet");
     }
 
-    return CNavCoinAddress(w.result).ToString();
+    return CNavcoinAddress(w.result).ToString();
 }
 
 struct tallyitem
@@ -2483,7 +2483,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             filter = filter | ISMINE_WATCH_ONLY;
 
     // Tally
-    map<CNavCoinAddress, tallyitem> mapTally;
+    map<CNavcoinAddress, tallyitem> mapTally;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -2521,11 +2521,11 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
     // Reply
     UniValue ret(UniValue::VARR);
     map<string, tallyitem> mapAccountTally;
-    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(CNavcoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
-        const CNavCoinAddress& address = item.first;
+        const CNavcoinAddress& address = item.first;
         const string& strAccount = item.second.name;
-        map<CNavCoinAddress, tallyitem>::iterator it = mapTally.find(address);
+        map<CNavcoinAddress, tallyitem>::iterator it = mapTally.find(address);
         if (it == mapTally.end() && !fIncludeEmpty)
             continue;
 
@@ -2669,7 +2669,7 @@ UniValue listreceivedbyaccount(const UniValue& params, bool fHelp)
 
 static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
 {
-    CNavCoinAddress addr;
+    CNavcoinAddress addr;
     if (addr.Set(dest)) {
         entry.pushKV("address", addr.ToString());
     }
@@ -2704,8 +2704,8 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
 
         entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()) &&
-                                           !CNavCoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
+                                           !CNavcoinAddress(r.destination).IsColdStakingAddress(Params()) &&
+                                           !CNavcoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
         entry.pushKV("canSpend", ((::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) || (pwalletMain->IsMine(wtx.vout[r.vout]) & ISMINE_SPENDABLE_PRIVATE)) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
             entry.pushKV("label", account);
@@ -3487,7 +3487,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return _("wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet.");
+    return _("wallet encrypted; Navcoin server stopping, restart to run with encrypted wallet.");
 }
 
 UniValue encrypttxdata(const UniValue& params, bool fHelp)
@@ -3533,7 +3533,7 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
     // Shutdown the wallet so we don't accidentally write unencrypted data
     // to the wallet.dat file...
     StartShutdown();
-    return _("txdata encrypted; NavCoin server stopping, restart to run with encrypted txdata.");
+    return _("txdata encrypted; Navcoin server stopping, restart to run with encrypted txdata.");
 }
 
 UniValue lockunspent(const UniValue& params, bool fHelp)
@@ -3831,14 +3831,14 @@ UniValue listunspent(const UniValue& params, bool fHelp)
     if (params.size() > 1)
         nMaxDepth = params[1].get_int();
 
-    set<CNavCoinAddress> setAddress;
+    set<CNavcoinAddress> setAddress;
     if (params.size() > 2) {
         UniValue inputs = params[2].get_array();
         for (unsigned int idx = 0; idx < inputs.size(); idx++) {
             const UniValue& input = inputs[idx];
-            CNavCoinAddress address(input.get_str());
+            CNavcoinAddress address(input.get_str());
             if (!address.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid NavCoin address: ")+input.get_str());
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Navcoin address: ")+input.get_str());
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
             setAddress.insert(address);
@@ -3866,7 +3866,7 @@ UniValue listunspent(const UniValue& params, bool fHelp)
         entry.pushKV("vout", out.i);
 
         if (fValidAddress) {
-            entry.pushKV("address", CNavCoinAddress(address).ToString());
+            entry.pushKV("address", CNavcoinAddress(address).ToString());
 
             if (pwalletMain->mapAddressBook.count(address))
                 entry.pushKV("account", pwalletMain->mapAddressBook[address].name);
@@ -3969,7 +3969,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                             true, true);
 
             if (options.exists("changeAddress")) {
-                CNavCoinAddress address(options["changeAddress"].get_str());
+                CNavcoinAddress address(options["changeAddress"].get_str());
 
                 if (!address.IsValid())
                     throw JSONRPCError(RPC_INVALID_PARAMETER, "changeAddress must be a valid navcoin address");
@@ -4292,7 +4292,7 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
     if ((fHelp || params.size() != 1))
         throw runtime_error(
                 "resolveopenallias \"openAlias\"\n"
-                "\nResolves the given OpenAlias address to a NavCoin address.\n"
+                "\nResolves the given OpenAlias address to a Navcoin address.\n"
                 "\nArguments:\n"
                 "1. \"address\"    (string) The OpenAlias address.\n"
                 "\nExamples:\n"
@@ -4948,7 +4948,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
             if (showMine)
             {
-                CTxDestination address(CNavCoinAddress(proposal.GetOwnerAddress()).Get());
+                CTxDestination address(CNavcoinAddress(proposal.GetOwnerAddress()).Get());
                 isminefilter mine = IsMine(*pwalletMain, address);
                 if(mine & ISMINE_SPENDABLE)
                     fIsMine = true;

@@ -17,7 +17,7 @@ than:
       interface.
 
 For a description of arguments recognized by test scripts, see
-`test/pull-tester/test_framework/test_framework.py:NavCoinTestFramework.main`.
+`test/pull-tester/test_framework/test_framework.py:NavcoinTestFramework.main`.
 
 """
 

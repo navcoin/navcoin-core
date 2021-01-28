@@ -56,18 +56,18 @@ class ClickableProgressBar;
 }
 
 /**
-  NavCoin GUI main class. This class represents the main window of the NavCoin UI. It communicates with both the client and
+  Navcoin GUI main class. This class represents the main window of the Navcoin UI. It communicates with both the client and
   wallet models to give the user an up-to-date view of the current core state.
 */
-class NavCoinGUI : public QMainWindow
+class NavcoinGUI : public QMainWindow
 {
     Q_OBJECT
 
 public:
     static const QString DEFAULT_WALLET;
 
-    explicit NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
-    ~NavCoinGUI();
+    explicit NavcoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
+    ~NavcoinGUI();
 
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
@@ -327,7 +327,7 @@ private Q_SLOTS:
     void cfundPaymentRequestsClicked();
     /** Show about dialog */
     void aboutClicked();
-    /** Open NavCoin Knowledge base */
+    /** Open Navcoin Knowledge base */
     void infoClicked();
     /** Show debug window */
     void showDebugWindow();

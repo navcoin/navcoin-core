@@ -29,7 +29,7 @@ class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
 
-/** Local NavCoin RPC console. */
+/** Local Navcoin RPC console. */
 class RPCConsole: public QWidget
 {
     Q_OBJECT

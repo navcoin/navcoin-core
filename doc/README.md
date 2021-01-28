@@ -1,13 +1,13 @@
-NavCoin Core
+Navcoin Core
 =====================
 
 Setup
 ---------------------
-[NavCoin Core](http://navcoin.org/en/download) is the original NavCoin client and it builds the backbone of the network. However, it downloads and stores the entire history of NavCoin transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
+[Navcoin Core](http://navcoin.org/en/download) is the original Navcoin client and it builds the backbone of the network. However, it downloads and stores the entire history of Navcoin transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
 Running
 ---------------------
-The following are some helpful notes on how to run NavCoin on your native platform.
+The following are some helpful notes on how to run Navcoin on your native platform.
 
 ### Unix
 
@@ -22,7 +22,7 @@ Unpack the files into a directory, and then run navcoin-qt.exe.
 
 ### OS X
 
-Drag NavCoin-Core to your applications folder, and then run NavCoin-Core.
+Drag Navcoin-Core to your applications folder, and then run Navcoin-Core.
 
 ### Need Help?
 
@@ -30,7 +30,7 @@ Drag NavCoin-Core to your applications folder, and then run NavCoin-Core.
 
 Building
 ---------------------
-The following are developer notes on how to build NavCoin on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
+The following are developer notes on how to build Navcoin on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
 
 - [OS X Build Notes](build-osx.md)
 - [Unix Build Notes](build-unix.md)
@@ -40,7 +40,7 @@ The following are developer notes on how to build NavCoin on your native platfor
 
 Development
 ---------------------
-The NavCoin repo's [root README](/README.md) contains relevant information on the development process and automated testing.
+The Navcoin repo's [root README](/README.md) contains relevant information on the development process and automated testing.
 
 - [Developer Notes](developer-notes.md)
 - [Multiwallet Qt Development](multiwallet-qt.md)
@@ -58,7 +58,7 @@ The NavCoin repo's [root README](/README.md) contains relevant information on th
 
 ### Resources
 * Discuss project-specific development on the Development boards on Discord. 
-* Discuss general NavCoin development on #dev-navcoin-core on Discord. 
+* Discuss general Navcoin development on #dev-navcoin-core on Discord. 
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)

@@ -1,4 +1,4 @@
-# NavCoin v4.7.2 Release Notes
+# Navcoin v4.7.2 Release Notes
 
 ## Fix for Verify Chain
 
@@ -37,7 +37,7 @@ This PR adds extra log for all the modifications of the CFundDB and ensures entr
 <[Pull Request 628](https://github.com/navcoin/navcoin-core/pull/628)>
 <[Commit b8ed018](https://github.com/navcoin/navcoin-core/commit/b8ed0180a2deaf616c8e6b38aec42385f0a73879)>
 
-This pull request starts a new NavCoin testnet. If you're running a testnet node you will need to will need to wipe your testnet data directory and connect to the new testnet nodes. A list of some of the testnet nodes operated by NavCoin Core developers can be found on [Issue 626](https://github.com/navcoin/navcoin-core/issues/626). If you need testnet coins or want to be added to the list of nodes, please comment on the issue or join the #dev-testnet channel in [Discord](https://discord.gg/y4Vu9jw).
+This pull request starts a new Navcoin testnet. If you're running a testnet node you will need to will need to wipe your testnet data directory and connect to the new testnet nodes. A list of some of the testnet nodes operated by Navcoin Core developers can be found on [Issue 626](https://github.com/navcoin/navcoin-core/issues/626). If you need testnet coins or want to be added to the list of nodes, please comment on the issue or join the #dev-testnet channel in [Discord](https://discord.gg/y4Vu9jw).
 
 ## Full list of Merged PRs
 

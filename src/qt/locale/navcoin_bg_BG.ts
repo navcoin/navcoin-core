@@ -103,7 +103,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Подпиши съобщение...</translation>
@@ -282,7 +282,7 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>NavCoin Core</source>
+        <source>Navcoin Core</source>
         <translation>Биткойн ядро</translation>
     </message>
     </context>

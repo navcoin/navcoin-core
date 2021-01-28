@@ -125,7 +125,7 @@ static std::string DummyAddress(const CChainParams &params)
     sourcedata.insert(sourcedata.end(), dummydata, dummydata + sizeof(dummydata));
     for(int i=0; i<256; ++i) { // Try every trailing byte
         std::string s = EncodeBase58(begin_ptr(sourcedata), end_ptr(sourcedata));
-        if (!CNavCoinAddress(s).IsValid())
+        if (!CNavcoinAddress(s).IsValid())
             return s;
         sourcedata[sourcedata.size()-1] += 1;
     }
@@ -139,10 +139,10 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     widget->setFont(fixedPitchFont());
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
-    widget->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
+    widget->setPlaceholderText(QObject::tr("Enter a Navcoin address or OpenAlias address (e.g. %1)").arg(
         QString::fromStdString(DummyAddress(Params()))));
-    widget->setValidator(new NavCoinAddressEntryValidator(parent));
-    widget->setCheckValidator(new NavCoinAddressCheckValidator(parent));
+    widget->setValidator(new NavcoinAddressEntryValidator(parent));
+    widget->setCheckValidator(new NavcoinAddressCheckValidator(parent));
 }
 
 void setupAmountWidget(QLineEdit *widget, QWidget *parent)
@@ -154,7 +154,7 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
     widget->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
 }
 
-bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out)
+bool parseNavcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // return if URI is not valid or is no navcoin: URI
     if(!uri.isValid() || uri.scheme() != QString("navcoin"))
@@ -193,7 +193,7 @@ bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!NavCoinUnits::parse(NavCoinUnits::NAV, i->second, &rv.amount))
+                if(!NavcoinUnits::parse(NavcoinUnits::NAV, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -211,20 +211,20 @@ bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out)
     return true;
 }
 
-bool parseNavCoinURI(QString uri, SendCoinsRecipient *out)
+bool parseNavcoinURI(QString uri, SendCoinsRecipient *out)
 {
     QUrl uriInstance(uri);
-    return parseNavCoinURI(uriInstance, out);
+    return parseNavcoinURI(uriInstance, out);
 }
 
-QString formatNavCoinURI(const SendCoinsRecipient &info)
+QString formatNavcoinURI(const SendCoinsRecipient &info)
 {
     QString ret = QString("navcoin:%1").arg(info.address);
     int paramCount = 0;
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(NavCoinUnits::format(NavCoinUnits::NAV, info.amount, false, NavCoinUnits::separatorNever));
+        ret += QString("?amount=%1").arg(NavcoinUnits::format(NavcoinUnits::NAV, info.amount, false, NavcoinUnits::separatorNever));
         paramCount++;
     }
 
@@ -247,7 +247,7 @@ QString formatNavCoinURI(const SendCoinsRecipient &info)
 
 bool isDust(const QString& address, const CAmount& amount)
 {
-    CTxDestination dest = CNavCoinAddress(address.toStdString()).Get();
+    CTxDestination dest = CNavcoinAddress(address.toStdString()).Get();
     CScript script = GetScriptForDestination(dest);
     CTxOut txOut(amount, script);
     return txOut.IsDust(::minRelayTxFee);
@@ -408,7 +408,7 @@ void openDebugLogfile()
         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathDebug)));
 }
 
-void openNavCoinConf()
+void openNavcoinConf()
 {
      boost::filesystem::path pathConfig = GetConfigFile();
 
@@ -572,15 +572,15 @@ boost::filesystem::path static StartupShortcutPath()
 {
     std::string chain = ChainNameFromCommandLine();
     if (chain == CBaseChainParams::MAIN)
-        return GetSpecialFolderPath(CSIDL_STARTUP) / "NavCoin.lnk";
+        return GetSpecialFolderPath(CSIDL_STARTUP) / "Navcoin.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
-        return GetSpecialFolderPath(CSIDL_STARTUP) / "NavCoin (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("NavCoin (%s).lnk", chain);
+        return GetSpecialFolderPath(CSIDL_STARTUP) / "Navcoin (testnet).lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("Navcoin (%s).lnk", chain);
 }
 
 bool GetStartOnSystemStartup()
 {
-    // check for NavCoin*.lnk
+    // check for Navcoin*.lnk
     return boost::filesystem::exists(StartupShortcutPath());
 }
 
@@ -716,9 +716,9 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
         if (chain == CBaseChainParams::MAIN)
-            optionFile << "Name=NavCoin\n";
+            optionFile << "Name=Navcoin\n";
         else
-            optionFile << strprintf("Name=NavCoin (%s)\n", chain);
+            optionFile << strprintf("Name=Navcoin (%s)\n", chain);
         optionFile << "Exec=" << pszExePath << strprintf(" -min -testnet=%d -regtest=%d -devnet=%d\n", GetBoolArg("-testnet", false), GetBoolArg("-regtest", false), GetBoolArg("-devnet", false));
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";

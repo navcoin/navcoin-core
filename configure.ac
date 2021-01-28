@@ -9,8 +9,8 @@ define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
 define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, false)
 define(_COPYRIGHT_YEAR, 2021)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
-AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Navcoin Core]])
+AC_INIT([Navcoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
 AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADERS([src/config/navcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -1279,9 +1279,8 @@ if test x$system_univalue = xno; then
   AC_CONFIG_SUBDIRS([src/univalue])
 fi
 
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --enable-endomorphism --disable-system-torrc --disable-systemd --disable-asciidoc --disable-lzma --disable-unittests"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --enable-endomorphism"
 AC_CONFIG_SUBDIRS([src/secp256k1])
-AC_CONFIG_SUBDIRS([src/tor])
 
 BLS_WSIZE=64
 BLS_OPSYS="Linux"

@@ -7,11 +7,11 @@
 # Exercise API with -disablewallet.
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 
-class DisableWalletTest (NavCoinTestFramework):
+class DisableWalletTest (NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

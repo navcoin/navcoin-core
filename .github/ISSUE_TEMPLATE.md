@@ -1,6 +1,6 @@
-<!-- This issue tracker is only for technical issues related to NavCoin Core.
+<!-- This issue tracker is only for technical issues related to Navcoin Core.
 
-General NavCoin questions and/or support requests are best directed to the NavCoin Discord or subreddit
+General Navcoin questions and/or support requests are best directed to the Navcoin Discord or subreddit
 
 For reporting security issues, please read instructions at https://navcoin.org/en/responsible-disclosure.
 
@@ -11,7 +11,7 @@ For reporting security issues, please read instructions at https://navcoin.org/e
 
 <!--- How reliably can you reproduce the issue, what are the steps to do so? -->
 
-<!-- What version of NavCoin Core are you using, where did you get it (website, self-compiled, etc)? -->
+<!-- What version of Navcoin Core are you using, where did you get it (website, self-compiled, etc)? -->
 
 <!-- What type of machine are you observing the error on (OS/CPU and disk type)? -->
 

@@ -10,24 +10,24 @@
 /** Base58 entry widget validator, checks for valid characters and
  * removes some whitespace.
  */
-class NavCoinAddressEntryValidator : public QValidator
+class NavcoinAddressEntryValidator : public QValidator
 {
     Q_OBJECT
 
 public:
-    explicit NavCoinAddressEntryValidator(QObject *parent);
+    explicit NavcoinAddressEntryValidator(QObject *parent);
 
     State validate(QString &input, int &pos) const;
 };
 
-/** NavCoin address widget validator, checks for a valid navcoin address.
+/** Navcoin address widget validator, checks for a valid navcoin address.
  */
-class NavCoinAddressCheckValidator : public QValidator
+class NavcoinAddressCheckValidator : public QValidator
 {
     Q_OBJECT
 
 public:
-    explicit NavCoinAddressCheckValidator(QObject *parent);
+    explicit NavcoinAddressCheckValidator(QObject *parent);
 
     State validate(QString &input, int &pos) const;
 };

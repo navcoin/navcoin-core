@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018-2020 The NavCoin developers
+// Copyright (c) 2018-2020 The Navcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,7 +37,6 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
-#include <torthread.h>
 #include <ui_interface.h>
 #include <untar.h>
 #include <util.h>
@@ -231,8 +230,6 @@ void Interrupt(boost::thread_group& threadGroup)
     InterruptRPC();
     InterruptREST();
     torController.Interrupt();
-    if (fTorServer)
-        TorThreadInterrupt();
     threadGroup.interrupt_all();
 }
 
@@ -778,7 +775,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 }
 
 /** Sanity checks
- *  Ensure that NavCoin is running in a usable environment with all
+ *  Ensure that Navcoin is running in a usable environment with all
  *  necessary library support.
  */
 bool InitSanityCheck(void)
@@ -909,7 +906,7 @@ void InitLogging()
     fLogIPs = GetBoolArg("-logips", DEFAULT_LOGIPS);
 
     LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("NavCoin version %s\n", FormatFullVersion());
+    LogPrintf("Navcoin version %s\n", FormatFullVersion());
 }
 
 void DownloadBlockchain(std::string url)
@@ -1180,11 +1177,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     fServer = GetBoolArg("-server", false);
 
-    fTorServer = GetBoolArg("-torserver", false);
-
-    if (fTorServer)
-        TorThreadInit();
-
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nSignedPruneTarget = GetArg("-prune", 0) * 1024 * 1024;
     if (nSignedPruneTarget < 0) {
@@ -1271,7 +1263,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     std::string strDataDir = GetDataDir().string();
 
-    // Make sure only a single NavCoin process is using the data directory.
+    // Make sure only a single Navcoin process is using the data directory.
     boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
@@ -1894,7 +1886,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 #ifdef ENABLE_WALLET
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
-    threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    threadGroup.create_thread(boost::bind(&NavcoinStaker, boost::cref(chainparams)));
     if (pwalletMain)
     {
         threadGroup.create_thread(boost::bind(&AggregationSessionThread));

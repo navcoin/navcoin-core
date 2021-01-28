@@ -17,12 +17,12 @@
   - All lower-case letters except for 'l'
 */
 
-NavCoinAddressEntryValidator::NavCoinAddressEntryValidator(QObject *parent) :
+NavcoinAddressEntryValidator::NavcoinAddressEntryValidator(QObject *parent) :
     QValidator(parent)
 {
 }
 
-QValidator::State NavCoinAddressEntryValidator::validate(QString &input, int &pos) const
+QValidator::State NavcoinAddressEntryValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos);
 
@@ -82,17 +82,17 @@ QValidator::State NavCoinAddressEntryValidator::validate(QString &input, int &po
     return state;
 }
 
-NavCoinAddressCheckValidator::NavCoinAddressCheckValidator(QObject *parent) :
+NavcoinAddressCheckValidator::NavcoinAddressCheckValidator(QObject *parent) :
     QValidator(parent)
 {
 }
 
-QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &pos) const
+QValidator::State NavcoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
   Q_UNUSED(pos);
   utils::DNSResolver* DNS = nullptr;
 
-  // Validate the passed NavCoin address
+  // Validate the passed Navcoin address
   if(DNS->check_address_syntax(input.toStdString().c_str()))
   {
 
@@ -108,7 +108,7 @@ QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &po
   else
   {
 
-    CNavCoinAddress addr(input.toStdString());
+    CNavcoinAddress addr(input.toStdString());
     if (addr.IsValid())
       return QValidator::Acceptable;
 

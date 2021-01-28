@@ -7,10 +7,10 @@
 # Test merkleblock fetch/validation
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
-class MerkleBlockTest(NavCoinTestFramework):
+class MerkleBlockTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

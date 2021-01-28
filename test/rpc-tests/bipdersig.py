@@ -7,10 +7,10 @@
 # Test the BIP66 changeover logic
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
-class BIP66Test(NavCoinTestFramework):
+class BIP66Test(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 3

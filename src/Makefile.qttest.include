@@ -41,7 +41,6 @@ qt_test_test_navcoin_qt_LDADD += \
                                  $(QT_LIBS) \
                                  $(QR_LIBS) \
                                  $(BDB_LIBS) \
-                                 $(LIBTOR) \
                                  $(ZLIB_LIBS) \
                                  $(SSL_LIBS) \
                                  $(UNBOUND_LIBS) \

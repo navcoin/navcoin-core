@@ -249,7 +249,7 @@ void CoinControlDialog::showMenu(const QPoint &point)
 // context menu action: copy amount
 void CoinControlDialog::copyAmount()
 {
-    GUIUtil::setClipboard(NavCoinUnits::removeSpaces(contextMenuItem->text(COLUMN_AMOUNT)));
+    GUIUtil::setClipboard(NavcoinUnits::removeSpaces(contextMenuItem->text(COLUMN_AMOUNT)));
 }
 
 // context menu action: copy label
@@ -633,7 +633,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
     ccAmount = nAmount;
 
     // actually update labels
-    int nDisplayUnit = NavCoinUnits::NAV;
+    int nDisplayUnit = NavcoinUnits::NAV;
     if (model && model->getOptionsModel())
         nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
 
@@ -654,13 +654,13 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
 
     // stats
     l1->setText(QString::number(nQuantity));                                 // Quantity
-    l2->setText(NavCoinUnits::formatWithUnit(nDisplayUnit, nAmount));        // Amount
-    l3->setText(NavCoinUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
-    l4->setText(NavCoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
+    l2->setText(NavcoinUnits::formatWithUnit(nDisplayUnit, nAmount));        // Amount
+    l3->setText(NavcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
+    l4->setText(NavcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
     l5->setText(((nBytes > 0) ? ASYMP_UTF8 : "") + QString::number(nBytes));        // Bytes
     l6->setText(sPriorityLabel);                                             // Priority
     l7->setText(fDust ? tr("yes") : tr("no"));                               // Dust
-    l8->setText(NavCoinUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
+    l8->setText(NavcoinUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
     if (nPayFee > 0 && ((CoinControlDialog::fPrivate ? blscctCoinControl : coinControl)->nMinimumTotalFee < nPayFee))
     {
         l3->setText(ASYMP_UTF8 + l3->text());
@@ -676,12 +676,12 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
 
     // tool tips
     QString toolTip1 = tr("This label turns red if the transaction size is greater than 1000 bytes.") + "<br /><br />";
-    toolTip1 += tr("This means a fee of at least %1 per kB is required.").arg(NavCoinUnits::formatHtmlWithUnit(nDisplayUnit, CWallet::GetRequiredFee(1000))) + "<br /><br />";
+    toolTip1 += tr("This means a fee of at least %1 per kB is required.").arg(NavcoinUnits::formatHtmlWithUnit(nDisplayUnit, CWallet::GetRequiredFee(1000))) + "<br /><br />";
     toolTip1 += tr("Can vary +/- 1 byte per input.");
 
     QString toolTip2 = tr("Transactions with higher priority are more likely to get included into a block.") + "<br /><br />";
     toolTip2 += tr("This label turns red if the priority is smaller than \"medium\".") + "<br /><br />";
-    toolTip2 += tr("This means a fee of at least %1 per kB is required.").arg(NavCoinUnits::formatHtmlWithUnit(nDisplayUnit, CWallet::GetRequiredFee(1000)));
+    toolTip2 += tr("This means a fee of at least %1 per kB is required.").arg(NavcoinUnits::formatHtmlWithUnit(nDisplayUnit, CWallet::GetRequiredFee(1000)));
 
     QString toolTip3 = tr("This label turns red if any recipient receives an amount smaller than the current dust threshold.");
 
@@ -794,7 +794,7 @@ void CoinControlDialog::updateView()
             QString sAddress = "";
             if(ExtractDestination(out.tx->vout[out.i].scriptPubKey, outputAddress))
             {
-                sAddress = QString::fromStdString(CNavCoinAddress(outputAddress).ToString());
+                sAddress = QString::fromStdString(CNavcoinAddress(outputAddress).ToString());
 
                 // if listMode or change => show navcoin address. In tree mode, address is not shown again for direct wallet address outputs
                 if (!treeMode || (!(sAddress == sWalletAddress)))
@@ -822,7 +822,7 @@ void CoinControlDialog::updateView()
             }
 
             // amount
-            itemOutput->setText(COLUMN_AMOUNT, NavCoinUnits::format(nDisplayUnit, out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue));
+            itemOutput->setText(COLUMN_AMOUNT, NavcoinUnits::format(nDisplayUnit, out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue));
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue), 15, "0")); // padding so that sorting works correctly
 
             // date
@@ -870,7 +870,7 @@ void CoinControlDialog::updateView()
         {
             dPrioritySum = dPrioritySum / (nInputSum + 78);
             itemWalletAddress->setText(COLUMN_CHECKBOX, "(" + QString::number(nChildren) + ")");
-            itemWalletAddress->setText(COLUMN_AMOUNT, NavCoinUnits::format(nDisplayUnit, nSum));
+            itemWalletAddress->setText(COLUMN_AMOUNT, NavcoinUnits::format(nDisplayUnit, nSum));
             itemWalletAddress->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(nSum), 15, "0")); // padding so that sorting works correctly
             itemWalletAddress->setText(COLUMN_PRIORITY, CoinControlDialog::getPriorityLabel(dPrioritySum, mempoolEstimatePriority));
             itemWalletAddress->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64_t)dPrioritySum), 20, "0")); // padding so that sorting works correctly

@@ -3,12 +3,12 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 #import time
 
-class ColdStakingStaking(NavCoinTestFramework):
+class ColdStakingStaking(NavcoinTestFramework):
     """Tests spending and staking to/from a staking wallet."""
 
     def __init__(self):

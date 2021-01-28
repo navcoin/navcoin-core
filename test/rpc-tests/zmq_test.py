@@ -7,7 +7,7 @@
 # Test ZMQ interface
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 import zmq
 import struct
@@ -15,7 +15,7 @@ import struct
 import http.client
 import urllib.parse
 
-class ZMQTest (NavCoinTestFramework):
+class ZMQTest (NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

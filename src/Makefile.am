@@ -44,63 +44,6 @@ endif
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
-LIBTORUTIL = \
-        tor/src/lib/libtor-geoip.a \
-        tor/src/lib/libtor-process.a \
-        tor/src/lib/libtor-buf.a \
-        tor/src/lib/libtor-confmgt.a \
-        tor/src/lib/libtor-pubsub.a \
-        tor/src/lib/libtor-dispatch.a \
-        tor/src/lib/libtor-time.a \
-        tor/src/lib/libtor-fs.a \
-        tor/src/lib/libtor-encoding.a \
-        tor/src/lib/libtor-sandbox.a \
-        tor/src/lib/libtor-container.a \
-        tor/src/lib/libtor-net.a \
-        tor/src/lib/libtor-thread.a \
-        tor/src/lib/libtor-memarea.a \
-        tor/src/lib/libtor-math.a \
-        tor/src/lib/libtor-meminfo.a \
-        tor/src/lib/libtor-osinfo.a \
-        tor/src/lib/libtor-log.a \
-        tor/src/lib/libtor-lock.a \
-        tor/src/lib/libtor-fdio.a \
-        tor/src/lib/libtor-string.a \
-        tor/src/lib/libtor-term.a \
-        tor/src/lib/libtor-smartlist-core.a \
-        tor/src/lib/libtor-malloc.a \
-        tor/src/lib/libtor-wallclock.a \
-        tor/src/lib/libtor-err.a \
-        tor/src/lib/libtor-version.a \
-        tor/src/lib/libtor-intmath.a \
-        tor/src/lib/libtor-ctime.a
-
-LIBED25519_REF10 = tor/src/ext/ed25519/ref10/libed25519_ref10.a
-LIBED25519_DONNA = tor/src/ext/ed25519/donna/libed25519_donna.a
-LIBKECCAK_TINY = tor/src/ext/keccak-tiny/libkeccak-tiny.a
-
-LIBDONNA =\
-          tor/src/lib/libcurve25519_donna.a \
-          $(LIBED25519_REF10) \
-          $(LIBED25519_DONNA)
-
-# Internal crypto libraries used in Tor
-LIBTORCRYPTO = \
-        tor/src/lib/libtor-tls.a \
-        tor/src/lib/libtor-crypt-ops.a \
-        $(LIBKECCAK_TINY) \
-        $(LIBDONNA)
-
-# All static libraries used to link tor.
-LIBTOR = \
-        tor/src/core/libtor-app.a \
-        tor/src/lib/libtor-compress.a \
-        tor/src/lib/libtor-evloop.a \
-        $(LIBTORCRYPTO) \
-        $(LIBTORUTIL) \
-        tor/src/trunnel/libor-trunnel.a \
-        tor/src/lib/libtor-trace.a
-
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
 EXTRA_LIBRARIES += \
@@ -209,7 +152,6 @@ NAVCOIN_CORE_H = \
   threadsafety.h \
   timedata.h \
   torcontrol.h \
-  torthread.h \
   txdb.h \
   txmempool.h \
   ui_interface.h \
@@ -282,7 +224,6 @@ libnavcoin_server_a_SOURCES = \
   script/ismine.cpp \
   timedata.cpp \
   torcontrol.cpp \
-  torthread.cpp \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
@@ -506,7 +447,6 @@ navcoind_LDADD = \
                  $(LIBLEVELDB) \
                  $(LIBMEMENV) \
                  $(LIBSECP256K1) \
-                 $(LIBTOR) \
                  $(LIBEVENT_LIBS) \
                  $(LIBSECCOMP_LIBS) \
                  $(LIBCAP_LIBS) \

@@ -16,15 +16,15 @@
 #include <string>
 #include <iomanip>
 
-NavCoinUnits::NavCoinUnits(QObject *parent):
+NavcoinUnits::NavcoinUnits(QObject *parent):
     QAbstractListModel(parent),
     unitlist(availableUnits())
 {
 }
 
-QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
+QList<NavcoinUnits::Unit> NavcoinUnits::availableUnits()
 {
-    QList<NavCoinUnits::Unit> unitlist;
+    QList<NavcoinUnits::Unit> unitlist;
 
     unitlist.append(NAV); // Navcoin
     unitlist.append(BTC); // Bitcoin
@@ -64,7 +64,7 @@ QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
     return unitlist;
 }
 
-bool NavCoinUnits::valid(int unit)
+bool NavcoinUnits::valid(int unit)
 {
     switch(unit)
     {
@@ -108,7 +108,7 @@ bool NavCoinUnits::valid(int unit)
     }
 }
 
-QString NavCoinUnits::name(int unit, bool fPrivate)
+QString NavcoinUnits::name(int unit, bool fPrivate)
 {
     switch(unit)
     {
@@ -150,7 +150,7 @@ QString NavCoinUnits::name(int unit, bool fPrivate)
     }
 }
 
-QString NavCoinUnits::description(int unit)
+QString NavcoinUnits::description(int unit)
 {
     switch(unit)
     {
@@ -192,7 +192,7 @@ QString NavCoinUnits::description(int unit)
     }
 }
 
-qint64 NavCoinUnits::factor(int unit)
+qint64 NavcoinUnits::factor(int unit)
 {
 
     QSettings settings;
@@ -237,7 +237,7 @@ qint64 NavCoinUnits::factor(int unit)
     }
 }
 
-int NavCoinUnits::decimals(int unit)
+int NavcoinUnits::decimals(int unit)
 {
     switch(unit)
     {
@@ -280,7 +280,7 @@ int NavCoinUnits::decimals(int unit)
     }
 }
 
-QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool fPretty)
+QString NavcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool fPretty)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
@@ -332,7 +332,7 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     return quotient_str + QString(".") + remainder_str;
 }
 
-QString NavCoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
+QString NavcoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
 {
     return format(unit, nIn, fPlus, separators, true);
 }
@@ -344,17 +344,17 @@ QString NavCoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, Separator
 //
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
-QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
+QString NavcoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
     return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
+QString NavcoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool fPrivate)
 {
     return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit, fPrivate));
 }
 
-QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing, bool fPrivate)
+QString NavcoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing, bool fPrivate)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators, fPrivate));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
@@ -362,7 +362,7 @@ QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool p
 }
 
 
-bool NavCoinUnits::parse(int unit, const QString &value, CAmount *val_out)
+bool NavcoinUnits::parse(int unit, const QString &value, CAmount *val_out)
 {
     if(!valid(unit) || value.isEmpty())
         return false; // Refuse to parse invalid unit or empty string
@@ -401,23 +401,23 @@ bool NavCoinUnits::parse(int unit, const QString &value, CAmount *val_out)
     return ok;
 }
 
-QString NavCoinUnits::getAmountColumnTitle(int unit)
+QString NavcoinUnits::getAmountColumnTitle(int unit)
 {
     QString amountTitle = QObject::tr("Amount");
-    if (NavCoinUnits::valid(unit))
+    if (NavcoinUnits::valid(unit))
     {
-        amountTitle += " ("+NavCoinUnits::name(unit) + ")";
+        amountTitle += " ("+NavcoinUnits::name(unit) + ")";
     }
     return amountTitle;
 }
 
-int NavCoinUnits::rowCount(const QModelIndex &parent) const
+int NavcoinUnits::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return unitlist.size();
 }
 
-QVariant NavCoinUnits::data(const QModelIndex &index, int role) const
+QVariant NavcoinUnits::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     if(row >= 0 && row < unitlist.size())
@@ -437,7 +437,7 @@ QVariant NavCoinUnits::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-CAmount NavCoinUnits::maxMoney()
+CAmount NavcoinUnits::maxMoney()
 {
     return MAX_MONEY;
 }

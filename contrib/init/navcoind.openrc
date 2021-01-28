@@ -18,8 +18,8 @@ NAVCOIND_BIN=${NAVCOIND_BIN:-/usr/bin/navcoind}
 NAVCOIND_NICE=${NAVCOIND_NICE:-${NICELEVEL:-0}}
 NAVCOIND_OPTS="${NAVCOIND_OPTS:-${NAVCOIN_OPTS}}"
 
-name="NavCoin Core Daemon"
-description="NavCoin cryptocurrency P2P network daemon"
+name="Navcoin Core Daemon"
+description="Navcoin cryptocurrency P2P network daemon"
 
 command="/usr/bin/navcoind"
 command_args="-pid=\"${NAVCOIND_PIDFILE}\" \
@@ -84,7 +84,7 @@ checkconfig()
 		eerror "It is also recommended that you also set alertnotify so you are "
 		eerror "notified of problems:"
 		eerror ""
-		eerror "ie: alertnotify=echo %%s | mail -s \"NavCoin Alert\"" \
+		eerror "ie: alertnotify=echo %%s | mail -s \"Navcoin Alert\"" \
 			"admin@foo.com"
 		eerror ""
 		return 1

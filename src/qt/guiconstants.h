@@ -22,7 +22,7 @@ static const int ERROR_LOG_INITIAL_COUNT = 500;
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
 
-/* NavCoinGUI -- Size of icons in status bar */
+/* NavcoinGUI -- Size of icons in status bar */
 static const int STATUSBAR_ICONSIZE = 18;
 
 static const bool DEFAULT_SPLASHSCREEN = true;
@@ -79,9 +79,9 @@ static const int MAX_URI_LENGTH = 255;
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 36
 
-#define QAPP_ORG_NAME "NavCoin"
+#define QAPP_ORG_NAME "Navcoin"
 #define QAPP_ORG_DOMAIN "navcoin.org"
-#define QAPP_APP_NAME_DEFAULT "NavCoin-Qt"
-#define QAPP_APP_NAME_TESTNET "NavCoin-Qt-testnet"
+#define QAPP_APP_NAME_DEFAULT "Navcoin-Qt"
+#define QAPP_APP_NAME_TESTNET "Navcoin-Qt-testnet"
 
 #endif // NAVCOIN_QT_GUICONSTANTS_H

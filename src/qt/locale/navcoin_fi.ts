@@ -255,7 +255,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>&amp;Allekirjoita viesti...</translation>
@@ -341,8 +341,8 @@
         <translation>Ladataan lohkoindeksiä...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Lähetä kolikoita NavCoin-osoitteeseen</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Lähetä kolikoita Navcoin-osoitteeseen</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -365,8 +365,8 @@
         <translation>Varmista &amp;viesti...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -386,19 +386,19 @@
     </message>
     <message>
         <source>Show or hide the main Window</source>
-        <translation>Näytä tai piilota NavCoin-ikkuna</translation>
+        <translation>Näytä tai piilota Navcoin-ikkuna</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
         <translation>Suojaa yksityiset avaimet, jotka kuuluvat lompakkoosi</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Allekirjoita viestisi omalla NavCoin -osoitteellasi todistaaksesi, että omistat ne</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Allekirjoita viestisi omalla Navcoin -osoitteellasi todistaaksesi, että omistat ne</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Varmista, että viestisi on allekirjoitettu määritetyllä NavCoin -osoitteella</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Varmista, että viestisi on allekirjoitettu määritetyllä Navcoin -osoitteella</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -433,8 +433,8 @@
         <translation>&amp;Komentorivin valinnat</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n aktiivinen yhteys NavCoin-verkkoon</numerusform><numerusform>%n aktiivista yhteyttä NavCoin-verkkoon</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n aktiivinen yhteys Navcoin-verkkoon</numerusform><numerusform>%n aktiivista yhteyttä Navcoin-verkkoon</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -657,16 +657,16 @@
         <translation>&amp;Käytä varmistamattomia vaihtorahoja</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Avaa NavCoin-asiakasohjelman portti reitittimellä automaattisesti. Tämä toimii vain, jos reitittimesi tukee UPnP:tä ja se on käytössä.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Avaa Navcoin-asiakasohjelman portti reitittimellä automaattisesti. Tämä toimii vain, jos reitittimesi tukee UPnP:tä ja se on käytössä.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Portin uudelleenohjaus &amp;UPnP:llä</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Yhdistä NavCoin-verkkoon SOCKS5-välityspalvelimen kautta.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Yhdistä Navcoin-verkkoon SOCKS5-välityspalvelimen kautta.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -705,8 +705,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Yhdistä NavCoin-verkkoon erillisen SOCKS5-välityspalvelimen kautta piilotettuja Tor-palveluja varten.</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Yhdistä Navcoin-verkkoon erillisen SOCKS5-välityspalvelimen kautta piilotettuja Tor-palveluja varten.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -822,8 +822,8 @@
         <translation>Määrä</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Syötä NavCoin-osoite (esim. %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Syötä Navcoin-osoite (esim. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1163,8 +1163,8 @@
         <translation>&amp;Uudelleenkäytä vastaanotto-osoitetta (ei suositella)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>Valinnainen viesti liitetään maksupyyntöön ja näytetään avattaessa. Viestiä ei lähetetä NavCoin-verkkoon.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>Valinnainen viesti liitetään maksupyyntöön ja näytetään avattaessa. Viestiä ei lähetetä Navcoin-verkkoon.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1245,7 +1245,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Lähetä NavCoineja</translation>
+        <translation>Lähetä Navcoineja</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1367,8 +1367,8 @@
         <translation>Tämä on normaali maksu.</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>NavCoin-osoite johon maksu lähetetään</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>Navcoin-osoite johon maksu lähetetään</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1399,8 +1399,8 @@
         <translation>Aseta nimi tälle osoitteelle lisätäksesi sen käytettyjen osoitteiden listalle.</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>Viesti joka liitettiin navcoin: URI:iin tallennetaan rahansiirtoon viitteeksi. Tätä viestiä ei lähetetä NavCoin-verkkoon.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>Viesti joka liitettiin navcoin: URI:iin tallennetaan rahansiirtoon viitteeksi. Tätä viestiä ei lähetetä Navcoin-verkkoon.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1440,8 +1440,8 @@
         <translation>&amp;Allekirjoita viesti</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>NavCoin-osoite jolla viesti allekirjoitetaan</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>Navcoin-osoite jolla viesti allekirjoitetaan</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1472,8 +1472,8 @@
         <translation>Kopioi tämänhetkinen allekirjoitus leikepöydälle</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Allekirjoita viesti todistaaksesi, että omistat tämän NavCoin-osoitteen</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Allekirjoita viesti todistaaksesi, että omistat tämän Navcoin-osoitteen</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1492,12 +1492,12 @@
         <translation>&amp;Varmista viesti</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>NavCoin-osoite jolla viesti on allekirjoitettu</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>Navcoin-osoite jolla viesti on allekirjoitettu</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Tarkista viestin allekirjoitus varmistaaksesi, että se allekirjoitettiin tietyllä NavCoin-osoitteella</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Tarkista viestin allekirjoitus varmistaaksesi, että se allekirjoitettiin tietyllä Navcoin-osoitteella</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1572,7 +1572,7 @@
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation>Lähetä NavCoineja</translation>
+        <translation>Lähetä Navcoineja</translation>
     </message>
 </context>
 <context>
@@ -1664,8 +1664,8 @@
         <translation>Hyväksy yhteyksiä ulkopuolelta (vakioasetus: 1 jos -proxy tai -connect ei määritelty)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin-ydin</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin-ydin</translation>
     </message>
     <message>
         <source>The %s developers</source>

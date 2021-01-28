@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 The NavCoin Core developers
+// Copyright (c) 2018-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -2747,7 +2747,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
             std::to_string(nAmount) + "NAV from the proposal " +
             proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
-    CNavCoinAddress addr(proposal.GetOwnerAddress());
+    CNavcoinAddress addr(proposal.GetOwnerAddress());
     if (!addr.IsValid())
         return error("%s: Address %s is not valid for payment request %s", __func__, proposal.GetOwnerAddress(), Hash.c_str(), tx.GetHash().ToString());
 
@@ -2916,11 +2916,11 @@ bool IsValidProposal(CTransaction tx, const CStateViewCache& view, uint64_t nMas
     CAmount nContribution = 0;
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : 1;
 
-    CNavCoinAddress oaddress(ownerAddress);
+    CNavcoinAddress oaddress(ownerAddress);
     if (!oaddress.IsValid())
         return error("%s: Wrong address %s for proposal %s", __func__, ownerAddress.c_str(), tx.GetHash().ToString());
 
-    CNavCoinAddress paddress(paymentAddress);
+    CNavcoinAddress paddress(paymentAddress);
     if (!paddress.IsValid())
         return error("%s: Wrong address %s for proposal %s", __func__, paymentAddress.c_str(), tx.GetHash().ToString());
 

@@ -267,7 +267,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>簽署訊息...</translation>
@@ -361,8 +361,8 @@
         <translation>正在為磁碟裡的區塊重建索引...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>付錢給一個 NavCoin 位址</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>付錢給一個 Navcoin 位址</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -385,8 +385,8 @@
         <translation>驗證訊息...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -413,12 +413,12 @@
         <translation>把錢包中的密鑰加密</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>用 NavCoin 位址簽署訊息來證明位址是你的</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>用 Navcoin 位址簽署訊息來證明位址是你的</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>驗證訊息是用來確定訊息是用指定的 NavCoin 位址簽署的</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>驗證訊息是用來確定訊息是用指定的 Navcoin 位址簽署的</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -453,8 +453,8 @@
         <translation>命令列選項</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n 個運作中的 NavCoin 網路連線</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n 個運作中的 Navcoin 網路連線</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -529,7 +529,7 @@
         <translation>最新狀態</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
         <translation>顯示 %1 的說明訊息，來取得可用命令列選項的列表</translation>
     </message>
     <message>
@@ -701,16 +701,16 @@
         <translation>可以花還沒確認的零錢</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>自動在路由器上開放 NavCoin 的客戶端通訊埠。只有在你的路由器支援且開啓「通用即插即用」協定(UPnP)時才有作用。</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>自動在路由器上開放 Navcoin 的客戶端通訊埠。只有在你的路由器支援且開啓「通用即插即用」協定(UPnP)時才有作用。</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>用 &amp;UPnP 設定通訊埠對應</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>透過 SOCKS5 代理伺服器來連線到 NavCoin 網路。</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>透過 SOCKS5 代理伺服器來連線到 Navcoin 網路。</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -749,8 +749,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>透過另外的 SOCKS5 代理伺服器來連線到 NavCoin 網路中的 Tor 隱藏服務。</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>透過另外的 SOCKS5 代理伺服器來連線到 Navcoin 網路中的 Tor 隱藏服務。</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -878,8 +878,8 @@
         <translation>金額</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>輸入 NavCoin 位址 (比如說 %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>輸入 Navcoin 位址 (比如說 %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1231,8 +1231,8 @@
         <translation>重複使用現有的收款位址(不建議)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>附加在付款要求中的訊息，可以不填，打開要求內容時會顯示。注意: 這個訊息不會隨著付款送到 NavCoin 網路上。</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>附加在付款要求中的訊息，可以不填，打開要求內容時會顯示。注意: 這個訊息不會隨著付款送到 Navcoin 網路上。</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1443,8 +1443,8 @@
         <translation>這是一筆正常的付款。</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>接收付款的 NavCoin 位址</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>接收付款的 Navcoin 位址</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1479,8 +1479,8 @@
         <translation>請輸入這個位址的標記，來把它加進去已使用過位址的清單。</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>附加在 NavCoin 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 NavCoin 網路上。</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>附加在 Navcoin 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Navcoin 網路上。</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1524,8 +1524,8 @@
         <translation>你可以用自己的位址簽署訊息或合約，來證明你可以從該位址收款。但是請小心，不要簽署語意含糊不清，或隨機產生的內容，因為釣魚式詐騙可能會用騙你簽署的手法來冒充是你。只有在語句中的細節你都同意時才簽署。</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>用來簽署訊息的 NavCoin 位址</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>用來簽署訊息的 Navcoin 位址</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1556,8 +1556,8 @@
         <translation>複製目前的簽章到系統剪貼簿</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>簽署這個訊息來證明這個 NavCoin 位址是你的</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>簽署這個訊息來證明這個 Navcoin 位址是你的</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1580,12 +1580,12 @@
         <translation>請在下面輸入收款人的位址，訊息(請確定完整複製了所包含的換行，空格，跳位符號等等)，以及簽章，來驗證這個訊息。請小心，除了訊息內容以外，不要對簽章本身過度解讀，以避免被用「中間人攻擊法」詐騙。請注意，通過驗證的簽章只能證明簽章人確實可以從該位址收款，不能證明任何交易中的付款人身份！</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>簽署這個訊息的 NavCoin 位址</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>簽署這個訊息的 Navcoin 位址</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>驗證這個訊息來確定是用指定的 NavCoin 位址簽署的</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>驗證這個訊息來確定是用指定的 Navcoin 位址簽署的</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1753,8 +1753,8 @@
         <translation>是否接受外來連線(預設值: 當沒有 -proxy 或 -connect 時為 1)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

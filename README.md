@@ -1,6 +1,6 @@
-![NavCoin](./img/logo-extended.png)
+![Navcoin](./img/logo-extended.png)
 
-This is the working repository for NavCoin Core, our fork of bitcoin-core 0.13.
+This is the working repository for Navcoin Core, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
@@ -30,7 +30,7 @@ For building the wallet see the markdown files in [doc](doc) folder
 |:-----------|:-----------|
 | Freenode IRC | #navcoin-dev |
 | Medium | https://medium.com/nav-coin |
-| Twitter | https://twitter.com/NavCoin |
+| Twitter | https://twitter.com/Navcoin |
 | Discord | https://discord.gg/y4Vu9jw |
 | Telegram | https://t.me/navcoin |
 | Reddit | http://www.reddit.com/r/navcoin |

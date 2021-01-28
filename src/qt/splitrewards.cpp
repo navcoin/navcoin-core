@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The NavCoin Core developers
+// Copyright (c) 2019-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -79,7 +79,7 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     {
         CTxDestination dest;
         if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, dest)){
-            CNavCoinAddress address(dest);
+            CNavcoinAddress address(dest);
             if (address.IsColdStakingAddress(Params()))
                 if (!address.GetStakingAddress(address))
                     continue;
@@ -120,7 +120,7 @@ void SplitRewardsDialog::showFor(QString sin)
 
     for (auto &key: j.keys())
     {
-        CNavCoinAddress address(key.toStdString());
+        CNavcoinAddress address(key.toStdString());
         double amount;
 
         if (address.IsValid())
@@ -225,10 +225,10 @@ void SplitRewardsDialog::onAdd()
         return;
     }
 
-    if (!CNavCoinAddress(address.toStdString()).IsValid())
+    if (!CNavcoinAddress(address.toStdString()).IsValid())
     {
         QMessageBox msgBox(this);
-        msgBox.setText(tr("Invalid NavCoin Address"));
+        msgBox.setText(tr("Invalid Navcoin Address"));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle("Error");

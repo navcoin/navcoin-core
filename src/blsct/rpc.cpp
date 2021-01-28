@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The NavCoin Core developers
+// Copyright (c) 2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -182,7 +182,7 @@ UniValue dumpviewprivkey(const UniValue& params, bool fHelp)
     blsctKey k;
     if (pwalletMain->GetBLSCTViewKey(k))
     {
-        CNavCoinBLSCTViewKey key;
+        CNavcoinBLSCTViewKey key;
         key.SetKey(k);
 
         return key.ToString();
@@ -220,7 +220,7 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
     if (params.size() > 1)
         nTimeBegin = std::max(1601287047, params[1].get_int());
 
-    CNavCoinBLSCTViewKey key(params[0].get_str());
+    CNavcoinBLSCTViewKey key(params[0].get_str());
 
     CBlockIndex *pindex = chainActive.Tip();
     while (pindex && pindex->pprev && pindex->GetBlockTime() > nTimeBegin - 7200)

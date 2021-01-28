@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The NavCoin Core developers
+// Copyright (c) 2019-2020 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,12 +11,12 @@
 #include <QString>
 #include <QWidget>
 
-class NavCoinPushButton : public QPushButton
+class NavcoinPushButton : public QPushButton
 {
     Q_OBJECT
 
 public:
-    NavCoinPushButton(QString label);
+    NavcoinPushButton(QString label);
     void paintEvent(QPaintEvent*);
     void setBadge(int nValue);
 

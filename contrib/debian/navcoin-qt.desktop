@@ -1,9 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=NavCoin
-Comment=NavCoin P2P Cryptocurrency
-Comment[fr]=NavCoin, monnaie virtuelle cryptographique pair à pair
-Comment[tr]=NavCoin, eşten eşe kriptografik sanal para birimi
+Name=Navcoin
+Comment=Navcoin P2P Cryptocurrency
+Comment[fr]=Navcoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Navcoin, eşten eşe kriptografik sanal para birimi
 Exec=navcoin-qt %u
 Terminal=false
 Type=Application

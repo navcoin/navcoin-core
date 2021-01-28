@@ -159,7 +159,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Потпиши &amp;порака...</translation>
@@ -233,7 +233,7 @@
         <translation>Повторно индексирање на блокови од дискот...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
+        <source>Send coins to a Navcoin address</source>
         <translation>Испрати биткоини на Биткоин адреса</translation>
     </message>
     <message>
@@ -241,7 +241,7 @@
         <translation>&amp;Потврди порака...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
+        <source>Navcoin</source>
         <translation>Биткоин</translation>
     </message>
     <message>
@@ -648,7 +648,7 @@
         <translation>Опции:</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
+        <source>Navcoin Core</source>
         <translation>Биткоин Core</translation>
     </message>
     <message>

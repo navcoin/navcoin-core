@@ -111,7 +111,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Cysoni â'r rhwydwaith...</translation>
@@ -173,8 +173,8 @@
         <translation>Newid y cyfrinymadrodd a ddefnyddiwyd ar gyfer amgryptio'r waled</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -510,8 +510,8 @@
         <translation>Opsiynau:</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>Craidd NavCoin</translation>
+        <source>Navcoin Core</source>
+        <translation>Craidd Navcoin</translation>
     </message>
     <message>
         <source>Information</source>

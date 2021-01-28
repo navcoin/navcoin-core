@@ -5,7 +5,7 @@
 
 # Exercise the listreceivedbyaddress API
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 
 
@@ -25,7 +25,7 @@ def get_sub_array_from_array(object_array, to_match):
         return item
     return []
 
-class ReceivedByTest(NavCoinTestFramework):
+class ReceivedByTest(NavcoinTestFramework):
 
     def __init__(self):
         super().__init__()

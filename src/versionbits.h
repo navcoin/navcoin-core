@@ -20,7 +20,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 
 /***
 *
-* NavCoin Version Bits
+* Navcoin Version Bits
 *
 * SIGNAL
 *

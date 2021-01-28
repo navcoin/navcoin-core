@@ -7,7 +7,7 @@
 # Test BIP68 implementation
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import NavcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
@@ -21,7 +21,7 @@ SEQUENCE_LOCKTIME_MASK = 0x0000ffff
 # RPC error for non-BIP68 final transactions
 NOT_FINAL_ERROR = "64: non-BIP68-final"
 
-class BIP68Test(NavCoinTestFramework):
+class BIP68Test(NavcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 2

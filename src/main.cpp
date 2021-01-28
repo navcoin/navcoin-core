@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2017-2021 The NavCoin Core developers
+// Copyright (c) 2017-2021 The Navcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -2710,7 +2710,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
-                    CNavCoinAddress address(destination);
+                    CNavcoinAddress address(destination);
                     address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
@@ -2725,13 +2725,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         addressHistoryMap.insert(std::make_pair(addressHistoryKey, CAddressHistoryValue()));
 
                 } else if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
-                    CNavCoinAddress addressStaking, addressVoting, addressSpending;
+                    CNavcoinAddress addressStaking, addressVoting, addressSpending;
                     uint160 hashBytes, hashBytesSpending, hashBytesStaking, hashBytesVoting;
                     int type = 0;
 
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
-                    CNavCoinAddress address(destination);
+                    CNavcoinAddress address(destination);
                     address.GetIndexKey(hashBytes, type);
                     address.GetSpendingAddress(addressSpending);
                     addressSpending.GetIndexKey(hashBytesSpending, type);
@@ -2846,7 +2846,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         int type = 0;
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
-                        CNavCoinAddress address(destination);
+                        CNavcoinAddress address(destination);
                         address.GetIndexKey(hashBytes, type);
 
                         // undo spending activity
@@ -2862,7 +2862,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                     else if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
                     {
-                        CNavCoinAddress addressStaking, addressVoting, addressSpending;
+                        CNavcoinAddress addressStaking, addressVoting, addressSpending;
 
                         uint160 hashBytes, hashBytesSpending, hashBytesStaking, hashBytesVoting;
 
@@ -2870,7 +2870,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         CTxDestination destination;
 
                         ExtractDestination(prevout.scriptPubKey, destination);
-                        CNavCoinAddress address(destination);
+                        CNavcoinAddress address(destination);
 
                         if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
                             address.GetSpendingAddress(addressSpending);
@@ -3959,7 +3959,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash() || prevout.scriptPubKey.IsPayToPublicKey()) {
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
-                        CNavCoinAddress address(destination);
+                        CNavcoinAddress address(destination);
                         address.GetIndexKey(hashBytes, addressType);
 
                         CAddressHistoryKey addressHistoryKey(hashBytes, hashBytes, pindex->nHeight, i, txhash, tx.nTime);
@@ -3974,10 +3974,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         CTxDestination destination;
                         uint160 hashBytesSpending, hashBytesStaking;
-                        CNavCoinAddress addressStaking, addresssSpending;
+                        CNavcoinAddress addressStaking, addresssSpending;
 
                         ExtractDestination(prevout.scriptPubKey, destination);
-                        CNavCoinAddress address(destination);
+                        CNavcoinAddress address(destination);
                         address.GetSpendingAddress(addresssSpending);
                         address.GetIndexKey(hashBytes, addressType);
                         addresssSpending.GetIndexKey(hashBytesSpending, addressType);
@@ -4017,10 +4017,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         CTxDestination destination;
                         uint160 hashBytesStaking, hashBytesVoting, hashBytesSpending;
-                        CNavCoinAddress addressStaking, addressVoting, addresssSpending;
+                        CNavcoinAddress addressStaking, addressVoting, addresssSpending;
 
                         ExtractDestination(prevout.scriptPubKey, destination);
-                        CNavCoinAddress address(destination);
+                        CNavcoinAddress address(destination);
                         address.GetSpendingAddress(addresssSpending);
                         address.GetIndexKey(hashBytes, addressType);
                         addresssSpending.GetIndexKey(hashBytesSpending, addressType);
@@ -4199,11 +4199,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 } else if (out.scriptPubKey.IsColdStaking())
                 {
                     uint160 hashBytes, hashBytesStaking, hashBytesSpending;
-                    CNavCoinAddress addressSpending, addressStaking;
+                    CNavcoinAddress addressSpending, addressStaking;
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
-                    CNavCoinAddress address(destination);
+                    CNavcoinAddress address(destination);
                     address.GetSpendingAddress(addressSpending);
                     address.GetIndexKey(hashBytes, type);
                     addressSpending.GetIndexKey(hashBytesSpending, type);
@@ -4246,12 +4246,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 else if (out.scriptPubKey.IsColdStakingv2())
                 {
                     uint160 hashBytes, hashBytesStaking, hashBytesVoting, hashBytesSpending;
-                    CNavCoinAddress addressSpending, addressStaking, addressVoting;
+                    CNavcoinAddress addressSpending, addressStaking, addressVoting;
 
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
-                    CNavCoinAddress address(destination);
+                    CNavcoinAddress address(destination);
                     address.GetSpendingAddress(addressSpending);
                     addressSpending.GetIndexKey(hashBytesSpending, type);
                     address.GetIndexKey(hashBytes, type);
@@ -4312,7 +4312,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
-                    CNavCoinAddress address(destination);
+                    CNavcoinAddress address(destination);
                     address.GetIndexKey(hashBytes, type);
 
                     // record spending activity
@@ -4596,7 +4596,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 bool fv452Fork = (pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork);
 
-                if(block.vtx[0].vout[i].nValue != prequest.nAmount || (fv452Fork && prequest.GetLastState() != DAOFlags::ACCEPTED) || proposal.GetPaymentAddress() != CNavCoinAddress(address).ToString())
+                if(block.vtx[0].vout[i].nValue != prequest.nAmount || (fv452Fork && prequest.GetLastState() != DAOFlags::ACCEPTED) || proposal.GetPaymentAddress() != CNavcoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
                 CBlockIndex* pblockindex = prequest.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
@@ -4911,7 +4911,7 @@ void static UpdateTip(CBlockIndex *pindexNew, uint256 statehash, const CChainPar
         int nUpgraded = 0;
         const CBlockIndex* pindex = chainActive.Tip();
 //
-// Commented - NavCoin uses now version control
+// Commented - Navcoin uses now version control
 //
 //        for (int bit = 0; bit < VERSIONBITS_NUM_BITS; bit++) {
 //            WarningBitsConditionChecker checker(bit);
@@ -7751,19 +7751,19 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         if(pfrom->nVersion < 70015)
         {
-            reason = "You are using an old version of NavCoin, please update.";
+            reason = "You are using an old version of Navcoin, please update.";
             fObsolete = true;
         }
 
         if(pfrom->nVersion < 70017 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
         {
-            reason = "Segregated Witness has been enabled and you are using an old version of NavCoin, please update.";
+            reason = "Segregated Witness has been enabled and you are using an old version of Navcoin, please update.";
             fObsolete = true;
         }
 
         if(pfrom->nVersion < 70020 && IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
         {
-            reason = "Community Fund has been enabled and you are using an old version of NavCoin, please update.";
+            reason = "Community Fund has been enabled and you are using an old version of Navcoin, please update.";
             fObsolete = true;
         }
 
