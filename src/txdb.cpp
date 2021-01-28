@@ -39,6 +39,7 @@ static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
+static const char DB_EXCLUDE_VOTES = 'X';
 
 CStateViewDB::CStateViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
@@ -105,6 +106,13 @@ uint256 CStateViewDB::GetBestBlock() const {
     if (!db.Read(DB_BEST_BLOCK, hashBestChain))
         return uint256();
     return hashBestChain;
+}
+
+int CStateViewDB::GetExcludeVotes() const {
+    int ret = -1;
+    if (!db.Read(DB_EXCLUDE_VOTES, ret))
+        return -1;
+    return ret;
 }
 
 bool CStateViewDB::GetAllProposals(CProposalMap& map) {
@@ -241,7 +249,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
-                              const uint256 &hashBlock) {
+                              const uint256 &hashBlock, const int &nExcludeVotes) {
 
     CDBBatch batch(db);
     size_t count = 0;
@@ -333,6 +341,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
 
     if (!hashBlock.IsNull())
         batch.Write(DB_BEST_BLOCK, hashBlock);
+
+    if (nExcludeVotes != -1)
+        batch.Write(DB_EXCLUDE_VOTES, nExcludeVotes);
 
     LogPrint("coindb", "Committing %u changed transactions (out of %u) to coin database...\n", (unsigned int)changed, (unsigned int)count);
     return db.WriteBatch(batch);

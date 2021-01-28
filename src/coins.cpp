@@ -60,6 +60,8 @@ bool CStateView::HaveConsultation(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsultationAnswer(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsensusParameter(const int &pid) const { return false; }
 bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
+int CStateView::GetExcludeVotes() const { return 0; }
+bool CStateView::SetExcludeVotes(int count) { return 0; }
 bool CStateView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
 bool CStateView::GetAllVotes(CVoteMap& map) { return false; }
 bool CStateView::GetAllConsultations(CConsultationMap& map) { return false; }
@@ -68,7 +70,7 @@ uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock) { return false; }
+                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock, const int& nCacheExcludeVotes) { return false; }
 CStateViewCursor *CStateView::Cursor() const { return 0; }
 
 
@@ -86,6 +88,8 @@ bool CStateViewBacked::HaveCachedVoter(const CVoteMapKey &voter) const { return 
 bool CStateViewBacked::HaveConsultation(const uint256 &cid) const { return base->HaveConsultation(cid); }
 bool CStateViewBacked::HaveConsultationAnswer(const uint256 &cid) const { return base->HaveConsultationAnswer(cid); }
 bool CStateViewBacked::HaveConsensusParameter(const int &pid) const { return base->HaveConsensusParameter(pid); }
+int CStateViewBacked::GetExcludeVotes() const { return base->GetExcludeVotes(); }
+bool CStateViewBacked::SetExcludeVotes(int count) { return base->SetExcludeVotes(count); }
 bool CStateViewBacked::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return base->GetCachedVoter(voter, vote); }
 bool CStateViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllProposals(map); }
 bool CStateViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
@@ -97,14 +101,14 @@ void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                                   CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                                   CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                                  CConsensusParameterMap& mapConsensus, const uint256 &hashBlock) {
-    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, hashBlock);
+                                  CConsensusParameterMap& mapConsensus, const uint256 &hashBlock, const int &nCacheExcludeVotes) {
+    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, hashBlock, nCacheExcludeVotes);
 }
 CStateViewCursor *CStateViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CStateViewCache::CStateViewCache(CStateView *baseIn) : CStateViewBacked(baseIn), hasModifier(false), hasModifierConsensus(false), cachedCoinsUsage(0) { }
+CStateViewCache::CStateViewCache(CStateView *baseIn) : CStateViewBacked(baseIn), hasModifier(false), hasModifierConsensus(false), cachedCoinsUsage(0), nCacheExcludeVotes(-1) { }
 
 CStateViewCache::~CStateViewCache()
 {
@@ -317,6 +321,16 @@ bool CStateViewCache::GetAllProposals(CProposalMap& mapProposal) {
     for (auto it = mapProposal.begin(); it != mapProposal.end();)
         it->second.IsNull() ? mapProposal.erase(it++) : ++it;
 
+    return true;
+}
+
+int CStateViewCache::GetExcludeVotes() const {
+    if (nCacheExcludeVotes == -1) nCacheExcludeVotes = base->GetExcludeVotes();
+    return nCacheExcludeVotes;
+}
+
+bool CStateViewCache::SetExcludeVotes(int count) {
+    nCacheExcludeVotes = count;
     return true;
 }
 
@@ -724,7 +738,7 @@ void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
 
 bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
                                  CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                                 CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn) {
+                                 CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn, const int &nCacheExcludeVotesIn) {
     assert(!hasModifier);
     assert(!hasModifierConsensus);
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
@@ -822,11 +836,12 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     hashBlock = hashBlockIn;
+    nCacheExcludeVotes = nCacheExcludeVotesIn;
     return true;
 }
 
 bool CStateViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, hashBlock);
+    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, hashBlock, nCacheExcludeVotes);
     cacheCoins.clear();
     cacheProposals.clear();
     cachePaymentRequests.clear();
@@ -835,6 +850,7 @@ bool CStateViewCache::Flush() {
     cacheAnswers.clear();
     cacheConsensus.clear();
     cachedCoinsUsage = 0;
+    nCacheExcludeVotes = -1;
     return fOk;
 }
 

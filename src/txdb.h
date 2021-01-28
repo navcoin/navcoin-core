@@ -119,12 +119,14 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
+                    const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);
     bool GetAllConsultations(CConsultationMap &map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
+    int GetExcludeVotes() const;
     CStateViewCursor *Cursor() const;
 };
 

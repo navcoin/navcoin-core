@@ -893,73 +893,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int64_t nTimeEnd3 = GetTimeMicros();
     LogPrint("bench", "   - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
 
-    int64_t nTimeStart4 = GetTimeMicros();
+    int64_t nTimeStart4__ = GetTimeMicros();
 
-    if (fCFund)
-    {
-        for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
-        {
-            if (!view.HavePaymentRequest(it->first))
-                continue;
+    view.SetExcludeVotes(nCacheExclude);
 
-            if (!it->second.CanVote(view))
-                continue;
-
-            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
-
-            prequest->nExclude = nCacheExclude;
-
-            updateMapPaymentRequests[prequest->hash] = *prequest;
-        }
-
-        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
-        {
-            if (!view.HaveProposal(it->first))
-                continue;
-
-            if (!it->second.CanVote(view))
-                continue;
-
-            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
-
-            proposal->nExclude = nCacheExclude;
-
-            updateMapProposals[proposal->hash] = *proposal;
-        }
-    }
-
-    if (fDAOConsultations)
-    {
-        for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
-        {
-            if (!view.HaveConsultation(it->first))
-                continue;
-
-            if (it->second.GetLastState() != DAOFlags::ACCEPTED)
-                continue;
-
-            CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
-
-            consultation->nExclude = nCacheExclude;
-
-            updateMapConsultations[consultation->hash] = *consultation;
-        }
-
-        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
-        {
-            if (!view.HaveConsultationAnswer(it->first))
-                continue;
-
-            if (!it->second.CanBeVoted(view))
-                continue;
-
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
-
-            answer->nExclude = nCacheExclude;
-
-            updateMapConsultationAnswers[answer->hash] = *answer;
-        }
-    }
+    int64_t nTimeEnd4__ = GetTimeMicros();
+    LogPrint("bench", "   - CFund update exclude votes: %.2fms\n", (nTimeEnd4__ - nTimeStart4__) * 0.001);
 
     for (auto &it: updateMapProposals)
     {
@@ -990,6 +929,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     updateMapConsultationAnswers.clear();
     
     std::vector<uint256> vClearAnswers;
+
+    int64_t nTimeStart4_ = GetTimeMicros();
 
     if(lastConsensusStateHash != lastConsensusStateHash)
     {
@@ -1119,13 +1060,15 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         }
     }
 
+    int64_t nTimeEnd4_ = GetTimeMicros();
+    LogPrint("bench", "   - CFund update reset votes: %.2fms\n", (nTimeEnd4_ - nTimeStart4_) * 0.001);
+
+    int64_t nTimeStart4 = GetTimeMicros();
+
     if (fCFund)
     {
         for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
         {
-            if (!view.HavePaymentRequest(it->first))
-                continue;
-
             if (it->second.txblockhash == uint256())
                 continue;
 
@@ -1236,9 +1179,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            if (!view.HaveProposal(it->first))
-                continue;
-
             if (it->second.txblockhash == uint256())
                 continue;
 
@@ -1394,9 +1334,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
         {
-            if (!view.HaveConsultationAnswer(it->first))
-                continue;
-
             if (it->second.txblockhash == uint256())
                 continue;
 
@@ -1477,9 +1414,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
         {
-            if (!view.HaveConsultation(it->first))
-                continue;
-
             if (it->second.txblockhash == uint256())
                 continue;
 
@@ -1613,15 +1547,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
             {
-                if (!view.HavePaymentRequest(it->first))
-                    continue;                
-
                 if (!mapSeen.count(it->second.hash))
                 {
-                    CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
-
-                    if (prequest->CanVote(view))
+                    if (it->second.CanVote(view))
                     {
+                        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
+
                         prequest->nVotesYes = 0;
                         prequest->nVotesNo = 0;
                         prequest->fDirty = true;
@@ -1631,14 +1562,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
             {
-                if (!view.HaveProposal(it->first))
-                    continue;
-
                 if (!mapSeen.count(it->second.hash)) {
-                    CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
 
-                    if (proposal->CanVote(view))
+                    if (it->second.CanVote(view))
                     {
+                        CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+
                         proposal->nVotesYes = 0;
                         proposal->nVotesNo = 0;
                         proposal->fDirty = true;
@@ -1651,9 +1580,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
             {
-                if (!view.HaveConsultation(it->first))
-                    continue;
-
                 if (it->second.CanBeSupported() && !mapSeenSupport.count(it->second.hash))
                 {
                     CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
@@ -1677,7 +1603,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
             {
-                if (!view.HaveConsultationAnswer(it->first) || mapSeen.count(it->first))
+                if (mapSeen.count(it->first))
                     continue;
 
                 if (it->second.CanBeSupported(view) && !mapSeenSupport.count(it->second.hash))
@@ -2476,7 +2402,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     {
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
-    ret.pushKV("excludedVotes", nExclude);
+    ret.pushKV("excludedVotes", view.GetExcludeVotes());
     ret.pushKV("mapState", mapState);
     ret.pushKV("answers", answers);
     ret.pushKV("min", nMin);
@@ -2736,7 +2662,7 @@ bool CConsultationAnswer::IsConsensusAccepted(const CStateViewCache& view) const
 
     int exclude = 0;
     if (nVersion & CConsultationAnswer::EXCLUDE_VERSION)
-        exclude = nExclude;
+        exclude = view.GetExcludeVotes();
 
     return nVotes >= ((GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) - exclude)  * nMinimumQuorum);
 
@@ -2766,7 +2692,7 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     {
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
-    ret.pushKV("excludedVotes", nExclude);
+    ret.pushKV("excludedVotes", view.GetExcludeVotes());
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)fState);
@@ -3037,7 +2963,7 @@ bool CPaymentRequest::IsAccepted(const CStateViewCache& view) const
 
     int exclude = 0;
     if (nVersion & CPaymentRequest::EXCLUDE_VERSION)
-        exclude = nExclude;
+        exclude = view.GetExcludeVotes();
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
@@ -3058,7 +2984,7 @@ bool CPaymentRequest::IsRejected(const CStateViewCache& view) const {
 
     int exclude = 0;
     if (nVersion & CPaymentRequest::EXCLUDE_VERSION)
-        exclude = nExclude;
+        exclude = view.GetExcludeVotes();
 
     return nTotalVotes > ((GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) - exclude) * nMinimumQuorum)
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view) / 10000.0));
@@ -3081,7 +3007,7 @@ bool CProposal::IsAccepted(const CStateViewCache& view) const
 
     int exclude = 0;
     if (nVersion & CProposal::EXCLUDE_VERSION)
-        exclude = nExclude;
+        exclude = view.GetExcludeVotes();
 
     return nTotalVotes > ((GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) - exclude) * nMinimumQuorum)
             && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view) / 10000.0));
@@ -3100,7 +3026,7 @@ bool CProposal::IsRejected(const CStateViewCache& view) const
 
     int exclude = 0;
     if (nVersion & CProposal::EXCLUDE_VERSION)
-        exclude = nExclude;
+        exclude = view.GetExcludeVotes();
 
     return nTotalVotes > ((GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) - exclude)  * nMinimumQuorum)
             && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/ 10000.0));
@@ -3355,7 +3281,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
-    ret.pushKV("excludedVotes", nExclude);
+    ret.pushKV("excludedVotes", coins.GetExcludeVotes());
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)+1));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     UniValue mapState(UniValue::VOBJ);
@@ -3417,7 +3343,7 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
-    ret.pushKV("excludedVotes", nExclude);
+    ret.pushKV("excludedVotes", view.GetExcludeVotes());
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)+1));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     UniValue mapState(UniValue::VOBJ);
