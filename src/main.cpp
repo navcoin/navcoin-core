@@ -4986,7 +4986,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         if (!VoteStep(state, pindexDelete, true, view))
             return error("DisconnectTip(): VoteStep failed");
         assert(view.Flush());
-        if (LogAcceptCategory("statehash"))
+        if (GetBoolArg("-debugstatehash", false))
             statehash = GetDAOStateHash(view, pindexDelete->pprev->nCFLocked, pindexDelete->pprev->nCFSupply);
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
@@ -5078,7 +5078,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         if (!VoteStep(state, pindexNew, false, view))
             return error("ConnectTip(): VoteStep failed");
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
-        if (LogAcceptCategory("statehash"))
+        if (GetBoolArg("-debugstatehash", false))
             statehash = GetDAOStateHash(view, pindexNew->nCFLocked, pindexNew->nCFSupply);
         assert(view.Flush());
     }
