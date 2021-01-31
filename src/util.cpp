@@ -1134,7 +1134,7 @@ bool BdbEncrypted(boost::filesystem::path wallet)
         file.seekg(i, file.beg);
 
         // Read data from the file
-        file.read(buffer, 5);
+        file.read(buffer, 4);
 
         // Check if we have it
         if (string(buffer) == "main") {
