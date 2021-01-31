@@ -312,7 +312,14 @@ void SendCoinsDialog::on_sendButton_clicked()
             questionString.append("<hr /><span style='color:#aa0000;'>");
             questionString.append(NavcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee, false, NavcoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon));
             questionString.append("</span> ");
-            questionString.append(tr("added as transaction fee"));
+            if (rcp.fSubtractFeeFromAmount)
+            {
+                questionString.append(tr("subtracted as transaction fee"));
+            }
+            else
+            {
+                questionString.append(tr("added as transaction fee"));
+            }
 
             // append transaction size
             questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
@@ -321,7 +328,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // add total amount in all subdivision units
     questionString.append("<hr />");
-    CAmount totalAmount = nTotalAmount + txFee;
+    CAmount totalAmount = nTotalAmount + (rcp.fSubtractFeeFromAmount ? -txFee : txFee);
     QStringList alternativeUnits;
 
     // Check if we have selected a display unit that is not NAV
