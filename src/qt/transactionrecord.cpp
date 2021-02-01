@@ -353,6 +353,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
 
             CAmount sent = nPrivateDebit + nPublicDebit;
+            CAmount recvd = nNet;
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -410,6 +411,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         {
                             sub.type = TransactionRecord::Other;
                         }
+                        recvd -= txout.nValue;
                         parts.append(sub);
                     }
                 }
@@ -441,9 +443,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     parts.append(TransactionRecord(hash, nTime, TransactionRecord::AnonTxRecv, "", 0, sent));
                 }
             }
-            else
+            else if (recvd > 0)
             {
-                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", recvd, 0));
                 parts.last().involvesWatchAddress = involvesWatchAddress;
             }
         }
