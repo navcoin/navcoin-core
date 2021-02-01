@@ -276,7 +276,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     const SendCoinsRecipient &rcp = currentTransaction.recipients.first();
     {
         // generate bold amount string
-        QString amount = "<b>" + NavcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount, false, NavcoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon);
+        QString amount = "<b>" + NavcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount - (rcp.fSubtractFeeFromAmount ? txFee : 0) , false, NavcoinUnits::SeparatorStyle::separatorStandard, false, rcp.isanon);
         amount.append("</b>");
         // generate monospace address string
         QString splitAddr = rcp.address;
@@ -321,7 +321,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // add total amount in all subdivision units
     questionString.append("<hr />");
-    CAmount totalAmount = nTotalAmount + txFee;
+    CAmount totalAmount = nTotalAmount + (rcp.fSubtractFeeFromAmount ? 0 : txFee);
     QStringList alternativeUnits;
 
     // Check if we have selected a display unit that is not NAV
