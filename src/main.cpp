@@ -3505,7 +3505,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     // Check proof of stake
-    if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
+    if (fScriptChecks && block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
         return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindex->pprev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     }
 
@@ -3513,7 +3513,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t nCoinAge;
 
     // Verify hash target and signature of coinstake tx
-    if (block.IsProofOfStake() && fScriptChecks)
+    if (block.IsProofOfStake())
     {
         arith_uint256 targetProofOfStake;
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
@@ -3523,7 +3523,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         // ppcoin: coin stake tx earns reward instead of paying fee
-        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge, view))
+        if (fScriptChecks && !TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge, view))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
     }
 
