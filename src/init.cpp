@@ -106,13 +106,13 @@ enum BindFlags {
 
 static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 
-static float fBootstrapProgress = 0.0;
+static int fBootstrapProgress = 0;
 
 static int xferinfo(void *p,
                     curl_off_t dltotal, curl_off_t dlnow,
                     curl_off_t ultotal, curl_off_t ulnow)
 {
-    float fProgress = (float)dlnow/(float)dltotal*100.0f;
+    int fProgress = (float)dlnow/(float)dltotal*100.0f;
     if (fProgress == fBootstrapProgress)
         return 0;
 

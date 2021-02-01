@@ -51,6 +51,7 @@ qt_test_test_navcoin_qt_LDADD += \
                                  $(EVENT_LIBS) \
                                  $(CURL_LIBS) \
                                  $(LIBBLS) \
+                                 $(LIBMCL) \
                                  $(SODIUM_LIBS) \
                                  $(LIBEVENT_LIBS) \
                                  $(LIBSECCOMP_LIBS) \

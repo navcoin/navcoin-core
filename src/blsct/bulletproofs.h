@@ -21,6 +21,8 @@
 #include <bls.hpp>
 #include <utilstrencodings.h>
 
+#include <mcl/bn_c384_256.h>
+
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
 

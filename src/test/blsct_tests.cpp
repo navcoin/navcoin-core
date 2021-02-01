@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(blsct)
     spendingTx.nVersion |= TX_BLS_INPUT_FLAG;
 
     BOOST_CHECK(!CreateBLSCTOutput(bk, nonce, spendingTx.vout[0], destKey, 10*COIN, "123456789012345678901234567890123456789012345678901234567", gammaOuts, strFailReason, true, vBLSSignatures));
-    BOOST_CHECK(strFailReason == "Range proof failed with exception");
+    BOOST_CHECK(strFailReason.substr(0,33) == "Range proof failed with exception");
 
     gammaIns = gammaPrevOut;
     gammaOuts = 0;

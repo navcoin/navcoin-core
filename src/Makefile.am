@@ -1,4 +1,4 @@
-DIST_SUBDIRS = secp256k1 univalue
+DIST_SUBDIRS = secp256k1 mcl univalue
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
@@ -18,7 +18,7 @@ endif
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) $(SODIUM_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/mcl/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -30,6 +30,7 @@ LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBBLS=bls/build/libbls.a
+LIBMCL=mcl/lib/libmcl.a mcl/lib/libmclbn384_256.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -43,6 +44,10 @@ endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
+$(LIBMCL):
+	@echo $(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)/..
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -361,6 +366,8 @@ libnavcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
+  utiltime.cpp \
+  utiltime.h \
   version.h
 
 # common: shared between navcoind, and navcoin-qt and non-server tools
@@ -447,6 +454,7 @@ navcoind_LDADD = \
                  $(LIBLEVELDB) \
                  $(LIBMEMENV) \
                  $(LIBSECP256K1) \
+                 $(LIBMCL) \
                  $(LIBEVENT_LIBS) \
                  $(LIBSECCOMP_LIBS) \
                  $(LIBCAP_LIBS) \
@@ -506,6 +514,7 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CONSENSUS) \
   $(LIBNAVCOIN_CRYPTO) \
+  $(LIBMCL) \
   $(LIBSECP256K1)
 
 navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBBLS) $(SODIUM_LIBS)
@@ -521,8 +530,8 @@ if GLIBC_BACK_COMPAT
 endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) $(SODIUM_LIBS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) $(SODIUM_LIBS)
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/mcl/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
@@ -554,7 +563,7 @@ EXTRA_DIST = $(CTAES_DIST)
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C tor clean
+	-$(MAKE) -C mcl clean
 	-$(MAKE) -C univalue clean
 	-$(MAKE) -C bls/build clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno

@@ -10,6 +10,7 @@
 
 #include <blsct/bulletproofs.h>
 #include <tinyformat.h>
+#include <utiltime.h>
 
 bool BLSInitResult = bls::BLS::Init();
 
@@ -61,6 +62,11 @@ bool BulletproofsRangeproof::Init()
     if (fInit)
         return true;
 
+    bool mclInit = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
+    CHECK_AND_ASSERT_THROW_MES(mclInit == 0, "Can't init mcl");
+
+    mclBn_setETHserialization(true);
+
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
 
@@ -87,6 +93,34 @@ bool BulletproofsRangeproof::Init()
 
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
+{
+    mclBnG1 x[multiexp_data.size()], z, w;
+    mclBnFr y[multiexp_data.size()];
+
+    mclBnG1_clear(&w);
+
+
+    for (size_t i = 0; i < multiexp_data.size(); i++)
+    {
+        std::vector<unsigned char> base = multiexp_data[i].base.Serialize();
+        std::vector<unsigned char> exp = multiexp_data[i].exp.GetVch();
+
+        mclBnG1_deserialize(&x[i], &base[0], base.size());
+        mclBnFr_deserialize(&y[i], &exp[0], exp.size());
+    }
+
+    mclBnG1_mulVec(&z, x, y, multiexp_data.size());
+
+    std::vector<unsigned char> res(48);
+
+    mclBnG1_serialize(&(res[0]), 48, &z);
+
+    bls::G1Element result = bls::G1Element::FromByteVector(res);
+
+    return result;
+}
+
+bls::G1Element MultiExpLegacy(std::vector<MultiexpData> multiexp_data)
 {
     bls::G1Element result;
 
@@ -116,6 +150,7 @@ static bls::G1Element VectorCommitment(const std::vector<Scalar> &a, const std::
         multiexp_data.push_back({BulletproofsRangeproof::Gi[i], a[i]});
         multiexp_data.push_back({BulletproofsRangeproof::Hi[i], b[i]});
     }
+
     return MultiExp(multiexp_data);
 }
 
