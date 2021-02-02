@@ -1121,8 +1121,8 @@ void SetThreadPriority(int nPriority)
 bool BdbEncrypted(boost::filesystem::path wallet)
 {
     // Open file
-    std::ifstream file(wallet.string());
-    char* buffer = new char [4];
+    std::ifstream file(wallet.string(), std::ifstream::binary);
+    char* buffer = new char [5];
 
     // Get length of file
     file.seekg(0, std::ios::end);
@@ -1134,7 +1134,7 @@ bool BdbEncrypted(boost::filesystem::path wallet)
         file.seekg(i, file.beg);
 
         // Read data from the file
-        file.read(buffer, 4);
+        file.read(buffer, 5);
 
         // Check if we have it
         if (string(buffer) == "main") {
