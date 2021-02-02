@@ -13,6 +13,7 @@
 #include <utiltime.h>
 
 bool BLSInitResult = bls::BLS::Init();
+bool mclInitResult = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
 
 static std::vector<Scalar> VectorPowers(const Scalar &x, size_t n);
 static std::vector<Scalar> VectorDup(const Scalar &x, size_t n);
@@ -61,9 +62,6 @@ bool BulletproofsRangeproof::Init()
 
     if (fInit)
         return true;
-
-    bool mclInit = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
-    CHECK_AND_ASSERT_THROW_MES(mclInit == 0, "Can't init mcl");
 
     mclBn_setETHserialization(true);
 
