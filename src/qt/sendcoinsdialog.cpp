@@ -206,7 +206,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
         }
 
-        if(defaultPrivacy == 1 && && GetBoolArg("-blsctmix", DEFAULT_MIX))
+        if(defaultPrivacy == 1 && GetBoolArg("-blsctmix", DEFAULT_MIX))
         {
             AggregationSessionDialog msd(this);
             msd.setWalletModel(model);
