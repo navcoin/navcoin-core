@@ -1887,7 +1887,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
     threadGroup.create_thread(boost::bind(&NavcoinStaker, boost::cref(chainparams)));
-    if (pwalletMain)
+    if (pwalletMain && GetBoolArg("-blsctmix", DEFAULT_MIX))
     {
         threadGroup.create_thread(boost::bind(&AggregationSessionThread));
         threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
