@@ -182,7 +182,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             return;
         }
 
-        if (defaultPrivacy == 0)
+        if (defaultPrivacy == 0 && GetBoolArg("-blsctmix", DEFAULT_MIX))
         {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Increase privacy level"));
@@ -206,7 +206,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
         }
 
-        if(defaultPrivacy == 1)
+        if(defaultPrivacy == 1 && GetBoolArg("-blsctmix", DEFAULT_MIX))
         {
             AggregationSessionDialog msd(this);
             msd.setWalletModel(model);

@@ -819,6 +819,11 @@ UniValue privatesendmixtoaddress(const UniValue& params, bool fHelp)
         return JSONRPCError(RPC_MISC_ERROR, "xNAV is not active yet");
     }
 
+    if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
+    {
+        return JSONRPCError(RPC_MISC_ERROR, "-blsctmix is 0");
+    }
+
     if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(
                 "privatesendmixtoaddress \"navcoinaddress\" amount \"comment\" ( \"comment-to\" \"strdzeel\" subtractfeefromamount )\n"
