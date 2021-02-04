@@ -379,6 +379,9 @@ public:
     virtual bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     virtual bool HaveConsensusParameter(const int &pid) const;
 
+    virtual int GetExcludeVotes() const;
+    virtual bool SetExcludeVotes(int count);
+
     //! Retrieve the block hash whose state this CStateView currently represents
     virtual uint256 GetBestBlock() const;
 
@@ -387,7 +390,8 @@ public:
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
+                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
+                            const int &nCacheExcludeVotes);
 
     //! Get a cursor to iterate over the whole state
     virtual CStateViewCursor *Cursor() const;
@@ -424,12 +428,17 @@ public:
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
+
+    int GetExcludeVotes() const;
+    bool SetExcludeVotes(int count);
+
     uint256 GetBestBlock() const;
     void SetBackend(CStateView &viewIn);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
+                    const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
 };
 
@@ -573,6 +582,7 @@ protected:
     mutable CConsultationMap cacheConsultations;
     mutable CConsultationAnswerMap cacheAnswers;
     mutable CConsensusParameterMap cacheConsensus;
+    mutable int nCacheExcludeVotes;
 
     /* Cached dynamic memory usage for the inner CCoins objects. */
     mutable size_t cachedCoinsUsage;
@@ -607,7 +617,8 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn,
+                    const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
@@ -618,6 +629,9 @@ public:
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);
+
+    int GetExcludeVotes() const;
+    bool SetExcludeVotes(int count);
 
     /**
      * Check if we have the given tx already loaded in this cache.
