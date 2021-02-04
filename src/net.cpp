@@ -1236,7 +1236,7 @@ void ThreadSocketHandler()
                 // * We process a message in the buffer (message handler thread).
                 {
                     TRY_LOCK(pnode->cs_vSend, lockSend);
-                    if (lockSend &&!pnode->vSendMsg.empty()) {
+                    if (lockSend && !pnode->vSendMsg.empty()) {
                         FD_SET(pnode->hSocket, &fdsetSend);
                         continue;
                     }
@@ -1345,7 +1345,7 @@ void ThreadSocketHandler()
                 continue;
             if (FD_ISSET(pnode->hSocket, &fdsetSend))
             {
-                TRY_LOCK(pnode->cs_vSend, lockSend);
+                TRY_LOCK(pnode->cs_sendProcessing, lockSend);
                 if (lockSend)
                     SocketSendData(pnode);
             }
