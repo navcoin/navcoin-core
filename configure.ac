@@ -1282,6 +1282,10 @@ fi
 ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --enable-endomorphism"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
+printf 'check:\n\techo\n\n' >> src/mcl/Makefile && \
+printf 'distdir:\n\techo\n\n' >> src/mcl/Makefile && \
+printf 'distclean:\n\techo\n\n' >> src/mcl/Makefile
+
 BLS_WSIZE=64
 BLS_OPSYS="Linux"
 BLS_SEED="UDEV"
