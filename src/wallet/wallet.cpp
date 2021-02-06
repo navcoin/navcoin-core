@@ -2372,7 +2372,7 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
 
                 bool fValid = true;
 
-                if (GetBLSCTViewKey(k))
+                if (tx.IsBLSCT() && GetBLSCTViewKey(k))
                     fValid=VerifyBLSCT(tx, k.GetKey(), blsctData, view, state, true);
 
                 if (!fValid)
