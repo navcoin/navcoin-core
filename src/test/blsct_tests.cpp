@@ -284,6 +284,12 @@ BOOST_AUTO_TEST_CASE(blsct)
     BOOST_CHECK(VerifyBLSCT(spendingTx, viewKey, vData, view, state));
     spendingTx.vout[0].nValue = 10;
 
+    BulletproofsRangeproof proofCheck = spendingTx.vout[0].GetBulletproof();
+    BulletproofsRangeproof proofCheck2(proofCheck.GetVch());
+
+    BOOST_CHECK(proofCheck == proofCheck2);
+    BOOST_CHECK(proofCheck.GetVch() == proofCheck2.GetVch());
+
     // Private to Public. Different amount. Balance signature correct. Tx signature complete.
     state = CValidationState();
     BOOST_CHECK(!VerifyBLSCT(spendingTx, viewKey, vData, view, state));
