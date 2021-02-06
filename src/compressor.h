@@ -123,7 +123,8 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                BulletproofsRangeproof bp = txout.GetBulletproof();
+                READWRITE(bp);
             }
             else
             {
@@ -140,7 +141,9 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                BulletproofsRangeproof bp_;
+                READWRITE(bp_);
+                txout.bp = bp_.GetVch();
             }
             else
             {

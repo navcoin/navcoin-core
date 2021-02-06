@@ -155,7 +155,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("outputKey", HexStr(txout.outputKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
-        out.pushKV("rangeProof", txout.bp.V.size() > 0);
+        out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
 
         // Add spent information if spentindex is enabled
         CSpentIndexValue spentInfo;
@@ -241,7 +241,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         out.pushKV("scriptPubKey", o);
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
-        out.pushKV("rangeProof", txout.bp.V.size() > 0);
+        out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
         vout.push_back(out);
     }
     entry.pushKV("vout", vout);

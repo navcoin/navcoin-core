@@ -55,7 +55,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Ele
     ephemeralKey = ephemeralKeyIn.Serialize();
     outputKey = outputKeyIn.Serialize();
     spendingKey = spendingKeyIn.Serialize();
-    bp = bpIn;
+    bp = bpIn.GetVch();
 }
 
 uint256 CTxOut::GetHash() const
@@ -75,7 +75,7 @@ std::string CTxOut::ToString() const
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
-                         bp.V.size()>0 ? " rangeProof=1":"");
+                         GetBulletproof().V.size()>0 ? " rangeProof=1":"");
     }
 }
 
