@@ -522,7 +522,7 @@ if GLIBC_BACK_COMPAT
 endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) $(SODIUM_LIBS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) $(SODIUM_LIBS) $(SSL_LIBS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS) $(SODIUM_LIBS)
 libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
