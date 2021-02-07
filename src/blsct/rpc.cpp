@@ -277,7 +277,7 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
                         {
                             try
                             {
-                                proofs.push_back(std::make_pair(0,txout.bp));
+                                proofs.push_back(std::make_pair(0,txout.GetBulletproof()));
                                 bls::G1Element t = bls::G1Element::FromByteVector(txout.outputKey);
                                 bls::PrivateKey k = vk.GetKey();
                                 t = t * k;

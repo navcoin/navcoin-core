@@ -58,7 +58,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 if (prevOut.HasRangeProof())
                 {
-                    balKey = fElementZero ? prevOut.bp.GetValueCommitments()[0] : balKey + prevOut.bp.GetValueCommitments()[0];
+                    balKey = fElementZero ? prevOut.GetBulletproof().GetValueCommitments()[0] : balKey + prevOut.GetBulletproof().GetValueCommitments()[0];
                     fElementZero = false;
                 }
                 else
@@ -100,7 +100,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             }
             if (fCheckRange)
             {
-                proofs.push_back(std::make_pair(j, tx.vout[j].bp));
+                proofs.push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
@@ -117,11 +117,11 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 if (fElementZero)
                 {
-                    balKey = tx.vout[j].bp.GetValueCommitments()[0];
+                    balKey = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
                 }
                 else
                 {
-                    bls::G1Element t = tx.vout[j].bp.GetValueCommitments()[0].Inverse();
+                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0].Inverse();
                     balKey = balKey + t;
                 }
                 fElementZero = false;
@@ -251,7 +251,7 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
             }
             if (fCheckRange)
             {
-                proofs.push_back(std::make_pair(j, tx.vout[j].bp));
+                proofs.push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
@@ -268,11 +268,11 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
             {
                 if (fElementZero)
                 {
-                    balKey = tx.vout[j].bp.GetValueCommitments()[0];
+                    balKey = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
                 }
                 else
                 {
-                    bls::G1Element t = tx.vout[j].bp.GetValueCommitments()[0].Inverse();
+                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0].Inverse();
                     balKey = balKey + t;
                 }
                 fElementZero = false;
