@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src/bls/build src/mcl src
+SUBDIRS = src/bls/build src
 .PHONY: deploy FORCE
 
 # GZIP_ENV="-9n" # Disabled cause it was giving out a warning
