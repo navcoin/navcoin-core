@@ -433,8 +433,8 @@ nodist_libnavcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 
 # navcoind binary #
 navcoind_SOURCES = navcoind.cpp
-navcoind_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(LIBEVENT_CFLAGS) $(LIBSECCOMP_CFLAGS) $(LIBCAP_CFLAGS) $(ZLIB_CFLAGS)
-navcoind_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+navcoind_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(LIBEVENT_CFLAGS) $(LIBSECCOMP_CFLAGS) $(LIBCAP_CFLAGS) $(ZLIB_CFLAGS) -I$(srcdir)/mcl/include
+navcoind_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -I$(srcdir)/mcl/include
 navcoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
