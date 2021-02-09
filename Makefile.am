@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src/bls/build src
+SUBDIRS = src/bls/build src/mcl src
 .PHONY: deploy FORCE
 
 # GZIP_ENV="-9n" # Disabled cause it was giving out a warning
@@ -229,7 +229,7 @@ endif
 
 dist_noinst_SCRIPTS = autogen.sh
 
-EXTRA_DIST = $(top_srcdir)/share/genbuild.sh test/pull-tester/rpc-tests.py test/rpc-tests $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS) src/bls
+EXTRA_DIST = $(top_srcdir)/share/genbuild.sh test/pull-tester/rpc-tests.py test/rpc-tests $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS) src/bls src/mcl
 
 CLEANFILES = $(OSX_DMG) $(NAVCOIN_WIN_INSTALLER)
 
