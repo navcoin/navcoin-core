@@ -263,6 +263,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     int nCountProposals = 0;
     int nCountPaymentRequests = 0;
     int nCountTransactions = 0;
+    CAmount nValueTransactions = 0;
 
     CAmount nPOWBlockReward = block.IsProofOfWork() ? GetBlockSubsidy(blockindex->nHeight, Params().GetConsensus()) : 0;
 
@@ -307,12 +308,19 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
             else if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION)
                 nCountPaymentRequests++;
             else
+            {
                 nCountTransactions++;
+                for (auto &out: tx.vout)
+                {
+                    nValueTransactions += out.nValue;
+                }
+            }
         }
 
     }
     result.pushKV("tx", txs);
     result.pushKV("tx_count", nCountTransactions);
+    result.pushKV("tx_value_count", nValueTransactions);
     result.pushKV("proposal_count", nCountProposals);
     result.pushKV("payment_request_count", nCountPaymentRequests);
     result.pushKV("proposal_votes_count", nCountProposalVotes);
@@ -920,8 +928,10 @@ struct CCoinsStats
     uint64_t nSerializedSize;
     uint256 hashSerialized;
     CAmount nTotalAmount;
+    CAmount nTotalColdAmount;
+    CAmount nTotalColdv2Amount;
 
-    CCoinsStats() : nHeight(0), nTransactions(0), nTransactionOutputs(0), nSerializedSize(0), nTotalAmount(0) {}
+    CCoinsStats() : nHeight(0), nTransactions(0), nTransactionOutputs(0), nSerializedSize(0), nTotalAmount(0), nTotalColdAmount(0), nTotalColdv2Amount(0) {}
 };
 
 //! Calculate statistics about the unspent transaction output set
@@ -937,6 +947,8 @@ static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
     }
     ss << stats.hashBlock;
     CAmount nTotalAmount = 0;
+    CAmount nTotalColdAmount = 0;
+    CAmount nTotalColdv2Amount = 0;
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         uint256 key;
@@ -951,6 +963,8 @@ static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
                     ss << VARINT(i+1);
                     ss << out;
                     nTotalAmount += out.nValue;
+                    if (out.scriptPubKey.IsColdStaking()) nTotalColdAmount += out.nValue;
+                    if (out.scriptPubKey.IsColdStakingv2()) nTotalColdv2Amount += out.nValue;
                 }
             }
             stats.nSerializedSize += 32 + pcursor->GetValueSize();
@@ -962,6 +976,8 @@ static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
     }
     stats.hashSerialized = ss.GetHash();
     stats.nTotalAmount = nTotalAmount;
+    stats.nTotalColdAmount = nTotalColdAmount;
+    stats.nTotalColdv2Amount = nTotalColdv2Amount;
     return true;
 }
 
@@ -999,6 +1015,8 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
         ret.pushKV("bytes_serialized", (int64_t)stats.nSerializedSize);
         ret.pushKV("hash_serialized", stats.hashSerialized.GetHex());
         ret.pushKV("total_amount", ValueFromAmount(stats.nTotalAmount));
+        ret.pushKV("total_cold_amount", ValueFromAmount(stats.nTotalColdAmount));
+        ret.pushKV("total_coldv2_amount", ValueFromAmount(stats.nTotalColdv2Amount));
     }
     return ret;
 }
