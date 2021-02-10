@@ -406,3 +406,12 @@ install: lib/libmcl.a lib/libmcl.$(LIB_SUF)
 # don't remove these files automatically
 .SECONDARY: $(addprefix $(OBJ_DIR)/, $(ALL_SRC:.cpp=.o))
 
+check:
+	echo
+
+distdir:
+	echo
+
+distclean:
+	echo
+
