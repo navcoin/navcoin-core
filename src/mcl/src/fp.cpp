@@ -3,6 +3,10 @@
 #include <cybozu/sha2.hpp>
 #include <cybozu/endian.hpp>
 #include <mcl/conversion.hpp>
+#if defined(__EMSCRIPTEN__) && MCL_SIZEOF_UNIT == 4
+#define USE_WASM
+#include "low_func_wasm.hpp"
+#endif
 
 #if defined(MCL_STATIC_CODE) || defined(MCL_USE_XBYAK) || (defined(MCL_USE_LLVM) && (CYBOZU_HOST == CYBOZU_HOST_INTEL))
 
@@ -390,6 +394,7 @@ static bool initForMont(Op& op, const Unit *p, Mode mode)
 	return true;
 #endif
 #elif defined(MCL_STATIC_CODE)
+	if (mode != FP_XBYAK) return true;
 	fp::setStaticCode(op);
 	bool enableInv = true;
 #endif // MCL_USE_XBYAK
@@ -406,6 +411,26 @@ static bool initForMont(Op& op, const Unit *p, Mode mode)
 #endif // MCL_X64_ASM
 	return true;
 }
+
+#ifdef USE_WASM
+template<size_t N>
+void setWasmOp(Op& op)
+{
+	if (!(op.isMont && !op.isFullBit)) return;
+//EM_ASM({console.log($0)}, N);
+//	op.fp_addPre = mcl::addT<N>;
+//	op.fp_subPre = mcl::subT<N>;
+//	op.fpDbl_addPre = mcl::addT<N * 2>;
+//	op.fpDbl_subPre = mcl::subT<N * 2>;
+	op.fp_add = mcl::addModT<N>;
+	op.fp_sub = mcl::subModT<N>;
+	op.fp_mul = mcl::mulMontT<N>;
+	op.fp_sqr = mcl::sqrMontT<N>;
+	op.fpDbl_mulPre = mulT<N>;
+//	op.fpDbl_sqrPre = sqrT<N>;
+	op.fpDbl_mod = modT<N>;
+}
+#endif
 
 bool Op::init(const mpz_class& _p, size_t maxBitSize, int _xi_a, Mode mode, size_t mclMaxBitSize)
 {
@@ -547,6 +572,13 @@ bool Op::init(const mpz_class& _p, size_t maxBitSize, int _xi_a, Mode mode, size
 	default:
 		return false;
 	}
+#ifdef USE_WASM
+	if (N == 8) {
+		setWasmOp<8>(*this);
+	} else if (N == 12) {
+		setWasmOp<12>(*this);
+	}
+#endif
 #ifdef MCL_USE_LLVM
 	if (primeMode == PM_NIST_P192) {
 		fp_mul = &mcl_fp_mulNIST_P192L;
