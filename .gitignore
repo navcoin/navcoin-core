@@ -112,6 +112,7 @@ cache/
 share/NavcoindComparisonTool.jar
 
 !src/leveldb*/Makefile
+!src/mcl/Makefile
 
 /doc/doxygen/
 
