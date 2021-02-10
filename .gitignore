@@ -173,9 +173,6 @@ src/bls-signatures/build
 # Ignore temp conf dirs
 conf*/
 
-# MCL ignores for generated OBJ files
-src/mcl/obj
-
 # Ignore .tmp files from tor build
 *.tmp
 
