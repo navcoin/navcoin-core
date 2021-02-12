@@ -1337,6 +1337,10 @@ BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
 BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 
+AC_CONFIG_COMMANDS([src/mcl],
+                   [echo GMP_DIR=$prefix OPENSSL_DIR=$prefix make -C src/mcl && GMP_DIR=$prefix OPENSSL_DIR=$prefix make -C src/mcl],
+                   [prefix="$BLS_DEPENDS"])
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],
                    [rm -rf src/bls/build/* || true && \
