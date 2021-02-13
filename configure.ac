@@ -1337,9 +1337,38 @@ BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
 BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 
-AC_CONFIG_COMMANDS([src/mcl],
-                   [GMP_DIR=$prefix OPENSSL_DIR=$prefix make -C src/mcl],
-                   [prefix="$BLS_DEPENDS"])
+dnl Run cmake for bls-sigs (This project does not support autotools)
+AC_CONFIG_COMMANDS([src/mcl/build],
+                   [rm -rf src/mcl/build/* || true && \
+                    mkdir -p src/mcl/build || true && \
+                    CC=$CC \
+                    CMAKE_PREFIX_PATH=$prefix \
+                    CXX=$CXX \
+                    CFLAGS=$CFLAGS \
+                    CXXFLAGS=$CXXFLAGS \
+                    LDFLAGS=$LDFLAGS \
+                    cmake -Bsrc/mcl/build -Hsrc/mcl \
+                    -DMCL_USE_GMP=On \
+                    -DMCL_USE_OPENSSL=Off \
+                    -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
+                    -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
+                    -DCMAKE_CXX_COMPILER=$BLS_CXX \
+                    $BLS_CCACHE_CMAKE \
+                    $BLS_AR \
+                    $BLS_RANLIB && \
+                    printf 'check:\n\techo\n\n' >> src/mcl/build/Makefile && \
+                    printf 'distdir:\n\techo\n\n' >> src/mcl/build/Makefile && \
+                    printf 'distclean:\n\techo\n\n' >> src/mcl/build/Makefile],
+                   [prefix="$BLS_DEPENDS"
+                    CC=$BLS_CC_RAW
+                    CXX=$BLS_CXX_RAW
+                    CFLAGS=$BLS_CFLAGS
+                    CXXFLAGS=$BLS_CXXFLAGS
+                    BLS_CC=$BLS_CC
+                    BLS_CXX=$BLS_CXX
+                    BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
+                    BLS_AR=$BLS_AR
+                    BLS_RANLIB=$BLS_RANLIB])
 
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/bls/build],

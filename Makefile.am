@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src/bls/build src
+SUBDIRS = src/bls/build src/mcl/build src
 .PHONY: deploy FORCE
 
 # GZIP_ENV="-9n" # Disabled cause it was giving out a warning
@@ -158,10 +158,12 @@ $(NAVCOIN_CLI_BIN): FORCE
 
 check-recursive:
 	$(MAKE) -C src/bls/build
+	$(MAKE) -C src/mcl/build
 	$(MAKE) -C src check
 
 install-recursive:
 	$(MAKE) -C src/bls/build
+	$(MAKE) -C src/mcl/build
 	$(MAKE) -C src install
 
 if USE_LCOV

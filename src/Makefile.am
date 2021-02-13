@@ -30,7 +30,7 @@ LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBBLS=bls/build/libbls.a
-LIBMCL=mcl/lib/libmcl.a mcl/lib/libmclbn384_256.a
+LIBMCL=mcl/build/lib/libmclbn384.a mcl/build/lib/libmcl.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -450,7 +450,6 @@ navcoind_LDADD = \
                  $(LIBLEVELDB) \
                  $(LIBMEMENV) \
                  $(LIBSECP256K1) \
-                 $(LIBMCL) \
                  $(LIBEVENT_LIBS) \
                  $(LIBSECCOMP_LIBS) \
                  $(LIBCAP_LIBS) \
@@ -468,6 +467,7 @@ navcoind_LDADD += \
                   $(EVENT_PTHREADS_LIBS) \
                   $(EVENT_LIBS) \
                   $(ZMQ_LIBS) \
+                  $(LIBMCL) \
                   $(LIBBLS) \
                   $(SODIUM_LIBS) \
                   $(LIBEVENT_LDFLAGS) \
@@ -510,10 +510,9 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CONSENSUS) \
   $(LIBNAVCOIN_CRYPTO) \
-  $(LIBMCL) \
   $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBBLS) $(SODIUM_LIBS)
+navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
 #
 
 # navcoinconsensus library #
@@ -559,8 +558,8 @@ EXTRA_DIST = $(CTAES_DIST)
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C mcl clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C mcl/build clean
 	-$(MAKE) -C bls/build clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h

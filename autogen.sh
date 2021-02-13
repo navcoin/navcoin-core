@@ -11,7 +11,6 @@ fi
 set -e
 srcdir="$(dirname $0)"
 cd "$srcdir"
-mkdir -p src/bls/build
 if [ -z "${LIBTOOLIZE}" ] && GLIBTOOLIZE="$(command -v glibtoolize)"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
   export LIBTOOLIZE

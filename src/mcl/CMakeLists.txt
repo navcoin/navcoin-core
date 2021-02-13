@@ -149,7 +149,7 @@ if(MSVC)
 else()
 	# Set compiler flags for warnings
 	set(MCL_COMPILE_OPTIONS -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align
-		-Wwrite-strings -Wfloat-equal -Wpointer-arith -march=native)
+        -Wwrite-strings -Wfloat-equal -Wpointer-arith -march=native -fPIC)
 
 	target_compile_options(mcl PRIVATE ${MCL_COMPILE_OPTIONS})
 	target_compile_options(mcl_st PRIVATE ${MCL_COMPILE_OPTIONS})
@@ -320,7 +320,7 @@ endif()
 
 # mclbnXXX
 foreach(bit IN ITEMS 256 384 384_256)
-	add_library(mclbn${bit} SHARED src/bn_c${bit}.cpp)
+    add_library(mclbn${bit} STATIC src/bn_c${bit}.cpp)
 	add_library(mcl::mclbn${bit} ALIAS mclbn${bit})
 	set_target_properties(mclbn${bit} PROPERTIES
 		CXX_STANDARD 11
