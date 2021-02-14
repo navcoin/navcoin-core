@@ -29,7 +29,7 @@ if [ -n "$DPKG_ADD_ARCH" ]; then
   DOCKER_EXEC dpkg --add-architecture "$DPKG_ADD_ARCH"
 fi
 
-INSTALL_COMMAND="apt-get install --no-install-recommends --no-upgrade -qq"
+INSTALL_COMMAND="DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qq"
 
 travis_retry DOCKER_EXEC apt-get update
 travis_retry DOCKER_EXEC $INSTALL_COMMAND $PACKAGES $DOCKER_PACKAGES
