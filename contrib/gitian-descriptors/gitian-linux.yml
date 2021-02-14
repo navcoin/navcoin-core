@@ -3,7 +3,7 @@ name: "navcoin-linux-6.0.1"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "amd64"
 packages:
@@ -37,13 +37,6 @@ packages:
 - "python3-setuptools"
 - "libtinfo5"
 - 'libattr1-dev'
-repositories:
-- "distribution": "bionic"
-  "source": "deb https://apt.kitware.com/ubuntu/ bionic main"
-  "key": "https://apt.kitware.com/keys/kitware-archive-latest.asc"
-  "name": "kitware"
-  packages:
-  - "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
