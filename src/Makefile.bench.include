@@ -24,7 +24,6 @@ bench_bench_navcoin_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1) \
   $(LIBUNIVALUE) \
-  $(TOR_LIBS) \
   $(LIBEVENT_LIBS) \
   $(LIBSECCOMP_LIBS) \
   $(LIBCAP_LIBS) \
