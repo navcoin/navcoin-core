@@ -92,10 +92,8 @@ bool BulletproofsRangeproof::Init()
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
 {
-    mclBnG1 x[multiexp_data.size()], z, w;
+    mclBnG1 x[multiexp_data.size()], z;
     mclBnFr y[multiexp_data.size()];
-
-    mclBnG1_clear(&w);
 
 
     for (size_t i = 0; i < multiexp_data.size(); i++)
