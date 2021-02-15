@@ -30,7 +30,7 @@ LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBBLS=bls/build/libbls.a
-LIBMCL=mcl/build/lib/libmclbn384.a mcl/build/lib/libmcl.a
+LIBMCL=mcl/build/lib/libmclbn384_256.a mcl/build/lib/libmcl.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
