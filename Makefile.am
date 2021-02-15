@@ -52,11 +52,8 @@ COVERAGE_INFO = baseline_filtered_combined.info baseline.info block_test.info \
   baseline_filtered.info block_test_filtered.info rpc_test.info rpc_test_filtered.info \
   leveldb_baseline_filtered.info test_navcoin_coverage.info test_navcoin.info
 
-# We are adding the current changes when we run archive
-# TODO: we need to remove this logic in the future once the bls relic dependency no longer requires a patch
-# -$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 dist-hook:
-	-$(GIT) archive --format=tar $(git stash create) -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
+	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 
 $(NAVCOIN_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
