@@ -1,7 +1,7 @@
 ---
 name: "navcoin-dmg-signer"
 suites:
-- "focal"
+- "bionic"
 architectures:
 - "amd64"
 packages:
