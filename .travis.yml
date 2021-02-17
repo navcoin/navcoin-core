@@ -49,7 +49,6 @@ env:
     - CCACHE_DIR=$HOME/.ccache
     - BASE_OUTDIR=$TRAVIS_BUILD_DIR/out
     - SDK_URL=https://bitcoincore.org/depends-sources/sdks
-    - WINEDEBUG=fixme-all
     - DOCKER_PACKAGES="build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache python3 autoconf cmake"
     - CACHE_ERR_MSG="Error! Initial build successful, but not enough time remains to run later build stages and tests. Please manually re-run this job by using the travis restart button or asking a maintainer to restart. The next run should not time out because the build cache has been saved."
 before_install:
@@ -86,7 +85,7 @@ jobs:
       name: 'Win64  [GOAL: install]  [no functional tests]'
       env: >-
         HOST=x86_64-w64-mingw32
-        PACKAGES="nsis g++-mingw-w64-x86-64 wine-binfmt wine64 libcap-dev"
+        PACKAGES="nsis g++-mingw-w64-x86-64 libcap-dev"
         RUN_FUNCTIONAL_TESTS=false
         GOAL="install"
         NAVCOIN_CONFIG="--disable-gcc-hardening --enable-reduce-exports --disable-gui-tests"
