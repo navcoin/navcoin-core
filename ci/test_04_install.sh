@@ -29,14 +29,24 @@ if [ -n "$DPKG_ADD_ARCH" ]; then
   DOCKER_EXEC dpkg --add-architecture "$DPKG_ADD_ARCH"
 fi
 
-INSTALL_COMMAND="apt-get install --no-install-recommends --no-upgrade -qq"
+INSTALL_COMMAND="DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qq"
 
+
+# Install some things we need to get kitware repo
+travis_retry DOCKER_EXEC apt-get update
+travis_retry DOCKER_EXEC $INSTALL_COMMAND apt-transport-https ca-certificates gnupg software-properties-common curl
+
+# Add the kitware repo for cmake
+travis_retry DOCKER_EXEC "curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | apt-key add - "
+travis_retry DOCKER_EXEC apt-add-repository \'deb https://apt.kitware.com/ubuntu/ bionic main\'
+
+# Update repo list and install additional apps needed
 travis_retry DOCKER_EXEC apt-get update
 travis_retry DOCKER_EXEC $INSTALL_COMMAND $PACKAGES $DOCKER_PACKAGES
 
 if [ "$RUN_FUNCTIONAL_TESTS" = "true" ]; then
   BEGIN_FOLD local-ntp-server
-  travis_retry DOCKER_EXEC DEBIAN_FRONTEND=noninteractive $INSTALL_COMMAND ntp
+  travis_retry DOCKER_EXEC $INSTALL_COMMAND ntp
   travis_retry DOCKER_EXEC service ntp start
   END_FOLD
 fi
