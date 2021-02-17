@@ -340,6 +340,7 @@ libnavcoin_consensus_a_SOURCES = \
   sph_simd.h \
   sph_skein.h \
   sph_types.h \
+  support/cleanse.cpp \
   hashblock.h \
   hash.cpp \
   hash.h \

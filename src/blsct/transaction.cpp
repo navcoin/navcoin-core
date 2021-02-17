@@ -54,7 +54,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
         return false;
     }
 
-    newTxOut.bp = bprp;
+    newTxOut.bp = bprp.GetVch();
 
     if (!GenTxOutputKeys(blindingKey, destKey, newTxOut.spendingKey, newTxOut.outputKey, newTxOut.ephemeralKey))
     {
@@ -146,7 +146,7 @@ bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
     {
         Scalar s = minAmount;
         bls::G1Element l = (BulletproofsRangeproof::H*s.bn).Inverse();
-        bls::G1Element r = tx.vout[i].bp.V[0];
+        bls::G1Element r = tx.vout[i].GetBulletproof().V[0];
         l = l + r;
         if (!(l == minAmountProofs.V[i]))
             return error ("CandidateTransaction::%s: Failed verification from output's amount %d", __func__, i);
