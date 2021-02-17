@@ -5,13 +5,9 @@
 
 export LC_ALL=C
 git submodule update --init --recursive
-if grep -q 'ifdef _MSC_VER' src/bls/contrib/relic/include/relic_alloc.h; then
-  git apply contrib/relic.patch
-fi
 set -e
 srcdir="$(dirname $0)"
 cd "$srcdir"
-mkdir -p src/bls/build
 if [ -z "${LIBTOOLIZE}" ] && GLIBTOOLIZE="$(command -v glibtoolize)"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
   export LIBTOOLIZE
