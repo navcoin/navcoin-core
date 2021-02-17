@@ -1,14 +1,12 @@
 ---
 name: "navcoin-win-6.0.1"
 enable_cache: true
-sudo: true
 distro: "ubuntu"
 suites:
 - "bionic"
 architectures:
 - "amd64"
 packages:
-- "sudo"
 - "autoconf"
 - "automake"
 - "bsdmainutils"
@@ -55,7 +53,6 @@ script: |
 
   export QT_RCC_TEST=1
   export QT_RCC_SOURCE_DATE_OVERRIDE=1
-  export GZIP="-9n"
   export TAR_OPTIONS="--mtime="$REFERENCE_DATE\\\ $REFERENCE_TIME""
   export TZ="UTC"
   export BUILD_DIR=`pwd`
@@ -134,8 +131,8 @@ script: |
   # mingw32 needs alloca.h and Wincrypt.h for building relic
   # but we can't write there. Instead, create a link here
   for i in $HOSTS; do
-    sudo cp /usr/$i/include/malloc.h /usr/$i/include/alloca.h
-    sudo cp /usr/$i/include/wincrypt.h /usr/$i/include/Wincrypt.h
+    cp /usr/$i/include/malloc.h ${BASEPREFIX}/$i/include/alloca.h
+    cp /usr/$i/include/wincrypt.h ${BASEPREFIX}/$i/include/Wincrypt.h
   done
 
   # Faketime for binaries
