@@ -558,7 +558,6 @@ EXTRA_DIST = $(CTAES_DIST)
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
 	-$(MAKE) -C bls/build clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
