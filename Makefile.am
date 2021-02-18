@@ -156,6 +156,14 @@ $(NAVCOIND_BIN): FORCE
 $(NAVCOIN_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
+check-recursive:
+	$(MAKE) -C src/bls/build
+	$(MAKE) -C src check
+
+install-recursive:
+	$(MAKE) -C src/bls/build
+	$(MAKE) -C src install
+
 if USE_LCOV
 
 baseline.info:
