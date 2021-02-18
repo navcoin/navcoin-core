@@ -21,7 +21,7 @@ if [[ $HOST = *-mingw32 ]]; then
 fi
 if [ -z "$NO_DEPENDS" ]; then
   BEGIN_FOLD depends
-  DOCKER_EXEC CONFIG_SHELL= ./contrib/run_with_dots make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
+  DOCKER_EXEC CONFIG_SHELL= ./contrib/run_with_dots make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS || ( echo "Depends Build failure. Verbose build follows." && CONFIG_SHELL= ./contrib/run_with_dots make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS V=1 ; false )
   END_FOLD
 
   if [[ $HOST = *-mingw32 ]]; then
