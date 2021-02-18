@@ -21,5 +21,11 @@ if [[ $HOST = *-mingw32 ]]; then
 fi
 if [ -z "$NO_DEPENDS" ]; then
   DOCKER_EXEC CONFIG_SHELL= make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
+
+  if [[ $HOST = *-mingw32 ]]; then
+    # Copy the missing headers that windows build needs
+    DOCKER_EXEC cp /usr/$HOST/include/malloc.h depends/$HOST/include/alloca.h
+    DOCKER_EXEC cp /usr/$HOST/include/wincrypt.h depends/$HOST/include/Wincrypt.h
+  fi
 fi
 
