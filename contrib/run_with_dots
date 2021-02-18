@@ -1,10 +1,10 @@
 #!/bin/bash
-
-"$@" &
-
-while kill -0 $!; do
-    printf '.' > /dev/tty
-    sleep 2
+"$@" > /dev/null 2>&1 &
+PID=$!
+echo "Running: $@"
+while [ -d /proc/$PID ]; do
+	echo -n "."
+	sleep 1
 done
-
-printf '\n' > /dev/tty
+echo "."
+echo "Done: $@"
