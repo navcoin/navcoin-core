@@ -64,7 +64,7 @@ bool BulletproofsRangeproof::Init()
 
     initPairing(mcl::BLS12_381);
 
-    SetETHserialization(true);
+    Fp::setETHserialization(true);
 
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
@@ -102,15 +102,15 @@ bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
         std::vector<unsigned char> base = multiexp_data[i].base.Serialize();
         std::vector<unsigned char> exp = multiexp_data[i].exp.GetVch();
 
-        G1::deserialize(&x[i], &base[0], base.size());
-        Fr::deserialize(&y[i], &exp[0], exp.size());
+        x[i].deserialize(&base[0], base.size());
+        y[i].deserialize(&exp[0], exp.size());
     }
 
-    z.mulVec(x, y, multiexp_data.size());
+    G1::mulVec(z, x, y, multiexp_data.size());
 
     std::vector<unsigned char> res(48);
 
-    G1::serialize(&res[0], 48, &z);
+    z.serialize(&res[0], 48);
 
     bls::G1Element result = bls::G1Element::FromByteVector(res);
 
