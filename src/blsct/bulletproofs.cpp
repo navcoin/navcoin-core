@@ -13,7 +13,7 @@
 #include <utiltime.h>
 
 bool BLSInitResult = bls::BLS::Init();
-bool mclInitResult = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
+bool mclInitResult = initPairing(mcl::BLS12_381);
 
 static std::vector<Scalar> VectorPowers(const Scalar &x, size_t n);
 static std::vector<Scalar> VectorDup(const Scalar &x, size_t n);
@@ -63,7 +63,7 @@ bool BulletproofsRangeproof::Init()
     if (fInit)
         return true;
 
-    mclBn_setETHserialization(true);
+    setETHserialization(true);
 
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
@@ -92,8 +92,8 @@ bool BulletproofsRangeproof::Init()
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
 {
-    mclBnG1 x[multiexp_data.size()], z;
-    mclBnFr y[multiexp_data.size()];
+    G1 x[multiexp_data.size()], z;
+    Fr y[multiexp_data.size()];
 
 
     for (size_t i = 0; i < multiexp_data.size(); i++)
@@ -101,15 +101,15 @@ bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
         std::vector<unsigned char> base = multiexp_data[i].base.Serialize();
         std::vector<unsigned char> exp = multiexp_data[i].exp.GetVch();
 
-        mclBnG1_deserialize(&x[i], &base[0], base.size());
-        mclBnFr_deserialize(&y[i], &exp[0], exp.size());
+        x[i].deserialize(&base[0], base.size());
+        y[i].deserialize(&exp[0], exp.size());
     }
 
-    mclBnG1_mulVec(&z, x, y, multiexp_data.size());
+    z.mulVec(x, y, multiexp_data.size());
 
     std::vector<unsigned char> res(48);
 
-    mclBnG1_serialize(&(res[0]), 48, &z);
+    res[0].serialize(48, &z);
 
     bls::G1Element result = bls::G1Element::FromByteVector(res);
 

@@ -21,10 +21,12 @@
 #include <bls.hpp>
 #include <utilstrencodings.h>
 
-#include <mcl/include/mcl/bn_c384_256.h>
+#include <mcl/bls12_381.hpp>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
+
+using namespace mcl::bn;
 
 static const size_t maxN = 64;
 static const size_t maxMessageSize = 54;
