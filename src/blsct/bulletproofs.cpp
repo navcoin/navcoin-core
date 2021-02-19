@@ -13,7 +13,6 @@
 #include <utiltime.h>
 
 bool BLSInitResult = bls::BLS::Init();
-bool mclInitResult = initPairing(mcl::BLS12_381);
 
 static std::vector<Scalar> VectorPowers(const Scalar &x, size_t n);
 static std::vector<Scalar> VectorDup(const Scalar &x, size_t n);
@@ -63,7 +62,9 @@ bool BulletproofsRangeproof::Init()
     if (fInit)
         return true;
 
-    setETHserialization(true);
+    initPairing(mcl::BLS12_381);
+
+    SetETHserialization(true);
 
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
@@ -101,15 +102,15 @@ bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
         std::vector<unsigned char> base = multiexp_data[i].base.Serialize();
         std::vector<unsigned char> exp = multiexp_data[i].exp.GetVch();
 
-        x[i].deserialize(&base[0], base.size());
-        y[i].deserialize(&exp[0], exp.size());
+        G1::deserialize(&x[i], &base[0], base.size());
+        Fr::deserialize(&y[i], &exp[0], exp.size());
     }
 
     z.mulVec(x, y, multiexp_data.size());
 
     std::vector<unsigned char> res(48);
 
-    res[0].serialize(48, &z);
+    G1::serialize(&res[0], 48, &z);
 
     bls::G1Element result = bls::G1Element::FromByteVector(res);
 
