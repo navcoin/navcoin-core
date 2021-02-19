@@ -25,18 +25,18 @@ struct Code : public mcl::Generator {
 	Function mulPos;
 	Function makeNIST_P192;
 	Function mcl_fpDbl_mod_NIST_P192;
-	Function mcl_fp_sqr_NIST_P192;
-	FunctionMap mcl_fp_shr1_M;
-	FunctionMap mcl_fp_addPreM;
-	FunctionMap mcl_fp_subPreM;
-	FunctionMap mcl_fp_addM;
-	FunctionMap mcl_fp_subM;
+	Function mcl_mcl_fp_sqr_NIST_P192;
+	FunctionMap mcl_mcl_fp_shr1_M;
+	FunctionMap mcl_mcl_fp_addPreM;
+	FunctionMap mcl_mcl_fp_subPreM;
+	FunctionMap mcl_mcl_fp_addM;
+	FunctionMap mcl_mcl_fp_subM;
 	FunctionMap mulPvM;
-	FunctionMap mcl_fp_mulUnitPreM;
+	FunctionMap mcl_mcl_fp_mulUnitPreM;
 	FunctionMap mcl_fpDbl_mulPreM;
 	FunctionMap mcl_fpDbl_sqrPreM;
-	FunctionMap mcl_fp_montM;
-	FunctionMap mcl_fp_montRedM;
+	FunctionMap mcl_mcl_fp_montM;
+	FunctionMap mcl_mcl_fp_montRedM;
 	Code() : unit(0), unit2(0), bit(0), N(0), privateFuncList(0), wasm(false) { }
 	void verifyAndSetPrivate(Function& f)
 	{
@@ -347,15 +347,15 @@ struct Code : public mcl::Generator {
 		ret(Void);
 		endFunc();
 	}
-	void gen_mcl_fp_sqr_NIST_P192()
+	void gen_mcl_mcl_fp_sqr_NIST_P192()
 	{
 		resetGlobalIdx();
 		Operand py(IntPtr, unit);
 		Operand px(IntPtr, unit);
 		Operand dummy(IntPtr, unit);
-		mcl_fp_sqr_NIST_P192 = Function("mcl_fp_sqr_NIST_P192L" + suf, Void, py, px, dummy);
-		verifyAndSetPrivate(mcl_fp_sqr_NIST_P192);
-		beginFunc(mcl_fp_sqr_NIST_P192);
+		mcl_mcl_fp_sqr_NIST_P192 = Function("mcl_mcl_fp_sqr_NIST_P192L" + suf, Void, py, px, dummy);
+		verifyAndSetPrivate(mcl_mcl_fp_sqr_NIST_P192);
+		beginFunc(mcl_mcl_fp_sqr_NIST_P192);
 		Operand buf = alloca_(unit, 192 * 2 / unit);
 		// QQQ define later
 		Function mcl_fpDbl_sqrPre("mcl_fpDbl_sqrPre" + cybozu::itoa(192 / unit) + "L" + suf, Void, buf, px);
@@ -364,14 +364,14 @@ struct Code : public mcl::Generator {
 		ret(Void);
 		endFunc();
 	}
-	void gen_mcl_fp_mulNIST_P192()
+	void gen_mcl_mcl_fp_mulNIST_P192()
 	{
 		resetGlobalIdx();
 		Operand pz(IntPtr, unit);
 		Operand px(IntPtr, unit);
 		Operand py(IntPtr, unit);
 		Operand dummy(IntPtr, unit);
-		Function f("mcl_fp_mulNIST_P192L" + suf, Void, pz, px, py, dummy);
+		Function f("mcl_mcl_fp_mulNIST_P192L" + suf, Void, pz, px, py, dummy);
 		verifyAndSetPrivate(f);
 		beginFunc(f);
 		Operand buf = alloca_(unit, 192 * 2 / unit);
@@ -389,8 +389,8 @@ struct Code : public mcl::Generator {
 		gen_mulPos();
 		gen_makeNIST_P192();
 		gen_mcl_fpDbl_mod_NIST_P192();
-		gen_mcl_fp_sqr_NIST_P192();
-		gen_mcl_fp_mulNIST_P192();
+		gen_mcl_mcl_fp_sqr_NIST_P192();
+		gen_mcl_mcl_fp_mulNIST_P192();
 		gen_mcl_fpDbl_mod_NIST_P521();
 	}
 	Operand extract(const Operand& x, uint32_t shift)
@@ -399,7 +399,7 @@ struct Code : public mcl::Generator {
 		t = trunc(t, unit);
 		return t;
 	}
-	void gen_mcl_fp_addsubPre(bool isAdd)
+	void gen_mcl_mcl_fp_addsubPre(bool isAdd)
 	{
 		resetGlobalIdx();
 		Operand r(Int, unit);
@@ -408,15 +408,15 @@ struct Code : public mcl::Generator {
 		Operand py(IntPtr, unit);
 		std::string name;
 		if (isAdd) {
-			name = "mcl_fp_addPre" + cybozu::itoa(N) + "L" + suf;
-			mcl_fp_addPreM[N] = Function(name, r, pz, px, py);
-			verifyAndSetPrivate(mcl_fp_addPreM[N]);
-			beginFunc(mcl_fp_addPreM[N]);
+			name = "mcl_mcl_fp_addPre" + cybozu::itoa(N) + "L" + suf;
+			mcl_mcl_fp_addPreM[N] = Function(name, r, pz, px, py);
+			verifyAndSetPrivate(mcl_mcl_fp_addPreM[N]);
+			beginFunc(mcl_mcl_fp_addPreM[N]);
 		} else {
-			name = "mcl_fp_subPre" + cybozu::itoa(N) + "L" + suf;
-			mcl_fp_subPreM[N] = Function(name, r, pz, px, py);
-			verifyAndSetPrivate(mcl_fp_subPreM[N]);
-			beginFunc(mcl_fp_subPreM[N]);
+			name = "mcl_mcl_fp_subPre" + cybozu::itoa(N) + "L" + suf;
+			mcl_mcl_fp_subPreM[N] = Function(name, r, pz, px, py);
+			verifyAndSetPrivate(mcl_mcl_fp_subPreM[N]);
+			beginFunc(mcl_mcl_fp_subPreM[N]);
 		}
 		Operand x = zext(loadN(px, N), bit + unit);
 		Operand y = zext(loadN(py, N), bit + unit);
@@ -434,7 +434,7 @@ struct Code : public mcl::Generator {
 		endFunc();
 	}
 #if 0 // void-return version
-	void gen_mcl_fp_addsubPre(bool isAdd)
+	void gen_mcl_mcl_fp_addsubPre(bool isAdd)
 	{
 		resetGlobalIdx();
 		Operand pz(IntPtr, bit);
@@ -442,15 +442,15 @@ struct Code : public mcl::Generator {
 		Operand py(IntPtr, bit);
 		std::string name;
 		if (isAdd) {
-			name = "mcl_fp_addPre" + cybozu::itoa(bit) + "L";
-			mcl_fp_addPreM[bit] = Function(name, Void, pz, px, py);
-			verifyAndSetPrivate(mcl_fp_addPreM[bit]);
-			beginFunc(mcl_fp_addPreM[bit]);
+			name = "mcl_mcl_fp_addPre" + cybozu::itoa(bit) + "L";
+			mcl_mcl_fp_addPreM[bit] = Function(name, Void, pz, px, py);
+			verifyAndSetPrivate(mcl_mcl_fp_addPreM[bit]);
+			beginFunc(mcl_mcl_fp_addPreM[bit]);
 		} else {
-			name = "mcl_fp_subPre" + cybozu::itoa(bit) + "L";
-			mcl_fp_subPreM[bit] = Function(name, Void, pz, px, py);
-			verifyAndSetPrivate(mcl_fp_subPreM[bit]);
-			beginFunc(mcl_fp_subPreM[bit]);
+			name = "mcl_mcl_fp_subPre" + cybozu::itoa(bit) + "L";
+			mcl_mcl_fp_subPreM[bit] = Function(name, Void, pz, px, py);
+			verifyAndSetPrivate(mcl_mcl_fp_subPreM[bit]);
+			beginFunc(mcl_mcl_fp_subPreM[bit]);
 		}
 		Operand x = load(px);
 		Operand y = load(py);
@@ -465,36 +465,36 @@ struct Code : public mcl::Generator {
 		endFunc();
 	}
 #endif
-	void gen_mcl_fp_shr1()
+	void gen_mcl_mcl_fp_shr1()
 	{
 		resetGlobalIdx();
 		Operand py(IntPtr, unit);
 		Operand px(IntPtr, unit);
-		std::string name = "mcl_fp_shr1_" + cybozu::itoa(N) + "L" + suf;
-		mcl_fp_shr1_M[N] = Function(name, Void, py, px);
-		verifyAndSetPrivate(mcl_fp_shr1_M[N]);
-		beginFunc(mcl_fp_shr1_M[N]);
+		std::string name = "mcl_mcl_fp_shr1_" + cybozu::itoa(N) + "L" + suf;
+		mcl_mcl_fp_shr1_M[N] = Function(name, Void, py, px);
+		verifyAndSetPrivate(mcl_mcl_fp_shr1_M[N]);
+		beginFunc(mcl_mcl_fp_shr1_M[N]);
 		Operand x = loadN(px, N);
 		x = lshr(x, 1);
 		storeN(x, py);
 		ret(Void);
 		endFunc();
 	}
-	void gen_mcl_fp_add(bool isFullBit = true)
+	void gen_mcl_mcl_fp_add(bool isFullBit = true)
 	{
 		resetGlobalIdx();
 		Operand pz(IntPtr, unit);
 		Operand px(IntPtr, unit);
 		Operand py(IntPtr, unit);
 		Operand pp(IntPtr, unit);
-		std::string name = "mcl_fp_add";
+		std::string name = "mcl_mcl_fp_add";
 		if (!isFullBit) {
 			name += "NF";
 		}
 		name += cybozu::itoa(N) + "L" + suf;
-		mcl_fp_addM[N] = Function(name, Void, pz, px, py, pp);
-		verifyAndSetPrivate(mcl_fp_addM[N]);
-		beginFunc(mcl_fp_addM[N]);
+		mcl_mcl_fp_addM[N] = Function(name, Void, pz, px, py, pp);
+		verifyAndSetPrivate(mcl_mcl_fp_addM[N]);
+		beginFunc(mcl_mcl_fp_addM[N]);
 		Operand x = loadN(px, N);
 		Operand y = loadN(py, N);
 		if (isFullBit) {
@@ -526,21 +526,21 @@ struct Code : public mcl::Generator {
 		ret(Void);
 		endFunc();
 	}
-	void gen_mcl_fp_sub(bool isFullBit = true)
+	void gen_mcl_mcl_fp_sub(bool isFullBit = true)
 	{
 		resetGlobalIdx();
 		Operand pz(IntPtr, unit);
 		Operand px(IntPtr, unit);
 		Operand py(IntPtr, unit);
 		Operand pp(IntPtr, unit);
-		std::string name = "mcl_fp_sub";
+		std::string name = "mcl_mcl_fp_sub";
 		if (!isFullBit) {
 			name += "NF";
 		}
 		name += cybozu::itoa(N) + "L" + suf;
-		mcl_fp_subM[N] = Function(name, Void, pz, px, py, pp);
-		verifyAndSetPrivate(mcl_fp_subM[N]);
-		beginFunc(mcl_fp_subM[N]);
+		mcl_mcl_fp_subM[N] = Function(name, Void, pz, px, py, pp);
+		verifyAndSetPrivate(mcl_mcl_fp_subM[N]);
+		beginFunc(mcl_mcl_fp_subM[N]);
 		Operand x = loadN(px, N);
 		Operand y = loadN(py, N);
 		if (isFullBit) {
@@ -690,16 +690,16 @@ struct Code : public mcl::Generator {
 		ret(z);
 		endFunc();
 	}
-	void gen_mcl_fp_mulUnitPre()
+	void gen_mcl_mcl_fp_mulUnitPre()
 	{
 		resetGlobalIdx();
 		Operand pz(IntPtr, unit);
 		Operand px(IntPtr, unit);
 		Operand y(Int, unit);
-		std::string name = "mcl_fp_mulUnitPre" + cybozu::itoa(N) + "L" + suf;
-		mcl_fp_mulUnitPreM[N] = Function(name, Void, pz, px, y);
-		verifyAndSetPrivate(mcl_fp_mulUnitPreM[N]);
-		beginFunc(mcl_fp_mulUnitPreM[N]);
+		std::string name = "mcl_mcl_fp_mulUnitPre" + cybozu::itoa(N) + "L" + suf;
+		mcl_mcl_fp_mulUnitPreM[N] = Function(name, Void, pz, px, y);
+		verifyAndSetPrivate(mcl_mcl_fp_mulUnitPreM[N]);
+		beginFunc(mcl_mcl_fp_mulUnitPreM[N]);
 		Operand z = call(mulPvM[bit], px, y);
 		storeN(z, pz);
 		ret(Void);
@@ -810,7 +810,7 @@ struct Code : public mcl::Generator {
 		generic_fpDbl_mul(py, px, px);
 		endFunc();
 	}
-	void gen_mcl_fp_mont(bool isFullBit = true)
+	void gen_mcl_mcl_fp_mont(bool isFullBit = true)
 	{
 		const int bu = bit + unit;
 		const int bu2 = bit + unit * 2;
@@ -819,15 +819,15 @@ struct Code : public mcl::Generator {
 		Operand px(IntPtr, unit);
 		Operand py(IntPtr, unit);
 		Operand pp(IntPtr, unit);
-		std::string name = "mcl_fp_mont";
+		std::string name = "mcl_mcl_fp_mont";
 		if (!isFullBit) {
 			name += "NF";
 		}
 		name += cybozu::itoa(N) + "L" + suf;
-		mcl_fp_montM[N] = Function(name, Void, pz, px, py, pp);
-		mcl_fp_montM[N].setAlias();
-		verifyAndSetPrivate(mcl_fp_montM[N]);
-		beginFunc(mcl_fp_montM[N]);
+		mcl_mcl_fp_montM[N] = Function(name, Void, pz, px, py, pp);
+		mcl_mcl_fp_montM[N].setAlias();
+		verifyAndSetPrivate(mcl_mcl_fp_montM[N]);
+		beginFunc(mcl_mcl_fp_montM[N]);
 		Operand rp = load(getelementptr(pp, -1));
 		Operand z, s, a;
 		if (isFullBit) {
@@ -883,7 +883,7 @@ struct Code : public mcl::Generator {
 		ret(Void);
 		endFunc();
 	}
-	void gen_mcl_fp_montRed()
+	void gen_mcl_mcl_fp_montRed()
 	{
 		const int bu = bit + unit;
 		const int b2 = bit * 2;
@@ -892,10 +892,10 @@ struct Code : public mcl::Generator {
 		Operand pz(IntPtr, unit);
 		Operand pxy(IntPtr, unit);
 		Operand pp(IntPtr, unit);
-		std::string name = "mcl_fp_montRed" + cybozu::itoa(N) + "L" + suf;
-		mcl_fp_montRedM[N] = Function(name, Void, pz, pxy, pp);
-		verifyAndSetPrivate(mcl_fp_montRedM[N]);
-		beginFunc(mcl_fp_montRedM[N]);
+		std::string name = "mcl_mcl_fp_montRed" + cybozu::itoa(N) + "L" + suf;
+		mcl_mcl_fp_montRedM[N] = Function(name, Void, pz, pxy, pp);
+		verifyAndSetPrivate(mcl_mcl_fp_montRedM[N]);
+		beginFunc(mcl_mcl_fp_montRedM[N]);
 		Operand rp = load(getelementptr(pp, -1));
 		Operand p = loadN(pp, N);
 		Operand xy = loadN(pxy, N * 2);
@@ -920,28 +920,28 @@ struct Code : public mcl::Generator {
 	}
 	void gen_all()
 	{
-		gen_mcl_fp_addsubPre(true);
-		gen_mcl_fp_addsubPre(false);
-		gen_mcl_fp_shr1();
+		gen_mcl_mcl_fp_addsubPre(true);
+		gen_mcl_mcl_fp_addsubPre(false);
+		gen_mcl_mcl_fp_shr1();
 	}
 	void gen_addsub()
 	{
-		gen_mcl_fp_add(true);
-		gen_mcl_fp_add(false);
-		gen_mcl_fp_sub(true);
-		gen_mcl_fp_sub(false);
+		gen_mcl_mcl_fp_add(true);
+		gen_mcl_mcl_fp_add(false);
+		gen_mcl_mcl_fp_sub(true);
+		gen_mcl_mcl_fp_sub(false);
 		gen_mcl_fpDbl_add();
 		gen_mcl_fpDbl_sub();
 	}
 	void gen_mul()
 	{
 		gen_mulPv();
-		gen_mcl_fp_mulUnitPre();
+		gen_mcl_mcl_fp_mulUnitPre();
 		gen_mcl_fpDbl_mulPre();
 		gen_mcl_fpDbl_sqrPre();
-		gen_mcl_fp_mont(true);
-		gen_mcl_fp_mont(false);
-		gen_mcl_fp_montRed();
+		gen_mcl_mcl_fp_mont(true);
+		gen_mcl_mcl_fp_mont(false);
+		gen_mcl_mcl_fp_montRed();
 	}
 	void setBit(uint32_t bit)
 	{

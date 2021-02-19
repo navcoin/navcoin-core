@@ -52,15 +52,15 @@ void setStaticCode(mcl::fp::Op& op)
 {
 	if (op.xi_a) {
 		// Fp, sizeof(Fp) = 48, supports Fp2
-		op.fp_addPre = mclx_Fp_addPre;
-		op.fp_subPre = mclx_Fp_subPre;
-		op.fp_addA_ = mclx_Fp_add;
-		op.fp_subA_ = mclx_Fp_sub;
-		op.fp_shr1 = mclx_Fp_shr1;
-		op.fp_negA_ = mclx_Fp_neg;
+		op.mcl_fp_addPre = mclx_Fp_addPre;
+		op.mcl_fp_subPre = mclx_Fp_subPre;
+		op.mcl_fp_addA_ = mclx_Fp_add;
+		op.mcl_fp_subA_ = mclx_Fp_sub;
+		op.mcl_fp_shr1 = mclx_Fp_shr1;
+		op.mcl_fp_negA_ = mclx_Fp_neg;
 		op.fpDbl_modA_ = mclx_FpDbl_mod;
-		op.fp_mulA_ = mclx_Fp_mul;
-		op.fp_sqrA_ = mclx_Fp_sqr;
+		op.mcl_fp_mulA_ = mclx_Fp_mul;
+		op.mcl_fp_sqrA_ = mclx_Fp_sqr;
 		op.fpDbl_addA_ = mclx_FpDbl_add;
 		op.fpDbl_subA_ = mclx_FpDbl_sub;
 		op.fpDbl_addPre = mclx_FpDbl_addPre;
@@ -74,20 +74,20 @@ void setStaticCode(mcl::fp::Op& op)
 		op.fp2_mulA_ = mclx_Fp2_mul;
 		op.fp2_sqrA_ = mclx_Fp2_sqr;
 		op.fp2_mul_xiA_ = mclx_Fp2_mul_xi;
-		op.fp_preInv = mclx_Fp_preInv;
+		op.mcl_fp_preInv = mclx_Fp_preInv;
 	} else {
 		// Fr, sizeof(Fr) = 32
-		op.fp_addPre = mclx_Fr_addPre;
-		op.fp_subPre = mclx_Fr_subPre;
-		op.fp_addA_ = mclx_Fr_add;
-		op.fp_subA_ = mclx_Fr_sub;
-		op.fp_shr1 = mclx_Fr_shr1;
-		op.fp_negA_ = mclx_Fr_neg;
-		op.fp_mulA_ = mclx_Fr_mul;
-		op.fp_sqrA_ = mclx_Fr_sqr;
-		op.fp_preInv = mclx_Fr_preInv;
+		op.mcl_fp_addPre = mclx_Fr_addPre;
+		op.mcl_fp_subPre = mclx_Fr_subPre;
+		op.mcl_fp_addA_ = mclx_Fr_add;
+		op.mcl_fp_subA_ = mclx_Fr_sub;
+		op.mcl_fp_shr1 = mclx_Fr_shr1;
+		op.mcl_fp_negA_ = mclx_Fr_neg;
+		op.mcl_fp_mulA_ = mclx_Fr_mul;
+		op.mcl_fp_sqrA_ = mclx_Fr_sqr;
+		op.mcl_fp_preInv = mclx_Fr_preInv;
 	}
-	op.fp_mul = fp::func_ptr_cast<void4u>(op.fp_mulA_);
+	op.mcl_fp_mul = fp::func_ptr_cast<void4u>(op.mcl_fp_mulA_);
 }
 
 } } // mcl::fp

@@ -880,13 +880,13 @@ inline void mcl_fpDbl_mod_SECP256K1(Unit *z, const Unit *x, const Unit *p)
 	}
 }
 
-inline void mcl_fp_mul_SECP256K1(Unit *z, const Unit *x, const Unit *y, const Unit *p)
+inline void mcl_mcl_fp_mul_SECP256K1(Unit *z, const Unit *x, const Unit *y, const Unit *p)
 {
 	Unit xy[8];
 	mulNM(xy, x, 4, y, 4);
 	mcl_fpDbl_mod_SECP256K1(z, xy, p);
 }
-inline void mcl_fp_sqr_SECP256K1(Unit *y, const Unit *x, const Unit *p)
+inline void mcl_mcl_fp_sqr_SECP256K1(Unit *y, const Unit *x, const Unit *p)
 {
 	Unit xx[8];
 	sqrN(xx, x, 4);

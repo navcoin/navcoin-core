@@ -5,7 +5,7 @@
 #include <cybozu/itoa.hpp>
 #include <mcl/fp.hpp>
 #include "../src/xbyak/xbyak_util.h"
-#include "../src/fp_generator.hpp"
+#include "../src/mcl_fp_generator.hpp"
 #include <iostream>
 #include <cybozu/xorshift.hpp>
 #include <cybozu/benchmark.hpp>
@@ -103,17 +103,17 @@ void testAddSub(const mcl::fp::Op& op)
 	for (int i = 0; i < 30; i++) {
 		CYBOZU_TEST_EQUAL(mx, x);
 		x += x;
-		op.fp_add(mx.v, mx.v, mx.v, p);
+		op.mcl_fp_add(mx.v, mx.v, mx.v, p);
 	}
 	for (int i = 0; i < 30; i++) {
 		CYBOZU_TEST_EQUAL(mx, x);
 		x += y;
-		op.fp_add(mx.v, mx.v, my.v, p);
+		op.mcl_fp_add(mx.v, mx.v, my.v, p);
 	}
 	for (int i = 0; i < 30; i++) {
 		CYBOZU_TEST_EQUAL(my, y);
 		y -= x;
-		op.fp_sub(my.v, my.v, mx.v, p);
+		op.mcl_fp_sub(my.v, my.v, mx.v, p);
 	}
 }
 
@@ -131,7 +131,7 @@ void testNeg(const mcl::fp::Op& op)
 		x.setStr(tbl[i]);
 		mx.set(x);
 		x = -x;
-		op.fp_neg(mx.v, mx.v, op.p);
+		op.mcl_fp_neg(mx.v, mx.v, op.p);
 		CYBOZU_TEST_EQUAL(mx, x);
 	}
 }
@@ -176,7 +176,7 @@ void testShr1(const mcl::fp::Op& op, int pn)
 		mpz_class mx;
 		mcl::gmp::setArray(mx, x, pn);
 		mx >>= 1;
-		op.fp_shr1(z, x);
+		op.mcl_fp_shr1(z, x);
 		mpz_class my;
 		mcl::gmp::setArray(my, z, pn);
 		CYBOZU_TEST_EQUAL(mx, my);

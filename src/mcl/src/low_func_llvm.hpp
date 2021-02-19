@@ -26,18 +26,18 @@ template<>const void2u SqrPreCore<n, tag>::f = &mcl_fpDbl_sqrPre ## n ## suf;
 #endif
 
 #define MCL_DEF_LLVM_FUNC2(n, tag, suf) \
-template<>const u3u AddPre<n, tag>::f = &mcl_fp_addPre ## n ## suf; \
-template<>const u3u SubPre<n, tag>::f = &mcl_fp_subPre ## n ## suf; \
-template<>const void2u Shr1<n, tag>::f = &mcl_fp_shr1_ ## n ## suf; \
+template<>const u3u AddPre<n, tag>::f = &mcl_mcl_fp_addPre ## n ## suf; \
+template<>const u3u SubPre<n, tag>::f = &mcl_mcl_fp_subPre ## n ## suf; \
+template<>const void2u Shr1<n, tag>::f = &mcl_mcl_fp_shr1_ ## n ## suf; \
 MCL_DEF_MUL(n, tag, suf) \
-template<>const void2uI MulUnitPre<n, tag>::f = &mcl_fp_mulUnitPre ## n ## suf; \
-template<>const void4u Add<n, true, tag>::f = &mcl_fp_add ## n ## suf; \
-template<>const void4u Add<n, false, tag>::f = &mcl_fp_addNF ## n ## suf; \
-template<>const void4u Sub<n, true, tag>::f = &mcl_fp_sub ## n ## suf; \
-template<>const void4u Sub<n, false, tag>::f = &mcl_fp_subNF ## n ## suf; \
-template<>const void4u Mont<n, true, tag>::f = &mcl_fp_mont ## n ## suf; \
-template<>const void4u Mont<n, false, tag>::f = &mcl_fp_montNF ## n ## suf; \
-template<>const void3u MontRed<n, tag>::f = &mcl_fp_montRed ## n ## suf; \
+template<>const void2uI MulUnitPre<n, tag>::f = &mcl_mcl_fp_mulUnitPre ## n ## suf; \
+template<>const void4u Add<n, true, tag>::f = &mcl_mcl_fp_add ## n ## suf; \
+template<>const void4u Add<n, false, tag>::f = &mcl_mcl_fp_addNF ## n ## suf; \
+template<>const void4u Sub<n, true, tag>::f = &mcl_mcl_fp_sub ## n ## suf; \
+template<>const void4u Sub<n, false, tag>::f = &mcl_mcl_fp_subNF ## n ## suf; \
+template<>const void4u Mont<n, true, tag>::f = &mcl_mcl_fp_mont ## n ## suf; \
+template<>const void4u Mont<n, false, tag>::f = &mcl_mcl_fp_montNF ## n ## suf; \
+template<>const void3u MontRed<n, tag>::f = &mcl_mcl_fp_montRed ## n ## suf; \
 template<>const void4u DblAdd<n, tag>::f = &mcl_fpDbl_add ## n ## suf; \
 template<>const void4u DblSub<n, tag>::f = &mcl_fpDbl_sub ## n ## suf; \
 
@@ -82,8 +82,8 @@ MCL_DEF_LLVM_FUNC(15)
 MCL_DEF_LLVM_FUNC(16)
 #else
 /// QQQ : check speed
-template<>const void3u MontRed<16, Ltag>::f = &mcl_fp_montRed16L;
-template<>const void3u MontRed<16, LBMI2tag>::f = &mcl_fp_montRed16Lbmi2;
+template<>const void3u MontRed<16, Ltag>::f = &mcl_mcl_fp_montRed16L;
+template<>const void3u MontRed<16, LBMI2tag>::f = &mcl_mcl_fp_montRed16Lbmi2;
 #endif
 #endif
 #if MCL_MAX_UNIT_SIZE >= 17

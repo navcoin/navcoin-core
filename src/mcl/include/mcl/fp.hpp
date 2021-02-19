@@ -153,15 +153,15 @@ public:
 		ioMode_ = 0;
 		isETHserialization_ = false;
 #ifdef MCL_XBYAK_DIRECT_CALL
-		add = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.fp_addA_);
+		add = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.mcl_fp_addA_);
 		if (add == 0) add = addC;
-		sub = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.fp_subA_);
+		sub = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.mcl_fp_subA_);
 		if (sub == 0) sub = subC;
-		neg = fp::func_ptr_cast<void (*)(FpT& y, const FpT& x)>(op_.fp_negA_);
+		neg = fp::func_ptr_cast<void (*)(FpT& y, const FpT& x)>(op_.mcl_fp_negA_);
 		if (neg == 0) neg = negC;
-		mul = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.fp_mulA_);
+		mul = fp::func_ptr_cast<void (*)(FpT& z, const FpT& x, const FpT& y)>(op_.mcl_fp_mulA_);
 		if (mul == 0) mul = mulC;
-		sqr = fp::func_ptr_cast<void (*)(FpT& y, const FpT& x)>(op_.fp_sqrA_);
+		sqr = fp::func_ptr_cast<void (*)(FpT& y, const FpT& x)>(op_.mcl_fp_sqrA_);
 		if (sqr == 0) sqr = sqrC;
 #endif
 		*pb = true;
@@ -211,22 +211,22 @@ public:
 	FpT() {}
 	FpT(const FpT& x)
 	{
-		op_.fp_copy(v_, x.v_);
+		op_.mcl_fp_copy(v_, x.v_);
 	}
 	FpT& operator=(const FpT& x)
 	{
-		op_.fp_copy(v_, x.v_);
+		op_.mcl_fp_copy(v_, x.v_);
 		return *this;
 	}
 	void clear()
 	{
-		op_.fp_clear(v_);
+		op_.mcl_fp_clear(v_);
 	}
 	FpT(int64_t x) { operator=(x); }
 	FpT& operator=(int64_t x)
 	{
 		if (x == 1) {
-			op_.fp_copy(v_, op_.oneRep);
+			op_.mcl_fp_copy(v_, op_.oneRep);
 		} else {
 			clear();
 			if (x) {
@@ -486,39 +486,39 @@ public:
 	}
 #ifdef MCL_XBYAK_DIRECT_CALL
 	static void (*add)(FpT& z, const FpT& x, const FpT& y);
-	static inline void addC(FpT& z, const FpT& x, const FpT& y) { op_.fp_add(z.v_, x.v_, y.v_, op_.p); }
+	static inline void addC(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_add(z.v_, x.v_, y.v_, op_.p); }
 	static void (*sub)(FpT& z, const FpT& x, const FpT& y);
-	static inline void subC(FpT& z, const FpT& x, const FpT& y) { op_.fp_sub(z.v_, x.v_, y.v_, op_.p); }
+	static inline void subC(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_sub(z.v_, x.v_, y.v_, op_.p); }
 	static void (*neg)(FpT& y, const FpT& x);
-	static inline void negC(FpT& y, const FpT& x) { op_.fp_neg(y.v_, x.v_, op_.p); }
+	static inline void negC(FpT& y, const FpT& x) { op_.mcl_fp_neg(y.v_, x.v_, op_.p); }
 	static void (*mul)(FpT& z, const FpT& x, const FpT& y);
-	static inline void mulC(FpT& z, const FpT& x, const FpT& y) { op_.fp_mul(z.v_, x.v_, y.v_, op_.p); }
+	static inline void mulC(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_mul(z.v_, x.v_, y.v_, op_.p); }
 	static void (*sqr)(FpT& y, const FpT& x);
-	static inline void sqrC(FpT& y, const FpT& x) { op_.fp_sqr(y.v_, x.v_, op_.p); }
+	static inline void sqrC(FpT& y, const FpT& x) { op_.mcl_fp_sqr(y.v_, x.v_, op_.p); }
 #else
-	static inline void add(FpT& z, const FpT& x, const FpT& y) { op_.fp_add(z.v_, x.v_, y.v_, op_.p); }
-	static inline void sub(FpT& z, const FpT& x, const FpT& y) { op_.fp_sub(z.v_, x.v_, y.v_, op_.p); }
-	static inline void neg(FpT& y, const FpT& x) { op_.fp_neg(y.v_, x.v_, op_.p); }
-	static inline void mul(FpT& z, const FpT& x, const FpT& y) { op_.fp_mul(z.v_, x.v_, y.v_, op_.p); }
-	static inline void sqr(FpT& y, const FpT& x) { op_.fp_sqr(y.v_, x.v_, op_.p); }
+	static inline void add(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_add(z.v_, x.v_, y.v_, op_.p); }
+	static inline void sub(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_sub(z.v_, x.v_, y.v_, op_.p); }
+	static inline void neg(FpT& y, const FpT& x) { op_.mcl_fp_neg(y.v_, x.v_, op_.p); }
+	static inline void mul(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_mul(z.v_, x.v_, y.v_, op_.p); }
+	static inline void sqr(FpT& y, const FpT& x) { op_.mcl_fp_sqr(y.v_, x.v_, op_.p); }
 #endif
-	static inline void addPre(FpT& z, const FpT& x, const FpT& y) { op_.fp_addPre(z.v_, x.v_, y.v_); }
-	static inline void subPre(FpT& z, const FpT& x, const FpT& y) { op_.fp_subPre(z.v_, x.v_, y.v_); }
+	static inline void addPre(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_addPre(z.v_, x.v_, y.v_); }
+	static inline void subPre(FpT& z, const FpT& x, const FpT& y) { op_.mcl_fp_subPre(z.v_, x.v_, y.v_); }
 	static inline void mulUnit(FpT& z, const FpT& x, const Unit y)
 	{
 		if (mulSmallUnit(z, x, y)) return;
-		op_.fp_mulUnit(z.v_, x.v_, y, op_.p);
+		op_.mcl_fp_mulUnit(z.v_, x.v_, y, op_.p);
 	}
-	static inline void inv(FpT& y, const FpT& x) { op_.fp_invOp(y.v_, x.v_, op_); }
+	static inline void inv(FpT& y, const FpT& x) { op_.mcl_fp_invOp(y.v_, x.v_, op_); }
 	static inline void divBy2(FpT& y, const FpT& x)
 	{
 #if 0
 		mul(y, x, inv2_);
 #else
 		bool odd = (x.v_[0] & 1) != 0;
-		op_.fp_shr1(y.v_, x.v_);
+		op_.mcl_fp_shr1(y.v_, x.v_);
 		if (odd) {
-			op_.fp_addPre(y.v_, y.v_, op_.half);
+			op_.mcl_fp_addPre(y.v_, y.v_, op_.half);
 		}
 #endif
 	}
@@ -527,7 +527,7 @@ public:
 		divBy2(y, x); // QQQ : optimize later
 		divBy2(y, y);
 	}
-	bool isZero() const { return op_.fp_isZero(v_); }
+	bool isZero() const { return op_.mcl_fp_isZero(v_); }
 	bool isOne() const { return fp::isEqualArray(v_, op_.oneRep, op_.N); }
 	static const inline FpT& one() { return *reinterpret_cast<const FpT*>(op_.oneRep); }
 	/*

@@ -690,7 +690,7 @@ void testFpToG1(const T& mapto)
 		const char *in;
 		const char *out;
 	} tbl[] = {
-		// https://github.com/matter-labs/eip1962/blob/master/src/test/test_vectors/eip2537/fp_to_g1.csv
+		// https://github.com/matter-labs/eip1962/blob/master/src/test/test_vectors/eip2537/mcl_fp_to_g1.csv
 		{
 			"0000000000000000000000000000000014406e5bfb9209256a3820879a29ac2f62d6aca82324bf3ae2aa7d3c54792043bd8c791fccdb080c1a52dc68b8b69350",
 			"000000000000000000000000000000000d7721bcdb7ce1047557776eb2659a444166dc6dd55c7ca6e240e21ae9aa18f529f04ac31d861b54faf3307692545db700000000000000000000000000000000108286acbdf4384f67659a8abe89e712a504cb3ce1cba07a716869025d60d499a00d1da8cdc92958918c222ea93d87f0",

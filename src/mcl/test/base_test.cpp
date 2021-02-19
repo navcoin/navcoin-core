@@ -8,7 +8,7 @@
 #include <mcl/conversion.hpp>
 #include <mcl/fp.hpp>
 
-#include "../src/fp_generator.hpp"
+#include "../src/mcl_fp_generator.hpp"
 #if (CYBOZU_HOST == CYBOZU_HOST_INTEL) && (MCL_SIZEOF_UNIT == 8)
 	#define USE_XBYAK
 	static mcl::FpGenerator fg;
@@ -207,23 +207,23 @@ const struct FuncOp {
 	void3op mulPre;
 	void4Iop mont;
 } gFuncOpTbl[] = {
-	{ 128, mcl_fp_add128S, mcl_fp_add128L, mcl_fp_sub128S, mcl_fp_sub128L, mcl_fp_mul128pre, mcl_fp_mont128 },
-	{ 192, mcl_fp_add192S, mcl_fp_add192L, mcl_fp_sub192S, mcl_fp_sub192L, mcl_fp_mul192pre, mcl_fp_mont192 },
-	{ 256, mcl_fp_add256S, mcl_fp_add256L, mcl_fp_sub256S, mcl_fp_sub256L, mcl_fp_mul256pre, mcl_fp_mont256 },
-	{ 320, mcl_fp_add320S, mcl_fp_add320L, mcl_fp_sub320S, mcl_fp_sub320L, mcl_fp_mul320pre, mcl_fp_mont320 },
-	{ 384, mcl_fp_add384S, mcl_fp_add384L, mcl_fp_sub384S, mcl_fp_sub384L, mcl_fp_mul384pre, mcl_fp_mont384 },
-	{ 448, mcl_fp_add448S, mcl_fp_add448L, mcl_fp_sub448S, mcl_fp_sub448L, mcl_fp_mul448pre, mcl_fp_mont448 },
-	{ 512, mcl_fp_add512S, mcl_fp_add512L, mcl_fp_sub512S, mcl_fp_sub512L, mcl_fp_mul512pre, mcl_fp_mont512 },
+	{ 128, mcl_mcl_fp_add128S, mcl_mcl_fp_add128L, mcl_mcl_fp_sub128S, mcl_mcl_fp_sub128L, mcl_mcl_fp_mul128pre, mcl_mcl_fp_mont128 },
+	{ 192, mcl_mcl_fp_add192S, mcl_mcl_fp_add192L, mcl_mcl_fp_sub192S, mcl_mcl_fp_sub192L, mcl_mcl_fp_mul192pre, mcl_mcl_fp_mont192 },
+	{ 256, mcl_mcl_fp_add256S, mcl_mcl_fp_add256L, mcl_mcl_fp_sub256S, mcl_mcl_fp_sub256L, mcl_mcl_fp_mul256pre, mcl_mcl_fp_mont256 },
+	{ 320, mcl_mcl_fp_add320S, mcl_mcl_fp_add320L, mcl_mcl_fp_sub320S, mcl_mcl_fp_sub320L, mcl_mcl_fp_mul320pre, mcl_mcl_fp_mont320 },
+	{ 384, mcl_mcl_fp_add384S, mcl_mcl_fp_add384L, mcl_mcl_fp_sub384S, mcl_mcl_fp_sub384L, mcl_mcl_fp_mul384pre, mcl_mcl_fp_mont384 },
+	{ 448, mcl_mcl_fp_add448S, mcl_mcl_fp_add448L, mcl_mcl_fp_sub448S, mcl_mcl_fp_sub448L, mcl_mcl_fp_mul448pre, mcl_mcl_fp_mont448 },
+	{ 512, mcl_mcl_fp_add512S, mcl_mcl_fp_add512L, mcl_mcl_fp_sub512S, mcl_mcl_fp_sub512L, mcl_mcl_fp_mul512pre, mcl_mcl_fp_mont512 },
 #if MCL_SIZEOF_UNIT == 4
-	{ 160, mcl_fp_add160S, mcl_fp_add160L, mcl_fp_sub160S, mcl_fp_sub160L, mcl_fp_mul160pre, mcl_fp_mont160 },
-	{ 224, mcl_fp_add224S, mcl_fp_add224L, mcl_fp_sub224S, mcl_fp_sub224L, mcl_fp_mul224pre, mcl_fp_mont224 },
-	{ 288, mcl_fp_add288S, mcl_fp_add288L, mcl_fp_sub288S, mcl_fp_sub288L, mcl_fp_mul288pre, mcl_fp_mont288 },
-	{ 352, mcl_fp_add352S, mcl_fp_add352L, mcl_fp_sub352S, mcl_fp_sub352L, mcl_fp_mul352pre, mcl_fp_mont352 },
-	{ 416, mcl_fp_add416S, mcl_fp_add416L, mcl_fp_sub416S, mcl_fp_sub416L, mcl_fp_mul416pre, mcl_fp_mont416 },
-	{ 480, mcl_fp_add480S, mcl_fp_add480L, mcl_fp_sub480S, mcl_fp_sub480L, mcl_fp_mul480pre, mcl_fp_mont480 },
-	{ 544, mcl_fp_add544S, mcl_fp_add544L, mcl_fp_sub544S, mcl_fp_sub544L, mcl_fp_mul544pre, mcl_fp_mont544 },
+	{ 160, mcl_mcl_fp_add160S, mcl_mcl_fp_add160L, mcl_mcl_fp_sub160S, mcl_mcl_fp_sub160L, mcl_mcl_fp_mul160pre, mcl_mcl_fp_mont160 },
+	{ 224, mcl_mcl_fp_add224S, mcl_mcl_fp_add224L, mcl_mcl_fp_sub224S, mcl_mcl_fp_sub224L, mcl_mcl_fp_mul224pre, mcl_mcl_fp_mont224 },
+	{ 288, mcl_mcl_fp_add288S, mcl_mcl_fp_add288L, mcl_mcl_fp_sub288S, mcl_mcl_fp_sub288L, mcl_mcl_fp_mul288pre, mcl_mcl_fp_mont288 },
+	{ 352, mcl_mcl_fp_add352S, mcl_mcl_fp_add352L, mcl_mcl_fp_sub352S, mcl_mcl_fp_sub352L, mcl_mcl_fp_mul352pre, mcl_mcl_fp_mont352 },
+	{ 416, mcl_mcl_fp_add416S, mcl_mcl_fp_add416L, mcl_mcl_fp_sub416S, mcl_mcl_fp_sub416L, mcl_mcl_fp_mul416pre, mcl_mcl_fp_mont416 },
+	{ 480, mcl_mcl_fp_add480S, mcl_mcl_fp_add480L, mcl_mcl_fp_sub480S, mcl_mcl_fp_sub480L, mcl_mcl_fp_mul480pre, mcl_mcl_fp_mont480 },
+	{ 544, mcl_mcl_fp_add544S, mcl_mcl_fp_add544L, mcl_mcl_fp_sub544S, mcl_mcl_fp_sub544L, mcl_mcl_fp_mul544pre, mcl_mcl_fp_mont544 },
 #else
-	{ 576, mcl_fp_add576S, mcl_fp_add576L, mcl_fp_sub576S, mcl_fp_sub576L, mcl_fp_mul576pre, mcl_fp_mont576 },
+	{ 576, mcl_mcl_fp_add576S, mcl_mcl_fp_add576L, mcl_mcl_fp_sub576S, mcl_mcl_fp_sub576L, mcl_mcl_fp_mul576pre, mcl_mcl_fp_mont576 },
 #endif
 };
 

@@ -209,7 +209,7 @@ static inline void set_mpz_t(mpz_t& z, const Unit* p, int n)
 /*
 	y = (1/x) mod op.p
 */
-static inline void fp_invOpC(Unit *y, const Unit *x, const Op& op)
+static inline void mcl_fp_invOpC(Unit *y, const Unit *x, const Op& op)
 {
 	const int N = (int)op.N;
 	bool b = false;
@@ -236,10 +236,10 @@ static inline void fp_invOpC(Unit *y, const Unit *x, const Op& op)
 /*
 	inv(xR) = (1/x)R^-1 -toMont-> 1/x -toMont-> (1/x)R
 */
-static void fp_invMontOpC(Unit *y, const Unit *x, const Op& op)
+static void mcl_fp_invMontOpC(Unit *y, const Unit *x, const Op& op)
 {
-	fp_invOpC(y, x, op);
-	op.fp_mul(y, y, op.R3, op.p);
+	mcl_fp_invOpC(y, x, op);
+	op.mcl_fp_mul(y, y, op.R3, op.p);
 }
 
 /*
@@ -264,40 +264,40 @@ struct SetFpDbl<N, true> {
 template<size_t N, class Tag, bool enableFpDbl, bool gmpIsFasterThanLLVM>
 void setOp2(Op& op)
 {
-	op.fp_shr1 = Shr1<N, Tag>::f;
-	op.fp_neg = Neg<N, Tag>::f;
+	op.mcl_fp_shr1 = Shr1<N, Tag>::f;
+	op.mcl_fp_neg = Neg<N, Tag>::f;
 	if (op.isFullBit) {
-		op.fp_add = Add<N, true, Tag>::f;
-		op.fp_sub = Sub<N, true, Tag>::f;
+		op.mcl_fp_add = Add<N, true, Tag>::f;
+		op.mcl_fp_sub = Sub<N, true, Tag>::f;
 	} else {
-		op.fp_add = Add<N, false, Tag>::f;
-		op.fp_sub = Sub<N, false, Tag>::f;
+		op.mcl_fp_add = Add<N, false, Tag>::f;
+		op.mcl_fp_sub = Sub<N, false, Tag>::f;
 	}
 	if (op.isMont) {
 		if (op.isFullBit) {
-			op.fp_mul = Mont<N, true, Tag>::f;
-			op.fp_sqr = SqrMont<N, true, Tag>::f;
+			op.mcl_fp_mul = Mont<N, true, Tag>::f;
+			op.mcl_fp_sqr = SqrMont<N, true, Tag>::f;
 		} else {
-			op.fp_mul = Mont<N, false, Tag>::f;
-			op.fp_sqr = SqrMont<N, false, Tag>::f;
+			op.mcl_fp_mul = Mont<N, false, Tag>::f;
+			op.mcl_fp_sqr = SqrMont<N, false, Tag>::f;
 		}
 		op.fpDbl_mod = MontRed<N, Tag>::f;
 	} else {
-		op.fp_mul = Mul<N, Tag>::f;
-		op.fp_sqr = Sqr<N, Tag>::f;
+		op.mcl_fp_mul = Mul<N, Tag>::f;
+		op.mcl_fp_sqr = Sqr<N, Tag>::f;
 		op.fpDbl_mod = Dbl_Mod<N, Tag>::f;
 	}
-	op.fp_mulUnit = MulUnit<N, Tag>::f;
+	op.mcl_fp_mulUnit = MulUnit<N, Tag>::f;
 	if (!gmpIsFasterThanLLVM) {
 		op.fpDbl_mulPre = MulPre<N, Tag>::f;
 		op.fpDbl_sqrPre = SqrPre<N, Tag>::f;
 	}
-	op.fp_mulUnitPre = MulUnitPre<N, Tag>::f;
+	op.mcl_fp_mulUnitPre = MulUnitPre<N, Tag>::f;
 	op.fpN1_mod = N1_Mod<N, Tag>::f;
 	op.fpDbl_add = DblAdd<N, Tag>::f;
 	op.fpDbl_sub = DblSub<N, Tag>::f;
-	op.fp_addPre = AddPre<N, Tag>::f;
-	op.fp_subPre = SubPre<N, Tag>::f;
+	op.mcl_fp_addPre = AddPre<N, Tag>::f;
+	op.mcl_fp_subPre = SubPre<N, Tag>::f;
 	op.fp2_mulNF = Fp2MulNF<N, Tag>::f;
 	SetFpDbl<N, enableFpDbl>::exec(op);
 }
@@ -306,13 +306,13 @@ template<size_t N>
 void setOp(Op& op, Mode mode)
 {
 	// generic setup
-	op.fp_isZero = isZeroC<N>;
-	op.fp_clear = clearC<N>;
-	op.fp_copy = copyC<N>;
+	op.mcl_fp_isZero = isZeroC<N>;
+	op.mcl_fp_clear = clearC<N>;
+	op.mcl_fp_copy = copyC<N>;
 	if (op.isMont) {
-		op.fp_invOp = fp_invMontOpC;
+		op.mcl_fp_invOp = mcl_fp_invMontOpC;
 	} else {
-		op.fp_invOp = fp_invOpC;
+		op.mcl_fp_invOp = mcl_fp_invOpC;
 	}
 	setOp2<N, Gtag, true, false>(op);
 #ifdef MCL_USE_LLVM
@@ -336,14 +336,14 @@ void setOp(Op& op, Mode mode)
 inline void invOpForMontC(Unit *y, const Unit *x, const Op& op)
 {
 	Unit r[maxUnitSize];
-	int k = op.fp_preInv(r, x);
+	int k = op.mcl_fp_preInv(r, x);
 	/*
 		S = UnitBitSize
 		xr = 2^k
 		R = 2^(N * S)
 		get r2^(-k)R^2 = r 2^(N * S * 2 - k)
 	*/
-	op.fp_mul(y, r, op.invTbl.data() + k * op.N, op.p);
+	op.mcl_fp_mul(y, r, op.invTbl.data() + k * op.N, op.p);
 }
 
 static void initInvTbl(Op& op)
@@ -357,7 +357,7 @@ static void initInvTbl(Op& op)
 	t[0] = 2;
 	op.toMont(tbl, t);
 	for (size_t i = 0; i < invTblN - 1; i++) {
-		op.fp_add(tbl - N, tbl, tbl, p);
+		op.mcl_fp_add(tbl - N, tbl, tbl, p);
 		tbl -= N;
 	}
 }
@@ -405,7 +405,7 @@ static bool initForMont(Op& op, const Unit *p, Mode mode)
 	const int maxInvN = 4;
 #endif
 	if (enableInv && op.isMont && N <= maxInvN) {
-		op.fp_invOp = &invOpForMontC;
+		op.mcl_fp_invOp = &invOpForMontC;
 		initInvTbl(op);
 	}
 #endif // MCL_X64_ASM
@@ -418,14 +418,14 @@ void setWasmOp(Op& op)
 {
 	if (!(op.isMont && !op.isFullBit)) return;
 //EM_ASM({console.log($0)}, N);
-//	op.fp_addPre = mcl::addT<N>;
-//	op.fp_subPre = mcl::subT<N>;
+//	op.mcl_fp_addPre = mcl::addT<N>;
+//	op.mcl_fp_subPre = mcl::subT<N>;
 //	op.fpDbl_addPre = mcl::addT<N * 2>;
 //	op.fpDbl_subPre = mcl::subT<N * 2>;
-	op.fp_add = mcl::addModT<N>;
-	op.fp_sub = mcl::subModT<N>;
-	op.fp_mul = mcl::mulMontT<N>;
-	op.fp_sqr = mcl::sqrMontT<N>;
+	op.mcl_fp_add = mcl::addModT<N>;
+	op.mcl_fp_sub = mcl::subModT<N>;
+	op.mcl_fp_mul = mcl::mulMontT<N>;
+	op.mcl_fp_sqr = mcl::sqrMontT<N>;
 	op.fpDbl_mulPre = mulT<N>;
 //	op.fpDbl_sqrPre = sqrT<N>;
 	op.fpDbl_mod = modT<N>;
@@ -581,8 +581,8 @@ bool Op::init(const mpz_class& _p, size_t maxBitSize, int _xi_a, Mode mode, size
 #endif
 #ifdef MCL_USE_LLVM
 	if (primeMode == PM_NIST_P192) {
-		fp_mul = &mcl_fp_mulNIST_P192L;
-		fp_sqr = &mcl_fp_sqr_NIST_P192L;
+		mcl_fp_mul = &mcl_mcl_fp_mulNIST_P192L;
+		mcl_fp_sqr = &mcl_mcl_fp_sqr_NIST_P192L;
 		fpDbl_mod = &mcl_fpDbl_mod_NIST_P192L;
 	}
 	if (primeMode == PM_NIST_P521) {
@@ -591,8 +591,8 @@ bool Op::init(const mpz_class& _p, size_t maxBitSize, int _xi_a, Mode mode, size
 #endif
 #if defined(MCL_USE_VINT) && MCL_SIZEOF_UNIT == 8
 	if (primeMode == PM_SECP256K1) {
-		fp_mul = &mcl::vint::mcl_fp_mul_SECP256K1;
-		fp_sqr = &mcl::vint::mcl_fp_sqr_SECP256K1;
+		mcl_fp_mul = &mcl::vint::mcl_mcl_fp_mul_SECP256K1;
+		mcl_fp_sqr = &mcl::vint::mcl_mcl_fp_sqr_SECP256K1;
 		fpDbl_mod = &mcl::vint::mcl_fpDbl_mod_SECP256K1;
 	}
 #endif
@@ -700,7 +700,7 @@ bool copyAndMask(Unit *y, const void *x, size_t xByteSize, const Op& op, MaskMod
 			break;
 		case mcl::fp::MaskAndMod:
 		default:
-			op.fp_subPre(y, y, op.p);
+			op.mcl_fp_subPre(y, y, op.p);
 			break;
 		}
 	}
@@ -743,7 +743,7 @@ int64_t getInt64(bool *pb, fp::Block& b, const fp::Op& op)
 {
 	bool isNegative = false;
 	if (fp::isGreaterOrEqualArray(b.p, op.half, op.N)) {
-		op.fp_neg(b.v_, b.p, op.p);
+		op.mcl_fp_neg(b.v_, b.p, op.p);
 		b.p = b.v_;
 		isNegative = true;
 	}

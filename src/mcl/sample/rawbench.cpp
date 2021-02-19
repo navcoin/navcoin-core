@@ -17,10 +17,10 @@ void mul9(const mcl::fp::Op& op, Unit *y, const Unit *x, const Unit *p)
 {
 	const size_t maxN = sizeof(Fp) / sizeof(Unit);
 	Unit tmp[maxN];
-	op.fp_add(tmp, x, x, p); // 2x
-	op.fp_add(tmp, tmp, tmp, p); // 4x
-	op.fp_add(tmp, tmp, tmp, p); // 8x
-	op.fp_add(y, tmp, x, p); // 9x
+	op.mcl_fp_add(tmp, x, x, p); // 2x
+	op.mcl_fp_add(tmp, tmp, tmp, p); // 4x
+	op.mcl_fp_add(tmp, tmp, tmp, p); // 8x
+	op.mcl_fp_add(y, tmp, x, p); // 9x
 }
 
 void benchRaw(const char *p, mcl::fp::Mode mode)
@@ -40,25 +40,25 @@ void benchRaw(const char *p, mcl::fp::Mode mode)
 	memcpy(ux + op.N, fx.getUnit(), sizeof(Unit) * op.N);
 	memcpy(uy, fy.getUnit(), sizeof(Unit) * op.N);
 	memcpy(ux + op.N, fx.getUnit(), sizeof(Unit) * op.N);
-	double fp_addT, fp_subT;
-	double fp_addPreT, fp_subPreT;
-	double fp_sqrT, fp_mulT;
-	double fp_mulUnitT;
+	double mcl_fp_addT, mcl_fp_subT;
+	double mcl_fp_addPreT, mcl_fp_subPreT;
+	double mcl_fp_sqrT, mcl_fp_mulT;
+	double mcl_fp_mulUnitT;
 	double mul9T;
-	double fp_mulUnitPreT;
+	double mcl_fp_mulUnitPreT;
 	double fpN1_modT;
 	double fpDbl_addT, fpDbl_subT;
 	double fpDbl_sqrPreT, fpDbl_mulPreT, fpDbl_modT;
 	double fp2_sqrT, fp2_mulT;
-	CYBOZU_BENCH_T(fp_addT, op.fp_add, uz, ux, uy, op.p);
-	CYBOZU_BENCH_T(fp_subT, op.fp_sub, uz, uy, ux, op.p);
-	CYBOZU_BENCH_T(fp_addPreT, op.fp_addPre, uz, ux, uy);
-	CYBOZU_BENCH_T(fp_subPreT, op.fp_subPre, uz, uy, ux);
-	CYBOZU_BENCH_T(fp_sqrT, op.fp_sqr, uz, ux, op.p);
-	CYBOZU_BENCH_T(fp_mulT, op.fp_mul, uz, ux, uy, op.p);
-	CYBOZU_BENCH_T(fp_mulUnitT, op.fp_mulUnit, uz, ux, 9, op.p);
+	CYBOZU_BENCH_T(mcl_fp_addT, op.mcl_fp_add, uz, ux, uy, op.p);
+	CYBOZU_BENCH_T(mcl_fp_subT, op.mcl_fp_sub, uz, uy, ux, op.p);
+	CYBOZU_BENCH_T(mcl_fp_addPreT, op.mcl_fp_addPre, uz, ux, uy);
+	CYBOZU_BENCH_T(mcl_fp_subPreT, op.mcl_fp_subPre, uz, uy, ux);
+	CYBOZU_BENCH_T(mcl_fp_sqrT, op.mcl_fp_sqr, uz, ux, op.p);
+	CYBOZU_BENCH_T(mcl_fp_mulT, op.mcl_fp_mul, uz, ux, uy, op.p);
+	CYBOZU_BENCH_T(mcl_fp_mulUnitT, op.mcl_fp_mulUnit, uz, ux, 9, op.p);
 	CYBOZU_BENCH_T(mul9T, mul9, op, uz, ux, op.p);
-	CYBOZU_BENCH_T(fp_mulUnitPreT, op.fp_mulUnitPre, ux, ux, 9);
+	CYBOZU_BENCH_T(mcl_fp_mulUnitPreT, op.mcl_fp_mulUnitPre, ux, ux, 9);
 	CYBOZU_BENCH_T(fpN1_modT, op.fpN1_mod, ux, uy, op.p);
 	CYBOZU_BENCH_T(fpDbl_addT, op.fpDbl_add, uz, ux, uy, op.p);
 	CYBOZU_BENCH_T(fpDbl_subT, op.fpDbl_sub, uz, uy, ux, op.p);
@@ -73,9 +73,9 @@ void benchRaw(const char *p, mcl::fp::Mode mode)
 	CYBOZU_BENCH_T(fp2_mulT, Fp2::mul, f2x, f2x, f2y);
 	printf("%s\n", mcl::fp::ModeToStr(mode));
 	const char *tStrTbl[] = {
-		"fp_add", "fp_sub",
+		"mcl_fp_add", "mcl_fp_sub",
 		"addPre", "subPre",
-		"fp_sqr", "fp_mul",
+		"mcl_fp_sqr", "mcl_fp_mul",
 		"mulUnit",
 		"mul9",
 		"mulUnitP",
@@ -89,12 +89,12 @@ void benchRaw(const char *p, mcl::fp::Mode mode)
 	}
 	printf("\n");
 	const double tTbl[] = {
-		fp_addT, fp_subT,
-		fp_addPreT, fp_subPreT,
-		fp_sqrT, fp_mulT,
-		fp_mulUnitT,
+		mcl_fp_addT, mcl_fp_subT,
+		mcl_fp_addPreT, mcl_fp_subPreT,
+		mcl_fp_sqrT, mcl_fp_mulT,
+		mcl_fp_mulUnitT,
 		mul9T,
-		fp_mulUnitPreT,
+		mcl_fp_mulUnitPreT,
 		fpN1_modT,
 		fpDbl_addT, fpDbl_subT,
 		fpDbl_sqrPreT, fpDbl_mulPreT, fpDbl_modT,

@@ -48,8 +48,8 @@ CYBOZU_TEST_AUTO(mulPre)
 			Unit x[N], y[N * 2];
 			rg.read(x, N);
 			rg.read(y, N * 2);
-			CYBOZU_BENCH("mul   ", op.fp_mul, y, y, x, op.p);
-			CYBOZU_BENCH("sqr   ", op.fp_sqr, y, y, op.p);
+			CYBOZU_BENCH("mul   ", op.mcl_fp_mul, y, y, x, op.p);
+			CYBOZU_BENCH("sqr   ", op.mcl_fp_sqr, y, y, op.p);
 			CYBOZU_BENCH("mulPre", op.fpDbl_mulPre, y, y, y);
 			CYBOZU_BENCH("sqrPre", op.fpDbl_sqrPre, y, y);
 			CYBOZU_BENCH("mod   ", op.fpDbl_mod, y, y, op.p);
