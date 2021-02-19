@@ -935,7 +935,7 @@ void AggregationSessionThread()
                     LOCK(cs_vNodes);
                     fvNodesEmpty = vNodes.empty();
                 }
-                if (!fvNodesEmpty && !IsInitialBlockDownload() && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()))
+                if (!fvNodesEmpty && !IsInitialBlockDownload() && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()) && pwalletMain && pwalletMain->GetPrivateBalance() > 0)
                     break;
                 MilliSleep(1000);
             } while (true);
@@ -990,7 +990,7 @@ void CandidateVerificationThread()
                     LOCK(cs_vNodes);
                     fvNodesEmpty = vNodes.empty();
                 }
-                if (!fvNodesEmpty && !IsInitialBlockDownload() && pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->inputs && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()))
+                if (!fvNodesEmpty && !IsInitialBlockDownload() && pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->inputs && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()) && pwalletMain->GetPrivateBalance() > 0)
                     break;
                 MilliSleep(1000);
             } while (true);

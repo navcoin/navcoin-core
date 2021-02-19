@@ -19,6 +19,7 @@
 #include <amount.h>
 #include <blsct/scalar.h>
 #include <bls.hpp>
+#include <streams.h>
 #include <utilstrencodings.h>
 
 #include <mcl/bls12_381.hpp>
@@ -48,6 +49,33 @@ class BulletproofsRangeproof
 {
 public:
     BulletproofsRangeproof() {}
+
+    BulletproofsRangeproof(std::vector<unsigned char> vData) {
+        try
+        {
+            CDataStream strm(vData, 0, 0);
+            strm >> *this;
+        }
+        catch(...)
+        {
+
+        }
+    }
+
+    std::vector<unsigned char> GetVch() const
+    {
+        try
+        {
+            CDataStream strm(0, 0);
+            strm << *this;
+            return std::vector<unsigned char>(strm.begin(), strm.end());
+        }
+        catch(...)
+        {
+
+        }
+        return std::vector<unsigned char>();
+    }
 
     static bool Init();
 

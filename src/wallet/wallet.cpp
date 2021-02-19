@@ -1642,13 +1642,13 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                             }
                             catch(...)
                             {
-                                proofs.push_back(std::make_pair(i, out.bp));
+                                proofs.push_back(std::make_pair(i, out.GetBulletproof()));
                                 nonces.push_back(n);
                                 continue;
                             }
 
                         }
-                        proofs.push_back(std::make_pair(i, out.bp));
+                        proofs.push_back(std::make_pair(i, out.GetBulletproof()));
                         nonces.push_back(n);
                     }
 
@@ -1953,7 +1953,7 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
         {
             try
             {
-                proofs.push_back(std::make_pair(0,txout.bp));
+                proofs.push_back(std::make_pair(0,txout.GetBulletproof()));
                 bls::G1Element t = bls::G1Element::FromByteVector(txout.outputKey);
                 bls::PrivateKey k = v.GetKey();
                 t = t * k;
@@ -2372,7 +2372,7 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
 
                 bool fValid = true;
 
-                if (GetBLSCTViewKey(k))
+                if (tx.IsBLSCT() && GetBLSCTViewKey(k))
                     fValid=VerifyBLSCT(tx, k.GetKey(), blsctData, view, state, true);
 
                 if (!fValid)
