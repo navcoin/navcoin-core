@@ -30,7 +30,8 @@ LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBBLS=bls/build/libbls.a
-LIBMCL=mcl/build/lib/libmclbn384_256.a mcl/build/lib/libmcl.a
+LIBMCLBN=mcl/build/lib/libmclbn384_256.a
+LIBMCL=mcl/build/lib/libmcl.a
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -46,7 +47,11 @@ $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(w
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 $(LIBBLS):
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C bls/build
+
+$(LIBMCL):
+$(LIBMCLBN):
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C mcl/build
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -471,6 +476,7 @@ navcoind_LDADD += \
                   $(EVENT_PTHREADS_LIBS) \
                   $(EVENT_LIBS) \
                   $(ZMQ_LIBS) \
+                  $(LIBMCLBN) \
                   $(LIBMCL) \
                   $(LIBBLS) \
                   $(SODIUM_LIBS) \
@@ -516,7 +522,7 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
+navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(LIBMCLBN) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
 #
 
 # navcoinconsensus library #
@@ -529,7 +535,7 @@ if GLIBC_BACK_COMPAT
 endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS) $(SODIUM_LIBS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBMCLBN) $(LIBMCL) $(LIBBLS) $(SODIUM_LIBS)
 libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/mcl/include -I$(srcdir)/bls/src -I$(srcdir)/bls/build/_deps/relic-build/include -I$(srcdir)/bls/build/_deps/relic-src/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
