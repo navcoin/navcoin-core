@@ -22,6 +22,9 @@
 #include <streams.h>
 #include <utilstrencodings.h>
 
+#define MCL_DONT_USE_XBYAK
+#define MCL_DONT_USE_OPENSSL
+
 #include <mcl/bls12_381.hpp>
 
 #include <boost/thread/mutex.hpp>

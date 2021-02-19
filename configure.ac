@@ -1350,6 +1350,7 @@ AC_CONFIG_COMMANDS([src/mcl/build],
                     cmake -Bsrc/mcl/build -Hsrc/mcl \
                     -DMCL_USE_GMP=On \
                     -DMCL_USE_ASM=Off \
+                    -DMCL_USE_XBYAK=Off \
                     -DMCL_USE_OPENSSL=Off \
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
                     -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
