@@ -65,6 +65,7 @@ bool BulletproofsRangeproof::Init()
     initPairing(mcl::BLS12_381);
 
     Fp::setETHserialization(true);
+    Fr::setETHserialization(true);
 
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
