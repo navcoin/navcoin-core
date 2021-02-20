@@ -123,6 +123,9 @@ bool AreInputsStandard(const CTransaction& tx, const CStateViewCache& mapInputs)
     if (tx.IsCoinBase())
         return true; // Coinbases don't use vin normally
 
+    if (tx.IsBLSInput())
+        return true;
+
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
         const CTxOut& prev = mapInputs.GetOutputFor(tx.vin[i]);
