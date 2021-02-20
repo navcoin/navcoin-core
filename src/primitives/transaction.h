@@ -62,6 +62,11 @@ public:
         return !(a == b);
     }
 
+    uint256 GetHash() const
+    {
+        return SerializeHash(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
+    }
+
     std::string ToString() const;
 };
 
