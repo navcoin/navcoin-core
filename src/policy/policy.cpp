@@ -93,6 +93,12 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
     unsigned int nDataOut = 0;
     txnouttype whichType;
     for(const CTxOut& txout: tx.vout) {
+        if (txout.scriptPubKey.size() == 1 && txout.scriptPubKey[0] == OP_1)
+            continue;
+
+        if (txout.scriptPubKey.IsColdStaking())
+            continue;
+
         if (!::IsStandard(txout.scriptPubKey, whichType, witnessEnabled)) {
             reason = "scriptpubkey";
             return false;
@@ -122,6 +128,9 @@ bool AreInputsStandard(const CTransaction& tx, const CStateViewCache& mapInputs)
 {
     if (tx.IsCoinBase())
         return true; // Coinbases don't use vin normally
+
+    if (tx.IsBLSInput())
+        return true;
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {

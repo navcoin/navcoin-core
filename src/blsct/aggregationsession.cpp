@@ -179,6 +179,8 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
     unsigned int i = 0;
     unsigned int nSelected = 0;
 
+    std::set<uint256> setSeen;
+
     while (nSelected < nSelect && i < vTransactionCandidates.size())
     {
         if (!inputs->HaveInputs(vTransactionCandidates[i].tx))
@@ -202,6 +204,15 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
         for (unsigned int j = 0; j < vTransactionCandidates[i].tx.vin.size(); j++)
         {
             COutPoint prevOut = vTransactionCandidates[i].tx.vin[j].prevout;
+
+            if (setSeen.count(prevOut.GetHash()))
+            {
+                i++;
+                fShouldIContinue = true;
+                break;
+            }
+
+            setSeen.insert(prevOut.GetHash());
 
             if (pwalletMain->mapWallet.count(prevOut.hash))
             {
