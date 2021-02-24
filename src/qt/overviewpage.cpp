@@ -338,9 +338,6 @@ void OverviewPage::ShowSwapDialog()
     this->swapDialog->exec();
 }
 
-using namespace boost;
-using namespace std;
-
 void OverviewPage::setStakes(
     const CAmount& amount24h,
     const CAmount& amount7d,
