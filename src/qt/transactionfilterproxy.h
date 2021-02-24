@@ -18,9 +18,9 @@ class TransactionFilterProxy : public QSortFilterProxyModel
 public:
     explicit TransactionFilterProxy(QObject *parent = nullptr);
 
-    /** Earliest date that can be represented (far in the past) */
+    // Earliest date that can be represented (far in the past)
     static const QDateTime MIN_DATE;
-    /** Last date that can be represented (far in the future) */
+    // Last date that can be represented (far in the future)
     static const QDateTime MAX_DATE;
     /** Type filter bit field (all types) */
     static const quint32 ALL_TYPES = 0xFFFFFFFF;
@@ -55,14 +55,15 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
 private:
-    QDateTime dateFrom;
-    QDateTime dateTo;
-    QString m_search_string;
-    quint32 typeFilter;
-    WatchOnlyFilter watchOnlyFilter;
-    CAmount minAmount;
-    int limitRows;
-    bool showInactive;
+
+    QDateTime dateFrom = MIN_DATE;
+    QDateTime dateTo = MAX_DATE;
+    QString searchString = "";
+    quint32 typeFilter = ALL_TYPES;
+    WatchOnlyFilter watchOnlyFilter = WatchOnlyFilter_All;
+    CAmount minAmount = 0;
+    int limitRows = -1;
+    bool showInactive = true;
 };
 
 #endif // NAVCOIN_QT_TRANSACTIONFILTERPROXY_H
