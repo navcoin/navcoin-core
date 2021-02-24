@@ -60,6 +60,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
+    pollBalanceChanged();
     pollTimer->start(MODEL_UPDATE_DELAY);
 
     subscribeToCoreSignals();
