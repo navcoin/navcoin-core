@@ -4154,7 +4154,7 @@ int GetsStakeSubTotal(vStakeRange& vRange)
 }
 
 // prepare range for stake report
-vStakeRange PrepareRangeForStakeReport()
+vStakeRange PrepareRangeForStakeReport(bool fNoDaily = false)
 {
     vStakeRange vRange;
     StakeRange x;
@@ -4176,17 +4176,17 @@ vStakeRange PrepareRangeForStakeReport()
     x.Count = 0;
     x.Total = 0;
 
-    // prepare last single 30 day Range
-    for(int i=0; i<30; i++)
-    {
+    if (!fNoDaily) {
+        // prepare last single 30 day Range
+        for(int i=0; i<30; i++)
+        {
+            x.Name = DateTimeStrFormat("%Y-%m-%d %H:%M:%S",x.Start);
 
-        x.Name = DateTimeStrFormat("%Y-%m-%d %H:%M:%S",x.Start);
+            vRange.push_back(x);
 
-        vRange.push_back(x);
-
-        x.End    = x.Start - 1;
-        x.Start -= n1Day;
-
+            x.End    = x.Start - 1;
+            x.Start -= n1Day;
+        }
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years

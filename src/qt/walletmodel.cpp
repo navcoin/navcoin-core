@@ -35,7 +35,7 @@ struct StakeRange {
 
 typedef vector<StakeRange> vStakeRange;
 
-extern vStakeRange PrepareRangeForStakeReport();
+extern vStakeRange PrepareRangeForStakeReport(bool fNoDaily = false);
 extern int GetsStakeSubTotal(vStakeRange& vRange);
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
@@ -244,7 +244,7 @@ void WalletModel::checkStakesChanged()
     static vStakeRange vRange;
 
     // Load the range
-    vRange = PrepareRangeForStakeReport();
+    vRange = PrepareRangeForStakeReport(true);
 
     // Get the subtotals
     GetsStakeSubTotal(vRange);
@@ -257,11 +257,11 @@ void WalletModel::checkStakesChanged()
     bool staking = nLastCoinStakeSearchInterval && nWeight;
     uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
 
-    CAmount amount24h = vRange[30].Total;
-    CAmount amount7d  = vRange[31].Total;
-    CAmount amount30d = vRange[32].Total;
-    CAmount amount1y  = vRange[33].Total;
-    CAmount amountAll = vRange[34].Total;
+    CAmount amount24h = vRange[0].Total;
+    CAmount amount7d  = vRange[1].Total;
+    CAmount amount30d = vRange[2].Total;
+    CAmount amount1y  = vRange[3].Total;
+    CAmount amountAll = vRange[4].Total;
     CAmount amountExp = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
 
     // Check if the values changed
