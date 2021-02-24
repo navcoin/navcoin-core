@@ -755,31 +755,39 @@ void NavcoinGUI::createHeaderWidgets()
 
     // Create our balance labels
     balanceAvail = new QLabel();
+    balanceAvail->setText("Loading...");
     balanceAvail->setObjectName("balanceAvail");
     balanceAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
     balancePendi = new QLabel();
+    balancePendi->setText("Loading...");
     balancePendi->setObjectName("balancePendi");
     balancePendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
     balanceImmat = new QLabel();
+    balanceImmat->setText("Loading...");
     balanceImmat->setObjectName("balanceImmat");
     balanceImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     // Create our private labels
     privAvail = new QLabel();
+    privAvail->setText("Loading...");
     privAvail->setObjectName("privAvail");
     privAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
     privPendi = new QLabel();
+    privPendi->setText("Loading...");
     privPendi->setObjectName("privPendi");
     privPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     // Create our staked labels
     stakedAvail = new QLabel();
+    stakedAvail->setText(tr("Loading..."));
     stakedAvail->setObjectName("stakedAvail");
     stakedAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
     stakedPendi = new QLabel();
+    stakedPendi->setText(tr("Loading..."));
     stakedPendi->setObjectName("stakedPendi");
     stakedPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
     stakedImmat = new QLabel();
+    stakedImmat->setText(tr("Loading..."));
     stakedImmat->setObjectName("stakedImmat");
     stakedImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
