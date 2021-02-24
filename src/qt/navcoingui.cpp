@@ -306,7 +306,7 @@ NavcoinGUI::NavcoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
-    timerStakingIcon->start(MODEL_UPDATE_DELAY * 20); // Update every 5 seconds
+    timerStakingIcon->start(MODEL_UPDATE_DELAY * 10); // Update every 5 seconds
     updateStakingStatus();
 
     if (GetArg("-zapwallettxes",0) == 2 && GetArg("-repairwallet",0) == 1)
