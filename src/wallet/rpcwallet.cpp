@@ -4031,15 +4031,15 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 // ///////////////////////////////////////////////////////////////////// ** em52
 //  new rpc added by Remy5
 
-struct StakePeriodRange_T {
+struct StakeRange {
     int64_t Start;
     int64_t End;
     int64_t Total;
     int Count;
-    std::string Name;
+    string Name;
 };
 
-typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
+typedef vector<StakeRange> vStakeRange;
 
 // Check if we have a Tx that can be counted in staking report
 bool IsTxCountedAsStaked(const CWalletTx* tx)
@@ -4101,9 +4101,9 @@ int64_t GetFirstStakeTime()
 
 // **em52: Get total coins staked on given period
 // inspired from CWallet::GetStake()
-// Parameter aRange = Vector with given limit date, and result
+// Parameter vRange = Vector with given limit date, and result
 // return int =  Number of Wallet's elements analyzed
-int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
+int GetsStakeSubTotal(vStakeRange& vRange)
 {
     // Lock cs_main before we try to call GetTxStakeAmount
     LOCK(cs_main);
@@ -4113,7 +4113,7 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 
     const CWalletTx* pcoin;
 
-    vStakePeriodRange_T::iterator vIt;
+    vStakeRange::iterator vIt;
 
     // scan the entire wallet transactions
     for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
@@ -4132,7 +4132,7 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         nAmount = GetTxStakeAmount(pcoin);
 
         // scan the range
-        for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
+        for(vIt=vRange.begin(); vIt != vRange.end(); vIt++)
         {
             if (pcoin->nTime >= vIt->Start)
             {
@@ -4154,11 +4154,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 }
 
 // prepare range for stake report
-vStakePeriodRange_T PrepareRangeForStakeReport()
+vStakeRange PrepareRangeForStakeReport()
 {
-    vStakePeriodRange_T aRange;
-    StakePeriodRange_T x;
-
+    vStakeRange vRange;
+    StakeRange x;
 
     int64_t n1Hour = 60*60;
     int64_t n1Day = 24 * n1Hour;
@@ -4183,7 +4182,7 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
 
         x.Name = DateTimeStrFormat("%Y-%m-%d %H:%M:%S",x.Start);
 
-        aRange.push_back(x);
+        vRange.push_back(x);
 
         x.End    = x.Start - 1;
         x.Start -= n1Day;
@@ -4202,16 +4201,16 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
         x.End   = nToday - GroupDays[i][1] * n1Day;
         x.Name = "Last " + sGroupName[i];
 
-        aRange.push_back(x);
+        vRange.push_back(x);
     }
 
     // Special case. not a subtotal, but last stake
     x.End  = 0;
     x.Start = 0;
     x.Name = "Latest Stake";
-    aRange.push_back(x);
+    vRange.push_back(x);
 
-    return aRange;
+    return vRange;
 }
 
 
@@ -4223,17 +4222,17 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
                 "getstakereport\n"
                 "List last single 30 day stake subtotal and last 24h, 7, 30, 365 day subtotal.\n");
 
-    vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+    vStakeRange vRange = PrepareRangeForStakeReport();
 
     LOCK(cs_main);
 
     // get subtotal calc
     int64_t nTook = GetTimeMillis();
-    int nItemCounted = GetsStakeSubTotal(aRange);
+    int nItemCounted = GetsStakeSubTotal(vRange);
 
     UniValue result(UniValue::VOBJ);
 
-    vStakePeriodRange_T::iterator vIt;
+    vStakeRange::iterator vIt;
 
     // Span of days to compute average over
     int nDays = 0;
@@ -4246,7 +4245,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
         nWalletDays = (GetTime() - GetFirstStakeTime()) / 86400;
 
     // report it
-    for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
+    for(vIt = vRange.begin(); vIt != vRange.end(); vIt++)
     {
         // Add it to results
         result.pushKV(vIt->Name, FormatMoney(vIt->Total).c_str());

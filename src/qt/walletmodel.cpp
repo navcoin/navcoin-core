@@ -25,11 +25,27 @@
 #include <QSet>
 #include <QTimer>
 
+struct StakeRange {
+    int64_t Start;
+    int64_t End;
+    int64_t Total;
+    int Count;
+    string Name;
+};
+
+typedef vector<StakeRange> vStakeRange;
+
+extern vStakeRange PrepareRangeForStakeReport();
+extern int GetsStakeSubTotal(vStakeRange& vRange);
+
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
-    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0), cachedColdStakingBalance(0),
+    cachedBalance(0),
+    cachedUnconfirmedBalance(0),
+    cachedImmatureBalance(0),
+    cachedColdStakingBalance(0),
     cachedPrivateBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
@@ -154,6 +170,7 @@ void WalletModel::pollBalanceChanged()
         cachedNumBlocks = chainActive.Height();
 
         checkBalanceChanged();
+        checkStakesChanged();
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
     }
@@ -179,11 +196,20 @@ void WalletModel::checkBalanceChanged()
         newWatchImmatureBalance = getWatchImmatureBalance();
     }
 
-    if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance ||
-        cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
-            cachedStakingBalance != newStakingBalance || cachedColdStakingBalance != newColdStakingBalance || cachedPrivateBalance != newPrivateBalance ||
-            cachedPrivateBalancePending != newPrivateBalancePending || cachedPrivateBalanceLocked != newPrivateBalanceLocked)
-    {
+    // Check the cached values
+    if(
+        cachedBalance               != newBalance               ||
+        cachedUnconfirmedBalance    != newUnconfirmedBalance    ||
+        cachedImmatureBalance       != newImmatureBalance       ||
+        cachedWatchOnlyBalance      != newWatchOnlyBalance      ||
+        cachedWatchUnconfBalance    != newWatchUnconfBalance    ||
+        cachedWatchImmatureBalance  != newWatchImmatureBalance  ||
+        cachedStakingBalance        != newStakingBalance        ||
+        cachedColdStakingBalance    != newColdStakingBalance    ||
+        cachedPrivateBalance        != newPrivateBalance        ||
+        cachedPrivateBalancePending != newPrivateBalancePending ||
+        cachedPrivateBalanceLocked  != newPrivateBalanceLocked
+    ) {
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
         cachedStakingBalance = newStakingBalance;
@@ -195,9 +221,74 @@ void WalletModel::checkBalanceChanged()
         cachedPrivateBalance = newPrivateBalance;
         cachedPrivateBalancePending = newPrivateBalancePending;
         cachedPrivateBalanceLocked = newPrivateBalanceLocked;
-        Q_EMIT balanceChanged(newBalance, newUnconfirmedBalance, newStakingBalance, newImmatureBalance,
-                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance, newColdStakingBalance, newPrivateBalance,
-                            newPrivateBalancePending, newPrivateBalanceLocked);
+
+        Q_EMIT balanceChanged(
+            newBalance,
+            newUnconfirmedBalance,
+            newStakingBalance,
+            newImmatureBalance,
+            newWatchOnlyBalance,
+            newWatchUnconfBalance,
+            newWatchImmatureBalance,
+            newColdStakingBalance,
+            newPrivateBalance,
+            newPrivateBalancePending,
+            newPrivateBalanceLocked
+        );
+    }
+}
+
+void WalletModel::checkStakesChanged()
+{
+    static vStakeRange vRange;
+
+    // Load the range
+    vRange = PrepareRangeForStakeReport();
+
+    // Get the subtotals
+    GetsStakeSubTotal(vRange);
+
+    // Get the state view cache, we need this for GetStakingRewardPerBlock call
+    CStateViewCache view(pcoinsTip);
+
+    uint64_t nWeight = pwalletMain ? pwalletMain->GetStakeWeight() : 0;
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
+
+    CAmount amount24h = vRange[30].Total;
+    CAmount amount7d  = vRange[31].Total;
+    CAmount amount30d = vRange[32].Total;
+    CAmount amount1y  = vRange[33].Total;
+    CAmount amountAll = vRange[34].Total;
+    CAmount amountExp = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
+
+    // Check if the values changed
+    if (
+        amount24h != cachedAmount24h ||
+        amount7d  != cachedAmount7d  ||
+        amount30d != cachedAmount30d ||
+        amount1y  != cachedAmount1y  ||
+        amountAll != cachedAmountAll ||
+        amountExp != cachedAmountExp
+    ) {
+        // Update the cached values
+        cachedAmount24h = amount24h;
+        cachedAmount7d  = amount7d;
+        cachedAmount30d = amount30d;
+        cachedAmount1y  = amount1y;
+        cachedAmountAll = amountAll;
+        cachedAmountExp = amountExp;
+
+        // Notify the GUI of the update
+        Q_EMIT stakesChanged(
+            amount24h,
+            amount7d,
+            amount30d,
+            amount1y,
+            amountAll,
+            amountExp
+        );
     }
 }
 
