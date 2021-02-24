@@ -1884,18 +1884,20 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 #ifdef ENABLE_WALLET
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
+    uiInterface.InitMessage(_("Booting staking thread"));
     threadGroup.create_thread(boost::bind(&NavcoinStaker, boost::cref(chainparams)));
     if (pwalletMain && GetBoolArg("-blsctmix", DEFAULT_MIX))
     {
+        uiInterface.InitMessage(_("Booting blsCT threads"));
         threadGroup.create_thread(boost::bind(&AggregationSessionThread));
         threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
     }
 #endif
 
-    uiInterface.InitMessage(_("Done loading"));
-
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
+        uiInterface.InitMessage(_("Booting wallet flush thread"));
+
         // Add wallet transactions that aren't already in a block to mapTransactions
         pwalletMain->ReacceptWalletTransactions();
 
@@ -1903,6 +1905,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
 #endif
+
+    uiInterface.InitMessage(_("Done loading"));
 
     return !fRequestShutdown;
 }

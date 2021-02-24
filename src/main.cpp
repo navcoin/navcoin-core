@@ -6740,18 +6740,11 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
     CBlockIndex* pindexFailure = nullptr;
     int nGoodTransactions = 0;
     CValidationState state;
-    int reportDone = 0;
-    LogPrintf("[0%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
     {
         pindexVerifyChainTip = pindex;
         boost::this_thread::interruption_point();
         int percentageDone = std::max(1, std::min(99, (int)(((double)(chainActive.Height() - pindex->nHeight)) / (double)nCheckDepth * (nCheckLevel >= 4 ? 50 : 100))));
-        if (reportDone < percentageDone/10) {
-            // report every 10% step
-            LogPrintf("[%d%%]...", percentageDone);
-            reportDone = percentageDone/10;
-        }
         uiInterface.ShowProgress(_("Verifying blocks..."), percentageDone);
         if (pindex->nHeight < chainActive.Height()-nCheckDepth)
             break;
