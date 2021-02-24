@@ -211,12 +211,12 @@ void DaoPage::refreshForce()
 
 void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
 {
-    int unit = DEFAULT_UNIT;
+    if (pcoinsTip == nullptr)
+        return;
 
     LOCK(cs_main);
 
-    if (pcoinsTip == nullptr)
-        return;
+    int unit = DEFAULT_UNIT;
 
     CStateViewCache view(pcoinsTip);
 
@@ -248,7 +248,6 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
 
 void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit, bool updateFilterIfEmpty)
 {
-
     LOCK(cs_main);
 
     nCurrentUnit = unit;
@@ -1711,7 +1710,6 @@ void DaoPage::onVote() {
         }
     }
     refresh(true, true);
-
 }
 
 void DaoPage::onDetails() {
