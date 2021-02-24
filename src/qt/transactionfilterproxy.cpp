@@ -32,7 +32,7 @@ bool TransactionFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &
     if (minAmount != 0 && llabs(index.data(TransactionTableModel::AmountRole).toLongLong()) < minAmount)
         return false;
 
-    if (dateFrom != MIN_DATE && dateTo != MAX_DATE) {
+    if (dateFrom != MIN_DATE || dateTo != MAX_DATE) {
         QDateTime datetime = index.data(TransactionTableModel::DateRole).toDateTime();
         if (datetime < dateFrom || datetime > dateTo)
             return false;
