@@ -1039,12 +1039,38 @@ void CandidateVerificationThread()
                 {
                     LOCK(cs_aggregation);
 
+                    bool stop = false;
+
                     for (auto& it: pwalletMain->aggSession->GetTransactionCandidates())
                     {
-                        if (it.tx.vin == tx.tx.vin) // We already have this input
-                            continue;
+                        bool stop1 = false;
+                        for (auto &in: it.tx.vin)
+                        {
+                            bool stop2 = false;
+                            for (auto &in2: tx.tx.vin)
+                            {
+                                if (in == in2) // We already have this input
+                                {
+                                    stop2 = true;
+                                    break;
+                                }
+                            }
+
+                            if (stop2)
+                            {
+                                stop1 = true;
+                                break;
+                            }
+                        }
+                        if (stop1)
+                        {
+                            stop = true;
+                            break;
+                        }
                     }
 
+                    if (stop)
+                        continue;
 
                     if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
                         continue;
