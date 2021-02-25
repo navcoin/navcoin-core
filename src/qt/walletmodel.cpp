@@ -163,7 +163,7 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks)
+    if(fForceCheckBalanceChanged)
     {
         fForceCheckBalanceChanged = false;
 
@@ -172,9 +172,10 @@ void WalletModel::pollBalanceChanged()
 
         checkBalanceChanged();
         checkStakesChanged();
-        if(transactionTableModel)
-            transactionTableModel->updateConfirmations();
     }
+
+    if(transactionTableModel && chainActive.Height() != cachedNumBlocks)
+        transactionTableModel->updateConfirmations();
 }
 
 void WalletModel::checkBalanceChanged()

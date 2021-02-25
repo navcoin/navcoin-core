@@ -951,6 +951,7 @@ void AggregationSessionThread()
                 MilliSleep(1000);
             } while (true);
 
+            MilliSleep(5000);
             MilliSleep(GetRand(120*1000));
 
             {
@@ -972,6 +973,7 @@ void AggregationSessionThread()
                 }
             }
 
+            MilliSleep(5000);
             MilliSleep(GetRand(180*1000));
         }
     }
@@ -1060,7 +1062,8 @@ void CandidateVerificationThread()
                 LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n", __func__);
             }
 
-            MilliSleep(GetRand(50));
+            MilliSleep(30000); // Rest for 30 seconds, same time as block time
+            MilliSleep(GetRand(100));
         }
     }
     catch (const boost::thread_interrupted&)

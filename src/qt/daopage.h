@@ -25,6 +25,8 @@
 #include "wallet/wallet.h"
 #include "walletmodel.h"
 
+#include <qt/guiconstants.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
@@ -223,6 +225,8 @@ private:
 
     int64_t nLastUpdate;
 
+    QTimer *pollRefreshTimer;
+
     QAction* copyHash;
     QAction* openExplorerAction;
     QAction* seePaymentRequestsAction;
@@ -251,6 +255,10 @@ private:
     int nBadgeConsultations;
     int nBadgeDeployments;
     int nBadgeConsensus;
+
+    bool fRunning = false;
+    bool fForceRefresh = false;
+    bool fUpdateEmpty = false;
 
     enum {
         P_COLUMN_HASH,
@@ -365,6 +373,8 @@ private Q_SLOTS:
 
     void refresh(bool force = false, bool updateFilterIfEmpty = false);
     void refreshForce();
+
+    void pollRefresh();
 
     void backToFilter();
 
