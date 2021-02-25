@@ -20,7 +20,7 @@ if [[ $HOST = *-mingw32 ]]; then
   DOCKER_EXEC update-alternatives --set $HOST-g++ \$\(which $HOST-g++-posix\)
 fi
 if [ -z "$NO_DEPENDS" ]; then
-  DOCKER_EXEC CONFIG_SHELL= make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
+  DOCKER_EXEC CONFIG_SHELL= ./contrib/run_with_dots make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS || ( echo "Depends Build failure. Verbose build follows." && CONFIG_SHELL= make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS V=1 ; false )
 
   if [[ $HOST = *-mingw32 ]]; then
     # Copy the missing headers that windows build needs

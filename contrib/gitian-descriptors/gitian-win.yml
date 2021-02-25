@@ -1,5 +1,5 @@
 ---
-name: "navcoin-win-6.0.1"
+name: "navcoin-win-6.0.2"
 enable_cache: true
 distro: "ubuntu"
 suites:

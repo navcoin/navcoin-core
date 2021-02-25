@@ -1,0 +1,10 @@
+#!/bin/bash
+"$@" > /dev/null 2>&1 &
+PID=$!
+echo "Running: $@"
+while [ -d /proc/$PID ]; do
+	echo -n "."
+	sleep 1
+done
+echo "."
+echo "Done: $@"
