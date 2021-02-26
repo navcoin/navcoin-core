@@ -135,11 +135,20 @@ bool AggregationSession::CleanCandidateTransactions()
 {
     {
         AssertLockHeld(cs_aggregation);
+        
+        set<CTxIn> seenInputs;
 
         vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=](CandidateTransaction x) {
             if (!inputs->HaveInputs(x.tx))
             {
                 return true;
+            }
+            
+            for (auto &in: x.tx.vin)
+            {
+                if (seenInputs.count(in))
+                    return true;
+                seenInputs.insert(in);
             }
 
             if (CWalletTx(NULL, x.tx).InputsInMempool()) {
