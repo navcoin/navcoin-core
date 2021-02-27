@@ -138,14 +138,15 @@ bool AggregationSession::CleanCandidateTransactions()
         
         set<CTxIn> seenInputs;
 
-        vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=](CandidateTransaction x) {
+        vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=, &seenInputs](CandidateTransaction x) {
             if (!inputs->HaveInputs(x.tx))
             {
                 return true;
             }
             
-            for (auto &in: x.tx.vin)
+            for (int i = 0; i < x.tx.vin.size(); i++)
             {
+                CTxIn in = x.tx.vin[i];
                 if (seenInputs.count(in))
                     return true;
                 seenInputs.insert(in);
