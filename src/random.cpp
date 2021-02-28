@@ -155,9 +155,6 @@ uint64_t GetRand(uint64_t nMin, uint64_t nMax)
     if (nMax == 0)
         return 0;
 
-    if (nMin == 0)
-        return 0;
-
     if (nMin >= nMax)
         return nMin;
 
