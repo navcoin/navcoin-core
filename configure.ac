@@ -1337,6 +1337,14 @@ BLS_CXXFLAGS=`echo $BLS_CXXFLAGS $CXXFLAGS | awk '{ print $0 }'`
 BLS_CFLAGS="'$BLS_CFLAGS $CFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 BLS_CXXFLAGS="'$BLS_CXXFLAGS $CXXFLAGS $CPPFLAGS -I$BLS_DEPENDS/include'"
 
+BLS_USE_ASM=Off
+
+case $host in
+   *-*-linux-gnu)
+     BLS_USE_ASM=On
+  ;;
+esac
+
 dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/mcl/build],
                    [rm -rf src/mcl/build/* || true && \
@@ -1349,7 +1357,7 @@ AC_CONFIG_COMMANDS([src/mcl/build],
                     LDFLAGS=$LDFLAGS \
                     cmake -Bsrc/mcl/build -Hsrc/mcl \
                     -DMCL_USE_GMP=On \
-                    -DMCL_USE_ASM=Off \
+                    -DMCL_USE_ASM=$BLS_USE_ASM \
                     -DMCL_USE_XBYAK=Off \
                     -DMCL_USE_OPENSSL=Off \
                     -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=$prefix/include \
@@ -1366,6 +1374,7 @@ AC_CONFIG_COMMANDS([src/mcl/build],
                     CXX=$BLS_CXX_RAW
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS
+                    BLS_USE_ASM=$BLS_USE_ASM
                     BLS_CC=$BLS_CC
                     BLS_CXX=$BLS_CXX
                     BLS_CCACHE_CMAKE=$BLS_CCACHE_CMAKE
