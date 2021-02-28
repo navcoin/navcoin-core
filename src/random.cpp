@@ -150,10 +150,19 @@ void GetStrongRandBytes(unsigned char* out, int num)
     memory_cleanse(buf, 64);
 }
 
-uint64_t GetRand(uint64_t nMax)
+uint64_t GetRand(uint64_t nMin, uint64_t nMax)
 {
     if (nMax == 0)
         return 0;
+
+    if (nMin == 0)
+        return 0;
+
+    if (nMin >= nMax)
+        return nMin;
+
+    if (nMin != 0)
+        nMax+=nMin;
 
     // The range of the random source must be a multiple of the modulus
     // to give every possible output value an equal possibility
@@ -162,7 +171,12 @@ uint64_t GetRand(uint64_t nMax)
     do {
         GetRandBytes((unsigned char*)&nRand, sizeof(nRand));
     } while (nRand >= nRange);
-    return (nRand % nMax);
+    return nMin + (nRand % nMax);
+}
+
+uint64_t GetRand(uint64_t nMax)
+{
+    return GetRand(0, nMax);
 }
 
 int GetRandInt(int nMax)
