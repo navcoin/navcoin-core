@@ -135,7 +135,7 @@ bool AggregationSession::CleanCandidateTransactions()
 {
     {
         AssertLockHeld(cs_aggregation);
-        
+
         set<CTxIn> seenInputs;
 
         vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=, &seenInputs](CandidateTransaction x) {
@@ -143,7 +143,7 @@ bool AggregationSession::CleanCandidateTransactions()
             {
                 return true;
             }
-            
+
             for (int i = 0; i < x.tx.vin.size(); i++)
             {
                 CTxIn in = x.tx.vin[i];
@@ -464,24 +464,17 @@ bool AggregationSession::BuildCandidateTransaction(const CWalletTx *prevcoin, co
     candidate.nVersion = TX_BLS_INPUT_FLAG | TX_BLS_CT_FLAG;
 
     blsctDoublePublicKey k;
-    blsctPublicKey pk;
     blsctKey bk, v, s;
 
-    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
-    shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
-    reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
-
-    reserveBLSCTKey[0]->GetReservedKey(pk);
+    std::vector<unsigned char> rand;
+    rand.resize(32);
+    GetRandBytes(rand.data(), 32);
+    bk = bls::AugSchemeMPL::KeyGen(rand);
 
     std::vector<unsigned char> ephemeralKey;
 
     {
         LOCK(pwalletMain->cs_wallet);
-
-        if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
-        {
-            return error("AggregationSession::%s: Could not get private key from blsct pool",__func__);
-        }
 
         ephemeralKey = bk.GetKey().Serialize();
 
