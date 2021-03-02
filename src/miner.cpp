@@ -1333,7 +1333,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           bool fProposal = view.HaveProposal(hash);
                           bool fPaymentRequest = view.HavePaymentRequest(hash);
 
-                          if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest) && !(pblock->nNonce & 1))
+                          if (val != VoteFlags::VOTE_REMOVE && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest) && !(pblock->nNonce & 1))
                           {
                               pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
