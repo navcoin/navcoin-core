@@ -222,3 +222,7 @@ QToolButton,
 QPushButton {
     padding: 0.2em 0.5em;
 }
+
+QWizard {
+    background: palette(alternate-base);
+}

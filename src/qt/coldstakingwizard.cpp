@@ -9,6 +9,8 @@
 ColdStakingWizard::ColdStakingWizard(QWidget *parent)
     : QWizard(parent)
 {
+    this->setStyleSheet("background: palette(alternate-base);");
+
     addPage(new IntroPage);
     addPage(new GetAddressesPage);
     addPage(new ColdStakingAddressPage);
