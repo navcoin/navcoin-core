@@ -11,7 +11,7 @@
 static const int PRICE_UPDATE_DELAY = 300000;
 
 /* Milliseconds between model updates */
-static const int MODEL_UPDATE_DELAY = 250;
+static const int MODEL_UPDATE_DELAY = 500;
 
 /* Milliseconds between error log refreshes */
 static const int ERROR_LOG_UPDATE_DELAY = 2500;

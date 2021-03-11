@@ -117,17 +117,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::OverviewPage),
     clientModel(0),
     walletModel(0),
-    currentBalance(-1),
-    currentUnconfirmedBalance(-1),
-    currentStakingBalance(-1),
-    currentColdStakingBalance(-1),
-    currentImmatureBalance(-1),
-    currentTotalBalance(-1),
-    currentPrivateBalance(-1),
-    currentWatchOnlyBalance(-1),
-    currentWatchUnconfBalance(-1),
-    currentWatchImmatureBalance(-1),
-    currentWatchOnlyTotalBalance(-1),
     txdelegate(new TxViewDelegate(platformStyle)),
     filter(0)
 {
@@ -142,9 +131,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->swapButton, SIGNAL(clicked()), this, SLOT(ShowSwapDialog()));
 
     swapDialog = new SwapXNAVDialog(this);
-
-    // start with displaying the "out of sync" warnings
-    updateStakeReportNow();
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -201,8 +187,6 @@ void OverviewPage::setBalance(
     ui->labelWatchedBalance->setText(NavcoinUnits::formatWithUnit(unit, currentWatchOnlyTotalBalance, false, NavcoinUnits::separatorAlways));
     ui->labelTotal->setText(NavcoinUnits::formatWithUnit(unit, currentTotalBalance + currentPrivateBalance + currentPrivateBalancePending + currentWatchOnlyTotalBalance, false, NavcoinUnits::separatorAlways));
 
-    updateStakeReportNow();
-
     swapDialog->SetPublicBalance(balance);
     swapDialog->SetPrivateBalance(privateBalance);
 
@@ -240,12 +224,61 @@ void OverviewPage::setWalletModel(WalletModel *model)
         ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
 
         // Keep up to date with wallet
-        setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getStake(), model->getImmatureBalance(),
-                   model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
-                   model->getColdStakingBalance(), model->getPrivateBalance(), model->getPrivateBalancePending(),
-                   model->getPrivateBalanceLocked());
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
+        setBalance(
+            model->getBalance(),
+            model->getUnconfirmedBalance(),
+            model->getStake(),
+            model->getImmatureBalance(),
+            model->getWatchBalance(),
+            model->getWatchUnconfirmedBalance(),
+            model->getWatchImmatureBalance(),
+            model->getColdStakingBalance(),
+            model->getPrivateBalance(),
+            model->getPrivateBalancePending(),
+            model->getPrivateBalanceLocked()
+        );
+
+        connect(model, SIGNAL(balanceChanged(
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount
+        )), this, SLOT(setBalance(
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount
+        )));
+
+        connect(model, SIGNAL(stakesChanged(
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount
+        )), this, SLOT(setStakes(
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount,
+            CAmount
+        )));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -259,18 +292,38 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
 void OverviewPage::updateDisplayUnit()
 {
-    if(walletModel && walletModel->getOptionsModel())
-    {
-        if(currentBalance != -1)
-            setBalance(currentBalance, currentUnconfirmedBalance, currentStakingBalance, currentImmatureBalance,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance, currentColdStakingBalance,
-                       currentPrivateBalance, currentPrivateBalancePending, currentPrivateBalanceLocked);
+    if (!walletModel || !walletModel->getOptionsModel())
+        return;
 
-        // Update txdelegate->unit with the current unit
-        txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
+    if (currentBalance != -1)
+        setBalance(
+            currentBalance,
+            currentUnconfirmedBalance,
+            currentStakingBalance,
+            currentImmatureBalance,
+            currentWatchOnlyBalance,
+            currentWatchUnconfBalance,
+            currentWatchImmatureBalance,
+            currentColdStakingBalance,
+            currentPrivateBalance,
+            currentPrivateBalancePending,
+            currentPrivateBalanceLocked
+        );
 
-        ui->listTransactions->update();
-    }
+    if (currentAmount24h != -1)
+        setStakes(
+            currentAmount24h,
+            currentAmount7d,
+            currentAmount30d,
+            currentAmount1y,
+            currentAmountAll,
+            currentAmountExp
+        );
+
+    // Update txdelegate->unit with the current unit
+    txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
+
+    ui->listTransactions->update();
 }
 
 void OverviewPage::ShowSwapDialog()
@@ -285,81 +338,37 @@ void OverviewPage::ShowSwapDialog()
     this->swapDialog->exec();
 }
 
-using namespace boost;
-using namespace std;
-
-struct StakePeriodRange_T {
-    int64_t Start;
-    int64_t End;
-    int64_t Total;
-    int Count;
-    string Name;
-};
-
-typedef vector<StakePeriodRange_T> vStakePeriodRange_T;
-
-extern vStakePeriodRange_T PrepareRangeForStakeReport();
-extern int GetsStakeSubTotal(vStakePeriodRange_T& aRange);
-
-void OverviewPage::updateStakeReport(bool fImmediate=false)
-{
-    LOCK(cs_main);
+void OverviewPage::setStakes(
+    const CAmount& amount24h,
+    const CAmount& amount7d,
+    const CAmount& amount30d,
+    const CAmount& amount1y,
+    const CAmount& amountAll,
+    const CAmount& amountExp
+) {
+    // Check if we have a wallet model, it's required to move forward
     if (!walletModel || !walletModel->getOptionsModel())
         return;
 
-    static vStakePeriodRange_T aRange;
-    int nItemCounted=0;
-
-    if (fImmediate) nLastReportUpdate = 0;
-
-    // Skip report recalc if not immediate or before 5 minutes from last
-    if (GetTime() - nLastReportUpdate > 300)
-    {
-        // Load the range
-        aRange = PrepareRangeForStakeReport();
-
-        // Get the subtotals
-        nItemCounted = GetsStakeSubTotal(aRange);
-
-        // Save the last update
-        nLastReportUpdate = GetTime();
-    }
-
+    // Get the unit for currency
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
 
-    CAmount amount24h = aRange[30].Total;
-    CAmount amount7d  = aRange[31].Total;
-    CAmount amount30d = aRange[32].Total;
-    CAmount amount1y  = aRange[33].Total;
-    CAmount amountAll = aRange[34].Total;
-
-    CStateViewCache view(pcoinsTip);
-
-    uint64_t nWeight = pwalletMain ? pwalletMain->GetStakeWeight() : 0;
-    uint64_t nNetworkWeight = GetPoSKernelPS();
-    bool staking = nLastCoinStakeSearchInterval && nWeight;
-    uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
-    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
+    // Save the current values
+    currentAmount24h = amount24h;
+    currentAmount7d  = amount7d;
+    currentAmount30d = amount30d;
+    currentAmount1y  = amount1y;
+    currentAmountAll = amountAll;
+    currentAmountExp = amountExp;
 
     ui->label24hStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amount24h, false, NavcoinUnits::separatorAlways));
     ui->label7dStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amount7d, false, NavcoinUnits::separatorAlways));
     ui->label30dStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amount30d, false, NavcoinUnits::separatorAlways));
     ui->label1yStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amount1y, false, NavcoinUnits::separatorAlways));
     ui->labelallStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amountAll, false, NavcoinUnits::separatorAlways));
-    ui->labelExpectedStakingStats->setText(NavcoinUnits::formatWithUnit(unit, nExpectedDailyReward, false, NavcoinUnits::separatorAlways));
+    ui->labelExpectedStakingStats->setText(NavcoinUnits::formatWithUnit(unit, amountExp, false, NavcoinUnits::separatorAlways));
 
     uiInterface.SetStaked(amountAll, amount24h, amount7d);
-}
-
-
-void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
-{
-    OverviewPage::updateStakeReportNow();
-}
-
-void OverviewPage::updateStakeReportNow()
-{
-    updateStakeReport(true);
 }
 
 void OverviewPage::on_showStakingSetup_clicked()

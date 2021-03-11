@@ -948,6 +948,8 @@ void AggregationSessionThread()
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-candidate-coins");
 
+    int aggSleep = GetArg("-blsctsleepagg", BLSCT_THREAD_SLEEP_AGG);
+
     try {
         while (true) {
             do {
@@ -961,7 +963,7 @@ void AggregationSessionThread()
                 MilliSleep(1000);
             } while (true);
 
-            MilliSleep(GetRand(120*1000));
+            MilliSleep(GetRand(aggSleep, 120000));
 
             {
                 LOCK(cs_aggregation);
@@ -982,7 +984,7 @@ void AggregationSessionThread()
                 }
             }
 
-            MilliSleep(GetRand(180*1000));
+            MilliSleep(GetRand(aggSleep, 180000));
         }
     }
     catch (const boost::thread_interrupted&)
@@ -1002,6 +1004,8 @@ void CandidateVerificationThread()
     LogPrintf("NavcoinCandidateVerificationThread started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-candidate-coins-verification");
+
+    int verSleep = GetArg("-blsctsleepver", BLSCT_THREAD_SLEEP_VER);
 
     try {
         while (true) {
@@ -1096,7 +1100,7 @@ void CandidateVerificationThread()
                 LogPrint("aggregationsession", "AggregationSession::%s: received one candidate\n", __func__);
             }
 
-            MilliSleep(GetRand(50));
+            MilliSleep(GetRand(verSleep, verSleep + 100));
         }
     }
     catch (const boost::thread_interrupted&)

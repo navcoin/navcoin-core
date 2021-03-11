@@ -41,13 +41,30 @@ public:
     void setWalletModel(WalletModel *walletModel);
 
 public Q_SLOTS:
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
-                    const CAmount& coldStakingBalance, const CAmount& privateBalance, const CAmount& privPending, const CAmount& privLocked);
+    void setBalance(
+        const CAmount& balance,
+        const CAmount& unconfirmedBalance,
+        const CAmount& stakingBalance,
+        const CAmount& immatureBalance,
+        const CAmount& watchOnlyBalance,
+        const CAmount& watchUnconfBalance,
+        const CAmount& watchImmatureBalance,
+        const CAmount& coldStakingBalance,
+        const CAmount& privateBalance,
+        const CAmount& privPending,
+        const CAmount& privLocked
+    );
+
+    void setStakes(
+        const CAmount& amount24h,
+        const CAmount& amount7d,
+        const CAmount& amount30d,
+        const CAmount& amount1y,
+        const CAmount& amountAll,
+        const CAmount& amountExp
+    );
 
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
-    void updateStakeReportNow();
-    void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
     void on_showStakingSetup_clicked();
 
 Q_SIGNALS:
@@ -58,7 +75,7 @@ private:
     Ui::OverviewPage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
-    CAmount currentBalance;
+    CAmount currentBalance = -1;
     CAmount currentUnconfirmedBalance;
     CAmount currentStakingBalance;
     CAmount currentColdStakingBalance;
@@ -71,11 +88,15 @@ private:
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
     CAmount currentWatchOnlyTotalBalance;
+    CAmount currentAmount24h = -1;
+    CAmount currentAmount7d;
+    CAmount currentAmount30d;
+    CAmount currentAmount1y;
+    CAmount currentAmountAll;
+    CAmount currentAmountExp;
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
-    qint64 nLastReportUpdate;
-    void updateStakeReport(bool fImmediate);
 
     SwapXNAVDialog* swapDialog;
 
