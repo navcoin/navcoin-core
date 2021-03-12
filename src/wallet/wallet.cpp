@@ -5632,6 +5632,9 @@ void CWallet::BuildMixCounters()
     for (TxItems::const_iterator it = txOrdered.begin(); it != txOrdered.end(); ++it)
     {
         CWalletTx *const pcoin = (*it).second.first;
+
+        if (!pcoin) continue;
+
         uint256 hash = pcoin->GetHash();
 
         if (pcoin->IsCTOutput() && pcoin->IsBLSInput())
