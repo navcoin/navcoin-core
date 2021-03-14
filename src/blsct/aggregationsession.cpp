@@ -480,7 +480,7 @@ bool AggregationSession::BuildCandidateTransaction(const CWalletTx *prevcoin, co
 
         if (!pwalletMain->GetBLSCTBlindingKey(pk, bk))
         {
-            LogPrint("blsct", "AggregationSession::%s: Could not get private key from blsct pool", __func__)
+            LogPrint("blsct", "AggregationSession::%s: Could not get private key from blsct pool", __func__);
             return false;
         }
 
