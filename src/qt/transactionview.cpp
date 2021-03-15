@@ -35,6 +35,8 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
+#define NUM_ITEMS 1000
+
 TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent), model(0), transactionProxyModel(0),
     transactionView(0), abandonAction(0)
@@ -178,6 +180,7 @@ void TransactionView::setModel(WalletModel *model)
         transactionProxyModel->setDynamicSortFilter(true);
         transactionProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        transactionProxyModel->setLimit(NUM_ITEMS);
 
         transactionProxyModel->setSortRole(Qt::EditRole);
 
@@ -294,7 +297,7 @@ void TransactionView::changedPrefix(const QString &prefix)
 {
     if(!transactionProxyModel)
         return;
-    transactionProxyModel->setAddressPrefix(prefix);
+    transactionProxyModel->setSearchString(prefix);
 }
 
 void TransactionView::changedAmount(const QString &amount)

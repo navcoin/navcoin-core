@@ -155,13 +155,17 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(openExplorerAction, SIGNAL(triggered()), this, SLOT(onDetails()));
     connect(openChart, SIGNAL(triggered()), this, SLOT(onViewChart()));
 
+    pollRefreshTimer = new QTimer(this);
+    connect(pollRefreshTimer, SIGNAL(timeout()), this, SLOT(pollRefresh()));
+    pollRefreshTimer->start(MODEL_UPDATE_DELAY);
+
     viewProposals();
 }
 
 void DaoPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
-    refresh(true);
+    this->fForceRefresh = true;
 }
 
 void DaoPage::setWarning(QString text)
@@ -194,7 +198,7 @@ void DaoPage::setView(int view)
 {
     nView = view;
 
-    refresh(true);
+    fForceRefresh = true;
 }
 
 void DaoPage::refreshForce()
@@ -203,26 +207,45 @@ void DaoPage::refreshForce()
     {
         nLastUpdate = GetAdjustedTime();
         setWarning("");
-        refresh(true);
+        fForceRefresh = true;
     }
-    if (fChartOpen)
-        chartDlg->updateView();
+}
+
+void DaoPage::pollRefresh()
+{
+    if (!fForceRefresh)
+        return;
+
+    refresh(fForceRefresh, fUpdateEmpty);
+    fForceRefresh = false;
+    fUpdateEmpty = false;
 }
 
 void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
 {
-    int unit = DEFAULT_UNIT;
-
-    LOCK(cs_main);
+    if (fRunning)
+        return;
 
     if (pcoinsTip == nullptr)
         return;
 
+    fRunning = true;
+
+    LOCK(cs_main);
+
+    int unit = DEFAULT_UNIT;
+
     CStateViewCache view(pcoinsTip);
 
-    if (!view.GetAllProposals(proposalMap) || !view.GetAllPaymentRequests(paymentRequestMap) ||
-            !view.GetAllConsultations(consultationMap) || !view.GetAllConsultationAnswers(consultationAnswerMap))
+    if (
+        !view.GetAllProposals(proposalMap) ||
+        !view.GetAllPaymentRequests(paymentRequestMap) ||
+        !view.GetAllConsultations(consultationMap) ||
+        !view.GetAllConsultationAnswers(consultationAnswerMap)
+    ) {
+        fRunning = false;
         return;
+    }
 
     if (clientModel)
     {
@@ -237,18 +260,30 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
     cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
     cycleProgressBar->setValue((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view))+1);
 
-    if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter && nFilter2 == nCurrentFilter2 &&
-            ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
-             (nCurrentView == VIEW_PAYMENT_REQUESTS &&  paymentRequestMap.size() == paymentRequestModel.size()) ||
-             (nCurrentView == VIEW_CONSULTATIONS && consultationMap.size() == consultationModel.size())))
+    if (
+        !force &&
+        unit == nCurrentUnit &&
+        nFilter == nCurrentFilter &&
+        nFilter2 == nCurrentFilter2 &&
+        (
+            (nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
+            (nCurrentView == VIEW_PAYMENT_REQUESTS &&  paymentRequestMap.size() == paymentRequestModel.size()) ||
+            (nCurrentView == VIEW_CONSULTATIONS && consultationMap.size() == consultationModel.size())
+        )
+    ) {
+        fRunning = false;
         return;
+    }
 
     initialize(proposalMap, paymentRequestMap, consultationMap, consultationAnswerMap, unit, updateFilterIfEmpty);
+    fRunning = false;
+
+    if (fChartOpen)
+        chartDlg->updateView();
 }
 
 void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit, bool updateFilterIfEmpty)
 {
-
     LOCK(cs_main);
 
     nCurrentUnit = unit;
@@ -1710,8 +1745,8 @@ void DaoPage::onVote() {
             }
         }
     }
-    refresh(true, true);
-
+    fForceRefresh = true;
+    fUpdateEmpty = true;
 }
 
 void DaoPage::onDetails() {
@@ -1841,18 +1876,18 @@ void DaoPage::backToFilter() {
 void DaoPage::onFilter(int index) {
     nFilter = index;
     filterCmb->setCurrentIndex(index);
-    refresh(true);
+    fForceRefresh = true;
 }
 
 void DaoPage::onFilter2(int index) {
     nFilter2 = index;
     filter2Cmb->setCurrentIndex(index);
-    refresh(true);
+    fForceRefresh = true;
 }
 
 void DaoPage::onExclude(bool fChecked) {
     fExclude = fChecked;
-    refresh(true);
+    fForceRefresh = true;
 }
 
 void DaoPage::onCreateBtn() {
@@ -1866,14 +1901,14 @@ void DaoPage::onCreate() {
         CommunityFundCreateProposalDialog dlg(this);
         dlg.setModel(walletModel);
         dlg.exec();
-        refresh(true);
+        fForceRefresh = true;
     }
     else if (nCurrentView == VIEW_PAYMENT_REQUESTS)
     {
         CommunityFundCreatePaymentRequestDialog dlg(this);
         dlg.setModel(walletModel);
         dlg.exec();
-        refresh(true);
+        fForceRefresh = true;
     }
     else if (nCurrentView == VIEW_CONSULTATIONS)
     {
@@ -1900,7 +1935,7 @@ void DaoPage::onCreate() {
             dlg.exec();
         }
 
-        refresh(true);
+        fForceRefresh = true;
     }
     else if (nCurrentView == VIEW_CONSENSUS && contextId >= 0)
     {
@@ -1926,7 +1961,8 @@ void DaoPage::onCreate() {
             dlg.setModel(walletModel);
             dlg.exec();
         }
-        refresh(true);
+
+        fForceRefresh = true;
     }
 }
 
@@ -1943,7 +1979,7 @@ void DaoPage::onSupportAnswer() {
             DaoSupport dlg(this, consultation);
             dlg.setModel(walletModel);
             dlg.exec();
-            refresh(true);
+            fForceRefresh = true;
         }
     }
 }
