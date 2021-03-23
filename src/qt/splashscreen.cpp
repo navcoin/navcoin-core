@@ -108,6 +108,12 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 
     // Set window title
     setWindowTitle(titleText + " " + titleAddText);
+    QPalette pal = palette();
+
+    // Set white background
+    pal.setColor(QPalette::Background, Qt::white);
+    setAutoFillBackground(true);
+    setPalette(pal);
 
     // Resize window and move to center of desktop, disallow resizing
     QRect r(QPoint(), splashSize);
