@@ -320,6 +320,20 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
 
 bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> etx)
 {
+    if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
+        return false;
+
+    if (vTransactionCandidates.size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
+    {
+        return false;
+    }
+
+    if (!(!IsInitialBlockDownload() && pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->inputs && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()) && pwalletMain->GetPrivateBalance() > 0))
+        return false;
+
+    if (setKnownSessions.size() > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100*100)
+        setKnownSessions.clear();
+
     setKnownSessions.insert(SerializeHash(*etx));
 
     candidatesQueue.push(etx);
