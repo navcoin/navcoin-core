@@ -328,7 +328,7 @@ bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<Encryp
         return false;
     }
 
-    if (!(!IsInitialBlockDownload() && pwalletMain && pwalletMain->aggSession && pwalletMain->aggSession->inputs && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()) && pwalletMain->GetPrivateBalance() > 0))
+    if (!(pwalletMain->GetPrivateBalance() > 0))
         return false;
 
     if (setKnownSessions.size() > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100*100)
