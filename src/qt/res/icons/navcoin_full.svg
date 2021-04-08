@@ -1,99 +1,25 @@
-<svg width="592" height="140.96" version="1.1" viewBox="0 0 592 140.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
- <defs>
-  <style>.cls-1{isolation:isolate;}.cls-2{fill:url(#linear-gradient);}.cls-3{fill:url(#nave);}.cls-4{fill:url(#navo);}.cls-5{fill:url(#navj);}.cls-6{fill:url(#navi);}.cls-7{fill:url(#navh);}.cls-8{fill:url(#navd);}.cls-9{fill:url(#navg);}.cls-10{fill:url(#navf);}.cls-11{fill:url(#navc);}.cls-12,.cls-13,.cls-16,.cls-18,.cls-21,.cls-22,.cls-25,.cls-26,.cls-32,.cls-34{mix-blend-mode:overlay;}.cls-12{fill:url(#navb);}.cls-13{fill:url(#navaf);}.cls-14,.cls-15,.cls-23,.cls-24,.cls-30,.cls-31{mix-blend-mode:soft-light;}.cls-14{fill:url(#nava);}.cls-15{fill:url(#navae);}.cls-16{fill:url(#navad);}.cls-17{fill:url(#navac);}.cls-18{fill:url(#navab);}.cls-19,.cls-20,.cls-27,.cls-28{opacity:0.89;mix-blend-mode:hard-light;}.cls-19{fill:url(#navaa);}.cls-20{fill:url(#navz);}.cls-21{fill:url(#navy);}.cls-22{fill:url(#navx);}.cls-23{fill:url(#navw);}.cls-24{fill:url(#navv);}.cls-25{fill:url(#navu);}.cls-26{fill:url(#navt);}.cls-27{fill:url(#navs);}.cls-28{fill:url(#navr);}.cls-29,.cls-33{mix-blend-mode:darken;}.cls-29{fill:url(#navq);}.cls-30{fill:url(#navp);}.cls-31{fill:url(#navn);}.cls-32{fill:url(#navm);}.cls-33{fill:url(#navl);}.cls-34{fill:url(#navk);}</style>
-  <linearGradient id="linear-gradient" x1="195.67" x2="195.67" y1="126.63" y2="126.85" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#4da3db" offset="0"/>
-   <stop stop-color="#8361a9" offset="1"/>
-  </linearGradient>
-  <linearGradient id="nave" x1="150.65" x2="150.74" y1="126.91" y2="126.68" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#7897ce" offset="0"/>
-   <stop stop-color="#8555a2" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navo" x1="481.1" x2="481.1" y1="126.63" y2="126.85" xlink:href="#linear-gradient"/>
-  <linearGradient id="navj" x1="436.08" x2="436.17" y1="126.91" y2="126.68" xlink:href="#nave"/>
-  <linearGradient id="navi" x1="482.15" x2="482.15" y1="126.63" y2="126.85" xlink:href="#linear-gradient"/>
-  <linearGradient id="navh" x1="437.13" x2="437.23" y1="126.91" y2="126.68" xlink:href="#nave"/>
-  <linearGradient id="navd" x1="218.36" x2="67.45" y1="70.41" y2="70.41" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#34c3ee" offset="0"/>
-   <stop stop-color="#6a82d7" offset=".53"/>
-   <stop stop-color="#cc26b2" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navg" x1="369.38" x2="268.25" y1="70.57" y2="70.57" xlink:href="#navd"/>
-  <linearGradient id="navf" x1="521.87" x2="388.46" y1="70.41" y2="70.41" xlink:href="#navd"/>
-  <linearGradient id="navc" x1="78.12" x2="116.87" y1="125.49" y2="17.55" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#ce25b2" offset="0"/>
-   <stop stop-color="#8e50c5" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navb" x1="219.44" x2="211.27" y1="108.1" y2="22.04" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#3765b0" offset="0"/>
-   <stop stop-color="#4ab5e7" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navaf" x1="168.53" x2="196.08" y1="115.3" y2="65.64" xlink:href="#navb"/>
-  <linearGradient id="nava" x1="125.33" x2="153.52" y1="35.14" y2="84.02" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#5a75d5" offset="0"/>
-   <stop stop-color="#9e75b4" stop-opacity=".9" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navae" x1="146.46" x2="169.42" y1="50.23" y2="126.01" xlink:href="#nava"/>
-  <linearGradient id="navad" x1="166.19" x2="127.05" y1="68.52" y2="26.01" xlink:href="#nava"/>
-  <linearGradient id="navac" x1="34.85" x2="108.54" y1="108.67" y2="39.76" xlink:href="#navc"/>
-  <linearGradient id="navab" x1="171.64" x2="125.01" y1="130.26" y2="49.87" xlink:href="#nava"/>
-  <linearGradient id="navaa" x1="144.2" x2="231.44" y1="97.03" y2="9.51" xlink:href="#navb"/>
-  <linearGradient id="navz" x1="174.66" x2="208.44" y1="116.06" y2="48.82" xlink:href="#navb"/>
-  <linearGradient id="navy" x1="504.87" x2="496.7" y1="108.1" y2="22.04" xlink:href="#navb"/>
-  <linearGradient id="navx" x1="453.96" x2="481.51" y1="115.3" y2="65.64" xlink:href="#navb"/>
-  <linearGradient id="navw" x1="410.76" x2="438.95" y1="35.14" y2="84.02" xlink:href="#nava"/>
-  <linearGradient id="navv" x1="431.89" x2="454.85" y1="50.23" y2="126.01" xlink:href="#nava"/>
-  <linearGradient id="navu" x1="451.62" x2="412.48" y1="68.52" y2="26.01" xlink:href="#nava"/>
-  <linearGradient id="navt" x1="457.07" x2="410.43" y1="130.26" y2="49.87" xlink:href="#nava"/>
-  <linearGradient id="navs" x1="429.63" x2="516.87" y1="97.03" y2="9.51" xlink:href="#navb"/>
-  <linearGradient id="navr" x1="460.09" x2="493.87" y1="116.06" y2="48.82" xlink:href="#navb"/>
-  <linearGradient id="navq" x1="269.12" x2="307.87" y1="125.49" y2="17.55" xlink:href="#navc"/>
-  <linearGradient id="navp" x1="316.33" x2="344.52" y1="35.14" y2="84.02" xlink:href="#nava"/>
-  <linearGradient id="navn" x1="337.46" x2="360.42" y1="50.23" y2="126.01" xlink:href="#nava"/>
-  <linearGradient id="navm" x1="357.19" x2="318.05" y1="68.52" y2="26.01" xlink:href="#nava"/>
-  <linearGradient id="navl" x1="225.85" x2="299.54" y1="108.67" y2="39.76" xlink:href="#navc"/>
-  <linearGradient id="navk" x1="362.64" x2="316.01" y1="130.26" y2="49.87" xlink:href="#nava"/>
-  <linearGradient id="naval" x1="195.67" x2="195.67" y1="126.63" y2="126.85" gradientUnits="userSpaceOnUse" xlink:href="#linear-gradient"/>
-  <linearGradient id="navak" x1="150.65" x2="150.74" y1="126.91" y2="126.68" gradientUnits="userSpaceOnUse" xlink:href="#nave"/>
-  <linearGradient id="navaj" x1="218.36" x2="67.45" y1="70.41" y2="70.41" gradientUnits="userSpaceOnUse" xlink:href="#navd"/>
-  <linearGradient id="navai" x1="78.12" x2="116.87" y1="125.49" y2="17.55" gradientUnits="userSpaceOnUse" xlink:href="#navc"/>
-  <linearGradient id="navah" x1="219.44" x2="211.27" y1="108.1" y2="22.04" gradientUnits="userSpaceOnUse" xlink:href="#navb"/>
-  <linearGradient id="navag" x1="125.33" x2="153.52" y1="35.14" y2="84.02" gradientUnits="userSpaceOnUse" xlink:href="#nava"/>
- </defs>
- <title>oldlogo copy</title>
- <g class="cls-1" transform="matrix(1.2499 0 0 1.2499 -64.256 -17.623)" style="isolation:isolate">
-  <polygon class="cls-2" points="195.67 126.62 195.78 126.88 195.56 126.88" fill="url(#naval)"/>
-  <polygon class="cls-3" points="150.66 126.62 150.77 126.88 150.55 126.88" fill="url(#navak)"/>
-  <polygon class="cls-4" points="481.1 126.62 481.21 126.88 480.99 126.88" fill="url(#navo)"/>
-  <polygon class="cls-5" points="436.09 126.62 436.2 126.88 435.98 126.88" fill="url(#navj)"/>
-  <polygon class="cls-6" points="482.15 126.62 482.26 126.88 482.04 126.88" fill="url(#navi)"/>
-  <polygon class="cls-7" points="437.14 126.62 437.25 126.88 437.03 126.88" fill="url(#navh)"/>
-  <polygon class="cls-8" points="194.77 14.1 239.78 14.1 192.09 126.46 191.98 126.72 147.19 126.72 147.08 126.46 121.87 67.06 96.55 126.72 51.54 126.72 99.35 14.1 144.4 14.1 169.59 73.44" fill="url(#navaj)"/>
-  <polygon class="cls-9" points="312.76 67.35 287.49 126.88 242.48 126.88 290.25 14.33 290.28 14.26 335.23 14.26 335.26 14.33 383.03 126.88 338.03 126.88" fill="url(#navg)"/>
-  <polygon class="cls-10" points="429.28 14.1 454.67 73.9 480.05 14.1 525.06 14.1 477.26 126.72 432.08 126.72 384.28 14.1" fill="url(#navf)"/>
-  <polygon class="cls-11" points="51.41 126.88 96.42 126.88 144.27 14.26" fill="url(#navai)"/>
-  <polygon class="cls-12" points="239.63 14.26 192.1 126.64 194.72 14.26" fill="url(#navah)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-13" points="147.19 126.64 194.72 14.26 192.1 126.64" fill="url(#navaf)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-14" points="99.67 14.38 147.19 126.76 144.27 14.26" fill="url(#navag)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-15" points="192.1 126.76 144.27 14.26 147.19 126.76" fill="url(#navae)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-16" points="144.27 14.32 99.22 14.32 191.79 126.7" fill="url(#navad)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-17" points="51.41 126.88 99.67 14.38 144.27 14.26" fill="url(#navac)"/>
-  <polygon class="cls-18" points="99.22 14.32 192.1 126.82 147.19 126.82" fill="url(#navab)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-19" points="239.52 14.2 194.61 14.2 146.9 126.59" fill="url(#navaa)" opacity=".89" style="mix-blend-mode:hard-light"/>
-  <polygon class="cls-20" points="191.81 126.62 146.9 126.62 239.52 14.23" fill="url(#navz)" opacity=".89" style="mix-blend-mode:hard-light"/>
-  <polygon class="cls-21" points="525.06 14.26 477.53 126.64 480.14 14.26" fill="url(#navy)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-22" points="432.62 126.64 480.14 14.26 477.53 126.64" fill="url(#navx)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-23" points="385.1 14.38 432.62 126.76 429.69 14.26" fill="url(#navw)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-24" points="477.53 126.76 429.69 14.26 432.62 126.76" fill="url(#navv)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-25" points="429.69 14.32 384.65 14.32 477.22 126.7" fill="url(#navu)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-26" points="384.64 14.32 477.53 126.82 432.62 126.82" fill="url(#navt)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-27" points="524.95 14.2 480.04 14.2 432.33 126.59" fill="url(#navs)" opacity=".89" style="mix-blend-mode:hard-light"/>
-  <polygon class="cls-28" points="477.24 126.62 432.33 126.62 524.95 14.23" fill="url(#navr)" opacity=".89" style="mix-blend-mode:hard-light"/>
-  <polygon class="cls-29" points="242.41 126.88 287.42 126.88 335.26 14.26" fill="url(#navq)" style="mix-blend-mode:darken"/>
-  <polygon class="cls-30" points="290.67 14.38 338.19 126.76 335.26 14.26" fill="url(#navp)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-31" points="383.1 126.76 335.26 14.26 338.19 126.76" fill="url(#navn)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-32" points="335.26 14.32 290.22 14.32 382.79 126.7" fill="url(#navm)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-33" points="242.41 126.88 290.67 14.38 335.26 14.26" fill="url(#navl)" style="mix-blend-mode:darken"/>
-  <polygon class="cls-34" points="290.21 14.32 383.1 126.82 338.19 126.82" fill="url(#navk)" style="mix-blend-mode:overlay"/>
- </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="3671px" height="1424px" viewBox="0 0 3671 1424" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>Web | Header</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="85.0995%" y1="23.7603521%" x2="15.5120713%" y2="76.010278%" id="linearGradient-1">
+            <stop stop-color="#0A87F5" offset="0%"></stop>
+            <stop stop-color="#DC1EB9" offset="100%"></stop>
+        </linearGradient>
+        <path d="M250,402.5 C260.5,402.5 269,394 269,383 L269,239.5 C269,178 232.5,136 170,136 C125.5,136 98.5,158.5 81.5,186.5 L81.5,158.5 C81.5,147.5 73,139 62,139 C51.5,139 43,148 43,158.5 L43,383 C43,394 51.5,402.5 62.5,402.5 C73.5,402.5 81.5,394 81.5,383 L81.5,252 C81.5,203.5 114.5,171 159,171 C204.5,171 230.5,201 230.5,249 L230.5,383 C230.5,394 239,402.5 250,402.5 Z M448,405.5 C493.5,405.5 523.5,384.5 541.5,361 L541.5,384.5 C541.5,394.5 549,402.5 560,402.5 C570.5,402.5 578.5,394.5 578.5,383.5 L578.5,242 C578.5,209 569.5,184 552,166.5 C533,147.5 505,138 468.5,138 C435.5,138 409.5,144.5 384,155.5 C379,157.5 373.5,163.5 373.5,171.5 C373.5,180.5 381.5,188 390.5,188 C392.5,188 395,187.5 397.5,186.5 C416.5,178 438.5,172 464.5,172 C513,172 541.5,196 541.5,242.5 L541.5,251.5 C518.5,245 495,240.5 462,240.5 C396.5,240.5 351.5,269.5 351.5,324 L351.5,325 C351.5,378 400,405.5 448,405.5 Z M455.5,375 C420.5,375 390.5,356 390.5,323.5 L390.5,322.5 C390.5,290 417.5,269 466,269 C497.5,269 523,274.5 542,280 L542,305 C542,346 503,375 455.5,375 Z M775,404 C785.5,404 792,397.5 796.5,387.5 L894,167.5 C895,165 896,161.5 896,158 C896,147.5 887.5,139 877,139 C867,139 861.5,145.5 859,153 L774,356 L690.5,154 C687.5,145.5 682,139 671,139 C660,139 651.5,148 651.5,158 C651.5,161.5 653,165 654,168.5 L751,387.5 C755.5,397.5 762.5,404 773,404 L775,404 Z M1086,406 C1129.5,406 1159,389 1183.5,364.5 C1186.5,361.5 1188.5,357 1188.5,352.5 C1188.5,343.5 1180.5,335 1171,335 C1166,335 1162.5,337.5 1160,340 C1141,358 1117.5,371.5 1088,371.5 C1034,371.5 993,327 993,271 L993,270 C993,214.5 1033,170 1085.5,170 C1116.5,170 1137.5,184 1156,201 C1159,203.5 1163.5,205.5 1168.5,205.5 C1178.5,205.5 1187,197.5 1187,187 C1187,181 1184,176 1181,173.5 C1158,152.5 1129,136 1086,136 C1010.5,136 953.5,198 953.5,271 L953.5,272 C953.5,344.5 1010.5,406 1086,406 Z M1385.5,406 C1463.5,406 1521,344 1521,271 L1521,270 C1521,197 1464,136 1386.5,136 C1308.5,136 1251.5,198 1251.5,271 L1251.5,272 C1251.5,345 1308,406 1385.5,406 Z M1386.5,371.5 C1332,371.5 1291,326.5 1291,271 L1291,270 C1291,215.5 1329.5,170 1385.5,170 C1440,170 1481.5,215.5 1481.5,271 L1481.5,272 C1481.5,326.5 1442.5,371.5 1386.5,371.5 Z M1633,87.5 C1646,87.5 1656,79 1656,67 L1656,60.5 C1656,48 1646,40 1633,40 C1620.5,40 1610.5,48 1610.5,60.5 L1610.5,67 C1610.5,79 1620.5,87.5 1633,87.5 Z M1633.5,402.5 C1644.5,402.5 1652.5,394 1652.5,383 L1652.5,158.5 C1652.5,147.5 1644,139 1633,139 C1622.5,139 1614,148 1614,158.5 L1614,383 C1614,394 1622.5,402.5 1633.5,402.5 Z M1969,402.5 C1979.5,402.5 1988,394 1988,383 L1988,239.5 C1988,178 1951.5,136 1889,136 C1844.5,136 1817.5,158.5 1800.5,186.5 L1800.5,158.5 C1800.5,147.5 1792,139 1781,139 C1770.5,139 1762,148 1762,158.5 L1762,383 C1762,394 1770.5,402.5 1781.5,402.5 C1792.5,402.5 1800.5,394 1800.5,383 L1800.5,252 C1800.5,203.5 1833.5,171 1878,171 C1923.5,171 1949.5,201 1949.5,249 L1949.5,383 C1949.5,394 1958,402.5 1969,402.5 Z" id="path-2"></path>
+    </defs>
+    <g id="Web-|-Header" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="N" transform="translate(200.000000, 200.000000)">
+            <rect id="Background" stroke="#F0F0F0" stroke-width="50" fill="#FFFFFF" x="0" y="0" width="1024" height="1024" rx="512"></rect>
+            <path d="M673.125,290 C686.11875,290 696.66225,301.026125 696.871821,313.981822 L696.875,314.375 L696.875,488.125 C696.875,488.401142 697.098858,488.625 697.375,488.625 L734,488.625 L734,488.625 C747.254834,488.625 758,499.370166 758,512.625 C758,525.879834 747.254834,536.625 734,536.625 L697.375,536.625 C697.098858,536.625 696.875,536.848858 696.875,537.125 L696.875,709.375 L696.875,709.375 C696.875,722.36875 687.686562,732.299688 674.767619,732.497007 L674.375,732.5 L671.875,732.5 C661.416016,732.5 653.985138,726.443787 646.601574,717.908311 L646.25,717.5 L504.95914,536.816999 C504.864376,536.695815 504.719104,536.625 504.565267,536.625 L375.5,536.625 C375.223858,536.625 375,536.848858 375,537.125 L375,709.375 L375,709.375 C375,722.36875 364.586437,733.524813 351.036555,733.75 L350.625,733.75 C337.63125,733.75 327.08775,722.723875 326.878179,709.768178 L326.875,709.375 L326.875,537.125 C326.875,536.848858 326.651142,536.625 326.375,536.625 L290,536.625 L290,536.625 C276.745166,536.625 266,525.879834 266,512.625 C266,499.370166 276.745166,488.625 290,488.625 L326.375,488.625 C326.651142,488.625 326.875,488.401142 326.875,488.125 L326.875,315.625 L326.875,315.625 C326.875,302.63125 337.901125,291.475188 350.856822,291.253366 L351.25,291.25 L358.125,291.25 C369.028846,291.25 375.822781,296.534172 382.490257,304.826256 L383.125,305.625 L526.470859,488.433525 C526.565639,488.554399 526.710718,488.625 526.86432,488.625 L648.25,488.625 C648.526142,488.625 648.75,488.401142 648.75,488.125 L648.75,314.375 L648.75,314.375 C648.75,301.38125 659.163562,290.225188 672.713445,290 L673.125,290 Z M648.25,536.625 L565.287451,536.625 C565.011308,536.625 564.787451,536.848858 564.787451,537.125 C564.787451,537.236864 564.824963,537.345497 564.893989,537.433525 L647.856538,643.235569 C648.026932,643.452872 648.341222,643.4909 648.558525,643.320506 C648.679399,643.225725 648.75,643.080647 648.75,642.927044 L648.75,537.125 C648.75,536.848858 648.526142,536.625 648.25,536.625 Z M375,372.076085 L375,488.125 C375,488.401142 375.223858,488.625 375.5,488.625 L466.248285,488.625 C466.524427,488.625 466.748285,488.401142 466.748285,488.125 C466.748285,488.013364 466.710925,487.904939 466.642157,487.816999 L375.893872,371.768084 C375.723768,371.550554 375.409528,371.512108 375.191999,371.682213 C375.070815,371.776976 375,371.922249 375,372.076085 Z" id="Shape" fill="url(#linearGradient-1)" fill-rule="nonzero"></path>
+            <g id="Group" transform="translate(1224.000000, 241.000000)" fill-rule="nonzero">
+                <g id="navcoin">
+                    <use fill="#000000" xlink:href="#path-2"></use>
+                    <use fill="#2D2D2D" xlink:href="#path-2"></use>
+                </g>
+            </g>
+        </g>
+    </g>
 </svg>

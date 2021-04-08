@@ -386,6 +386,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                             sub.type = TransactionRecord::AnonTxRecv;
                             sub.memo = wtx.vMemos[nOut];
                             sub.credit = wtx.vAmounts[nOut];
+                            recvd -= wtx.vAmounts[nOut];
                             parts.append(sub);
                         }
                     }

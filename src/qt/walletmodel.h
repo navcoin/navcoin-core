@@ -240,6 +240,12 @@ private:
     CAmount cachedPrivateBalance;
     CAmount cachedPrivateBalancePending;
     CAmount cachedPrivateBalanceLocked;
+    CAmount cachedAmount24h;
+    CAmount cachedAmount7d;
+    CAmount cachedAmount30d;
+    CAmount cachedAmount1y;
+    CAmount cachedAmountAll;
+    CAmount cachedAmountExp;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 
@@ -248,12 +254,33 @@ private:
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     void checkBalanceChanged();
+    void checkStakesChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
-    void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
-                        const CAmount& privateBalance, const CAmount& privateBalancePending, const CAmount& privateBalanceLocked);
+    void balanceChanged(
+        const CAmount& balance,
+        const CAmount& unconfirmedBalance,
+        const CAmount& stakingBalance,
+        const CAmount& immatureBalance,
+        const CAmount& watchOnlyBalance,
+        const CAmount& watchUnconfBalance,
+        const CAmount& watchImmatureBalance,
+        const CAmount& coldStakingBalance,
+        const CAmount& privateBalance,
+        const CAmount& privateBalancePending,
+        const CAmount& privateBalanceLocked
+    );
+
+    // Signal that the stakes in wallet changed
+    void stakesChanged(
+        const CAmount& amount24h,
+        const CAmount& amount7d,
+        const CAmount& amount30d,
+        const CAmount& amount1y,
+        const CAmount& amountAll,
+        const CAmount& amountExp
+    );
 
     // Encryption status of wallet changed
     void encryptionStatusChanged(int status);

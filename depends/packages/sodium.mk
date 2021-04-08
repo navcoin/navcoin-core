@@ -6,7 +6,7 @@ $(package)_sha256_hash=6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e
 $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
 
 define $(package)_set_vars
-$(package)_config_opts=--enable-static --disable-shared --with-pic
+$(package)_config_opts=--enable-static --disable-shared --with-pic="yes"
 $(package)_config_opts+=--prefix=$(host_prefix)
 $(package)_config_opts_darwin=RANLIB="$(host_prefix)/native/bin/x86_64-apple-darwin16-ranlib" AR="$(host_prefix)/native/bin/x86_64-apple-darwin16-ar" CC="$(host_prefix)/native/bin/$($(package)_cc)"
 endef

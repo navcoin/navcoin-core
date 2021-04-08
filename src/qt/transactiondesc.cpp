@@ -236,6 +236,8 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
     //
     if (wtx.mapValue.count("message") && !wtx.mapValue["message"].empty())
         strHTML += "<br><b>" + tr("Message") + ":</b><br>" + GUIUtil::HtmlEscape(wtx.mapValue["message"], true) + "<br>";
+    if (!rec->memo.empty())
+        strHTML += "<br><b>" + tr("Encrypted message") + ":</b> " + GUIUtil::HtmlEscape(rec->memo, true) + "<br>";
     if (wtx.mapValue.count("comment") && !wtx.mapValue["comment"].empty())
         strHTML += "<br><b>" + tr("Comment") + ":</b><br>" + GUIUtil::HtmlEscape(wtx.mapValue["comment"], true) + "<br>";
 

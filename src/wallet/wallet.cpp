@@ -3257,7 +3257,7 @@ static void ApproximateBestSubset(vector<pair<CAmount, pair<const CWalletTx*,uns
 }
 
 bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int nConfTheirs, vector<COutput> vCoins,
-                                 set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const
+                                 set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet, bool fUseRecentlySwapped) const
 {
     setCoinsRet.clear();
     nValueRet = 0;
@@ -3286,6 +3286,10 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
             continue;
 
         int i = output.i;
+
+        if (!fUseRecentlySwapped && pcoin->vout[i].IsBLSCT())
+            continue;
+
         CAmount n = pcoin->vout[i].HasRangeProof() ? output.nAmount : pcoin->vout[i].nValue;
 
         pair<CAmount,pair<const CWalletTx*,unsigned int> > coin = make_pair(n,make_pair(pcoin, i));
@@ -3413,7 +3417,10 @@ bool CWallet::SelectCoins(const vector<COutput>& vAvailableCoins, const CAmount&
     bool res = nTargetValue <= nValueFromPresetInputs ||
         SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 1, 6, vCoins, setCoinsRet, nValueRet) ||
         SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 1, 1, vCoins, setCoinsRet, nValueRet) ||
-        (bSpendZeroConfChange && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 0, 1, vCoins, setCoinsRet, nValueRet));
+        (bSpendZeroConfChange && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 0, 1, vCoins, setCoinsRet, nValueRet)) ||
+        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 1, 6, vCoins, setCoinsRet, nValueRet, true) ||
+        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 1, 1, vCoins, setCoinsRet, nValueRet, true) ||
+        (bSpendZeroConfChange && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, 0, 1, vCoins, setCoinsRet, nValueRet, true));
 
     // because SelectCoinsMinConf clears the setCoinsRet, we now add the possible inputs to the coinset
     setCoinsRet.insert(setPresetCoins.begin(), setPresetCoins.end());
@@ -5632,6 +5639,9 @@ void CWallet::BuildMixCounters()
     for (TxItems::const_iterator it = txOrdered.begin(); it != txOrdered.end(); ++it)
     {
         CWalletTx *const pcoin = (*it).second.first;
+
+        if (!pcoin) continue;
+
         uint256 hash = pcoin->GetHash();
 
         if (pcoin->IsCTOutput() && pcoin->IsBLSInput())
