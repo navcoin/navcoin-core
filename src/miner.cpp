@@ -1208,7 +1208,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   {
                       CTxOut out = *it;
 
-                      LogPrintf("%s: %s %d\n", __func__, HexStr(std::vector<unsigned char>(out.scriptPubKey.begin(), out.scriptPubKey.end())), out.IsVote());
                       if (fCFund && out.IsVote())
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
