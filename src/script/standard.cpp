@@ -86,7 +86,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     }
 
     // Shortcut for cold stake, so we don't need to match a template
-    if (scriptPubKey.IsColdStaking() && scriptPubKey.size() == 1+1+25+1+25+1)
+    if (scriptPubKey.IsColdStaking() && scriptPubKey.size() >= 1+1+25+1+25+1)
     {
         typeRet = TX_COLDSTAKING;
         vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
