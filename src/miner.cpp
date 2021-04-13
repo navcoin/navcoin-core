@@ -1166,6 +1166,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   std::map<uint256, int> mapCountAnswers;
                   std::map<uint256, int> mapCacheMaxAnswers;
 
+                  CProposal proposal;
+                  CPaymentRequest prequest;
                   CConsultation consultation;
                   CConsultationAnswer answer;
 
@@ -1330,8 +1332,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           uint256 hash = it.first;
                           int64_t val = it.second;
 
-                          bool fProposal = view.HaveProposal(hash);
-                          bool fPaymentRequest = view.HavePaymentRequest(hash);
+                          bool fProposal = view.HaveProposal(hash) && view.GetProposal(hash, proposal) && proposal.CanVote(view);
+                          bool fPaymentRequest = view.HavePaymentRequest(hash) && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view);
 
                           if (val != VoteFlags::VOTE_REMOVE && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest) && !(pblock->nNonce & 1))
                           {
@@ -1347,8 +1349,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               votes[hash] = true;
                           }
 
-                          bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
-                          bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
+                          bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation) && consultation.CanBeVoted(val);
+                          bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer) && answer.CanBeVoted(view);
 
                           if ((fConsultation || fAnswer) && !(pblock->nNonce & 1))
                           {
