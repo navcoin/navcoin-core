@@ -3,9 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "verification.h"
+#include "utiltime.h"
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
+    auto nStart = GetTimeMicros();
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
 
@@ -208,6 +210,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         }
     }
 
+    std::cout << strprintf("%s: took %.2f ms\n", __func__, (GetTimeMicros()-nStart)/1000);
     return true;
 }
 
