@@ -7951,10 +7951,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if (pfrom->nVersion == 0)
     {
-        // Must have a version message before anything else
-        LOCK(cs_main);
-        Misbehaving(pfrom->GetId(), 1);
-        return false;
+        if (!(strCommand == NetMsgType::ENCRYPTEDCANDIDATE || strCommand == NetMsgType::AGGREGATIONSESSION))
+        {
+            // Must have a version message before anything else
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
     }
 
 
