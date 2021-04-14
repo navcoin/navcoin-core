@@ -38,9 +38,9 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     {
         bprp.Prove(value, nonces[0], vMemo);
     }
-    catch(...)
+    catch(std::runtime_error& e)
     {
-        strFailReason = "Range proof failed with exception";
+        strFailReason = strprintf("Range proof failed with exception: %s", e.what());
         return false;
     }
 
