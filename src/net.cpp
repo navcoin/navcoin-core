@@ -2584,7 +2584,8 @@ void RelayEncryptedCandidate(const EncryptedCandidateTransaction& ec)
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)
     {
-        pnode->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+        if (pnode->nRecvVersion)
+            pnode->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
     }
 }
 
@@ -2593,7 +2594,8 @@ void RelayAggregationSession(const AggregationSession& ms)
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)
     {
-        pnode->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
+        if (pnode->nRecvVersion)
+            pnode->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
     }
 }
 
