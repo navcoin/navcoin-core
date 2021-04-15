@@ -1221,7 +1221,7 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         auto b_ = b.first;
 
         if (a_.blockHeight == b_.blockHeight) {
-            return a_.time < b_.time;
+            return a_.txindex < b_.txindex;
         } else {
             return a_.blockHeight < b_.blockHeight;
         }
