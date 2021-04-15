@@ -210,7 +210,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         }
     }
 
-    std::cout << strprintf("%s: took %.2f ms\n", __func__, (GetTimeMicros()-nStart)/1000);
+    //std::cout << strprintf("%s: took %.2f ms\n", __func__, (GetTimeMicros()-nStart)/1000);
     return true;
 }
 
