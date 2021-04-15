@@ -520,7 +520,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
             CCoins coins;
             uint256 hash = vOutPoints[i].hash;
             if (view.GetCoins(hash, coins)) {
-                mempool.pruneSpent(hash, coins, &mempool.cs, &stempool.cs);
+                mempool.pruneSpent(hash, coins);
                 if (coins.IsAvailable(vOutPoints[i].n)) {
                     hits[i] = true;
                     // Safe to index into vout here because IsAvailable checked if it's off the end of the array, or if
