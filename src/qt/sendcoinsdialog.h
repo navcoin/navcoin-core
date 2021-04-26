@@ -68,6 +68,7 @@ private:
     const PlatformStyle *platformStyle;
     bool fPrivate;
     QString sChangeAddress;
+    bool fCoinControl;
 
     CAmount pubBalance;
     CAmount privBalance;

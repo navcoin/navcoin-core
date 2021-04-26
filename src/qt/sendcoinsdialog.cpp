@@ -43,7 +43,8 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     model(0),
     fPrivate(false),
     fNewRecipientAllowed(true),
-    platformStyle(platformStyle)
+    platformStyle(platformStyle),
+    fCoinControl(false)
 {
     ui->setupUi(this);
 
@@ -238,7 +239,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     CCoinControl* coinControl = fPrivate?CoinControlDialog::blscctCoinControl:CoinControlDialog::coinControl;
 
     WalletModel::SendCoinsReturn prepareStatus;
-    if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
+    if (fCoinControl) // coin control enabled
         prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, coinControl, &selectedCoins);
     else
         prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, 0, &selectedCoins);
@@ -804,6 +805,7 @@ void SendCoinsDialog::coinControlUpdateLabels()
             setBalance(ccAmount, 0, 0, 0, 0, 0, 0, 0, privBalance, 0, 0);
         // show coin control stats
         ui->widgetCoinControl->show();
+        fCoinControl = true;
     }
     else
     {
@@ -811,6 +813,7 @@ void SendCoinsDialog::coinControlUpdateLabels()
         ui->widgetCoinControl->hide();
         ui->labelCoinControlInsuffFunds->hide();
         setBalance(pubBalance, 0, 0, 0, 0, 0, 0, 0, privBalance, 0, 0);
+        fCoinControl = false;
     }
 }
 
