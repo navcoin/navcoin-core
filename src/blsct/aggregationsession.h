@@ -30,6 +30,7 @@ class AggregationSession
 public:
     AggregationSession(const CStateViewCache* inputs);
 
+    int64_t nTime;
     std::vector<CandidateTransaction> vTransactionCandidates;
     std::vector<std::pair<uint256, bls::PrivateKey>> vKeys;
     const CStateViewCache* inputs;
@@ -39,9 +40,6 @@ public:
 
     static CAmount GetDefaultFee();
     static CAmount GetMaxFee();
-
-    static bool IsKnown(const AggregationSession& ms);
-    static bool IsKnown(const EncryptedCandidateTransaction& ec);
 
     bool GetState() const;
 

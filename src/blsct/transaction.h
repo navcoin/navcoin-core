@@ -88,8 +88,16 @@ public:
         READWRITE(vData);
     }
 
+    uint256 GetHash() {
+        if (cachedHash == uint256())
+            cachedHash = SerializeHash(*this);
+        return cachedHash;
+    }
+
     std::vector<unsigned char> vPublicKey;
     std::vector<unsigned char> vData;
+    uint256 cachedHash;
+    int64_t nTime;
 };
 
 class DecryptedCandidateTransaction

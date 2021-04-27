@@ -462,6 +462,8 @@ public:
 
     mutable CCriticalSection cs;
     indexed_transaction_set mapTx;
+    std::set<uint256> mapEncCand;
+    std::set<uint256> mapAggSession;
     CProposalMap mapProposal;
     CPaymentRequestMap mapPaymentRequest;
     CConsultationMap mapConsultation;
@@ -644,6 +646,18 @@ public:
     {
         LOCK(cs);
         return (mapTx.count(hash) != 0);
+    }
+
+    bool HaveAggregatedSession(uint256 hash) const
+    {
+        LOCK(cs);
+        return (mapAggSession.count(hash) != 0);
+    }
+
+    bool HaveEncryptedCandidate(uint256 hash) const
+    {
+        LOCK(cs);
+        return (mapEncCand.count(hash) != 0);
     }
 
     std::shared_ptr<const CTransaction> get(const uint256& hash, CCriticalSection *mpcs, CCriticalSection *spcs) const;

@@ -5,7 +5,6 @@
 #include "aggregationsession.h"
 #include <main.h>
 
-std::set<uint256> setKnownSessions;
 CCriticalSection cs_aggregation;
 CCriticalSection cs_sessionKeys;
 
@@ -73,16 +72,6 @@ bool AggregationSession::Start()
     }
 
     return true;
-}
-
-bool AggregationSession::IsKnown(const AggregationSession& ms)
-{
-    return setKnownSessions.find(ms.GetHash()) != setKnownSessions.end();
-}
-
-bool AggregationSession::IsKnown(const EncryptedCandidateTransaction& ec)
-{
-    return setKnownSessions.find(SerializeHash(ec)) != setKnownSessions.end();
 }
 
 void AggregationSession::Stop()
@@ -331,11 +320,6 @@ bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<Encryp
     if (!(pwalletMain->GetPrivateBalance() > 0))
         return false;
 
-    if (setKnownSessions.size() > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100*100)
-        setKnownSessions.clear();
-
-    setKnownSessions.insert(SerializeHash(*etx));
-
     candidatesQueue.push(etx);
 
     return true;
@@ -345,7 +329,7 @@ void AggregationSession::AnnounceHiddenService()
 {
     if (!GetBoolArg("-dandelion", true))
     {
-        RelayAggregationSession(*this);
+        RelayAggregationSession(this->GetHash());
         return;
     }
 
@@ -353,10 +337,11 @@ void AggregationSession::AnnounceHiddenService()
 
     int64_t nCurrTime = GetTimeMicros();
     int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-    InsertDandelionAggregationSessionEmbargo(this,nEmbargo);
+    InsertDandelionAggregationSessionEmbargo(this->GetHash(), nEmbargo);
 
-    if (!LocalDandelionDestinationPushAggregationSession(*this))
-        RelayAggregationSession(*this);
+    CInv inv(MSG_DANDELION_AGGSESSION, this->GetHash());
+    if (!LocalDandelionDestinationPushInventory(inv))
+        RelayAggregationSession(this->GetHash());
 }
 
 std::string Socks5ErrorToString(int err)
@@ -415,8 +400,6 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
 
 bool AggregationSession::Join()
 {
-    setKnownSessions.insert(this->GetHash());
-
     if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
         return false;
 
@@ -640,16 +623,17 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
 
         if (!GetBoolArg("-dandelion", true))
         {
-            RelayEncryptedCandidate(encryptedTx);
+            RelayEncryptedCandidate(encryptedTx.GetHash());
             return true;
         }
 
         int64_t nCurrTime = GetTimeMicros();
         int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-        InsertDandelionEncryptedCandidateEmbargo(encryptedTx,nEmbargo);
+        InsertDandelionEncryptedCandidateEmbargo(encryptedTx.GetHash(), nEmbargo);
 
-        if (!LocalDandelionDestinationPushEncryptedCandidate(encryptedTx))
-            RelayEncryptedCandidate(encryptedTx);
+        CInv inv(MSG_DANDELION_ENCCAND, encryptedTx.GetHash());
+        if (!LocalDandelionDestinationPushInventory(inv))
+            RelayEncryptedCandidate(encryptedTx.GetHash());
     }
     catch(...)
     {

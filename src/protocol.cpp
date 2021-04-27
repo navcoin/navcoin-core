@@ -180,11 +180,15 @@ std::string CInv::GetCommand() const
     int masked = type & MSG_TYPE_MASK;
     switch (masked)
     {
-    case MSG_TX:             return cmd.append(NetMsgType::TX);
-    case MSG_BLOCK:          return cmd.append(NetMsgType::BLOCK);
-    case MSG_FILTERED_BLOCK: return cmd.append(NetMsgType::MERKLEBLOCK);
-    case MSG_CMPCT_BLOCK:    return cmd.append(NetMsgType::CMPCTBLOCK);
-    case MSG_DANDELION_TX:   return cmd.append(NetMsgType::DANDELIONTX);
+    case MSG_TX:                   return cmd.append(NetMsgType::TX);
+    case MSG_BLOCK:                return cmd.append(NetMsgType::BLOCK);
+    case MSG_FILTERED_BLOCK:       return cmd.append(NetMsgType::MERKLEBLOCK);
+    case MSG_CMPCT_BLOCK:          return cmd.append(NetMsgType::CMPCTBLOCK);
+    case MSG_DANDELION_TX:         return cmd.append(NetMsgType::DANDELIONTX);
+    case MSG_ENCCAND:              return cmd.append(NetMsgType::ENCRYPTEDCANDIDATE);
+    case MSG_DANDELION_ENCCAND:    return cmd.append(NetMsgType::DANDELIONENCRYPTEDCANDIDATE);
+    case MSG_AGGSESSION:           return cmd.append(NetMsgType::AGGREGATIONSESSION);
+    case MSG_DANDELION_AGGSESSION: return cmd.append(NetMsgType::DANDELIONENCRYPTEDCANDIDATE);
     default:
         throw std::out_of_range(strprintf("CInv::GetCommand(): type=%d unknown type", type));
     }

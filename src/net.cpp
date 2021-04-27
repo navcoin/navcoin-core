@@ -113,8 +113,8 @@ boost::condition_variable messageHandlerCondition;
 
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
-std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
-std::map<EncryptedCandidateTransaction, int64_t> mDandelionEncryptedCandidateEmbargo;
+std::map<uint256, int64_t> mDandelionAggregationSessionEmbargo;
+std::map<uint256, int64_t> mDandelionEncryptedCandidateEmbargo;
 // Dandelion fields
 std::vector<CNode*> vDandelionInbound;
 std::vector<CNode*> vDandelionOutbound;
@@ -1559,30 +1559,6 @@ bool LocalDandelionDestinationPushInventory(const CInv& inv) {
     }
 }
 
-bool LocalDandelionDestinationPushEncryptedCandidate(const EncryptedCandidateTransaction& ec) {
-    if(IsLocalDandelionDestinationSet()) {
-        localDandelionDestination->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
-        return true;
-    } else if (SetLocalDandelionDestination()) {
-        localDandelionDestination->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& ms) {
-    if(IsLocalDandelionDestinationSet()) {
-        localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
-        return true;
-    } else if (SetLocalDandelionDestination()) {
-        localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo) {
     auto pair = mDandelionEmbargo.insert(std::make_pair(hash, embargo));
     return pair.second;
@@ -1610,9 +1586,9 @@ bool RemoveDandelionEmbargo(const uint256& hash) {
     return removed;
 }
 
-bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo) {
+bool InsertDandelionAggregationSessionEmbargo(const uint256& hash, const int64_t& embargo) {
     LOCK(cs_mapDandelionEmbargo);
-    auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(ms->GetHash(), std::make_pair(ms, embargo)));
+    auto pair = mDandelionAggregationSessionEmbargo.insert(std::make_pair(hash, embargo));
     return pair.second;
 }
 
@@ -1640,13 +1616,13 @@ bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash) {
     return removed;
 }
 
-bool InsertDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec, const int64_t& embargo) {
+bool InsertDandelionEncryptedCandidateEmbargo(const uint256 &ec, const int64_t& embargo) {
     LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionEncryptedCandidateEmbargo.insert(std::make_pair(ec, embargo));
     return pair.second;
 }
 
-bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction &ec) {
+bool IsDandelionEncryptedCandidateEmbargoed(const uint256 &ec) {
     LOCK(cs_mapDandelionEmbargo);
     auto pair = mDandelionEncryptedCandidateEmbargo.find(ec);
     if (pair != mDandelionEncryptedCandidateEmbargo.end()) {
@@ -1656,7 +1632,7 @@ bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction 
     }
 }
 
-bool RemoveDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec) {
+bool RemoveDandelionEncryptedCandidateEmbargo(const uint256 &ec) {
     LOCK(cs_mapDandelionEmbargo);
     bool removed = false;
     for (auto iter=mDandelionEncryptedCandidateEmbargo.begin(); iter!=mDandelionEncryptedCandidateEmbargo.end();) {
@@ -2579,21 +2555,23 @@ void RelayTransaction(const CTransaction& tx)
     }
 }
 
-void RelayEncryptedCandidate(const EncryptedCandidateTransaction& ec)
+void RelayEncryptedCandidate(const uint256& ec)
 {
+    CInv inv(MSG_ENCCAND, ec);
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)
     {
-        pnode->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+        pnode->PushInventory(inv);
     }
 }
 
-void RelayAggregationSession(const AggregationSession& ms)
+void RelayAggregationSession(const uint256& ms)
 {
+    CInv inv(MSG_AGGSESSION, ms);
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)
     {
-        pnode->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
+        pnode->PushInventory(inv);
     }
 }
 
