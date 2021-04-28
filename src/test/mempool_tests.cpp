@@ -55,16 +55,15 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
 
 
     CTxMemPool testPool(CFeeRate(0));
-    CTxMemPool dummypool(CFeeRate(0));
     std::list<CTransaction> removed;
 
     // Nothing in pool, remove should do nothing:
-    testPool.removeRecursive(txParent, removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txParent, removed);
     BOOST_CHECK_EQUAL(removed.size(), 0);
 
     // Just the parent:
     testPool.addUnchecked(txParent.GetHash(), entry.FromTx(txParent));
-    testPool.removeRecursive(txParent, removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txParent, removed);
     BOOST_CHECK_EQUAL(removed.size(), 1);
     removed.clear();
     
@@ -76,16 +75,16 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
         testPool.addUnchecked(txGrandChild[i].GetHash(), entry.FromTx(txGrandChild[i]));
     }
     // Remove Child[0], GrandChild[0] should be removed:
-    testPool.removeRecursive(txChild[0], removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txChild[0], removed);
     BOOST_CHECK_EQUAL(removed.size(), 2);
     removed.clear();
     // ... make sure grandchild and child are gone:
-    testPool.removeRecursive(txGrandChild[0], removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txGrandChild[0], removed);
     BOOST_CHECK_EQUAL(removed.size(), 0);
-    testPool.removeRecursive(txChild[0], removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txChild[0], removed);
     BOOST_CHECK_EQUAL(removed.size(), 0);
     // Remove parent, all children/grandchildren should go:
-    testPool.removeRecursive(txParent, removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txParent, removed);
     BOOST_CHECK_EQUAL(removed.size(), 5);
     BOOST_CHECK_EQUAL(testPool.size(), 0);
     removed.clear();
@@ -98,7 +97,7 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
     }
     // Now remove the parent, as might happen if a block-re-org occurs but the parent cannot be
     // put into the mempool (maybe because it is non-standard):
-    testPool.removeRecursive(txParent, removed, &testPool.cs, &dummypool.cs);
+    testPool.removeRecursive(txParent, removed);
     BOOST_CHECK_EQUAL(removed.size(), 6);
     BOOST_CHECK_EQUAL(testPool.size(), 0);
     removed.clear();
@@ -118,7 +117,6 @@ void CheckSort(CTxMemPool &pool, std::vector<std::string> &sortedOrder)
 BOOST_AUTO_TEST_CASE(MempoolIndexingTest)
 {
     CTxMemPool pool(CFeeRate(0));
-    CTxMemPool dummypool(CFeeRate(0));
     TestMemPoolEntryHelper entry;
     entry.hadNoDependencies = true;
 
@@ -284,11 +282,11 @@ BOOST_AUTO_TEST_CASE(MempoolIndexingTest)
 
     // Now try removing tx10 and verify the sort order returns to normal
     std::list<CTransaction> removed;
-    pool.removeRecursive(pool.mapTx.find(tx10.GetHash())->GetTx(), removed, &pool.cs, &dummypool.cs);
+    pool.removeRecursive(pool.mapTx.find(tx10.GetHash())->GetTx(), removed);
     CheckSort<descendant_score>(pool, snapshotOrder);
 
-    pool.removeRecursive(pool.mapTx.find(tx9.GetHash())->GetTx(), removed, &pool.cs, &dummypool.cs);
-    pool.removeRecursive(pool.mapTx.find(tx8.GetHash())->GetTx(), removed, &pool.cs, &dummypool.cs);
+    pool.removeRecursive(pool.mapTx.find(tx9.GetHash())->GetTx(), removed);
+    pool.removeRecursive(pool.mapTx.find(tx8.GetHash())->GetTx(), removed);
     /* Now check the sort on the mining score index.
      * Final order should be:
      *
@@ -323,7 +321,6 @@ BOOST_AUTO_TEST_CASE(MempoolIndexingTest)
 BOOST_AUTO_TEST_CASE(MempoolAncestorIndexingTest)
 {
     CTxMemPool pool(CFeeRate(0));
-    CTxMemPool dummypool(CFeeRate(0));
     TestMemPoolEntryHelper entry;
     entry.hadNoDependencies = true;
 
@@ -417,7 +414,7 @@ BOOST_AUTO_TEST_CASE(MempoolAncestorIndexingTest)
     std::vector<CTransaction> vtx;
     vtx.push_back(tx6);
     std::list<CTransaction> dummy;
-    pool.removeForBlock(vtx, &pool.cs, &dummypool.cs, 1, dummy, false);
+    pool.removeForBlock(vtx, 1, dummy, false);
 
     sortedOrder.erase(sortedOrder.begin()+1);
     sortedOrder.pop_back();
@@ -429,7 +426,6 @@ BOOST_AUTO_TEST_CASE(MempoolAncestorIndexingTest)
 BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
 {
     CTxMemPool pool(CFeeRate(1000));
-    CTxMemPool dummypool(CFeeRate(1000));
     TestMemPoolEntryHelper entry;
     entry.dPriority = 10.0;
 
@@ -449,11 +445,11 @@ BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
     tx2.vout[0].nValue = 10 * COIN;
     pool.addUnchecked(tx2.GetHash(), entry.Fee(5000LL).FromTx(tx2, &pool));
 
-    pool.TrimToSize(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs), &pool.cs, &dummypool.cs); // should do nothing
+    pool.TrimToSize(pool.DynamicMemoryUsage()); // should do nothing
     BOOST_CHECK(pool.exists(tx1.GetHash()));
     BOOST_CHECK(pool.exists(tx2.GetHash()));
 
-    pool.TrimToSize(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) * 3 / 4, &pool.cs, &dummypool.cs); // should remove the lower-feerate transaction
+    pool.TrimToSize(pool.DynamicMemoryUsage() * 3 / 4); // should remove the lower-feerate transaction
     BOOST_CHECK(pool.exists(tx1.GetHash()));
     BOOST_CHECK(!pool.exists(tx2.GetHash()));
 
@@ -467,18 +463,18 @@ BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
     tx3.vout[0].nValue = 10 * COIN;
     pool.addUnchecked(tx3.GetHash(), entry.Fee(20000LL).FromTx(tx3, &pool));
 
-    pool.TrimToSize(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) * 3 / 4, &pool.cs, &dummypool.cs); // tx3 should pay for tx2 (CPFP)
+    pool.TrimToSize(pool.DynamicMemoryUsage() * 3 / 4); // tx3 should pay for tx2 (CPFP)
     BOOST_CHECK(!pool.exists(tx1.GetHash()));
     BOOST_CHECK(pool.exists(tx2.GetHash()));
     BOOST_CHECK(pool.exists(tx3.GetHash()));
 
-    pool.TrimToSize(GetVirtualTransactionSize(tx1), &pool.cs, &dummypool.cs); // mempool is limited to tx1's size in memory usage, so nothing fits
+    pool.TrimToSize(GetVirtualTransactionSize(tx1)); // mempool is limited to tx1's size in memory usage, so nothing fits
     BOOST_CHECK(!pool.exists(tx1.GetHash()));
     BOOST_CHECK(!pool.exists(tx2.GetHash()));
     BOOST_CHECK(!pool.exists(tx3.GetHash()));
 
     CFeeRate maxFeeRateRemoved(25000, GetVirtualTransactionSize(tx3) + GetVirtualTransactionSize(tx2));
-    BOOST_CHECK_EQUAL(pool.GetMinFee(1, &pool.cs, &dummypool.cs).GetFeePerK(), maxFeeRateRemoved.GetFeePerK() + 1000);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(1).GetFeePerK(), maxFeeRateRemoved.GetFeePerK() + 1000);
 
     CMutableTransaction tx4 = CMutableTransaction();
     tx4.vin.resize(2);
@@ -534,7 +530,7 @@ BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
     pool.addUnchecked(tx7.GetHash(), entry.Fee(9000LL).FromTx(tx7, &pool));
 
     // we only require this remove, at max, 2 txn, because its not clear what we're really optimizing for aside from that
-    pool.TrimToSize(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) - 1, &pool.cs, &dummypool.cs);
+    pool.TrimToSize(pool.DynamicMemoryUsage() - 1);
     BOOST_CHECK(pool.exists(tx4.GetHash()));
     BOOST_CHECK(pool.exists(tx6.GetHash()));
     BOOST_CHECK(!pool.exists(tx7.GetHash()));
@@ -543,7 +539,7 @@ BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
         pool.addUnchecked(tx5.GetHash(), entry.Fee(1000LL).FromTx(tx5, &pool));
     pool.addUnchecked(tx7.GetHash(), entry.Fee(9000LL).FromTx(tx7, &pool));
 
-    pool.TrimToSize(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) / 2, &pool.cs, &dummypool.cs); // should maximize mempool size by only removing 5/7
+    pool.TrimToSize(pool.DynamicMemoryUsage() / 2); // should maximize mempool size by only removing 5/7
     BOOST_CHECK(pool.exists(tx4.GetHash()));
     BOOST_CHECK(!pool.exists(tx5.GetHash()));
     BOOST_CHECK(pool.exists(tx6.GetHash()));
@@ -556,27 +552,27 @@ BOOST_AUTO_TEST_CASE(MempoolSizeLimitTest)
     std::list<CTransaction> conflicts;
     SetMockTime(42);
     SetMockTime(42 + CTxMemPool::ROLLING_FEE_HALFLIFE);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(1, &pool.cs, &dummypool.cs).GetFeePerK(), maxFeeRateRemoved.GetFeePerK() + 1000);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(1).GetFeePerK(), maxFeeRateRemoved.GetFeePerK() + 1000);
     // ... we should keep the same min fee until we get a block
-    pool.removeForBlock(vtx, &pool.cs, &dummypool.cs, 1, conflicts);
+    pool.removeForBlock(vtx, 1, conflicts);
     SetMockTime(42 + 2*CTxMemPool::ROLLING_FEE_HALFLIFE);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(1, &pool.cs, &dummypool.cs).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/2);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(1).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/2);
     // ... then feerate should drop 1/2 each halflife
 
     SetMockTime(42 + 2*CTxMemPool::ROLLING_FEE_HALFLIFE + CTxMemPool::ROLLING_FEE_HALFLIFE/2);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) * 5 / 2).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/4);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(pool.DynamicMemoryUsage() * 5 / 2).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/4);
     // ... with a 1/2 halflife when mempool is < 1/2 its target size
 
     SetMockTime(42 + 2*CTxMemPool::ROLLING_FEE_HALFLIFE + CTxMemPool::ROLLING_FEE_HALFLIFE/2 + CTxMemPool::ROLLING_FEE_HALFLIFE/4);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(pool.DynamicMemoryUsage(&pool.cs, &dummypool.cs) * 9 / 2).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/8);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(pool.DynamicMemoryUsage() * 9 / 2).GetFeePerK(), (maxFeeRateRemoved.GetFeePerK() + 1000)/8);
     // ... with a 1/4 halflife when mempool is < 1/4 its target size
 
     SetMockTime(42 + 7*CTxMemPool::ROLLING_FEE_HALFLIFE + CTxMemPool::ROLLING_FEE_HALFLIFE/2 + CTxMemPool::ROLLING_FEE_HALFLIFE/4);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(1, &pool.cs, &dummypool.cs).GetFeePerK(), 1000);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(1).GetFeePerK(), 1000);
     // ... but feerate should never drop below 1000
 
     SetMockTime(42 + 8*CTxMemPool::ROLLING_FEE_HALFLIFE + CTxMemPool::ROLLING_FEE_HALFLIFE/2 + CTxMemPool::ROLLING_FEE_HALFLIFE/4);
-    BOOST_CHECK_EQUAL(pool.GetMinFee(1, &pool.cs, &dummypool.cs).GetFeePerK(), 0);
+    BOOST_CHECK_EQUAL(pool.GetMinFee(1).GetFeePerK(), 0);
     // ... unless it has gone all the way to 0 (after getting past 1000/2)
 
     SetMockTime(0);
