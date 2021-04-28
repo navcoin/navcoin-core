@@ -47,7 +47,7 @@ public:
 
     bool AddCandidateTransaction(const std::vector<unsigned char>& v);
 
-    bool NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> v);
+    bool NewEncryptedCandidateTransaction(EncryptedCandidateTransaction v);
 
     bool SelectCandidates(CandidateTransaction& ret);
 
@@ -111,9 +111,6 @@ private:
     int fState;
     bool lock;
     static bool fJoining;
-
-    boost::thread joinThread;
-    boost::thread_group candidateVerificationThreadGroup;
 
     int nVersion;
 };

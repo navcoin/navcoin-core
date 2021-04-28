@@ -9,7 +9,7 @@ CCriticalSection cs_aggregation;
 CCriticalSection cs_sessionKeys;
 
 bool AggregationSession::fJoining = false;
-SafeQueue<std::shared_ptr<EncryptedCandidateTransaction>> candidatesQueue;
+SafeQueue<EncryptedCandidateTransaction> candidatesQueue;
 
 AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(2)
 {
@@ -307,7 +307,7 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
     return true;
 }
 
-bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> etx)
+bool AggregationSession::NewEncryptedCandidateTransaction(EncryptedCandidateTransaction etx)
 {
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
@@ -327,6 +327,11 @@ bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<Encryp
 
 void AggregationSession::AnnounceHiddenService()
 {
+    this->nTime = GetTimeMillis();
+
+    StempoolAddAggregationSession(*this);
+    MempoolAddAggregationSession(*this);
+
     if (!GetBoolArg("-dandelion", true))
     {
         RelayAggregationSession(this->GetHash());
@@ -340,6 +345,7 @@ void AggregationSession::AnnounceHiddenService()
     InsertDandelionAggregationSessionEmbargo(this->GetHash(), nEmbargo);
 
     CInv inv(MSG_DANDELION_AGGSESSION, this->GetHash());
+
     if (!LocalDandelionDestinationPushInventory(inv))
         RelayAggregationSession(this->GetHash());
 }
@@ -434,15 +440,11 @@ bool AggregationSession::Join()
 
     if (nVersion == 1)
     {
-        joinThread = boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs));
-
-        joinThread.detach();
+        boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
     }
     else if (nVersion == 2)
     {
-        joinThread = boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs));
-
-        joinThread.detach();
+        boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
     }
 
 
@@ -620,6 +622,11 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
     try
     {
         EncryptedCandidateTransaction encryptedTx(publicKey, tx);
+
+        encryptedTx.nTime = GetTimeMillis();
+
+        StempoolAddEncryptedCandidateTransaction(encryptedTx);
+        MempoolAddEncryptedCandidateTransaction(encryptedTx);
 
         if (!GetBoolArg("-dandelion", true))
         {
@@ -1014,7 +1021,7 @@ void CandidateVerificationThread()
                 MilliSleep(1000);
             } while (true);
 
-            std::shared_ptr<EncryptedCandidateTransaction> etx;
+            EncryptedCandidateTransaction etx;
 
             while(candidatesQueue.pop(etx))
             {
@@ -1028,7 +1035,7 @@ void CandidateVerificationThread()
                     {
                         try
                         {
-                            if (etx->Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
+                            if (etx.Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
                             {
                                 fSolved = true;
                                 break;

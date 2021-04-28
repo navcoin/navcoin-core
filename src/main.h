@@ -688,6 +688,11 @@ static void RelayDandelionAggregationSession(const uint256& ms, CNode* pfrom);
 static void RelayDandelionEncryptedCandidate(const uint256& ec, CNode* pfrom);
 static void CheckDandelionEmbargoes();
 
+void MempoolAddAggregationSession(const AggregationSession& ms);
+void StempoolAddAggregationSession(const AggregationSession& ms);
+void MempoolAddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& ms);
+void StempoolAddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& ms);
+
 std::vector<std::pair<uint256, int>>* GetProposalVotes(const uint256& hash);
 std::vector<std::pair<uint256, int>>* GetPaymentRequestVotes(const uint256& hash);
 std::map<uint256, bool>* GetSupport(const uint256& hash);
