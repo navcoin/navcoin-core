@@ -8585,8 +8585,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         pfrom->setAskFor.erase(inv.hash);
         mapAlreadyAskedFor.erase(inv);
 
-        LogPrintf("%s: new agg session %s %s %d %s %d %d\n", __func__, ms.GetHash().ToString(), ms.GetHiddenService(), ms.GetVersion(), AlreadyHave(inv), mempool.HaveAggregationSession(ms.GetHash()));
-
         if (!AlreadyHave(inv) && mempool.AddAggregationSession(ms))
         {
             if (IsDandelionAggregationSessionEmbargoed(ms.GetHash())) {
