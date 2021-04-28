@@ -676,6 +676,8 @@ public:
 
         auto ret = mapAggSession.insert(make_pair(ms.GetHash(), ms));
 
+        std::cout << strprintf("%s: added %s size %d\n",__func__, ms.GetHash().ToString(), mapAggSession.size());
+
         return ret.second;
     }
 
@@ -693,14 +695,24 @@ public:
         return ret.second;
     }
 
-    AggregationSession GetAggregationSession(const uint256& hash) const
+    bool GetAggregationSession(const uint256& hash, AggregationSession& ret) const
     {
-        return mapAggSession.at(hash);
+        if (!HaveAggregationSession(hash))
+            return false;
+
+        ret = mapAggSession.at(hash);
+
+        return true;
     }
 
-    EncryptedCandidateTransaction GetEncryptedCandidateTransaction(const uint256& hash) const
+    bool GetEncryptedCandidateTransaction(const uint256& hash, EncryptedCandidateTransaction& ret) const
     {
-        return mapEncCand.at(hash);
+        if (!HaveEncryptedCandidateTransaction(hash))
+            return false;
+
+        ret = mapEncCand.at(hash);
+
+        return true;
     }
 
     std::shared_ptr<const CTransaction> get(const uint256& hash, CCriticalSection *mpcs, CCriticalSection *spcs) const;

@@ -329,6 +329,8 @@ void AggregationSession::AnnounceHiddenService()
 {
     this->nTime = GetTimeMillis();
 
+    LogPrint("aggregationsession", "AggregationSession::%s: created session %s\n", __func__, GetHiddenService());
+
     StempoolAddAggregationSession(*this);
     MempoolAddAggregationSession(*this);
 
@@ -427,7 +429,7 @@ bool AggregationSession::Join()
     if (nVersion == 2 && vPublicKey.size() == 0)
         return false;
 
-    LogPrint("aggregationsession","AggregationSession::%s: new session %s\n", __func__, GetHiddenService());
+    LogPrint("aggregationsession","AggregationSession::%s: new session v%d %s\n", __func__, nVersion, GetHiddenService());
 
     std::vector<COutput> vAvailableCoins;
 
