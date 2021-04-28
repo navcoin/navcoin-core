@@ -269,6 +269,7 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
 
 CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(nullptr), activeTxn(nullptr)
 {
+    info("CDB::CDB: START");
     int ret;
     fReadOnly = (!strchr(pszMode, '+') && !strchr(pszMode, 'w'));
     fFlushOnClose = fFlushOnCloseIn;
@@ -311,6 +312,7 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                     throw runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
             }
 
+            info("CDB::CDB: CALL DB->open");
             ret = pdb->open(NULL,                               // Txn pointer
                             fMockDb ? NULL : strFile.c_str(),   // Filename
                             fMockDb ? strFile.c_str() : "main", // Logical db name

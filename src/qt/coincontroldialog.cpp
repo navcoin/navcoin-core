@@ -573,7 +573,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
             }
 
             // Priority
-            double mempoolEstimatePriority = mempool.estimateSmartPriority(nTxConfirmTarget, &mempool.cs, &stempool.cs);
+            double mempoolEstimatePriority = mempool.estimateSmartPriority(nTxConfirmTarget);
             dPriority = dPriorityInputs / (nBytes - nBytesInputs + (nQuantityUncompressed * 29)); // 29 = 180 - 151 (uncompressed public keys are over the limit. max 151 bytes of the input are ignored for priority)
             sPriorityLabel = CoinControlDialog::getPriorityLabel(dPriority, mempoolEstimatePriority);
 
@@ -583,7 +583,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
                     nBytes -= 34;
 
             // Fee
-            nPayFee = CWallet::GetMinimumFee(nBytes, nTxConfirmTarget, mempool, &mempool.cs, &stempool.cs);
+            nPayFee = CWallet::GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
             if (nPayFee > 0 && (CoinControlDialog::fPrivate ? blscctCoinControl : coinControl)->nMinimumTotalFee > nPayFee)
                 nPayFee = (CoinControlDialog::fPrivate ? blscctCoinControl : coinControl)->nMinimumTotalFee;
 
@@ -690,7 +690,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog, CAmoun
     if (payTxFee.GetFeePerK() > 0)
         dFeeVary = (double)std::max(CWallet::GetRequiredFee(1000), payTxFee.GetFeePerK()) / 1000;
     else {
-        dFeeVary = (double)std::max(CWallet::GetRequiredFee(1000), mempool.estimateSmartFee(nTxConfirmTarget, &mempool.cs, &stempool.cs).GetFeePerK()) / 1000;
+        dFeeVary = (double)std::max(CWallet::GetRequiredFee(1000), mempool.estimateSmartFee(nTxConfirmTarget).GetFeePerK()) / 1000;
     }
     QString toolTip4 = tr("Can vary +/- %1 satoshi(s) per input.").arg(dFeeVary);
 
@@ -727,7 +727,7 @@ void CoinControlDialog::updateView()
     QFlags<Qt::ItemFlag> flgTristate = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsTristate;
 
     int nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
-    double mempoolEstimatePriority = mempool.estimateSmartPriority(nTxConfirmTarget, &mempool.cs, &stempool.cs);
+    double mempoolEstimatePriority = mempool.estimateSmartPriority(nTxConfirmTarget);
 
     std::map<QString, std::vector<COutput> > mapCoins;
     if (CoinControlDialog::fPrivate)

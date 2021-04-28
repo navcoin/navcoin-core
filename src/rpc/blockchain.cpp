@@ -464,7 +464,7 @@ UniValue mempoolToJSON(bool fVerbose = false)
     else
     {
         vector<uint256> vtxid;
-        mempool.queryHashes(vtxid, &mempool.cs, &stempool.cs);
+        mempool.queryHashes(vtxid);
 
         UniValue a(UniValue::VARR);
         for(const uint256& hash: vtxid)
@@ -1369,9 +1369,9 @@ UniValue gettxout(const UniValue& params, bool fHelp)
     if (fMempool) {
         LOCK(mempool.cs);
         CStateViewMemPool view(pcoinsTip, mempool);
-        if (!view.GetCoins(hash, coins, &mempool.cs, &stempool.cs))
+        if (!view.GetCoins(hash, coins))
             return NullUniValue;
-        mempool.pruneSpent(hash, coins, &mempool.cs, &stempool.cs); // TODO: this should be done by the CStateViewMemPool
+        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CStateViewMemPool
     } else {
         if (!pcoinsTip->GetCoins(hash, coins))
             return NullUniValue;
@@ -1708,10 +1708,10 @@ UniValue mempoolInfoToJSON()
     UniValue ret(UniValue::VOBJ);
     ret.pushKV("size", (int64_t) mempool.size());
     ret.pushKV("bytes", (int64_t) mempool.GetTotalTxSize());
-    ret.pushKV("usage", (int64_t) mempool.DynamicMemoryUsage(&mempool.cs, &stempool.cs));
+    ret.pushKV("usage", (int64_t) mempool.DynamicMemoryUsage());
     size_t maxmempool = GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
     ret.pushKV("maxmempool", (int64_t) maxmempool);
-    ret.pushKV("mempoolminfee", ValueFromAmount(mempool.GetMinFee(maxmempool, &mempool.cs, &stempool.cs).GetFeePerK()));
+    ret.pushKV("mempoolminfee", ValueFromAmount(mempool.GetMinFee(maxmempool).GetFeePerK()));
 
     return ret;
 }
