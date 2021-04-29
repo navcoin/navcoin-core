@@ -312,17 +312,23 @@ bool AggregationSession::NewEncryptedCandidateTransaction(EncryptedCandidateTran
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
 
+    bool ret = true;
+
     if (vTransactionCandidates.size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
     {
-        return false;
+        ret = false;
+    }
+    else if (!(pwalletMain->GetPrivateBalance() > 0))
+    {
+        ret = false;
+    }
+    else
+    {
+        candidatesQueue.push(etx);
     }
 
-    if (!(pwalletMain->GetPrivateBalance() > 0))
-        return false;
 
-    candidatesQueue.push(etx);
-
-    return true;
+    return ret;
 }
 
 void AggregationSession::AnnounceHiddenService()
@@ -1051,7 +1057,9 @@ void CandidateVerificationThread()
                 }
 
                 if (!fSolved)
+                {
                     continue;
+                }
 
                 {
                     LOCK(cs_aggregation);
@@ -1087,13 +1095,18 @@ void CandidateVerificationThread()
                     }
 
                     if (stop)
-                        continue;
-
-                    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+                    {
                         continue;
                     }
 
-                    if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+                    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+                        stop = true;
+                    } else if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+                        stop = true;
+                    }
+
+                    if (stop)
+                    {
                         continue;
                     }
 

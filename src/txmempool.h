@@ -675,8 +675,6 @@ public:
 
         auto ret = mapAggSession.insert(make_pair(ms.GetHash(), ms));
 
-        std::cout << strprintf("%s: added %s size %d\n",__func__, ms.GetHash().ToString(), mapAggSession.size());
-
         return ret.second;
     }
 

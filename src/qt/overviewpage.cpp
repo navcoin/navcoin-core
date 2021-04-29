@@ -235,7 +235,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
             model->getColdStakingBalance(),
             model->getPrivateBalance(),
             model->getPrivateBalancePending(),
-            model->getPrivateBalanceLocked()
+            0
         );
 
         connect(model, SIGNAL(balanceChanged(

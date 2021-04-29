@@ -1932,47 +1932,24 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
     return 0;
 }
 
-std::map<uint256, isminetype> mapCacheBlsctIsmine;
-
 isminetype CWallet::IsMine(const CTxOut& txout) const
 {
     if (txout.HasRangeProof() && txout.IsBLSCT())
     {
-        uint256 outhash = txout.GetHash();
-        if (mapCacheBlsctIsmine.count(outhash))
-            return mapCacheBlsctIsmine.at(outhash);
-
-        std::vector<RangeproofEncodedData> blsctData;
-        std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-        std::vector<bls::G1Element> nonces;
-        blsctKey v;
-
         isminetype ret = ISMINE_NO;
 
-        if (GetBLSCTViewKey(v) && txout.ephemeralKey.size() > 0 && txout.outputKey.size() > 0 && txout.spendingKey.size() > 0)
+        try
         {
-            try
+            bool fHaveSubAddressKey = CBasicKeyStore::HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
+            if (fHaveSubAddressKey)
             {
-                proofs.push_back(std::make_pair(0,txout.GetBulletproof()));
-                bls::G1Element t = bls::G1Element::FromByteVector(txout.outputKey);
-                bls::PrivateKey k = v.GetKey();
-                t = t * k;
-
-                nonces.push_back(t);
-                bool fValidBP = VerifyBulletproof(proofs, blsctData, nonces, true);
-                bool fHaveSubAddressKey = CBasicKeyStore::HaveBLSCTSubAddress(txout.outputKey, txout.spendingKey);
-                if (fValidBP && blsctData.size() == 1 && fHaveSubAddressKey)
-                {
-                    ret = ISMINE_SPENDABLE_PRIVATE;
-                }
-            }
-            catch(...)
-            {
-                ret = ISMINE_NO;
+                ret = ISMINE_SPENDABLE_PRIVATE;
             }
         }
-
-        mapCacheBlsctIsmine[outhash] = ret;
+        catch(...)
+        {
+            ret = ISMINE_NO;
+        }
 
         return ret;
     }
@@ -2636,7 +2613,6 @@ CAmount CWalletTx::GetAvailablePrivateCredit(bool fLocked) const
         if (!pwallet->IsSpent(hashTx, i))
         {
             const CTxOut &txout = vout[i];
-
             nCredit += (pwallet->IsMine(txout) & ISMINE_SPENDABLE_PRIVATE) ? amount : 0;
             if (!MoneyRange(nCredit))
                 throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
@@ -2946,7 +2922,9 @@ CAmount CWallet::GetPrivateBalance() const
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
                 if (pcoin->IsInMainChain())
-                    nTotal += pcoin->GetAvailablePrivateCredit();
+                {
+                    nTotal += pcoin->GetCredit(ISMINE_SPENDABLE_PRIVATE);
+                }
         }
     }
 
@@ -2963,7 +2941,7 @@ CAmount CWallet::GetPrivateBalancePending() const
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
                 if (pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
-                    nTotal += pcoin->GetAvailablePrivateCredit();
+                    nTotal += pcoin->GetCredit(ISMINE_SPENDABLE_PRIVATE, false);
         }
     }
 
