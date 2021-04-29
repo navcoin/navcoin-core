@@ -527,7 +527,8 @@ public:
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit(bool fLocked = false) const;
+    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true) const;
+    CAmount GetPendingPrivateCredit(const bool& fUseCache=true) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
