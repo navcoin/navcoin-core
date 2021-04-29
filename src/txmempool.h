@@ -670,7 +670,7 @@ public:
 
         for (auto it = mapAggSession.begin(); it != mapAggSession.end();)
         {
-            ((GetTimeMillis() - it->second.nTime) > 60*60*1000) ? mapAggSession.erase(it++) : (++it);
+            ((GetTimeMillis() - it->second.nTime) > 15*60*1000) ? mapAggSession.erase(it++) : (++it);
         }
 
         auto ret = mapAggSession.insert(make_pair(ms.GetHash(), ms));
@@ -684,7 +684,7 @@ public:
 
         for (auto it = mapEncCand.begin(); it != mapEncCand.end();)
         {
-            ((GetTimeMillis() - it->second.nTime) > 60*60*1000) ? mapEncCand.erase(it++) : (++it);
+            ((GetTimeMillis() - it->second.nTime) > 15*60*1000) ? mapEncCand.erase(it++) : (++it);
         }
 
         auto ret = mapEncCand.insert(make_pair(ec.GetHash(), ec));
