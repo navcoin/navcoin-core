@@ -370,6 +370,7 @@ public:
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
         fPrivateCreditCached = false;
+        fImmaturePrivateCreditCached = false;
         fPrivateDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
@@ -384,6 +385,7 @@ public:
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
         nPrivateCreditCached = 0;
+        nImmaturePrivateCreditCached = 0;
         nPrivateDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
@@ -458,6 +460,8 @@ public:
         fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
+        fPrivateCreditCached = false;
+        fImmaturePrivateCreditCached = false;
         fDebitCached = false;
         fChangeCached = false;
     }
@@ -483,6 +487,8 @@ public:
                 vfSpent[i] = true;
                 fReturn = true;
                 fAvailableCreditCached = false;
+                fPrivateCreditCached = false;
+                fImmaturePrivateCreditCached = false;
             }
         }
         return fReturn;
@@ -497,6 +503,8 @@ public:
         {
             vfSpent[nOut] = true;
             fAvailableCreditCached = false;
+            fPrivateCreditCached = false;
+            fImmaturePrivateCreditCached = false;
         }
     }
 
@@ -509,6 +517,8 @@ public:
         {
             vfSpent[nOut] = false;
             fAvailableCreditCached = false;
+            fPrivateCreditCached = false;
+            fImmaturePrivateCreditCached = false;
         }
     }
 
