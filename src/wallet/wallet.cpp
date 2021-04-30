@@ -3755,127 +3755,123 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 const CAmount nChange = nValueIn - nValueToSelect;
 
-                if (nChange > 0)
+                if (fPrivate && nChange >= 0)
+                {
+                    CTxOut newTxOut(0, CScript());
+
+                    blsctPublicKey pk;
+                    blsctKey bk;
+
+                    reserveBLSCTKey[1]->GetReservedKey(pk);
+
+                    if (!GetBLSCTBlindingKey(pk, bk))
+                    {
+                        strFailReason = _("Could not get private key from blsct pool.");
+                        return false;
+                    }
+                    bls::PrivateKey ephemeralKey = bk.GetKey();
+
+                    blsctDoublePublicKey k;
+
+                    if (!pwalletMain->GetBLSCTSubAddressPublicKeys(std::make_pair(nBLSCTAccount, 0), k))
+                    {
+                        strFailReason = _("BLSCT not supported in your wallet");
+                        return false;
+                    }
+
+                    uiInterface.ShowProgress("Constructing BLSCT transaction...", -1);
+                    bls::G1Element nonce;
+
+                    if (!CreateBLSCTOutput(ephemeralKey, nonce, newTxOut, k, nChange, "Change", gammaOuts, strFailReason, fPrivate, vBLSSignatures))
+                    {
+                        uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
+                        strFailReason = _("Error creating BLSCT change output");
+                        return false;
+                    }
+
+                    uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
+
+                    txNew.nVersion |= TX_BLS_CT_FLAG;
+                    txNew.vout.push_back(newTxOut);
+
+                }
+                else if (nChange > 0)
                 {
                     // Fill a vout to ourself
                     // TODO: pass in scriptChange instead of reservekey so
                     // change transaction isn't always pay-to-navcoin-address
                     CScript scriptChange;
 
-                    if (fPrivate)
+                    // coin control: send change to custom address
+                    if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
+                        scriptChange = GetScriptForDestination(coinControl->destChange);
+
+                    // no coin control: send change to newly generated address
+                    else
                     {
-                        CTxOut newTxOut(0, CScript());
+                        // Note: We use a new key here to keep it from being obvious which side is the change.
+                        //  The drawback is that by not reusing a previous key, the change may be lost if a
+                        //  backup is restored, if the backup doesn't have the new private key for the change.
+                        //  If we reused the old key, it would be possible to add code to look for and
+                        //  rediscover unknown transactions that were written with keys of ours to recover
+                        //  post-backup change.
 
-                        blsctPublicKey pk;
-                        blsctKey bk;
+                        // Reserve a new key pair from key pool
+                        CPubKey vchPubKey;
+                        bool ret;
+                        ret = reservekey.GetReservedKey(vchPubKey);
+                        assert(ret); // should never fail, as we just unlocked
 
-                        reserveBLSCTKey[1]->GetReservedKey(pk);
+                        scriptChange = GetScriptForDestination(vchPubKey.GetID());
+                    }
 
-                        if (!GetBLSCTBlindingKey(pk, bk))
+                    CTxOut newTxOut(nChange, scriptChange);
+
+                    // We do not move dust-change to fees, because the sender would end up paying more than requested.
+                    // This would be against the purpose of the all-inclusive feature.
+                    // So instead we raise the change and deduct from the recipient.
+                    if (nSubtractFeeFromAmount > 0 && newTxOut.IsDust(::minRelayTxFee))
+                    {
+                        CAmount nDust = newTxOut.GetDustThreshold(::minRelayTxFee) - newTxOut.nValue;
+                        newTxOut.nValue += nDust; // raise change until no more dust
+                        for (unsigned int i = 0; i < vecSend.size(); i++) // subtract from first recipient
                         {
-                            strFailReason = _("Could not get private key from blsct pool.");
-                            return false;
+                            if (vecSend[i].fSubtractFeeFromAmount)
+                            {
+                                txNew.vout[i].nValue -= nDust;
+                                if (txNew.vout[i].IsDust(::minRelayTxFee))
+                                {
+                                    strFailReason = _("The transaction amount is too small to send after the fee has been deducted");
+                                    return false;
+                                }
+                                break;
+                            }
                         }
-                        bls::PrivateKey ephemeralKey = bk.GetKey();
+                    }
 
-                        blsctDoublePublicKey k;
-
-                        if (!pwalletMain->GetBLSCTSubAddressPublicKeys(std::make_pair(nBLSCTAccount, 0), k))
-                        {
-                            strFailReason = _("BLSCT not supported in your wallet");
-                            return false;
-                        }
-
-                        uiInterface.ShowProgress("Constructing BLSCT transaction...", -1);
-                        bls::G1Element nonce;
-
-                        if (!CreateBLSCTOutput(ephemeralKey, nonce, newTxOut, k, nChange, "Change", gammaOuts, strFailReason, fPrivate, vBLSSignatures))
-                        {
-                            uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
-                            strFailReason = _("Error creating BLSCT change output");
-                            return false;
-                        }
-
-                        uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
-
-                        txNew.nVersion |= TX_BLS_CT_FLAG;
-                        txNew.vout.push_back(newTxOut);
-
+                    // Never create dust outputs; if we would, just
+                    // add the dust to the fee.
+                    if (newTxOut.IsDust(::minRelayTxFee))
+                    {
+                        nChangePosInOut = -1;
+                        nFeeRet += nChange;
+                        reservekey.ReturnKey();
                     }
                     else
                     {
-
-                        // coin control: send change to custom address
-                        if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
-                            scriptChange = GetScriptForDestination(coinControl->destChange);
-
-                        // no coin control: send change to newly generated address
-                        else
+                        if (nChangePosInOut == -1)
                         {
-                            // Note: We use a new key here to keep it from being obvious which side is the change.
-                            //  The drawback is that by not reusing a previous key, the change may be lost if a
-                            //  backup is restored, if the backup doesn't have the new private key for the change.
-                            //  If we reused the old key, it would be possible to add code to look for and
-                            //  rediscover unknown transactions that were written with keys of ours to recover
-                            //  post-backup change.
-
-                            // Reserve a new key pair from key pool
-                            CPubKey vchPubKey;
-                            bool ret;
-                            ret = reservekey.GetReservedKey(vchPubKey);
-                            assert(ret); // should never fail, as we just unlocked
-
-                            scriptChange = GetScriptForDestination(vchPubKey.GetID());
+                            // Insert change txn at random position:
+                            nChangePosInOut = GetRandInt(txNew.vout.size()+1);
+                        }
+                        else if ((unsigned int)nChangePosInOut > txNew.vout.size())
+                        {
+                            strFailReason = _("Change index out of range");
+                            return false;
                         }
 
-                        CTxOut newTxOut(nChange, scriptChange);
-
-                        // We do not move dust-change to fees, because the sender would end up paying more than requested.
-                        // This would be against the purpose of the all-inclusive feature.
-                        // So instead we raise the change and deduct from the recipient.
-                        if (nSubtractFeeFromAmount > 0 && newTxOut.IsDust(::minRelayTxFee))
-                        {
-                            CAmount nDust = newTxOut.GetDustThreshold(::minRelayTxFee) - newTxOut.nValue;
-                            newTxOut.nValue += nDust; // raise change until no more dust
-                            for (unsigned int i = 0; i < vecSend.size(); i++) // subtract from first recipient
-                            {
-                                if (vecSend[i].fSubtractFeeFromAmount)
-                                {
-                                    txNew.vout[i].nValue -= nDust;
-                                    if (txNew.vout[i].IsDust(::minRelayTxFee))
-                                    {
-                                        strFailReason = _("The transaction amount is too small to send after the fee has been deducted");
-                                        return false;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Never create dust outputs; if we would, just
-                        // add the dust to the fee.
-                        if (newTxOut.IsDust(::minRelayTxFee))
-                        {
-                            nChangePosInOut = -1;
-                            nFeeRet += nChange;
-                            reservekey.ReturnKey();
-                        }
-                        else
-                        {
-                            if (nChangePosInOut == -1)
-                            {
-                                // Insert change txn at random position:
-                                nChangePosInOut = GetRandInt(txNew.vout.size()+1);
-                            }
-                            else if ((unsigned int)nChangePosInOut > txNew.vout.size())
-                            {
-                                strFailReason = _("Change index out of range");
-                                return false;
-                            }
-
-                            vector<CTxOut>::iterator position = txNew.vout.begin()+nChangePosInOut;
-                            txNew.vout.insert(position, newTxOut);
-                        }
+                        vector<CTxOut>::iterator position = txNew.vout.begin()+nChangePosInOut;
+                        txNew.vout.insert(position, newTxOut);
                     }
                 }
                 else
