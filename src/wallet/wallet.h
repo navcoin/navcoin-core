@@ -304,6 +304,7 @@ public:
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
     mutable bool fPrivateCreditCached;
+    mutable bool fAvailablePrivateCreditCached;
     mutable bool fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
@@ -319,6 +320,7 @@ public:
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
     mutable CAmount nPrivateCreditCached;
+    mutable CAmount nAvailablePrivateCreditCached;
     mutable CAmount nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
@@ -370,6 +372,7 @@ public:
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
         fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
         fImmaturePrivateCreditCached = false;
         fPrivateDebitCached = false;
         fImmatureWatchCreditCached = false;
@@ -385,6 +388,7 @@ public:
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
         nPrivateCreditCached = 0;
+        nAvailablePrivateCreditCached = 0;
         nImmaturePrivateCreditCached = 0;
         nPrivateDebitCached = 0;
         nWatchDebitCached = 0;
@@ -461,6 +465,7 @@ public:
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
         fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
         fImmaturePrivateCreditCached = false;
         fDebitCached = false;
         fChangeCached = false;
@@ -487,6 +492,7 @@ public:
                 vfSpent[i] = true;
                 fReturn = true;
                 fAvailableCreditCached = false;
+                fAvailablePrivateCreditCached = false;
                 fPrivateCreditCached = false;
                 fImmaturePrivateCreditCached = false;
             }
@@ -504,6 +510,7 @@ public:
             vfSpent[nOut] = true;
             fAvailableCreditCached = false;
             fPrivateCreditCached = false;
+            fAvailablePrivateCreditCached = false;
             fImmaturePrivateCreditCached = false;
         }
     }
@@ -517,6 +524,7 @@ public:
         {
             vfSpent[nOut] = false;
             fAvailableCreditCached = false;
+            fAvailablePrivateCreditCached = false;
             fPrivateCreditCached = false;
             fImmaturePrivateCreditCached = false;
         }

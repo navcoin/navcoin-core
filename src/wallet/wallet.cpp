@@ -2649,8 +2649,8 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache) const
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
-    if (fUseCache && fPrivateCreditCached)
-        return nPrivateCreditCached;
+    if (fUseCache && fAvailablePrivateCreditCached)
+        return nAvailablePrivateCreditCached;
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
@@ -2665,8 +2665,9 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache) const
         }
     }
 
-    nPrivateCreditCached = nCredit;
-    fPrivateCreditCached = true;
+    nAvailablePrivateCreditCached = nCredit;
+    fAvailablePrivateCreditCached = true;
+
     return nCredit;
 }
 
