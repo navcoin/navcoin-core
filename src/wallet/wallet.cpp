@@ -2342,18 +2342,6 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
             for(CTransaction& tx: block.vtx)
             {
                 std::vector<RangeproofEncodedData> blsctData;
-                CValidationState state;
-                CStateView dummy;
-                CStateViewCache view(&dummy);
-                blsctKey k;
-
-                bool fValid = true;
-
-                if (tx.IsBLSCT() && GetBLSCTViewKey(k))
-                    fValid=VerifyBLSCT(tx, k.GetKey(), blsctData, view, state, true);
-
-                if (!fValid)
-                    continue;
 
                 if (AddToWalletIfInvolvingMe(tx, &block, fUpdate, &blsctData))
                     ret++;
