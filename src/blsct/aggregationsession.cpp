@@ -229,20 +229,6 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
         if (fShouldIContinue)
             continue;
 
-        try
-        {
-            if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
-            {
-                i++;
-                continue;
-            }
-        }
-        catch(...)
-        {
-            i++;
-            continue;
-        }
-
         setTransactionsToCombine.insert(vTransactionCandidates[i].tx);
         nFee += vTransactionCandidates[i].fee;
         i++;

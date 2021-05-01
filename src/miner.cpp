@@ -640,7 +640,7 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
 
         try
         {
-            if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
+            if (inputs.HaveInputs(tx))
             {
                 nMovedToPublic += inputs.GetValueIn(tx) - tx.GetValueOut();
                 setToCombine.insert(tx);
