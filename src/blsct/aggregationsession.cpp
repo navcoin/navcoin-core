@@ -10,6 +10,7 @@ CCriticalSection cs_sessionKeys;
 
 bool AggregationSession::fJoining = false;
 SafeQueue<EncryptedCandidateTransaction> candidatesQueue;
+std::vector<COutput> vAvailableCoins;
 
 AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(2)
 {
@@ -406,11 +407,8 @@ bool AggregationSession::Join()
     if (!pwalletMain)
         return false;
 
-    {
-        LOCK(pwalletMain->cs_wallet);
-        if (*(pwalletMain->aggSession) == *this)
-            return false;
-    }
+    if (*(pwalletMain->aggSession) == *this)
+        return false;
 
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
@@ -423,14 +421,8 @@ bool AggregationSession::Join()
 
     LogPrint("aggregationsession","AggregationSession::%s: new session v%d %s\n", __func__, nVersion, GetHiddenService());
 
-    std::vector<COutput> vAvailableCoins;
-
-    pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
-
     if (vAvailableCoins.size() == 0)
         return false;
-
-    std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
 
     if (nVersion == 1)
     {
@@ -978,6 +970,10 @@ void AggregationSessionThread()
                     continue;
                 }
             }
+
+            pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
+
+            std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
 
             MilliSleep(GetRand(aggSleep, 180000));
         }

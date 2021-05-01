@@ -341,14 +341,17 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
-                if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue && !pcoin->vout[i].HasRangeProof()){
+            {
+                auto ismine = IsMine(pcoin->vout[i]);
+                if (!(IsSpent(wtxid,i)) && ismine  && pcoin->vout[i].nValue >= nMinimumInputValue && !pcoin->vout[i].HasRangeProof()){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
-                                           ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
+                                           ((ismine & (ISMINE_SPENDABLE)) != ISMINE_NO &&
                                            !pcoin->vout[i].scriptPubKey.IsColdStaking() &&
                                            !pcoin->vout[i].scriptPubKey.IsColdStakingv2()) ||
-                                           ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
+                                           ((ismine & (ISMINE_STAKABLE)) != ISMINE_NO &&
                                            IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))));
                 }
+            }
         }
     }
 
@@ -2694,6 +2697,9 @@ CAmount CWalletTx::GetAvailableStakableCredit() const
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
+    if (fAvailableStakableCreditCached)
+        return nAvailableStakableCreditCached;
+
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
     for (unsigned int i = 0; i < vout.size(); i++)
@@ -2706,6 +2712,9 @@ CAmount CWalletTx::GetAvailableStakableCredit() const
                 throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
         }
     }
+
+    nAvailableStakableCreditCached = nCredit;
+    fAvailableStakableCreditCached = true;
 
     return nCredit;
 }
