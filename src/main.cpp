@@ -7516,8 +7516,14 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
                    mapOrphanTransactions.count(inv.hash) ||
                    pcoinsTip->HaveCoinsInCache(inv.hash);
         }
+    case MSG_AGGSESSION:
+        return mempool.HaveAggregationSession(inv.hash);
+    case MSG_ENCCAND:
+        return mempool.HaveEncryptedCandidateTransaction(inv.hash);
     case MSG_DANDELION_TX:
     case MSG_DANDELION_WITNESS_TX:
+    case MSG_DANDELION_AGGSESSION:
+    case MSG_DANDELION_ENCCAND:
         // Do not use AlreadyHave for Dandelion transactions
         // If accidentally used, returns false so tx is requested
         return false;
@@ -7674,6 +7680,47 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                               pfrom->PushMessageWithFlag(nSendFlags, NetMsgType::TX, *txinfo.tx);
                               push = true;
                           }
+                    }
+                }
+                if (!push) {
+                    vNotFound.push_back(inv);
+                }
+            }
+            else if (inv.type == MSG_AGGSESSION || inv.type == MSG_DANDELION_AGGSESSION || inv.type == MSG_ENCCAND || inv.type == MSG_DANDELION_ENCCAND)
+            {
+                // Send stream from relay memory
+                bool push = false;
+                if (inv.type == MSG_DANDELION_AGGSESSION)
+                {
+                    AggregationSession ms(pcoinsTip);
+                    if (stempool.GetAggregationSession(inv.hash, ms) && !IsDandelionInbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
+                        pfrom->PushMessage(NetMsgType::DANDELIONAGGREGATIONSESSION, ms);
+                        push = true;
+                    }
+                }
+                else if(inv.type == MSG_AGGSESSION)
+                {
+                    AggregationSession ms(pcoinsTip);
+
+                    if (mempool.GetAggregationSession(inv.hash, ms)) {
+                        pfrom->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
+                        push = true;
+                    }
+                }
+                else if (inv.type == MSG_DANDELION_ENCCAND)
+                {
+                    EncryptedCandidateTransaction ec;
+                    if (stempool.GetEncryptedCandidateTransaction(inv.hash, ec) && !IsDandelionInbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
+                        pfrom->PushMessage(NetMsgType::DANDELIONENCRYPTEDCANDIDATE, ec);
+                        push = true;
+                    }
+                }
+                else if(inv.type == MSG_ENCCAND)
+                {
+                    EncryptedCandidateTransaction ec;
+                    if (mempool.GetEncryptedCandidateTransaction(inv.hash, ec)) {
+                        pfrom->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+                        push = true;
                     }
                 }
                 if (!push) {
@@ -8138,7 +8185,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     LogPrint("net", "getheaders (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->id);
                 }
             }
-            else if (inv.type == MSG_DANDELION_TX) {
+            else if (inv.type == MSG_DANDELION_TX || inv.type == MSG_DANDELION_AGGSESSION || inv.type == MSG_DANDELION_ENCCAND) {
                 auto result = pfrom->setDandelionInventoryKnown.insert(inv.hash);
                 fAlreadyHave = !result.second;
                 uint256 dandelionServiceDiscoveryHash;
@@ -8500,87 +8547,106 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     }
     else if (strCommand == NetMsgType::DANDELIONAGGREGATIONSESSION)
     {
+        AggregationSession ms(pcoinsTip);
+        vRecv >> ms;
+
+        ms.nTime = GetTimeMillis();
+
+        CInv inv(MSG_DANDELION_AGGSESSION, ms.GetHash());
+
+        LOCK(cs_main);
         if (IsDandelionInbound(pfrom)) {
-            try
+            if (!stempool.HaveAggregationSession(ms.GetHash()))
             {
-                AggregationSession ms(pcoinsTip);
-                vRecv >> ms;
+                stempool.AddAggregationSession(ms);
                 int64_t nCurrTime = GetTimeMicros();
                 int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-                InsertDandelionAggregationSessionEmbargo(&ms, nEmbargo);
-                RelayDandelionAggregationSession(ms, pfrom);
-            }
-            catch(...)
-            {
+                InsertDandelionAggregationSessionEmbargo(ms.GetHash(), nEmbargo);
 
+            }
+            if (stempool.HaveAggregationSession(ms.GetHash()))
+            {
+                RelayDandelionAggregationSession(ms.GetHash(), pfrom);
             }
         }
     }
     else if (strCommand == NetMsgType::AGGREGATIONSESSION)
     {
-        try
-        {
-            AggregationSession ms(pcoinsTip);
-            vRecv >> ms;
+        AggregationSession ms(pcoinsTip);
+        vRecv >> ms;
 
+        ms.nTime = GetTimeMillis();
+
+        LOCK(cs_main);
+
+        CInv inv(MSG_AGGSESSION, ms.GetHash());
+        pfrom->AddInventoryKnown(inv);
+
+        pfrom->setAskFor.erase(inv.hash);
+        mapAlreadyAskedFor.erase(inv);
+
+        if (!AlreadyHave(inv) && mempool.AddAggregationSession(ms))
+        {
             if (IsDandelionAggregationSessionEmbargoed(ms.GetHash())) {
                 LogPrint("dandelion", "Embargoed dandelion message %s found; removing from embargo map\n", ms.GetHash().ToString());
                 RemoveDandelionAggregationSessionEmbargo(ms.GetHash());
             }
-            if (!AggregationSession::IsKnown(ms))
-            {
-                uiInterface.NewAggregationSession(ms.GetHiddenService());
-                RelayAggregationSession(ms);
-                ms.Join();
-            }
-        }
-        catch(...)
-        {
-
+            uiInterface.NewAggregationSession(ms.GetHiddenService());
+            RelayAggregationSession(ms.GetHash());
+            ms.Join();
         }
     }
     else if (strCommand == NetMsgType::DANDELIONENCRYPTEDCANDIDATE)
     {
+        EncryptedCandidateTransaction ec;
+        vRecv >> ec;
+
+        ec.nTime = GetTimeMillis();
+
+        CInv inv(MSG_DANDELION_ENCCAND, ec.GetHash());
+
+        LOCK(cs_main);
         if (IsDandelionInbound(pfrom)) {
-            try
+            if (!stempool.HaveEncryptedCandidateTransaction(ec.GetHash()))
             {
-                EncryptedCandidateTransaction ec;
-                vRecv >> ec;
+                stempool.AddEncryptedCandidateTransaction(ec);
                 int64_t nCurrTime = GetTimeMicros();
                 int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-                InsertDandelionEncryptedCandidateEmbargo(ec, nEmbargo);
-                RelayDandelionEncryptedCandidate(ec, pfrom);
+                InsertDandelionEncryptedCandidateEmbargo(ec.GetHash(), nEmbargo);
             }
-            catch(...)
+            if (stempool.HaveEncryptedCandidateTransaction(ec.GetHash()))
             {
-
+                RelayDandelionEncryptedCandidate(ec.GetHash(), pfrom);
             }
         }
     }
     else if (strCommand == NetMsgType::ENCRYPTEDCANDIDATE)
-    {
-        try
-        {
-            EncryptedCandidateTransaction ec;
-            vRecv >> ec;
+    {        
+        EncryptedCandidateTransaction ec;
+        vRecv >> ec;
 
-            if (IsDandelionEncryptedCandidateEmbargoed(ec)) {
+        ec.nTime = GetTimeMillis();
+
+        LOCK(cs_main);
+
+        CInv inv(MSG_ENCCAND, ec.GetHash());
+        pfrom->AddInventoryKnown(inv);
+
+        pfrom->setAskFor.erase(inv.hash);
+        mapAlreadyAskedFor.erase(inv);
+
+        if (!AlreadyHave(inv) && mempool.AddEncryptedCandidateTransaction(ec))
+        {
+            if (IsDandelionEncryptedCandidateEmbargoed(ec.GetHash())) {
                 LogPrint("dandelion", "Embargoed dandelion message %s found; removing from embargo map\n", SerializeHash(ec).ToString());
-                RemoveDandelionEncryptedCandidateEmbargo(ec);
+                RemoveDandelionEncryptedCandidateEmbargo(ec.GetHash());
             }
-            if (!AggregationSession::IsKnown(ec))
-            {
-                RelayEncryptedCandidate(ec);
-                if (pwalletMain && pwalletMain->aggSession)
-                {
-                    std::shared_ptr<EncryptedCandidateTransaction> pec = std::make_shared<EncryptedCandidateTransaction>(ec);
-                    pwalletMain->aggSession->NewEncryptedCandidateTransaction(pec);
-                }
-            }
-        }
-        catch(...)
-        {
 
+            RelayEncryptedCandidate(ec.GetHash());
+            if (pwalletMain && pwalletMain->aggSession)
+            {
+                pwalletMain->aggSession->NewEncryptedCandidateTransaction(ec);
+            }
         }
     }
     else if (strCommand == NetMsgType::DANDELIONTX)
@@ -9692,7 +9758,35 @@ bool SendMessages(CNode* pto)
                 }
             }
 
+            for (const uint256& hash : pto->vInventoryDandelionEncCandToSend) {
+                pto->setDandelionInventoryKnown.insert(hash);
+                if (!pto->fSupportsDandelion) {
+                    vInv.push_back(CInv(MSG_ENCCAND, hash));
+                } else {
+                    vInv.push_back(CInv(MSG_DANDELION_ENCCAND, hash));
+                }
+                if (vInv.size() == MAX_INV_SZ) {
+                    pto->PushMessage(NetMsgType::INV, vInv);
+                    vInv.clear();
+                }
+            }
+
+            for (const uint256& hash : pto->vInventoryDandelionAggSessionToSend) {
+                pto->setDandelionInventoryKnown.insert(hash);
+                if (!pto->fSupportsDandelion) {
+                    vInv.push_back(CInv(MSG_AGGSESSION, hash));
+                } else {
+                    vInv.push_back(CInv(MSG_DANDELION_AGGSESSION, hash));
+                }
+                if (vInv.size() == MAX_INV_SZ) {
+                    pto->PushMessage(NetMsgType::INV, vInv);
+                    vInv.clear();
+                }
+            }
+
             pto->vInventoryDandelionTxToSend.clear();
+            pto->vInventoryDandelionAggSessionToSend.clear();
+            pto->vInventoryDandelionEncCandToSend.clear();
 
             // Check whether periodic sends should happen
             bool fSendTrickle = pto->fWhitelisted;
@@ -9705,7 +9799,11 @@ bool SendMessages(CNode* pto)
             // Time to send but the peer has requested we not relay transactions.
             if (fSendTrickle) {
                 LOCK(pto->cs_filter);
-                if (!pto->fRelayTxes) pto->setInventoryTxToSend.clear();
+                if (!pto->fRelayTxes) {
+                    pto->setInventoryTxToSend.clear();
+                    pto->setInventoryEncCandToSend.clear();
+                    pto->setInventoryAggSessionToSend.clear();
+                }
             }
 
             // Respond to BIP35 mempool requests
@@ -9805,6 +9903,27 @@ bool SendMessages(CNode* pto)
                     }
                     pto->filterInventoryKnown.insert(hash);
                 }
+
+                for (auto& hash: pto->setInventoryAggSessionToSend) {
+                    vInv.push_back(CInv(MSG_AGGSESSION, hash));
+                    if (vInv.size() == MAX_INV_SZ) {
+                        pto->PushMessage(NetMsgType::INV, vInv);
+                        vInv.clear();
+                    }
+                    pto->filterInventoryKnown.insert(hash);
+                }
+
+                for (auto& hash: pto->setInventoryEncCandToSend) {
+                    vInv.push_back(CInv(MSG_ENCCAND, hash));
+                    if (vInv.size() == MAX_INV_SZ) {
+                        pto->PushMessage(NetMsgType::INV, vInv);
+                        vInv.clear();
+                    }
+                    pto->filterInventoryKnown.insert(hash);
+                }
+
+                pto->setInventoryEncCandToSend.clear();
+                pto->setInventoryAggSessionToSend.clear();
             }
         }
         if (!vInv.empty())
@@ -10495,40 +10614,67 @@ static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom)
     }
 }
 
-static void RelayDandelionAggregationSession(const AggregationSession& ms, CNode* pfrom)
+static void RelayDandelionAggregationSession(const uint256& ms, CNode* pfrom)
 {
     FastRandomContext rng;
     if (rng.randrange(100)<DANDELION_FLUFF) {
-        LogPrint("dandelion", "Dandelion message fluff: %s\n", ms.GetHash().ToString());
+        LogPrint("dandelion", "Dandelion message fluff: %s\n", ms.ToString());
         RelayAggregationSession(ms);
     } else {
+        CInv inv(MSG_DANDELION_AGGSESSION, ms);
         CNode* destination = GetDandelionDestination(pfrom);
         if (destination!=nullptr) {
-            destination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
+            destination->PushInventory(inv);
         }
     }
 }
 
-static void RelayDandelionEncryptedCandidate(const EncryptedCandidateTransaction& ec, CNode* pfrom)
+static void RelayDandelionEncryptedCandidate(const uint256& ec, CNode* pfrom)
 {
     FastRandomContext rng;
     if (rng.randrange(100)<DANDELION_FLUFF) {
-        LogPrint("dandelion", "Dandelion message fluff: %s\n", SerializeHash(ec).ToString());
+        LogPrint("dandelion", "Dandelion message fluff: %s\n", ec.ToString());
         RelayEncryptedCandidate(ec);
     } else {
+        CInv inv(MSG_DANDELION_ENCCAND, ec);
         CNode* destination = GetDandelionDestination(pfrom);
         if (destination!=nullptr) {
-            destination->PushMessage(NetMsgType::ENCRYPTEDCANDIDATE, ec);
+            destination->PushInventory(inv);
         }
     }
+}
+
+void MempoolAddAggregationSession(const AggregationSession& ms)
+{
+    mempool.AddAggregationSession(ms);
+}
+
+void StempoolAddAggregationSession(const AggregationSession& ms)
+{
+    stempool.AddAggregationSession(ms);
+}
+
+void MempoolAddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& ec)
+{
+    mempool.AddEncryptedCandidateTransaction(ec);
+}
+
+void StempoolAddEncryptedCandidateTransaction(const EncryptedCandidateTransaction& ec)
+{
+    stempool.AddEncryptedCandidateTransaction(ec);
 }
 
 static void CheckDandelionEmbargoes()
 {
     int64_t nCurrTime = GetTimeMicros();
     for (auto iter=mDandelionAggregationSessionEmbargo.begin(); iter!=mDandelionAggregationSessionEmbargo.end();) {
-        if (iter->second.second < nCurrTime) {
-            RelayAggregationSession(*(iter->second.first));
+        if (iter->second < nCurrTime) {
+            AggregationSession ms(pcoinsTip);
+            if (stempool.GetAggregationSession(iter->first, ms))
+            {
+                mempool.AddAggregationSession(ms);
+                RelayAggregationSession(iter->first);
+            }
             iter = mDandelionAggregationSessionEmbargo.erase(iter);
         } else {
             iter++;
@@ -10537,7 +10683,12 @@ static void CheckDandelionEmbargoes()
 
     for (auto iter=mDandelionEncryptedCandidateEmbargo.begin(); iter!=mDandelionEncryptedCandidateEmbargo.end();) {
         if (iter->second < nCurrTime) {
-            RelayEncryptedCandidate(iter->first);
+            EncryptedCandidateTransaction ec;
+            if (stempool.GetEncryptedCandidateTransaction(iter->first, ec))
+            {
+                mempool.AddEncryptedCandidateTransaction(ec);
+                RelayEncryptedCandidate(iter->first);
+            }
             iter = mDandelionEncryptedCandidateEmbargo.erase(iter);
         } else {
             iter++;

@@ -105,7 +105,7 @@ CAmount WalletModel::getPrivateBalancePending() const
 
 CAmount WalletModel::getPrivateBalanceLocked() const
 {
-    return wallet->GetPrivateBalanceLocked();
+    return 0;
 }
 
 CAmount WalletModel::getStake() const

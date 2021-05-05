@@ -5,12 +5,12 @@
 #include "aggregationsession.h"
 #include <main.h>
 
-std::set<uint256> setKnownSessions;
 CCriticalSection cs_aggregation;
 CCriticalSection cs_sessionKeys;
 
 bool AggregationSession::fJoining = false;
-SafeQueue<std::shared_ptr<EncryptedCandidateTransaction>> candidatesQueue;
+SafeQueue<EncryptedCandidateTransaction> candidatesQueue;
+std::vector<COutput> vAvailableCoins;
 
 AggregationSession::AggregationSession(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(2)
 {
@@ -73,16 +73,6 @@ bool AggregationSession::Start()
     }
 
     return true;
-}
-
-bool AggregationSession::IsKnown(const AggregationSession& ms)
-{
-    return setKnownSessions.find(ms.GetHash()) != setKnownSessions.end();
-}
-
-bool AggregationSession::IsKnown(const EncryptedCandidateTransaction& ec)
-{
-    return setKnownSessions.find(SerializeHash(ec)) != setKnownSessions.end();
 }
 
 void AggregationSession::Stop()
@@ -240,20 +230,6 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
         if (fShouldIContinue)
             continue;
 
-        try
-        {
-            if (!VerifyBLSCT(vTransactionCandidates[i].tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, vTransactionCandidates[i].fee))
-            {
-                i++;
-                continue;
-            }
-        }
-        catch(...)
-        {
-            i++;
-            continue;
-        }
-
         setTransactionsToCombine.insert(vTransactionCandidates[i].tx);
         nFee += vTransactionCandidates[i].fee;
         i++;
@@ -318,34 +294,42 @@ bool AggregationSession::AddCandidateTransaction(const std::vector<unsigned char
     return true;
 }
 
-bool AggregationSession::NewEncryptedCandidateTransaction(std::shared_ptr<EncryptedCandidateTransaction> etx)
+bool AggregationSession::NewEncryptedCandidateTransaction(EncryptedCandidateTransaction etx)
 {
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
 
+    bool ret = true;
+
     if (vTransactionCandidates.size() >= GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100)
     {
-        return false;
+        ret = false;
+    }
+    else if (!(pwalletMain->GetPrivateBalance() > 0))
+    {
+        ret = false;
+    }
+    else
+    {
+        candidatesQueue.push(etx);
     }
 
-    if (!(pwalletMain->GetPrivateBalance() > 0))
-        return false;
 
-    if (setKnownSessions.size() > GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS)*100*100)
-        setKnownSessions.clear();
-
-    setKnownSessions.insert(SerializeHash(*etx));
-
-    candidatesQueue.push(etx);
-
-    return true;
+    return ret;
 }
 
 void AggregationSession::AnnounceHiddenService()
 {
+    this->nTime = GetTimeMillis();
+
+    LogPrint("aggregationsession", "AggregationSession::%s: created session %s\n", __func__, GetHiddenService());
+
+    StempoolAddAggregationSession(*this);
+    MempoolAddAggregationSession(*this);
+
     if (!GetBoolArg("-dandelion", true))
     {
-        RelayAggregationSession(*this);
+        RelayAggregationSession(this->GetHash());
         return;
     }
 
@@ -353,10 +337,12 @@ void AggregationSession::AnnounceHiddenService()
 
     int64_t nCurrTime = GetTimeMicros();
     int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-    InsertDandelionAggregationSessionEmbargo(this,nEmbargo);
+    InsertDandelionAggregationSessionEmbargo(this->GetHash(), nEmbargo);
 
-    if (!LocalDandelionDestinationPushAggregationSession(*this))
-        RelayAggregationSession(*this);
+    CInv inv(MSG_DANDELION_AGGSESSION, this->GetHash());
+
+    if (!LocalDandelionDestinationPushInventory(inv))
+        RelayAggregationSession(this->GetHash());
 }
 
 std::string Socks5ErrorToString(int err)
@@ -415,19 +401,14 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
 
 bool AggregationSession::Join()
 {
-    setKnownSessions.insert(this->GetHash());
-
     if (!IsBLSCTEnabled(chainActive.Tip(),Params().GetConsensus()))
         return false;
 
     if (!pwalletMain)
         return false;
 
-    {
-        LOCK(pwalletMain->cs_wallet);
-        if (*(pwalletMain->aggSession) == *this)
-            return false;
-    }
+    if (*(pwalletMain->aggSession) == *this)
+        return false;
 
     if (!GetBoolArg("-blsctmix", DEFAULT_MIX))
         return false;
@@ -438,28 +419,18 @@ bool AggregationSession::Join()
     if (nVersion == 2 && vPublicKey.size() == 0)
         return false;
 
-    LogPrint("aggregationsession","AggregationSession::%s: new session %s\n", __func__, GetHiddenService());
-
-    std::vector<COutput> vAvailableCoins;
-
-    pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
+    LogPrint("aggregationsession","AggregationSession::%s: new session v%d %s\n", __func__, nVersion, GetHiddenService());
 
     if (vAvailableCoins.size() == 0)
         return false;
 
-    std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
-
     if (nVersion == 1)
     {
-        joinThread = boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs));
-
-        joinThread.detach();
+        boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
     }
     else if (nVersion == 2)
     {
-        joinThread = boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs));
-
-        joinThread.detach();
+        boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
     }
 
 
@@ -638,18 +609,24 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
     {
         EncryptedCandidateTransaction encryptedTx(publicKey, tx);
 
+        encryptedTx.nTime = GetTimeMillis();
+
+        StempoolAddEncryptedCandidateTransaction(encryptedTx);
+        MempoolAddEncryptedCandidateTransaction(encryptedTx);
+
         if (!GetBoolArg("-dandelion", true))
         {
-            RelayEncryptedCandidate(encryptedTx);
+            RelayEncryptedCandidate(encryptedTx.GetHash());
             return true;
         }
 
         int64_t nCurrTime = GetTimeMicros();
         int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-        InsertDandelionEncryptedCandidateEmbargo(encryptedTx,nEmbargo);
+        InsertDandelionEncryptedCandidateEmbargo(encryptedTx.GetHash(), nEmbargo);
 
-        if (!LocalDandelionDestinationPushEncryptedCandidate(encryptedTx))
-            RelayEncryptedCandidate(encryptedTx);
+        CInv inv(MSG_DANDELION_ENCCAND, encryptedTx.GetHash());
+        if (!LocalDandelionDestinationPushInventory(inv))
+            RelayEncryptedCandidate(encryptedTx.GetHash());
     }
     catch(...)
     {
@@ -994,6 +971,10 @@ void AggregationSessionThread()
                 }
             }
 
+            pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
+
+            std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
+
             MilliSleep(GetRand(aggSleep, 180000));
         }
     }
@@ -1030,7 +1011,7 @@ void CandidateVerificationThread()
                 MilliSleep(1000);
             } while (true);
 
-            std::shared_ptr<EncryptedCandidateTransaction> etx;
+            EncryptedCandidateTransaction etx;
 
             while(candidatesQueue.pop(etx))
             {
@@ -1044,7 +1025,7 @@ void CandidateVerificationThread()
                     {
                         try
                         {
-                            if (etx->Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
+                            if (etx.Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
                             {
                                 fSolved = true;
                                 break;
@@ -1058,7 +1039,9 @@ void CandidateVerificationThread()
                 }
 
                 if (!fSolved)
+                {
                     continue;
+                }
 
                 {
                     LOCK(cs_aggregation);
@@ -1094,13 +1077,18 @@ void CandidateVerificationThread()
                     }
 
                     if (stop)
-                        continue;
-
-                    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+                    {
                         continue;
                     }
 
-                    if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+                    if (CWalletTx(NULL, tx.tx).InputsInMempool()) {
+                        stop = true;
+                    } else if (CWalletTx(NULL, tx.tx).InputsInStempool()) {
+                        stop = true;
+                    }
+
+                    if (stop)
+                    {
                         continue;
                     }
 

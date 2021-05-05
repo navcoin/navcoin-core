@@ -304,6 +304,8 @@ public:
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
     mutable bool fPrivateCreditCached;
+    mutable bool fAvailablePrivateCreditCached;
+    mutable bool fAvailableStakableCreditCached;
     mutable bool fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
@@ -319,6 +321,8 @@ public:
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
     mutable CAmount nPrivateCreditCached;
+    mutable CAmount nAvailablePrivateCreditCached;
+    mutable CAmount nAvailableStakableCreditCached;
     mutable CAmount nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
@@ -370,6 +374,9 @@ public:
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
         fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
+        fAvailableStakableCreditCached = false;
+        fImmaturePrivateCreditCached = false;
         fPrivateDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
@@ -384,6 +391,9 @@ public:
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
         nPrivateCreditCached = 0;
+        nAvailablePrivateCreditCached = 0;
+        nAvailableStakableCreditCached = 0;
+        nImmaturePrivateCreditCached = 0;
         nPrivateDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
@@ -458,6 +468,10 @@ public:
         fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
+        fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
+        fAvailableStakableCreditCached = false;
+        fImmaturePrivateCreditCached = false;
         fDebitCached = false;
         fChangeCached = false;
     }
@@ -483,6 +497,10 @@ public:
                 vfSpent[i] = true;
                 fReturn = true;
                 fAvailableCreditCached = false;
+                fAvailablePrivateCreditCached = false;
+                fAvailableStakableCreditCached = false;
+                fPrivateCreditCached = false;
+                fImmaturePrivateCreditCached = false;
             }
         }
         return fReturn;
@@ -497,6 +515,10 @@ public:
         {
             vfSpent[nOut] = true;
             fAvailableCreditCached = false;
+            fPrivateCreditCached = false;
+            fAvailablePrivateCreditCached = false;
+            fAvailableStakableCreditCached = false;
+            fImmaturePrivateCreditCached = false;
         }
     }
 
@@ -509,6 +531,10 @@ public:
         {
             vfSpent[nOut] = false;
             fAvailableCreditCached = false;
+            fAvailablePrivateCreditCached = false;
+            fAvailableStakableCreditCached = false;
+            fPrivateCreditCached = false;
+            fImmaturePrivateCreditCached = false;
         }
     }
 
@@ -527,7 +553,8 @@ public:
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit(bool fLocked = false) const;
+    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true) const;
+    CAmount GetPendingPrivateCredit(const bool& fUseCache=true) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;

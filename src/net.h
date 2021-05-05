@@ -32,7 +32,6 @@
 class CAddrMan;
 class CScheduler;
 class CNode;
-class EncryptedCandidateTransaction;
 
 namespace boost {
     class thread_group;
@@ -188,8 +187,8 @@ extern CCriticalSection cs_nLastNodeId;
 
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
-extern std::map<uint256, std::pair<AggregationSession*, int64_t>> mDandelionAggregationSessionEmbargo;
-extern std::map<EncryptedCandidateTransaction, int64_t> mDandelionEncryptedCandidateEmbargo;
+extern std::map<uint256, int64_t> mDandelionAggregationSessionEmbargo;
+extern std::map<uint256, int64_t> mDandelionEncryptedCandidateEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsDandelionOutbound(const CNode* const pnode);
@@ -197,17 +196,15 @@ bool IsLocalDandelionDestinationSet();
 bool SetLocalDandelionDestination();
 CNode* GetDandelionDestination(CNode* pfrom);
 bool LocalDandelionDestinationPushInventory(const CInv& inv);
-bool LocalDandelionDestinationPushAggregationSession(const AggregationSession& inv);
-bool LocalDandelionDestinationPushEncryptedCandidate(const EncryptedCandidateTransaction& ec);
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
-bool InsertDandelionAggregationSessionEmbargo(AggregationSession* ms, const int64_t& embargo);
+bool InsertDandelionAggregationSessionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsDandelionAggregationSessionEmbargoed(const uint256& hash);
 bool RemoveDandelionAggregationSessionEmbargo(const uint256& hash);
-bool InsertDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec, const int64_t& embargo);
-bool IsDandelionEncryptedCandidateEmbargoed(const EncryptedCandidateTransaction &ec);
-bool RemoveDandelionEncryptedCandidateEmbargo(const EncryptedCandidateTransaction &ec);
+bool InsertDandelionEncryptedCandidateEmbargo(const uint256 &ec, const int64_t& embargo);
+bool IsDandelionEncryptedCandidateEmbargoed(const uint256 &ec);
+bool RemoveDandelionEncryptedCandidateEmbargo(const uint256 &ec);
 // Dandelion fields
 extern std::vector<CNode*> vDandelionInbound;
 extern std::vector<CNode*> vDandelionOutbound;
@@ -457,8 +454,12 @@ public:
     // Set of transaction ids we still have to announce.
     // They are sorted by the mempool before relay, so the order is not important.
     std::set<uint256> setInventoryTxToSend;
+    std::set<uint256> setInventoryEncCandToSend;
+    std::set<uint256> setInventoryAggSessionToSend;
     // List of Dandelion transaction ids to announce.
     std::vector<uint256> vInventoryDandelionTxToSend;
+    std::vector<uint256> vInventoryDandelionEncCandToSend;
+    std::vector<uint256> vInventoryDandelionAggSessionToSend;
     // List of block ids we still have announce.
     // There is no final sorting before sending, as they are always sent immediately
     // and in the order requested.
@@ -602,6 +603,22 @@ public:
               if (setDandelionInventoryKnown.count(inv.hash)==0) {
                   vInventoryDandelionTxToSend.push_back(inv.hash);
               }
+        } else if (inv.type == MSG_AGGSESSION) {
+            if (!filterInventoryKnown.contains(inv.hash)) {
+                setInventoryAggSessionToSend.insert(inv.hash);
+            }
+        } else if (inv.type == MSG_DANDELION_AGGSESSION) {
+            if (setDandelionInventoryKnown.count(inv.hash)==0) {
+                vInventoryDandelionAggSessionToSend.push_back(inv.hash);
+            }
+        } else if (inv.type == MSG_ENCCAND) {
+            if (!filterInventoryKnown.contains(inv.hash)) {
+                setInventoryEncCandToSend.insert(inv.hash);
+            }
+        } else if (inv.type == MSG_ENCCAND) {
+            if (setDandelionInventoryKnown.count(inv.hash)==0) {
+                vInventoryDandelionEncCandToSend.push_back(inv.hash);
+            }
         } else if (inv.type == MSG_BLOCK) {
             vInventoryBlockToSend.push_back(inv.hash);
         }
@@ -877,8 +894,8 @@ public:
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);
-void RelayAggregationSession(const AggregationSession& ms);
-void RelayEncryptedCandidate(const EncryptedCandidateTransaction& ec);
+void RelayAggregationSession(const uint256& ms);
+void RelayEncryptedCandidate(const uint256& ec);
 
 /** Access to the (IP) address database (peers.dat) */
 class CAddrDB
