@@ -7786,6 +7786,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     if (pfrom->nVersion != 0)
     {
         bool fObsolete = false;
+        bool fBan = true;
         string reason = "";
 
         if(pfrom->nVersion < 70015)
@@ -7806,12 +7807,28 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             fObsolete = true;
         }
 
+        if(pfrom->nVersion < 80020 && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            reason = "xNAV has been enabled and you are using an old version of Navcoin, please update.";
+            fObsolete = true;
+        }
+
+        if(pfrom->nVersion >= 80020 && pfrom->nVersion < 80021 && IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            reason = "You are using an old version of Navcoin, please update.";
+            fObsolete = true;
+            fBan = false;
+        }
+
         if(fObsolete)
         {
             pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, reason);
-            LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 100);
-            return false;
+            if (fBan)
+            {
+                LOCK(cs_main);
+                Misbehaving(pfrom->GetId(), 100);
+                return false;
+            }
         }
     }
 
