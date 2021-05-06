@@ -1329,6 +1329,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   {
                       for (auto& it: list)
                       {
+                          LOCK(cs_main);
+
                           uint256 hash = it.first;
                           int64_t val = it.second;
 
