@@ -48,20 +48,20 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
     cachedColdStakingBalance(0),
     cachedPrivateBalance(0),
     cachedEncryptionStatus(Unencrypted),
-    cachedNumBlocks(0)
+    cachedNumBlocks(0),
+    cachedAmount24h(-1),
+    cachedAmount7d(-1),
+    cachedAmount30d(-1),
+    cachedAmount1y(-1),
+    cachedAmountAll(-1),
+    cachedAmountExp(-1)
 {
     fHaveWatchOnly = wallet->HaveWatchOnly();
-    fForceCheckBalanceChanged = false;
+    fForceCheckBalanceChanged = true;
 
     addressTableModel = new AddressTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
-
-    // This timer will be fired repeatedly to update the balance
-    pollTimer = new QTimer(this);
-    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
-    pollBalanceChanged();
-    pollTimer->start(MODEL_UPDATE_DELAY);
 
     subscribeToCoreSignals();
 }
@@ -69,6 +69,15 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
 WalletModel::~WalletModel()
 {
     unsubscribeFromCoreSignals();
+}
+
+void WalletModel::StartBalanceTimer()
+{
+    // This timer will be fired repeatedly to update the balance
+    pollTimer = new QTimer(this);
+    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
+    pollBalanceChanged();
+    pollTimer->start(MODEL_UPDATE_DELAY);
 }
 
 CAmount WalletModel::getBalance(const CCoinControl *coinControl) const
@@ -162,7 +171,6 @@ void WalletModel::pollBalanceChanged()
     TRY_LOCK(wallet->cs_wallet, lockWallet);
     if(!lockWallet)
         return;
-
     if(fForceCheckBalanceChanged)
     {
         fForceCheckBalanceChanged = false;
