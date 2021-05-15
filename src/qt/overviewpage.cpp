@@ -284,6 +284,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         updateWatchOnlyLabels(model->haveWatchOnly());
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
+
+        model->StartBalanceTimer();
     }
 
     // update the display unit, to not use the default ("NAV")
