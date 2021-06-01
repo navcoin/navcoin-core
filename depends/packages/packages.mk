@@ -1,10 +1,10 @@
-packages:=boost openssl libevent zeromq curl gmp expat unbound zlib sodium
+packages:=boost openssl libevent zeromq curl gmp unbound zlib sodium
 
 linux_packages = libseccomp libcap
 
 qt_packages = qrencode
 
-qt_linux_packages:=qt libxcb xcb_proto libXau xproto freetype fontconfig
+qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
 
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
