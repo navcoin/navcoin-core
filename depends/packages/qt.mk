@@ -230,10 +230,6 @@ define $(package)_preprocess_cmds
   cp -f qtbase/mkspecs/macx-clang/qplatformdefs.h qtbase/mkspecs/macx-clang-linux/ &&\
   cp -f $($(package)_patch_dir)/mac-qmake.conf qtbase/mkspecs/macx-clang-linux/qmake.conf && \
   cp -r qtbase/mkspecs/linux-arm-gnueabi-g++ qtbase/mkspecs/bitcoin-linux-g++ && \
-  cp -f $($(package)_patch_dir)/configure configure && \
-  cp -f $($(package)_patch_dir)/configure.json configure.json && \
-  cp -f $($(package)_patch_dir)/qt.pro qt.pro && \
-  cp -f $($(package)_patch_dir)/.gitmodules .gitmodules && \
   sed -i.old "s/arm-linux-gnueabi-/$(host)-/g" qtbase/mkspecs/bitcoin-linux-g++/qmake.conf && \
   echo "!host_build: QMAKE_CFLAGS     += $($(package)_cflags) $($(package)_cppflags)" >> qtbase/mkspecs/common/gcc-base.conf && \
   echo "!host_build: QMAKE_CXXFLAGS   += $($(package)_cxxflags) $($(package)_cppflags)" >> qtbase/mkspecs/common/gcc-base.conf && \
@@ -247,20 +243,37 @@ define $(package)_config_cmds
   export PKG_CONFIG_SYSROOT_DIR=/ && \
   export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
   export PKG_CONFIG_PATH=$(host_prefix)/share/pkgconfig  && \
+  cd qtbase && \
   ./configure $($(package)_config_opts) && \
-  echo "host_build: QT_CONFIG ~= s/system-zlib/zlib" >> qtbase/mkspecs/qconfig.pri && \
-  echo "CONFIG += force_bootstrap" >> qtbase/mkspecs/qconfig.pri
+  cd .. && \
+  $(MAKE) -C qtbase sub-src-clean && \
+  qtbase/bin/qmake -o qttranslations/Makefile qttranslations/qttranslations.pro && \
+  qtbase/bin/qmake -o qttranslations/translations/Makefile qttranslations/translations/translations.pro && \
+  qtbase/bin/qmake -o qttools/src/linguist/lrelease/Makefile qttools/src/linguist/lrelease/lrelease.pro && \
+  qtbase/bin/qmake -o qttools/src/linguist/lupdate/Makefile qttools/src/linguist/lupdate/lupdate.pro && \
+  qtbase/bin/qmake -o qttools/src/linguist/lconvert/Makefile qttools/src/linguist/lconvert/lconvert.pro && \
+  qtbase/bin/qmake -o qtcharts/Makefile qtcharts/qtcharts.pro && \
+  qtbase/bin/qmake -o qtsvg/Makefile qtsvg/qtsvg.pro
 endef
 
 define $(package)_build_cmds
-  $(MAKE)
+  $(MAKE) -C qtbase/src $(addprefix sub-,$($(package)_qt_libs)) && \
+  $(MAKE) -C qttools/src/linguist/lrelease && \
+  $(MAKE) -C qttools/src/linguist/lupdate && \
+  $(MAKE) -C qttools/src/linguist/lconvert && \
+  $(MAKE) -C qttranslations && \
+  $(MAKE) -C qtcharts && \
+  $(MAKE) -C qtsvg
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) INSTALL_ROOT=$($(package)_staging_dir) install && \
-  if `test -f qtbase/src/plugins/platforms/xcb/xcb-static/libxcb-static.a`; then \
-    cp qtbase/src/plugins/platforms/xcb/xcb-static/libxcb-static.a $($(package)_staging_prefix_dir)/lib; \
-  fi
+  $(MAKE) -C qtbase/src INSTALL_ROOT=$($(package)_staging_dir) $(addsuffix -install_subtargets,$(addprefix sub-,$($(package)_qt_libs))) && \
+  $(MAKE) -C qttools/src/linguist/lrelease INSTALL_ROOT=$($(package)_staging_dir) install_target && \
+  $(MAKE) -C qttools/src/linguist/lupdate INSTALL_ROOT=$($(package)_staging_dir) install_target && \
+  $(MAKE) -C qttools/src/linguist/lconvert INSTALL_ROOT=$($(package)_staging_dir) install_target && \
+  $(MAKE) -C qttranslations INSTALL_ROOT=$($(package)_staging_dir) install_subtargets && \
+  $(MAKE) -C qtcharts INSTALL_ROOT=$($(package)_staging_dir) install_subtargets && \
+  $(MAKE) -C qtsvg INSTALL_ROOT=$($(package)_staging_dir) install_subtargets
 endef
 
 define $(package)_postprocess_cmds
