@@ -82,7 +82,6 @@ $(package)_config_opts += -static
 $(package)_config_opts += -v
 $(package)_config_opts += -no-feature-bearermanagement
 $(package)_config_opts += -no-feature-colordialog
-$(package)_config_opts += -no-feature-commandlineparser
 $(package)_config_opts += -no-feature-concurrent
 $(package)_config_opts += -no-feature-dial
 $(package)_config_opts += -no-feature-fontcombobox
