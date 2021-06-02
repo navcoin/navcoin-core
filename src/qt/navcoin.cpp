@@ -593,12 +593,8 @@ int main(int argc, char *argv[])
 
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#if QT_VERSION >= 0x050600
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-#ifdef Q_OS_MAC
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
-#endif
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     // Register meta types used for QMetaObject::invokeMethod
     qRegisterMetaType< bool* >();
     //   Need to pass name here as CAmount is a typedef (see http://qt-project.org/doc/qt-5/qmetatype.html#qRegisterMetaType)
