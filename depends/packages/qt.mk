@@ -20,7 +20,7 @@ $(package)_qttools_file_name=qttools-$($(package)_suffix)
 $(package)_qttools_sha256_hash=b0cfa6e7aac41b7c61fc59acc04843d7a98f9e1840370611751bcfc1834a636c
 
 $(package)_qtcharts_file_name=qtcharts-$($(package)_suffix)
-$(package)_qtcharts_sha256_hash=ac297e27844d3193205db02a22d68a9af7d79f416891617f9389ba4d2
+$(package)_qtcharts_sha256_hash=ac297e27844d3193205db02a22d68a9af7d79f416891617f9389ba4d29aacd32
 
 $(package)_qtsvg_file_name=qtsvg-$($(package)_suffix)
 $(package)_qtsvg_sha256_hash=b5fff4cfe158e17cb3f182c521aa6385f56e158b816d6dff1de915213cfa334b
