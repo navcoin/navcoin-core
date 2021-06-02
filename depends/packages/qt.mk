@@ -84,7 +84,6 @@ $(package)_config_opts += -no-feature-bearermanagement
 $(package)_config_opts += -no-feature-colordialog
 $(package)_config_opts += -no-feature-concurrent
 $(package)_config_opts += -no-feature-dial
-$(package)_config_opts += -no-feature-fontcombobox
 $(package)_config_opts += -no-feature-ftp
 $(package)_config_opts += -no-feature-http
 $(package)_config_opts += -no-feature-image_heuristic_mask
@@ -103,7 +102,6 @@ $(package)_config_opts += -no-feature-sql
 $(package)_config_opts += -no-feature-sqlmodel
 $(package)_config_opts += -no-feature-statemachine
 $(package)_config_opts += -no-feature-syntaxhighlighter
-$(package)_config_opts += -no-feature-textbrowser
 $(package)_config_opts += -no-feature-textodfwriter
 $(package)_config_opts += -no-feature-topleveldomain
 $(package)_config_opts += -no-feature-udpsocket
@@ -112,7 +110,6 @@ $(package)_config_opts += -no-feature-undogroup
 $(package)_config_opts += -no-feature-undostack
 $(package)_config_opts += -no-feature-undoview
 $(package)_config_opts += -no-feature-vnc
-$(package)_config_opts += -no-feature-xml
 
 $(package)_config_opts_darwin = -no-dbus
 $(package)_config_opts_darwin += -no-opengl
@@ -229,6 +226,10 @@ define $(package)_preprocess_cmds
   mkdir -p qtbase/mkspecs/macx-clang-linux &&\
   cp -f qtbase/mkspecs/macx-clang/qplatformdefs.h qtbase/mkspecs/macx-clang-linux/ &&\
   cp -f $($(package)_patch_dir)/mac-qmake.conf qtbase/mkspecs/macx-clang-linux/qmake.conf && \
+  cp -f $($(package)_patch_dir)/configure configure && \
+  cp -f $($(package)_patch_dir)/configure.json configure.json && \
+  cp -f $($(package)_patch_dir)/qt.pro qt.pro && \
+  cp -f $($(package)_patch_dir)/.gitmodules .gitmodules && \
   cp -r qtbase/mkspecs/linux-arm-gnueabi-g++ qtbase/mkspecs/bitcoin-linux-g++ && \
   sed -i.old "s/arm-linux-gnueabi-/$(host)-/g" qtbase/mkspecs/bitcoin-linux-g++/qmake.conf && \
   echo "!host_build: QMAKE_CFLAGS     += $($(package)_cflags) $($(package)_cppflags)" >> qtbase/mkspecs/common/gcc-base.conf && \
@@ -242,38 +243,16 @@ endef
 define $(package)_config_cmds
   export PKG_CONFIG_SYSROOT_DIR=/ && \
   export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
-  export PKG_CONFIG_PATH=$(host_prefix)/share/pkgconfig  && \
-  cd qtbase && \
-  ./configure $($(package)_config_opts) && \
-  cd .. && \
-  $(MAKE) -C qtbase sub-src-clean && \
-  qtbase/bin/qmake -o qttranslations/Makefile qttranslations/qttranslations.pro && \
-  qtbase/bin/qmake -o qttranslations/translations/Makefile qttranslations/translations/translations.pro && \
-  qtbase/bin/qmake -o qttools/src/linguist/lrelease/Makefile qttools/src/linguist/lrelease/lrelease.pro && \
-  qtbase/bin/qmake -o qttools/src/linguist/lupdate/Makefile qttools/src/linguist/lupdate/lupdate.pro && \
-  qtbase/bin/qmake -o qttools/src/linguist/lconvert/Makefile qttools/src/linguist/lconvert/lconvert.pro && \
-  qtbase/bin/qmake -o qtcharts/Makefile qtcharts/qtcharts.pro && \
-  qtbase/bin/qmake -o qtsvg/Makefile qtsvg/qtsvg.pro
+  export PKG_CONFIG_PATH=$(host_prefix)/share/pkgconfig && \
+  ./configure $($(package)_config_opts)
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -C qtbase/src $(addprefix sub-,$($(package)_qt_libs)) && \
-  $(MAKE) -C qttools/src/linguist/lrelease && \
-  $(MAKE) -C qttools/src/linguist/lupdate && \
-  $(MAKE) -C qttools/src/linguist/lconvert && \
-  $(MAKE) -C qttranslations && \
-  $(MAKE) -C qtcharts && \
-  $(MAKE) -C qtsvg
+  $(MAKE)
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) -C qtbase/src INSTALL_ROOT=$($(package)_staging_dir) $(addsuffix -install_subtargets,$(addprefix sub-,$($(package)_qt_libs))) && \
-  $(MAKE) -C qttools/src/linguist/lrelease INSTALL_ROOT=$($(package)_staging_dir) install_target && \
-  $(MAKE) -C qttools/src/linguist/lupdate INSTALL_ROOT=$($(package)_staging_dir) install_target && \
-  $(MAKE) -C qttools/src/linguist/lconvert INSTALL_ROOT=$($(package)_staging_dir) install_target && \
-  $(MAKE) -C qttranslations INSTALL_ROOT=$($(package)_staging_dir) install_subtargets && \
-  $(MAKE) -C qtcharts INSTALL_ROOT=$($(package)_staging_dir) install_subtargets && \
-  $(MAKE) -C qtsvg INSTALL_ROOT=$($(package)_staging_dir) install_subtargets
+  $(MAKE) INSTALL_ROOT=$($(package)_staging_dir) install
 endef
 
 define $(package)_postprocess_cmds
