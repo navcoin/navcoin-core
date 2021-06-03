@@ -39,7 +39,6 @@ public:
         Theme,                  // QString
         Scaling,                // int
         Language,               // QString
-        CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
         DatabaseCache,          // int
         SpendZeroConfChange,    // bool
@@ -56,7 +55,6 @@ public:
     void setDirty(bool dirty);
     /** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
     void setDisplayUnit(const QVariant &value);
-    void setCoinControlFeatures(const bool enabled);
 
     /* Explicit getters */
     bool getHideTrayIcon() { return fHideTrayIcon; }
@@ -81,7 +79,6 @@ private:
     QString language;
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
-    bool fCoinControlFeatures;
     bool fDirty = false;
     /* settings that were overriden by command-line */
     QString strOverriddenByCommandLine;
@@ -93,7 +90,6 @@ private:
     void checkAndMigrate();
 Q_SIGNALS:
     void displayUnitChanged(int unit);
-    void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
 };
 
