@@ -74,10 +74,6 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("strThirdPartyTxUrls", "https://www.navexplorer.com/tx/%s");
     strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "https://www.navexplorer.com/tx/%s").toString();
 
-    if (!settings.contains("fCoinControlFeatures"))
-        settings.setValue("fCoinControlFeatures", false);
-    fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
-
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
     //
@@ -239,8 +235,6 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return nScaling;
         case Language:
             return settings.value("language");
-        case CoinControlFeatures:
-            return fCoinControlFeatures;
         case DatabaseCache:
             return settings.value("nDatabaseCache");
         case ThreadsScriptVerif:
@@ -386,9 +380,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
-        case CoinControlFeatures:
-            setCoinControlFeatures(value.toBool());
-            break;
         case DatabaseCache:
             if (settings.value("nDatabaseCache") != value) {
                 settings.setValue("nDatabaseCache", value);
@@ -427,17 +418,6 @@ void OptionsModel::setDisplayUnit(const QVariant &value)
         settings.setValue("nDisplayUnit", nDisplayUnit);
         Q_EMIT displayUnitChanged(nDisplayUnit);
     }
-}
-
-void OptionsModel::setCoinControlFeatures(const bool enabled)
-{
-    if (enabled == fCoinControlFeatures)
-        return;
-
-    QSettings settings;
-    fCoinControlFeatures = enabled;
-    settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
-    Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)
