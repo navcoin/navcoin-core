@@ -49,7 +49,7 @@ MAX_VERSIONS = {
 
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr',
+'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr', 'in6addr_any',
 'environ', '_environ', '__environ',
 }
 CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
@@ -73,7 +73,7 @@ ELF_ALLOWED_LIBRARIES = {
 'librt.so.1', # real-time (clock)
 
 # navcoin-qt only
-'libdl.so.2' # programming interface to dynamic linker
+'libdl.so.2', # programming interface to dynamic linker
 'libfontconfig.so.1', # font support
 'libfreetype.so.6', # font parsing
 'libxcb.so.1', # part of X11
