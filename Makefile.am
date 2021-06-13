@@ -34,7 +34,8 @@ OSX_QT_TRANSLATIONS = da,de,es,hu,ru,uk,zh_CN,zh_TW
 DIST_DOCS = $(wildcard doc/*.md) $(wildcard doc/release-notes/*.md)
 
 BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
-           $(top_srcdir)/contrib/devtools/security-check.py
+           $(top_srcdir)/contrib/devtools/security-check.py \
+           $(top_srcdir)/contrib/devtools/pixie.py
 
 WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/navcoin.ico \
   $(top_srcdir)/share/pixmaps/nsis-header.bmp \
