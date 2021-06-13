@@ -588,12 +588,12 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(navcoin);
     Q_INIT_RESOURCE(navcoin_locale);
 
-    // Load the app
-    NavcoinApplication app(argc, argv);
-
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    // Load the app
+    NavcoinApplication app(argc, argv);
 
     // Register meta types used for QMetaObject::invokeMethod
     qRegisterMetaType< bool* >();
