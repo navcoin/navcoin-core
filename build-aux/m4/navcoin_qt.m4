@@ -134,6 +134,12 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
       if test -d "$qt_plugin_path/platforms/android"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
       fi
+      if test -d "$qt_plugin_path/imageformats"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/imageformats"
+      fi
+      if test -d "$qt_plugin_path/iconengines"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/iconengines"
+      fi
     fi
 
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
@@ -164,6 +170,8 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
       QT_LIBS="-Wl,--export-dynamic,--undefined=JNI_OnLoad -lqtforandroid -ljnigraphics -landroid -lqtfreetype $QT_LIBS"
       AC_DEFINE(QT_QPA_PLATFORM_ANDROID, 1, [Define this symbol if the qt platform is android])
     fi
+    _NAVCOIN_QT_CHECK_STATIC_PLUGIN([QSvgPlugin], [-lqsvg])
+    _NAVCOIN_QT_CHECK_STATIC_PLUGIN([QSvgIconPlugin], [-lqsvgicon])
   fi
   CPPFLAGS=$TEMP_CPPFLAGS
   CXXFLAGS=$TEMP_CXXFLAGS
@@ -361,6 +369,7 @@ AC_DEFUN([_NAVCOIN_QT_CHECK_STATIC_LIBS], [
   elif test "x$TARGET_OS" = xandroid; then
     PKG_CHECK_MODULES([QT_EGL], [${qt_lib_prefix}EglSupport], [QT_LIBS="$QT_EGL_LIBS $QT_LIBS"])
   fi
+  PKG_CHECK_MODULES([QT_SVG], [${qt_lib_prefix}Svg], [QT_LIBS="$QT_SVG_LIBS $QT_LIBS"])
 ])
 
 dnl Internal. Find Qt libraries using pkg-config.
