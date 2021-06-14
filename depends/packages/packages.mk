@@ -1,4 +1,4 @@
-packages:=boost openssl libevent zeromq curl gmp expat unbound zlib sodium
+packages:=boost openssl libevent zeromq curl gmp expat unbound zlib
 
 linux_packages = libseccomp libcap
 
