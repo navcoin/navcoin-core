@@ -33,6 +33,7 @@ packages:
 # navcoin Specific
 - "cmake"
 - "libattr1-dev"
+- "libbz2-dev"
 - "libcap-dev"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
