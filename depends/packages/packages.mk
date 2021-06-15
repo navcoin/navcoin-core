@@ -1,15 +1,20 @@
-packages:=boost openssl libevent zeromq curl gmp expat unbound zlib sodium
+packages:=boost openssl libevent curl gmp unbound zlib sodium
 
 linux_packages = libseccomp libcap
 
-qt_packages = qrencode
+qrencode_packages = qrencode
 
-qt_linux_packages:=qt libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
+qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
+qt_android_packages=qt
 
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
 
-wallet_packages=bdb
+bdb_packages=bdb
+# We will need this later
+# sqlite_packages=sqlite
+
+zmq_packages=zeromq
 
 upnp_packages=miniupnpc
 
