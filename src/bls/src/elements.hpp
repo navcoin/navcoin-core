@@ -137,7 +137,7 @@ public:
     }
 
     BNWrapper(BNWrapper&& other)
-        : b(exchange(other.b, nullptr))
+        : b(std::exchange(other.b, nullptr))
     {}
 
     BNWrapper& operator=(const BNWrapper& other) &
@@ -156,7 +156,7 @@ public:
             bn_free(*b);
             Util::SecFree(b);
         }
-        b = exchange(other.b, nullptr);
+        b = std::exchange(other.b, nullptr);
         return *this;
     }
 
