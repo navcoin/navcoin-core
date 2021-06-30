@@ -10,6 +10,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <random>
 
 using namespace boost;
 using namespace boost::asio;
