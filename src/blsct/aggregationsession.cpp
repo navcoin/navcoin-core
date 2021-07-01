@@ -5,6 +5,8 @@
 #include "aggregationsession.h"
 #include <main.h>
 
+#include <random>
+
 CCriticalSection cs_aggregation;
 CCriticalSection cs_sessionKeys;
 
@@ -163,7 +165,9 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 {
     LOCK(cs_aggregation);
 
-    std::random_shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), GetRandInt);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), g);
 
     size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
 
@@ -973,7 +977,9 @@ void AggregationSessionThread()
 
             pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
 
-            std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
+            std::random_device rd;
+            std::mt19937 g(rd());
+            std::shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), g);
 
             MilliSleep(GetRand(aggSleep, 180000));
         }

@@ -36,6 +36,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
+#include <random>
+
 using namespace std;
 
 CWallet* pwalletMain = nullptr;
@@ -3275,7 +3277,10 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
     vector<pair<CAmount, pair<const CWalletTx*,unsigned int> > > vValue;
     CAmount nTotalLower = 0;
 
-    std::random_shuffle(vCoins.begin(), vCoins.end(), GetRandInt);
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    std::shuffle(vCoins.begin(), vCoins.end(), g);
 
     std::sort(vCoins.begin(), vCoins.end(), [](const COutput &a, const COutput &b) {
         return a.mixCount > b.mixCount;
