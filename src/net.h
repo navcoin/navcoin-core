@@ -26,7 +26,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/signals2/signal.hpp>
 
 class CAddrMan;

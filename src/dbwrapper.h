@@ -12,7 +12,7 @@
 #include <utilstrencodings.h>
 #include <version.h>
 
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
