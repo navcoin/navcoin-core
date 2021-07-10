@@ -270,6 +270,10 @@ define $(package)_config_cmds
   ./configure $($(package)_config_opts) && \
   cd .. && \
   $(MAKE) -C qtbase sub-src-clean && \
+  qtbase/bin/qmake -o qtsvg/src/Makefile qtsvg/src/src.pro && \
+  qtbase/bin/qmake -o qtsvg/Makefile qtsvg/qtsvg.pro && \
+  qtbase/bin/qmake -o qtcharts/src/Makefile qtcharts/src/src.pro && \
+  qtbase/bin/qmake -o qtcharts/Makefile qtcharts/qtcharts.pro && \
   qtbase/bin/qmake -o qttranslations/Makefile qttranslations/qttranslations.pro && \
   qtbase/bin/qmake -o qttranslations/translations/Makefile qttranslations/translations/translations.pro && \
   qtbase/bin/qmake -o qttools/src/linguist/lrelease/Makefile qttools/src/linguist/lrelease/lrelease.pro && \
@@ -282,7 +286,9 @@ define $(package)_build_cmds
   $(MAKE) -C qttools/src/linguist/lrelease && \
   $(MAKE) -C qttools/src/linguist/lupdate && \
   $(MAKE) -C qttools/src/linguist/lconvert && \
-  $(MAKE) -C qttranslations
+  $(MAKE) -C qttranslations && \
+  $(MAKE) -C qtcharts && \
+  $(MAKE) -C qtsvg 
 endef
 
 define $(package)_stage_cmds
@@ -290,7 +296,8 @@ define $(package)_stage_cmds
   $(MAKE) -C qttools/src/linguist/lrelease INSTALL_ROOT=$($(package)_staging_dir) install_target && \
   $(MAKE) -C qttools/src/linguist/lupdate INSTALL_ROOT=$($(package)_staging_dir) install_target && \
   $(MAKE) -C qttools/src/linguist/lconvert INSTALL_ROOT=$($(package)_staging_dir) install_target && \
-  $(MAKE) -C qttranslations INSTALL_ROOT=$($(package)_staging_dir) install_subtargets
+  $(MAKE) -C qttranslations INSTALL_ROOT=$($(package)_staging_dir) install_subtargets && \
+  $(MAKE) -C qtsvg INSTALL_ROOT=$($(package)_staging_dir) install_subtargets
 endef
 
 define $(package)_postprocess_cmds
