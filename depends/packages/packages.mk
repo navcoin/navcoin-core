@@ -1,22 +1,22 @@
-packages:=boost openssl libevent curl gmp expat unbound zlib sodium
-
-linux_packages = libseccomp libcap
+packages:=boost openssl libevent gmp zlib sodium expat curl unbound
 
 qrencode_packages = qrencode
 
-qt_linux_packages:=qt libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
+qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
 qt_android_packages=qt
 
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
 
 bdb_packages=bdb
-# We will need this later
-# sqlite_packages=sqlite
 
 zmq_packages=zeromq
 
 upnp_packages=miniupnpc
+natpmp_packages=libnatpmp
+
+multiprocess_packages = libmultiprocess capnp
+multiprocess_native_packages = native_libmultiprocess native_capnp
 
 darwin_native_packages = native_ds_store native_mac_alias
 

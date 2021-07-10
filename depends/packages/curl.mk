@@ -3,7 +3,6 @@ $(package)_version=7.70.0
 $(package)_download_path=https://curl.haxx.se/download/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=ca2feeb8ef13368ce5d5e5849a5fd5e2dd4755fecf7d8f0cc94000a4206fb8e7
-$(package)_dependencies=openssl
 $(package)_patches=patch_builtin_available.patch
 
 define $(package)_preprocess_cmds

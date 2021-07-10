@@ -3,7 +3,7 @@ $(package)_version=1.9.0
 $(package)_download_path=http://unbound.net/downloads/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=415af94b8392bc6b2c52e44ac8f17935cc6ddf2cc81edfb47c5be4ad205ab917
-$(package)_dependencies=openssl expat
+$(package)_dependencies=expat openssl
 $(package)_patches=getentropy.patch
 
 define $(package)_preprocess_cmds
