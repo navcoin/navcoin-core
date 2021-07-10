@@ -1331,11 +1331,11 @@ dnl Run cmake for bls-sigs (This project does not support autotools)
 AC_CONFIG_COMMANDS([src/mcl/build],
                    [rm -rf src/mcl/build/* || true && \
                     mkdir -p src/mcl/build || true && \
-                    CC=$CC \
+                    CC="$CC" \
                     CMAKE_PREFIX_PATH=$prefix \
-                    CXX=$CXX \
-                    CFLAGS=$CFLAGS \
-                    CXXFLAGS=$CXXFLAGS \
+                    CXX="$CXX" \
+                    CFLAGS="$CFLAGS" \
+                    CXXFLAGS="$CXXFLAGS" \
                     LDFLAGS=$LDFLAGS \
                     cmake -Bsrc/mcl/build -Hsrc/mcl \
                     -DMCL_USE_GMP=On \
@@ -1352,8 +1352,8 @@ AC_CONFIG_COMMANDS([src/mcl/build],
                     printf 'distdir:\n\techo\n\n' >> src/mcl/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> src/mcl/build/Makefile],
                    [prefix="$BLS_DEPENDS"
-                    CC=$BLS_CC_RAW
-                    CXX=$BLS_CXX_RAW
+                    CC="$BLS_CC_RAW"
+                    CXX="$BLS_CXX_RAW"
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS
                     BLS_CC=$BLS_CC
@@ -1390,8 +1390,8 @@ AC_CONFIG_COMMANDS([src/bls/build],
                     printf 'distdir:\n\techo\n\n' >> src/bls/build/Makefile && \
                     printf 'distclean:\n\techo\n\n' >> src/bls/build/Makefile],
                    [prefix="$BLS_DEPENDS"
-                    CC=$BLS_CC_RAW
-                    CXX=$BLS_CXX_RAW
+                    CC="$BLS_CC_RAW"
+                    CXX="$BLS_CXX_RAW"
                     CFLAGS=$BLS_CFLAGS
                     CXXFLAGS=$BLS_CXXFLAGS
                     BLS_CC=$BLS_CC
