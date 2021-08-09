@@ -442,6 +442,123 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
+UniValue gettransactionkeys(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "gettransactionkeys \"txid\"\n"
+            "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
+            "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
+            "you need to maintain a transaction index, using the -txindex command line option.\n"
+            "\nReturn the transaction keys data.\n"
+
+            "\nArguments:\n"
+            "1. \"txid\"      (string, required) The transaction id\n"
+
+            "\nResult:\n"
+            "{\n"
+            "  \"vin\" : [                 (array of json objects)\n"
+            "     {\n"
+            "       \"txid\": \"id\",        (string) The transaction id\n"
+            "       \"vout\": n,             (numeric) \n"
+            "       \"script\": \"hex\"      (string) \n"
+            "       \"outputKey\": \"hex\"   (string) \n"
+            "       \"spendingKey\": \"hex\" (string) \n"
+            "     }\n"
+            "     ,...\n"
+            "  ],\n"
+            "  \"vout\" : [              (array of json objects)\n"
+            "     {\n"
+            "       \"txid\": \"id\",        (string) The transaction id\n"
+            "       \"vout\": n,             (numeric) \n"
+            "       \"script\": \"hex\"      (string) \n"
+            "       \"outputKey\": \"hex\"   (string) \n"
+            "       \"spendingKey\": \"hex\" (string) \n"
+            "     }\n"
+            "     ,...\n"
+            "  ],\n"
+            "}\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("gettransactionkeys", "\"mytxid\"")
+            + HelpExampleRpc("gettransactionkeys", "\"mytxid\"")
+        );
+
+    uint256 hash = ParseHashV(params[0], "parameter 1");
+
+
+
+    CTransaction tx;
+
+    uint256 hashBlock;
+    int nHeight = 0;
+    int nConfirmations = 0;
+    int nBlockTime = 0;
+
+    {
+        LOCK(cs_main);
+        CStateViewCache view(pcoinsTip);
+        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+    }
+
+    UniValue result(UniValue::VOBJ);
+    UniValue vin(UniValue::VARR);
+
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
+        const CTxIn& txin = tx.vin[i];
+        UniValue in(UniValue::VOBJ);
+        in.pushKV("txid", txin.prevout.hash.GetHex());
+        in.pushKV("vout", (int64_t)txin.prevout.n);
+
+        CTransaction prevtx;
+
+        {
+            LOCK(cs_main);
+            CStateViewCache view(pcoinsTip);
+            if (!GetTransaction(txin.prevout.hash, prevtx, Params().GetConsensus(), hashBlock, view, true))
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+        }
+
+        if (prevtx.vout[txin.prevout.n].IsBLSCT())
+        {
+            in.pushKV("outputKey", HexStr(prevtx.vout[txin.prevout.n].outputKey));
+            in.pushKV("spendingKey", HexStr(prevtx.vout[txin.prevout.n].spendingKey));
+
+        }
+        else
+        {
+            in.pushKV("script", HexStr(prevtx.vout[txin.prevout.n].scriptPubKey.begin(), prevtx.vout[txin.prevout.n].scriptPubKey.end()));
+        }
+
+        vin.push_back(in);
+    }
+
+    result.pushKV("vin", vin);
+    UniValue vout(UniValue::VARR);
+
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
+        const CTxOut& txout = tx.vout[i];
+        UniValue out(UniValue::VOBJ);
+
+
+        if (txout.IsBLSCT())
+        {
+            out.pushKV("outputKey", HexStr(txout.outputKey));
+            out.pushKV("spendingKey", HexStr(txout.spendingKey));
+        }
+        else
+        {
+            out.pushKV("script", HexStr(txout.scriptPubKey.begin(), txout.scriptPubKey.end()));
+        }
+
+        vout.push_back(out);
+    }
+    result.pushKV("vout", vout);
+
+    return result;
+}
+
 UniValue gettxoutproof(const UniValue& params, bool fHelp)
 {
     if (fHelp || (params.size() != 1 && params.size() != 2))
@@ -1144,6 +1261,7 @@ static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
     { "rawtransactions",    "getrawtransaction",      &getrawtransaction,      true  },
+    { "rawtransactions",    "gettransactionkeys",     &gettransactionkeys,     true  },
     { "rawtransactions",    "createrawtransaction",   &createrawtransaction,   true  },
     { "rawtransactions",    "decoderawtransaction",   &decoderawtransaction,   true  },
     { "rawtransactions",    "decodescript",           &decodescript,           true  },
