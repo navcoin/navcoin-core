@@ -517,7 +517,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
             LOCK(cs_main);
             CStateViewCache view(pcoinsTip);
             if (!GetTransaction(txin.prevout.hash, prevtx, Params().GetConsensus(), hashBlock, view, true))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+                continue;
         }
 
         if (prevtx.vout[txin.prevout.n].IsBLSCT())
