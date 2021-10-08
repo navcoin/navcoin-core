@@ -3175,6 +3175,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoConsensusVersionMask;
 
+    if(IsBurnFeesEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nBurnFeeVersionMask;
+
 #if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
 #else
@@ -5889,6 +5892,18 @@ bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
 }
 
+bool IsBurnFeesEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_BURN_FEES, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsBurnFeesLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_BURN_FEES, versionbitscache) == THRESHOLD_LOCKED_IN);
+}
+
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -6033,6 +6048,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nDAOVersionMask) != nDAOVersionMask && IsDAOEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
+
+    if((block.nVersion & nBurnFeeVersionMask) != nBurnFeeVersionMask && IsBurnFeesEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no burn fee block");
 
 #if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
@@ -10565,6 +10584,10 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev, const CStateViewCache& view)
 {
   int64_t nSubsidy;
+
+  if (IsBurnFeesEnabled(pindexPrev, Params().GetConsensus())){
+      nFees = 0;
+  }
 
   if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
       nSubsidy = GetStakingRewardPerBlock(view);
