@@ -134,7 +134,7 @@ void SendCoinsDialog::setModel(WalletModel *model)
 
         // Coin Control
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
-        ui->widgetCoinControl->setVisible(model->getOptionsModel()->getCoinControlFeatures());
+        ui->widgetCoinControl->setVisible(fCoinControl);
         coinControlUpdateLabels();
 
         // Toggle the checkbox for change address
@@ -253,8 +253,8 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    if (currentTransaction.fSpendsColdStaking && (!model->getOptionsModel()->getCoinControlFeatures() ||
-        (model->getOptionsModel()->getCoinControlFeatures() && !CNavcoinAddress(CoinControlDialog::coinControl->destChange).IsColdStakingAddress(Params()))))
+    if (currentTransaction.fSpendsColdStaking && (!fCoinControl ||
+        (fCoinControl && !CNavcoinAddress(CoinControlDialog::coinControl->destChange).IsColdStakingAddress(Params()))))
     {
         SendConfirmationDialog confirmationDialog(tr("Confirm send coins"),
             tr("This transaction will spend coins stored in a cold staking address.<br>You did not set any cold staking address as custom change destination, so those coins won't be locked anymore by the cold staking smart contract.<br><br>Do you still want to send this transaction?"), SEND_CONFIRM_DELAY, this);
@@ -352,7 +352,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     WalletModel::SendCoinsReturn sendStatus;
 
     // now send the prepared transaction
-    if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
+    if (fCoinControl) // coin control enabled
         sendStatus = model->sendCoins(currentTransaction, fPrivate, coinControl, &selectedCoins);
     else
         sendStatus = model->sendCoins(currentTransaction, fPrivate, 0, &selectedCoins);
