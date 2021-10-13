@@ -272,7 +272,8 @@ public:
     static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
     static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
     static const uint64_t EXCLUDE_VERSION=1<<4;
-    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | EXCLUDE_VERSION;
+    static const uint64_t SUPER_VERSION=1<<5;
+    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | EXCLUDE_VERSION | SUPER_VERSION;
 
     CAmount nAmount;
     std::map<uint256, flags> mapState;
@@ -458,10 +459,10 @@ public:
 
         // Version-based read/write
         if(this->nVersion & BASE_VERSION)
-           READWRITE(nVotingCycle);
+            READWRITE(nVotingCycle);
 
         if(this->nVersion & ABSTAIN_VOTE_VERSION)
-           READWRITE(nVotesAbs);
+            READWRITE(nVotesAbs);
 
         if(this->nVersion & EXCLUDE_VERSION)
             READWRITE(nExclude);
@@ -477,7 +478,8 @@ public:
     static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
     static const uint64_t PAYMENT_ADDRESS_VERSION=1<<4;
     static const uint64_t EXCLUDE_VERSION=1<<5;
-    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | PAYMENT_ADDRESS_VERSION | EXCLUDE_VERSION;
+    static const uint64_t SUPER_VERSION=1<<6;
+    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | PAYMENT_ADDRESS_VERSION | EXCLUDE_VERSION | SUPER_VERSION;
 
     CAmount nAmount;
     CAmount nFee;
@@ -683,7 +685,7 @@ public:
         }
 
         if(this->nVersion & ABSTAIN_VOTE_VERSION) {
-           READWRITE(nVotesAbs);
+            READWRITE(nVotesAbs);
         }
 
         if(this->nVersion & PAYMENT_ADDRESS_VERSION) {
@@ -704,10 +706,12 @@ class CConsultationAnswer
 public:
     static const uint64_t BASE_VERSION=1;
     static const uint64_t EXCLUDE_VERSION=1<<1;
-    static const uint64_t ALL_VERSION = BASE_VERSION|EXCLUDE_VERSION;
+    static const uint64_t SUPER_VERSION=1<<2;
+    static const uint64_t ALL_VERSION = BASE_VERSION|EXCLUDE_VERSION|SUPER_VERSION;
 
     int nVersion;
     std::string sAnswer;
+    std::vector<std::string> vAnswer;
     int nVotes;
     int nSupport;
     int nExclude;
@@ -732,6 +736,7 @@ public:
         std::swap(to.txblockhash, txblockhash);
         std::swap(to.parent, parent);
         std::swap(to.txhash, txhash);
+        std::swap(to.vAnswer, vAnswer);
     }
 
     std::string diff(const CConsultationAnswer& b) const {
@@ -766,6 +771,7 @@ public:
     bool operator==(const CConsultationAnswer& b) const {
         return nVersion == b.nVersion
                 && sAnswer == b.sAnswer
+                && vAnswer == b.vAnswer
                 && nVotes == b.nVotes
                 && nExclude == b.nExclude
                 && nSupport == b.nSupport
@@ -780,10 +786,23 @@ public:
         return !(*this == b);
     }
 
+    std::vector<std::string> GetAnswers() const {
+        std::vector<std::string> ret;
+        if (nVersion & SUPER_VERSION) {
+            for (auto&it: vAnswer) {
+                ret.push_back(it);
+            }
+        } else {
+            ret.push_back(sAnswer);
+        }
+        return ret;
+    }
+
     bool IsNull() const
     {
         return (sAnswer == "" && nVotes == 0 && nSupport == 0 && nVersion == 0 && mapState.size() == 0 && nExclude == 0 &&
-                hash == uint256() && txhash == uint256() && parent == uint256() && txblockhash == uint256());
+                hash == uint256() && txhash == uint256() && parent == uint256() && txblockhash == uint256() &&
+                vAnswer.size() == 0);
     };
 
     void SetNull()
@@ -792,6 +811,7 @@ public:
         nVotes = 0;
         nExclude = 0;
         mapState.clear();
+        vAnswer.clear();
         nVersion = 0;
         nSupport = 0;
         hash = uint256();
@@ -829,7 +849,10 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
-        READWRITE(sAnswer);
+        if (this->nVersion & SUPER_VERSION)
+            READWRITE(vAnswer);
+        else
+            READWRITE(sAnswer);
         READWRITE(nVotes);
         READWRITE(nSupport);
         READWRITE(mapState);
@@ -852,7 +875,8 @@ public:
     static const uint64_t MORE_ANSWERS_VERSION  = 1<<2;
     static const uint64_t CONSENSUS_PARAMETER_VERSION  = 1<<3;
     static const uint64_t EXCLUDE_VERSION  = 1<<4;
-    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION | CONSENSUS_PARAMETER_VERSION | EXCLUDE_VERSION;
+    static const uint64_t SUPER_VERSION=1<<5;
+    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION | CONSENSUS_PARAMETER_VERSION | EXCLUDE_VERSION | SUPER_VERSION;
 
     std::map<uint256, flags> mapState;
     uint256 hash;
@@ -863,6 +887,7 @@ public:
     std::string strDZeel;
     int nSupport;
     uint64_t nMin;
+    std::vector<uint64_t> vParameters;
     uint64_t nMax;
     map<uint64_t, uint64_t> mapVotes;
     std::vector<uint256> vAnswers;
@@ -884,13 +909,30 @@ public:
         std::swap(to.mapVotes, mapVotes);
         std::swap(to.vAnswers, vAnswers);
         std::swap(to.nExclude, nExclude);
+        std::swap(to.vParameters, vParameters);
     };
 
     bool IsNull() const {
         return (hash == uint256() && txblockhash == uint256() && mapState.size() == 0
                 && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
-                && nMin == 0 && nMax == 0 && vAnswers.size() == 0 && nExclude == 0);
+                && nMin == 0 && nMax == 0 && vAnswers.size() == 0 && nExclude == 0
+                && vParameters.size() == 0);
     };
+
+    std::vector<uint64_t> GetParameters() {
+        if (IsAboutConsensusParameter()){
+            std::vector<uint64_t> ret;
+            if (nVersion & SUPER_VERSION) {
+                for (auto&it: vParameters) {
+                    ret.push_back(it);
+                }
+            } else {
+                ret.push_back(nMin);
+            }
+            return ret;
+        }
+        return std::vector<uint64_t>();
+    }
 
     void SetNull() {
         hash = uint256();
@@ -906,6 +948,7 @@ public:
         nExclude = 0;
         mapVotes.clear();
         vAnswers.clear();
+        vParameters.clear();
     };
 
     std::string diff(const CConsultation& b) const {
@@ -983,7 +1026,8 @@ public:
                 && nMin == b.nMin
                 && nMax == b.nMax
                 && nExclude == b.nExclude
-                && vAnswers == vAnswers;
+                && vAnswers == vAnswers
+                && vParameters == vParameters;
     }
 
     bool operator!=(const CConsultation& b) const {
@@ -1025,7 +1069,10 @@ public:
         READWRITE(this->nVersion);
         READWRITE(mapState);
         READWRITE(nSupport);
-        READWRITE(nMin);
+        if (this->nVersion & SUPER_VERSION)
+            READWRITE(vParameters);
+        else
+            READWRITE(nMin);
         READWRITE(nMax);
         READWRITE(nVotingCycle);
         READWRITE(hash);

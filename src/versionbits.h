@@ -33,6 +33,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 7 -> C FUND ACCUMULATION
 * Bit 8 -> NTP SYNC
 * Bit 10 -> BLSCT
+* Bit 11 -> SUPER DAO
 * Bit 12 -> EXCLUDE
 * Bit 14 -> C FUND ACCUMULATION SPREAD
 * Bit 17 -> C FUND REDUCED QUORUM
@@ -50,6 +51,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 7  -> NTP SYNC
 * Bit 8  -> CFUND ACCUMULATION
 * Bit 10 -> BLSCT
+* Bit 11 -> SUPER DAO
 * Bit 12 -> EXCLUDE
 * Bit 13 -> COLD STAKING
 * Bit 14 -> C FUND ACCUMULATION SPREAD
@@ -67,6 +69,7 @@ static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
 static const int32_t nCFundAccVersionMask = 0x00000100;
 static const int32_t nBLSCTVersionMask = 0x00000400;
+static const int32_t nDaoSuperVersionMask = 0x00000800;
 static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
 static const int32_t nCFundAmountV2Mask = 0x00010000;
