@@ -103,7 +103,7 @@ AC_PATH_TOOL(STRIP, strip)
 AC_PATH_TOOL(GCOV, gcov)
 AC_PATH_PROG(LCOV, lcov)
 dnl Python 3.5 is specified in .python-version and should be used if available, see doc/dependencies.md
-AC_PATH_PROGS([PYTHON], [python3.5 python3.6 python3.7 python3.8 python3 python])
+AC_PATH_PROGS([PYTHON], [python3.6 python3.7 python3.8 python3.9, python3.10, python3 python])
 AC_PATH_PROG(GENHTML, genhtml)
 AC_PATH_PROG([GIT], [git])
 AC_PATH_PROG(CCACHE,ccache)
@@ -375,9 +375,11 @@ case $host in
            BUILD_OS=darwin
            ;;
          *)
+           AC_PATH_TOOL([DSYMUTIL], [dsymutil], dsymutil)
            AC_PATH_TOOL([INSTALLNAMETOOL], [install_name_tool], install_name_tool)
            AC_PATH_TOOL([OTOOL], [otool], otool)
-           AC_PATH_PROGS([GENISOIMAGE], [genisoimage mkisofs],genisoimage)
+           AC_PATH_PROGS([XORRISOFS], [xorrisofs], xorrisofs)
+           AC_PATH_PROGS([DMG], [dmg], dmg)
            AC_PATH_PROGS([RSVG_CONVERT], [rsvg-convert rsvg],rsvg-convert)
            AC_PATH_PROGS([IMAGEMAGICK_CONVERT], [convert],convert)
            AC_PATH_PROGS([TIFFCP], [tiffcp],tiffcp)
