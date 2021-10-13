@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
@@ -1272,10 +1273,10 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
 
-    std::string sQuestion = "Consensus change for:";
+    std::string sQuestion = "Consensus change for: ";
+    std::vector<std::string> topics;
 
     for (size_t i = 0; i < parameters.size(); i++) {
-        LogPrintf("%d %s %s\n", i, parameters[i].getValStr(), values[i].getValStr());
         if (!parameters[i].isNum())
             throw JSONRPCError(RPC_TYPE_ERROR, "Parameters should be numbers");
 
@@ -1284,7 +1285,7 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
         if (par < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || par >= Consensus::MAX_CONSENSUS_PARAMS)
             throw JSONRPCError(RPC_TYPE_ERROR, "Wrong parameter id");
 
-        sQuestion += " " + Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)par];
+        topics.push_back(Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)par]);
 
         uint64_t decrement = (par == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || par == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) ? 1 : 0;
 
@@ -1301,7 +1302,7 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
     if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CConsultation::EXCLUDE_VERSION;
 
-    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("q",sQuestion + boost::algorithm::join(topics, " + "));
     strDZeel.pushKV("a",sValues);
     strDZeel.pushKV("m",parameters);
     strDZeel.pushKV("n",nMax);
@@ -1639,6 +1640,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::EXCLUDE_VERSION;
 
+    if (proposal.IsSuper() && IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::SUPER_VERSION;;
+
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("s",Signature);
@@ -1715,17 +1719,36 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
+    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
+
     std::string sAnswer = "";
+    UniValue vAnswer(UniValue::VARR);
     if (consultation.IsAboutConsensusParameter())
     {
-        int64_t nValue = params[1].get_int64();
-
-        if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        if (consultation.IsSuper())
         {
-            nValue--;
-        }
+            nVersion |= CConsultationAnswer::SUPER_VERSION;
+            auto nValue = params[1].get_array();
+            auto parameters = consultation.GetParameters();
 
-        sAnswer = std::to_string(nValue);
+            for (size_t i = 0; i < nValue.size(); i++)
+            {
+                auto sub = (parameters[i] == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || parameters[i] == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) ? 1 : 0;
+                vAnswer.push_back(std::to_string(nValue[i].get_int64()));
+            }
+        } else {
+            int64_t nValue = params[1].get_int64();
+
+            if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+            {
+                nValue--;
+            }
+
+            sAnswer = std::to_string(nValue);
+        }
     }
     else
     {
@@ -1738,13 +1761,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     bool fSubtractFeeFromAmount = false;
 
     UniValue strDZeel(UniValue::VOBJ);
-    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
-
-    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
-        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());
-    strDZeel.pushKV("a",sAnswer);
+    strDZeel.pushKV("a",consultation.IsAboutConsensusParameter()&&consultation.IsSuper()?vAnswer:sAnswer);
     strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();

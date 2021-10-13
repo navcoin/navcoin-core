@@ -257,7 +257,9 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
 bool IsValidProposal(CTransaction tx, const CStateViewCache& view, uint64_t nMaxVersion);
 bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
 bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
+bool IsValidConsensusParameterProposal(std::vector<uint64_t> vPos, std::vector<std::string> vProposal, CBlockIndex *pindex, CStateViewCache& coins);
 bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex, CStateViewCache& coins);
+bool IsValidConsensusParameterProposal(std::vector<Consensus::ConsensusParamsPos> pos, std::vector<std::string> proposal, CBlockIndex *pindex, CStateViewCache& coins);
 bool IsValidDaoTxVote(const CTransaction& tx, const CStateViewCache& view);
 
 std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
@@ -423,6 +425,10 @@ public:
     bool ExceededMaxVotingCycles(const CStateViewCache& view) const;
 
     bool CanVote(CStateViewCache& coins) const;
+
+    bool IsSuper() const {
+        return nVersion & SUPER_VERSION;
+    }
 
     ADD_SERIALIZE_METHODS;
 
@@ -632,6 +638,10 @@ public:
 
     bool CanRequestPayments() const {
         return GetLastState() == DAOFlags::ACCEPTED;
+    }
+
+    bool IsSuper() const {
+        return nVersion & SUPER_VERSION;
     }
 
     std::string GetOwnerAddress() const;
@@ -1056,6 +1066,7 @@ public:
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles(const CStateViewCache& view) const;
     bool IsRange() const;
+    bool IsSuper() const;
     bool CanHaveNewAnswers() const;
     bool CanHaveAnswers() const;
     bool HaveEnoughAnswers(const CStateViewCache& view) const;

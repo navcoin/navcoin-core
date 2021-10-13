@@ -3329,11 +3329,20 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
         return error("%s: Could not read strDZeel of Consultation: %s (%s in %s)\n", __func__, e.what(), hash.ToString(), blockhash.ToString());
     }  // May not return ever false, as transactions were already checked.
 
+    consultation.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
     consultation.hash = hash;
     consultation.strDZeel = find_value(metadata, "q").get_str();
-    consultation.nMin = find_value(metadata, "m").get_int64();
+    if (consultation.nVersion & CConsultation::SUPER_VERSION) {
+        consultation.vParameters.clear();
+        auto arr = find_value(metadata, "m").get_array();
+        for (size_t i = 0; i < arr.size(); i++) {
+            if (!arr[i].isNum())
+                return false;
+            consultation.vParameters.push_back(arr[i].get_int64());
+        }
+    } else
+        consultation.nMin = find_value(metadata, "m").get_int64();
     consultation.nMax = find_value(metadata, "n").get_int64();
-    consultation.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
     consultation.txblockhash = blockhash;
     consultation.fDirty = true;
 
@@ -3345,32 +3354,30 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
         answers = find_value(metadata, "a").get_array();
         std::vector<std::string> vSeen;
 
-        for (unsigned int i = 0; i < answers.size(); i++)
-        {
-            UniValue a = answers[i];
+        if (consultation.IsSuper()) {
+            std::vector<std::string> sAnswers;
 
-            if (!a.isStr())
-                continue;
+            for (unsigned int i = 0; i < answers.size(); i++)
+            {
+                UniValue a = answers[i];
 
-            std::string s = a.get_str();
+                if (!a.isStr())
+                    continue;
 
-            auto it = find (vSeen.begin(), vSeen.end(), s);
-            if (it != vSeen.end())
-                continue;
-
-            vSeen.push_back(s);
+                sAnswers.push_back(a.get_str());
+            }
 
             CConsultationAnswer answer;
 
             CHashWriter hashAnswer(0,0);
 
             hashAnswer << hash;
-            hashAnswer << s;
+            hashAnswer << sAnswers;
 
             answer.hash = hashAnswer.GetHash();
             answer.parent = hash;
-            answer.sAnswer = s;
-            answer.nVersion = CConsultationAnswer::BASE_VERSION;
+            answer.vAnswer = sAnswers;
+            answer.nVersion = CConsultationAnswer::BASE_VERSION | CConsultationAnswer::SUPER_VERSION;
 
             if (IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
                 answer.nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
@@ -3379,6 +3386,42 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
             answer.fDirty = true;
 
             vAnswers.push_back(answer);
+        } else {
+            for (unsigned int i = 0; i < answers.size(); i++)
+            {
+                UniValue a = answers[i];
+
+                if (!a.isStr())
+                    continue;
+
+                std::string s = a.get_str();
+
+                auto it = find (vSeen.begin(), vSeen.end(), s);
+                if (it != vSeen.end())
+                    continue;
+
+                vSeen.push_back(s);
+
+                CConsultationAnswer answer;
+
+                CHashWriter hashAnswer(0,0);
+
+                hashAnswer << hash;
+                hashAnswer << s;
+
+                answer.hash = hashAnswer.GetHash();
+                answer.parent = hash;
+                answer.sAnswer = s;
+                answer.nVersion = CConsultationAnswer::BASE_VERSION;
+
+                if (IsExcludeEnabled(pindexPrev,Params().GetConsensus()))
+                    answer.nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
+
+                answer.txblockhash = blockhash;
+                answer.fDirty = true;
+
+                vAnswers.push_back(answer);
+            }
         }
     }
 
@@ -3429,18 +3472,42 @@ bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& b
         return error("%s: Could not read strDZeel of Answer (%s in %s): %s\n", __func__, e.what());
     }  // May not return ever false, as transactions were already checked.
 
-    std::string sAnswer = find_value(metadata, "a").get_str();
+    answer.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
+
+    std::string sAnswer;
+    std::vector<std::string> vAnswer;
+
+    if (answer.nVersion & CConsultationAnswer::SUPER_VERSION)
+    {
+        if (!find_value(metadata, "a").isArray())
+            return error("%s: Wrong answer: %s\n", __func__, hash.ToString());
+        auto temp = find_value(metadata, "a").get_array();
+        for (size_t i = 0; i < temp.size(); i++) {
+            if (!temp[i].isStr())
+                return error("%s: Wrong answer: %s\n", __func__, hash.ToString());
+            vAnswer.push_back(temp[i].get_str());
+        }
+    } else {
+        if (!find_value(metadata, "a").isStr())
+            return error("%s: Wrong answer: %s\n", __func__, hash.ToString());
+        sAnswer = find_value(metadata, "a").get_str();
+    }
 
     CHashWriter hashAnswer(0,0);
 
     hashAnswer << uint256S(find_value(metadata, "h").get_str());
-    hashAnswer << sAnswer;
 
     answer.txhash = hash;
-    answer.hash = hashAnswer.GetHash();
     answer.parent = uint256S(find_value(metadata, "h").get_str());
-    answer.sAnswer = sAnswer;
-    answer.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
+    if (answer.nVersion & CConsultationAnswer::SUPER_VERSION)
+    {
+        answer.vAnswer = vAnswer;
+        hashAnswer << vAnswer;
+    } else {
+        answer.sAnswer = sAnswer;
+        hashAnswer << sAnswer;
+    }
+    answer.hash = hashAnswer.GetHash();
     answer.txblockhash = blockhash;
     answer.fDirty = true;
 
