@@ -438,17 +438,17 @@ bool InitHTTPServer()
     return true;
 }
 
-std::thread threadHTTP;
+boost::thread threadHTTP;
 
 bool StartHTTPServer()
 {
     LogPrint("http", "Starting HTTP server\n");
     int rpcThreads = std::max((long)GetArg("-rpcthreads", DEFAULT_HTTP_THREADS), 1L);
     LogPrintf("HTTP: starting %d worker threads\n", rpcThreads);
-    threadHTTP = std::thread(std::bind(&ThreadHTTP, eventBase, eventHTTP));
+    threadHTTP = boost::thread(std::bind(&ThreadHTTP, eventBase, eventHTTP));
 
     for (int i = 0; i < rpcThreads; i++)
-        std::thread(std::bind(&HTTPWorkQueueRun, workQueue));
+        boost::thread(std::bind(&HTTPWorkQueueRun, workQueue));
     return true;
 }
 
