@@ -5,13 +5,12 @@
 #ifndef EPHEMERALSERVER_H
 #define EPHEMERALSERVER_H
 
+#include <boost/thread/thread.hpp>
+#include <boost/thread/future.hpp>
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 
 #include <torcontrol.h>
 #include <util.h>
-
-#include <set>
 
 using boost::asio::ip::tcp;
 
@@ -21,7 +20,7 @@ typedef std::function<void(std::string&)> hs_cb_t;
 class connection_manager;
 
 class tcp_connection
-        : public std::enable_shared_from_this<tcp_connection>,
+        : public boost::enable_shared_from_this<tcp_connection>,
         private boost::noncopyable
 {
 public:
@@ -49,7 +48,7 @@ private:
     cb_t data_cb;
 };
 
-typedef std::shared_ptr<tcp_connection> connection_ptr;
+typedef boost::shared_ptr<tcp_connection> connection_ptr;
 
 class connection_manager
         : private boost::noncopyable
@@ -112,7 +111,7 @@ private:
     bool fState;
 
     boost::thread ephemeralServerThread;
-    std::promise<std::string> *p;
+    boost::promise<std::string> *p;
     cb_t data_cb;
     hs_cb_t hs_cb;
 
