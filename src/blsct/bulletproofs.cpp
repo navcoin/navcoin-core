@@ -26,7 +26,7 @@ std::vector<Scalar> BulletproofsRangeproof::oneN;
 std::vector<Scalar> BulletproofsRangeproof::twoN;
 Scalar BulletproofsRangeproof::ip12;
 
-boost::mutex BulletproofsRangeproof::init_mutex;
+std::mutex BulletproofsRangeproof::init_mutex;
 
 bls::G1Element BulletproofsRangeproof::G;
 bls::G1Element BulletproofsRangeproof::H;
@@ -55,7 +55,7 @@ static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx)
 // Initialize bases and constants
 bool BulletproofsRangeproof::Init()
 {
-    boost::lock_guard<boost::mutex> lock(BulletproofsRangeproof::init_mutex);
+    std::lock_guard<std::mutex> lock(BulletproofsRangeproof::init_mutex);
 
     static bool fInit = false;
 

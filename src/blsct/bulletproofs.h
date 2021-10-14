@@ -176,7 +176,7 @@ public:
     static std::vector<Scalar> twoN;
     static Scalar ip12;
 
-    static boost::mutex init_mutex;
+    static std::mutex init_mutex;
 
     std::vector<bls::G1Element> V;
     std::vector<bls::G1Element> L;

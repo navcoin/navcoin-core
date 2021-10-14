@@ -46,8 +46,10 @@
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
+
 #include <stdint.h>
 #include <stdio.h>
+#include <functional>
 
 #ifndef WIN32
 #include <signal.h>
@@ -59,7 +61,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <curl/curl.h>
@@ -370,15 +371,6 @@ void OnRPCStopped()
     LogPrint("rpc", "RPC stopped.\n");
 }
 
-void OnRPCPreCommand(const CRPCCommand& cmd)
-{
-    // Observe safe mode
-    string strWarning = GetWarnings("rpc");
-    if (strWarning != "" && !GetBoolArg("-disablesafemode", DEFAULT_DISABLE_SAFEMODE) &&
-            !cmd.okSafeMode)
-        throw JSONRPCError(RPC_FORBIDDEN_BY_SAFE_MODE, string("Safe mode: ") + strWarning);
-}
-
 std::string HelpMessage(HelpMessageMode mode)
 {
     const bool showDebug = GetBoolArg("-help-debug", false);
@@ -508,7 +500,6 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-checkblockindex", strprintf("Do a full consistency check for mapBlockIndex, setBlockIndexCandidates, chainActive and mapBlocksUnlinked occasionally. Also sets -checkmempool (default: %u)", Params(CBaseChainParams::MAIN).DefaultConsistencyChecks()));
         strUsage += HelpMessageOpt("-checkmempool=<n>", strprintf("Run checks every <n> transactions (default: %u)", Params(CBaseChainParams::MAIN).DefaultConsistencyChecks()));
         strUsage += HelpMessageOpt("-checkpoints", strprintf("Disable expensive verification for known chain history (default: %u)", DEFAULT_CHECKPOINTS_ENABLED));
-        strUsage += HelpMessageOpt("-disablesafemode", strprintf("Disable safemode, override a real safe mode event (default: %u)", DEFAULT_DISABLE_SAFEMODE));
         strUsage += HelpMessageOpt("-testsafemode", strprintf("Force safe mode (default: %u)", DEFAULT_TESTSAFEMODE));
         strUsage += HelpMessageOpt("-dropmessagestest=<n>", "Randomly drop 1 of every <n> network messages");
         strUsage += HelpMessageOpt("-fuzzmessagestest=<n>", "Randomly fuzz 1 of every <n> network messages");
@@ -655,7 +646,7 @@ static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex
     std::string strCmd = GetArg("-blocknotify", "");
 
     boost::replace_all(strCmd, "%s", pBlockIndex->GetBlockHash().GetHex());
-    boost::thread t(runCommand, strCmd); // thread runs free
+    std::thread t(runCommand, strCmd); // thread runs free
 }
 
 struct CImportingNow
@@ -798,7 +789,6 @@ bool InitSanityCheck(void)
 bool AppInitServers(boost::thread_group& threadGroup)
 {
     RPCServer::OnStopped(&OnRPCStopped);
-    RPCServer::OnPreCommand(&OnRPCPreCommand);
     if (!InitHTTPServer())
         return false;
     if (!StartRPC())
@@ -1300,13 +1290,14 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     LogPrintf("Using %u threads for script verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {
-        for (int i=0; i<nScriptCheckThreads-1; i++)
+        for (int i=0; i<nScriptCheckThreads-1; i++) {
             threadGroup.create_thread(&ThreadScriptCheck);
+        }
     }
 
     // Start the lightweight task scheduler thread
-    CScheduler::Function serviceLoop = boost::bind(&CScheduler::serviceQueue, &scheduler);
-    threadGroup.create_thread(boost::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
+    CScheduler::Function serviceLoop = std::bind(&CScheduler::serviceQueue, &scheduler);
+    threadGroup.create_thread(std::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
 
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
@@ -1843,7 +1834,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         for(const std::string& strFile: mapMultiArgs["-loadblock"])
                 vImportFiles.push_back(strFile);
     }
-    threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
+    threadGroup.create_thread(std::bind(&ThreadImport, vImportFiles));
 
     // Wait for genesis block to be processed
     bool fHaveGenesis = false;
@@ -1890,12 +1881,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
     uiInterface.InitMessage(_("Booting staking thread"));
-    threadGroup.create_thread(boost::bind(&NavcoinStaker, boost::cref(chainparams)));
+    threadGroup.create_thread(std::bind(&NavcoinStaker, boost::cref(chainparams)));
     if (pwalletMain && GetBoolArg("-blsctmix", DEFAULT_MIX))
     {
         uiInterface.InitMessage(_("Booting blsCT threads"));
-        threadGroup.create_thread(boost::bind(&AggregationSessionThread));
-        threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
+        threadGroup.create_thread(std::bind(&AggregationSessionThread));
+        threadGroup.create_thread(std::bind(&CandidateVerificationThread));
     }
 #endif
 
@@ -1907,7 +1898,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         pwalletMain->ReacceptWalletTransactions();
 
         // Run a thread to flush wallet periodically
-        threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+        threadGroup.create_thread(std::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
 #endif
 
@@ -1930,5 +1921,5 @@ void AlertNotify(const std::string& strMessage)
     safeStatus = singleQuote+safeStatus+singleQuote;
     boost::replace_all(strCmd, "%s", safeStatus);
 
-    boost::thread t(runCommand, strCmd); // thread runs free
+    std::thread t(runCommand, strCmd); // thread runs free
 }

@@ -923,7 +923,7 @@ void NavcoinStaker(const CChainParams& chainparams)
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("navcoin-staker");
 
-    boost::shared_ptr<CReserveScript> coinbaseScript;
+    std::shared_ptr<CReserveScript> coinbaseScript;
     GetMainSignals().ScriptForMining(coinbaseScript);
 
     try {
@@ -1014,11 +1014,6 @@ void NavcoinStaker(const CChainParams& chainparams)
                 MilliSleep(nMinerSleep);
 
         }
-    }
-    catch (const boost::thread_interrupted&)
-    {
-        LogPrintf("NavcoinStaker terminated\n");
-        throw;
     }
     catch (const std::runtime_error &e)
     {

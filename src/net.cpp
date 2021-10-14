@@ -109,7 +109,7 @@ NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
 static CSemaphore *semOutbound = nullptr;
-boost::condition_variable messageHandlerCondition;
+std::condition_variable messageHandlerCondition;
 
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
@@ -1490,7 +1490,7 @@ void MapPort(bool fUseUPnP)
             upnp_thread->join();
             delete upnp_thread;
         }
-        upnp_thread = new boost::thread(boost::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort));
+        upnp_thread = new boost::thread(std::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort));
     }
     else if (upnp_thread) {
         upnp_thread->interrupt();
@@ -2190,8 +2190,8 @@ bool OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSem
 
 void ThreadMessageHandler()
 {
-    boost::mutex condition_mutex;
-    boost::unique_lock<boost::mutex> lock(condition_mutex);
+    std::mutex condition_mutex;
+    std::unique_lock<std::mutex> lock(condition_mutex);
 
     while (true)
     {
@@ -2246,7 +2246,7 @@ void ThreadMessageHandler()
         }
 
         if (fSleep)
-            messageHandlerCondition.timed_wait(lock, boost::posix_time::microsec_clock::universal_time() + boost::posix_time::milliseconds(100));
+            messageHandlerCondition.wait_until(lock, std::chrono::steady_clock::now() + std::chrono::milliseconds(100));
     }
 }
 
@@ -2458,25 +2458,25 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (!GetBoolArg("-dnsseed", true))
         LogPrintf("DNS seeding disabled\n");
     else
-        threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
+        threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
 
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", DEFAULT_UPNP));
 
     // Send and receive from sockets, accept connections
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
 
     // Initiate outbound connections from -addnode
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "addcon", &ThreadOpenAddedConnections));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "addcon", &ThreadOpenAddedConnections));
 
     // Initiate outbound connections
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "opencon", &ThreadOpenConnections));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "opencon", &ThreadOpenConnections));
 
     // Process messages
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
 
     // Dandelion shuffle
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dandelion", &ThreadDandelionShuffle));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "dandelion", &ThreadDandelionShuffle));
 
     // Dump network addresses
     scheduler.scheduleEvery(&DumpData, DUMP_ADDRESSES_INTERVAL);

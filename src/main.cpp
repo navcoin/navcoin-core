@@ -8638,7 +8638,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
     else if (strCommand == NetMsgType::ENCRYPTEDCANDIDATE)
-    {        
+    {
         EncryptedCandidateTransaction ec;
         vRecv >> ec;
 
@@ -9446,9 +9446,6 @@ bool ProcessMessages(CNode* pfrom)
             {
                 PrintExceptionContinue(&e, "ProcessMessages()");
             }
-        }
-        catch (const boost::thread_interrupted&) {
-            throw;
         }
         catch (const std::exception& e) {
             PrintExceptionContinue(&e, "ProcessMessages()");

@@ -5,33 +5,31 @@
 #ifndef NAVCOIN_SCHEDULER_H
 #define NAVCOIN_SCHEDULER_H
 
-//
-// NOTE:
-// boost::thread / boost::function / boost::chrono should be ported to
-// std::thread / std::function / std::chrono when we support C++11.
-//
-#include <boost/function.hpp>
-#include <boost/chrono/chrono.hpp>
-#include <boost/thread.hpp>
+#include <condition_variable>
+#include <functional>
+#include <list>
 #include <map>
+#include <thread>
 
-//
-// Simple class for background tasks that should be run
-// periodically or once "after a while"
-//
-// Usage:
-//
-// CScheduler* s = new CScheduler();
-// s->scheduleFromNow(doSomething, 11); // Assuming a: void doSomething() { }
-// s->scheduleFromNow(boost::bind(Class::func, this, argument), 3);
-// boost::thread* t = new boost::thread(boost::bind(CScheduler::serviceQueue, s));
-//
-// ... then at program shutdown, clean up the thread running serviceQueue:
-// t->interrupt();
-// t->join();
-// delete t;
-// delete s; // Must be done after thread is interrupted/joined.
-//
+#include <sync.h>
+
+/**
+ * Simple class for background tasks that should be run
+ * periodically or once "after a while"
+ *
+ * Usage:
+ *
+ * CScheduler* s = new CScheduler();
+ * s->scheduleFromNow(doSomething, std::chrono::milliseconds{11}); // Assuming a: void doSomething() { }
+ * s->scheduleFromNow([=] { this->func(argument); }, std::chrono::milliseconds{3});
+ * std::thread* t = new std::thread([&] { s->serviceQueue(); });
+ *
+ * ... then at program shutdown, make sure to call stop() to clean up the thread(s) running serviceQueue:
+ * s->stop();
+ * t->join();
+ * delete t;
+ * delete s; // Must be done after thread is interrupted/joined.
+ */
 
 class CScheduler
 {
@@ -39,25 +37,27 @@ public:
     CScheduler();
     ~CScheduler();
 
-    typedef boost::function<void(void)> Function;
+    typedef std::function<void(void)> Function;
 
     // Call func at/after time t
-    void schedule(Function f, boost::chrono::system_clock::time_point t);
+    void schedule(Function f, std::chrono::system_clock::time_point t);
 
     // Convenience method: call f once deltaSeconds from now
     void scheduleFromNow(Function f, int64_t deltaSeconds);
 
-    // Another convenience method: call f approximately
-    // every deltaSeconds forever, starting deltaSeconds from now.
-    // To be more precise: every time f is finished, it
-    // is rescheduled to run deltaSeconds later. If you
-    // need more accurate scheduling, don't use this method.
+    /**
+     * Repeat f until the scheduler is stopped. First run is after delta has passed once.
+     *
+     * The timing is not exact: Every time f is finished, it is rescheduled to run again after delta. If you need more
+     * accurate scheduling, don't use this method.
+     */
     void scheduleEvery(Function f, int64_t deltaSeconds);
 
     // To keep things as simple as possible, there is no unschedule.
 
-    // Services the queue 'forever'. Should be run in a thread,
-    // and interrupted using boost::interrupt_thread
+    /**
+     * Services the queue 'forever'. Should be run in a thread.
+     */
     void serviceQueue();
 
     // Tell any threads running serviceQueue to stop as soon as they're
@@ -67,13 +67,13 @@ public:
 
     // Returns number of tasks waiting to be serviced,
     // and first and last task times
-    size_t getQueueInfo(boost::chrono::system_clock::time_point &first,
-                        boost::chrono::system_clock::time_point &last) const;
+    size_t getQueueInfo(std::chrono::system_clock::time_point &first,
+                        std::chrono::system_clock::time_point &last) const;
 
 private:
-    std::multimap<boost::chrono::system_clock::time_point, Function> taskQueue;
-    boost::condition_variable newTaskScheduled;
-    mutable boost::mutex newTaskMutex;
+    std::multimap<std::chrono::system_clock::time_point, Function> taskQueue;
+    std::condition_variable newTaskScheduled;
+    mutable std::mutex newTaskMutex;
     int nThreadsServicingQueue;
     bool stopRequested;
     bool stopWhenEmpty;

@@ -61,8 +61,9 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         pcoinsTip = new CStateViewCache(pcoinsdbview);
         InitBlockIndex(chainparams);
         nScriptCheckThreads = 3;
-        for (int i=0; i < nScriptCheckThreads-1; i++)
+        for (int i=0; i < nScriptCheckThreads-1; i++) {
             threadGroup.create_thread(&ThreadScriptCheck);
+        }
         RegisterNodeSignals(GetNodeSignals());
 }
 

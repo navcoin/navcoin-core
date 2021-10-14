@@ -83,12 +83,12 @@ private:
         WorkQueue &wq;
         ThreadCounter(WorkQueue &w): wq(w)
         {
-            boost::lock_guard<boost::mutex> lock(wq.cs);
+            std::lock_guard<std::mutex> lock(wq.cs);
             wq.numThreads += 1;
         }
         ~ThreadCounter()
         {
-            boost::lock_guard<boost::mutex> lock(wq.cs);
+            std::lock_guard<std::mutex> lock(wq.cs);
             wq.numThreads -= 1;
             wq.cond.notify_all();
         }
@@ -109,7 +109,7 @@ public:
     /** Enqueue a work item */
     bool Enqueue(WorkItem* item)
     {
-        boost::unique_lock<boost::mutex> lock(cs);
+        std::lock_guard<std::mutex> lock(cs);
         if (queue.size() >= maxDepth) {
             return false;
         }
@@ -124,7 +124,7 @@ public:
         while (running) {
             std::unique_ptr<WorkItem> i;
             {
-                boost::unique_lock<boost::mutex> lock(cs);
+                std::unique_lock<std::mutex> lock(cs);
                 while (running && queue.empty())
                     cond.wait(lock);
                 if (!running)
@@ -138,14 +138,14 @@ public:
     /** Interrupt and exit loops */
     void Interrupt()
     {
-        boost::unique_lock<boost::mutex> lock(cs);
+        std::lock_guard<std::mutex> lock(cs);
         running = false;
         cond.notify_all();
     }
     /** Wait for worker threads to exit */
     void WaitExit()
     {
-        boost::unique_lock<boost::mutex> lock(cs);
+        std::unique_lock<std::mutex> lock(cs);
         while (numThreads > 0)
             cond.wait(lock);
     }
@@ -153,7 +153,7 @@ public:
     /** Return current depth of queue */
     size_t Depth()
     {
-        boost::unique_lock<boost::mutex> lock(cs);
+        std::lock_guard<std::mutex> lock(cs);
         return queue.size();
     }
 };
@@ -438,17 +438,17 @@ bool InitHTTPServer()
     return true;
 }
 
-boost::thread threadHTTP;
+std::thread threadHTTP;
 
 bool StartHTTPServer()
 {
     LogPrint("http", "Starting HTTP server\n");
     int rpcThreads = std::max((long)GetArg("-rpcthreads", DEFAULT_HTTP_THREADS), 1L);
     LogPrintf("HTTP: starting %d worker threads\n", rpcThreads);
-    threadHTTP = boost::thread(boost::bind(&ThreadHTTP, eventBase, eventHTTP));
+    threadHTTP = std::thread(std::bind(&ThreadHTTP, eventBase, eventHTTP));
 
     for (int i = 0; i < rpcThreads; i++)
-        boost::thread(boost::bind(&HTTPWorkQueueRun, workQueue));
+        std::thread(std::bind(&HTTPWorkQueueRun, workQueue));
     return true;
 }
 
@@ -477,21 +477,7 @@ void StopHTTPServer()
     }
     if (eventBase) {
         LogPrint("http", "Waiting for HTTP event thread to exit\n");
-        // Give event loop a few seconds to exit (to send back last RPC responses), then break it
-        // Before this was solved with event_base_loopexit, but that didn't work as expected in
-        // at least libevent 2.0.21 and always introduced a delay. In libevent
-        // master that appears to be solved, so in the future that solution
-        // could be used again (if desirable).
-        // (see discussion in https://github.com/navcoin/navcoin/pull/6990)
-#if BOOST_VERSION >= 105000
-        if (!threadHTTP.try_join_for(boost::chrono::milliseconds(2000))) {
-#else
-        if (!threadHTTP.timed_join(boost::posix_time::milliseconds(2000))) {
-#endif
-            LogPrintf("HTTP event loop did not exit within allotted time, sending loopbreak\n");
-            event_base_loopbreak(eventBase);
-            threadHTTP.join();
-        }
+        if (threadHTTP.joinable()) threadHTTP.join();
     }
     if (eventHTTP) {
         evhttp_free(eventHTTP);
@@ -518,7 +504,7 @@ static void httpevent_callback_fn(evutil_socket_t, short, void* data)
         delete self;
 }
 
-HTTPEvent::HTTPEvent(struct event_base* base, bool deleteWhenTriggered, const boost::function<void(void)>& handler):
+HTTPEvent::HTTPEvent(struct event_base* base, bool deleteWhenTriggered, const std::function<void(void)>& handler):
     deleteWhenTriggered(deleteWhenTriggered), handler(handler)
 {
     ev = event_new(base, -1, 0, httpevent_callback_fn, this);
@@ -600,7 +586,7 @@ void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
     assert(evb);
     evbuffer_add(evb, strReply.data(), strReply.size());
     HTTPEvent* ev = new HTTPEvent(eventBase, true,
-        boost::bind(evhttp_send_reply, req, nStatus, (const char*)NULL, (struct evbuffer *)NULL));
+        std::bind(evhttp_send_reply, req, nStatus, (const char*)NULL, (struct evbuffer *)NULL));
     ev->trigger(0);
     replySent = true;
     req = 0; // transferred back to main thread

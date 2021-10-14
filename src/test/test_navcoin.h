@@ -30,7 +30,7 @@ struct BasicTestingSetup {
 struct TestingSetup: public BasicTestingSetup {
     CStateViewDB *pcoinsdbview;
     boost::filesystem::path pathTemp;
-    boost::thread_group threadGroup;
+    std::vector<std::thread> threadGroup;
 
     TestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
     ~TestingSetup();
@@ -76,7 +76,7 @@ struct TestMemPoolEntryHelper
     TestMemPoolEntryHelper() :
         nFee(0), nTime(0), dPriority(0.0), nHeight(1),
         hadNoDependencies(false), spendsCoinbase(false), sigOpCost(4) { }
-    
+
     CTxMemPoolEntry FromTx(CMutableTransaction &tx, CTxMemPool *pool = NULL);
     CTxMemPoolEntry FromTx(CTransaction &tx, CTxMemPool *pool = NULL);
 

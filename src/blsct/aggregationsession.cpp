@@ -396,7 +396,7 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
                 return false;
             }
         }
-        boost::this_thread::interruption_point();
+        //boost::this_thread::interruption_point();
         curTime = GetTimeMillis();
     }
     return len == 0;
@@ -430,11 +430,11 @@ bool AggregationSession::Join()
 
     if (nVersion == 1)
     {
-        boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
+        std::thread(std::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
     }
     else if (nVersion == 2)
     {
-        boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
+        std::thread(std::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
     }
 
 
@@ -889,14 +889,16 @@ bool AggregationSession::JoinThreadV2(const std::vector<unsigned char> &vPublicK
 
     AggregationSession::fJoining = true;
 
-    boost::thread_group sessionsThreadGroup;
+    std::vector<std::thread> sessionsThreadGroup;
 
     for (unsigned int i = 0; i < nThreads; i++)
     {
-        sessionsThreadGroup.create_thread(boost::bind(&AggregationSession::JoinSingleV2, i, vPublicKey, vAvailableCoins, inputs));
+        sessionsThreadGroup.emplace_back(std::bind(&AggregationSession::JoinSingleV2, i, vPublicKey, vAvailableCoins, inputs));
     }
 
-    sessionsThreadGroup.join_all();
+    for (auto& thread: sessionsThreadGroup) {
+        if (thread.joinable()) thread.join();
+    }
 
     AggregationSession::fJoining = false;
 
@@ -909,14 +911,16 @@ bool AggregationSession::JoinThread(const std::string &hiddenService, const std:
 {
     auto nThreads = std::min((int)vAvailableCoins.size(), 10);
 
-    boost::thread_group sessionsThreadGroup;
+    std::vector<std::thread> sessionsThreadGroup;
 
     for (unsigned int i = 0; i < nThreads; i++)
     {
-        sessionsThreadGroup.create_thread(boost::bind(&AggregationSession::JoinSingle, i, hiddenService, vAvailableCoins, inputs));
+        sessionsThreadGroup.emplace_back(std::bind(&AggregationSession::JoinSingle, i, hiddenService, vAvailableCoins, inputs));
     }
 
-    sessionsThreadGroup.join_all();
+    for (auto& thread: sessionsThreadGroup) {
+        if (thread.joinable()) thread.join();
+    }
 
     LogPrint("aggregationsession", "AggregationSession::%s: Join thread terminated\n", __func__);
 
@@ -983,11 +987,6 @@ void AggregationSessionThread()
 
             MilliSleep(GetRand(aggSleep, 180000));
         }
-    }
-    catch (const boost::thread_interrupted&)
-    {
-        LogPrintf("NavcoinCandidateCoinsThread terminated\n");
-        throw;
     }
     catch (const std::runtime_error &e)
     {
@@ -1106,11 +1105,6 @@ void CandidateVerificationThread()
 
             MilliSleep(GetRand(verSleep, verSleep + 100));
         }
-    }
-    catch (const boost::thread_interrupted&)
-    {
-        LogPrintf("NavcoinCandidateVerificationThread terminated\n");
-        throw;
     }
     catch (const std::runtime_error &e)
     {

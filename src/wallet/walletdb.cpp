@@ -979,9 +979,6 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
         }
         pcursor->close();
     }
-    catch (const boost::thread_interrupted&) {
-        throw;
-    }
     catch (...) {
         result = DB_CORRUPT;
     }
@@ -1077,9 +1074,6 @@ DBErrors CWalletDB::FindWalletTx(CWallet* pwallet, vector<uint256>& vTxHash, vec
             }
         }
         pcursor->close();
-    }
-    catch (const boost::thread_interrupted&) {
-        throw;
     }
     catch (...) {
         result = DB_CORRUPT;

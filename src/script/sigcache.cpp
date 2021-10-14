@@ -64,7 +64,7 @@ public:
 
     void Erase(const uint256& entry)
     {
-        boost::unique_lock<boost::shared_mutex> lock(cs_sigcache);
+        std::unique_lock<boost::shared_mutex> lock(cs_sigcache);
         setValid.erase(entry);
     }
 
@@ -73,7 +73,7 @@ public:
         size_t nMaxCacheSize = GetArg("-maxsigcachesize", DEFAULT_MAX_SIG_CACHE_SIZE) * ((size_t) 1 << 20);
         if (nMaxCacheSize <= 0) return;
 
-        boost::unique_lock<boost::shared_mutex> lock(cs_sigcache);
+        std::unique_lock<boost::shared_mutex> lock(cs_sigcache);
         while (memusage::DynamicUsage(setValid) > nMaxCacheSize)
         {
             map_type::size_type s = GetRand(setValid.bucket_count());

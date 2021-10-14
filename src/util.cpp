@@ -198,11 +198,11 @@ instance_of_cinit;
  * the mutex).
  */
 
-static boost::once_flag debugPrintInitFlag = BOOST_ONCE_INIT;
-static boost::once_flag errorPrintInitFlag = BOOST_ONCE_INIT;
+static std::once_flag debugPrintInitFlag;
+static std::once_flag errorPrintInitFlag;
 
 /**
- * We use boost::call_once() to make sure mutexDebugLog and
+ * We use std::call_once() to make sure mutexDebugLog and
  * vMsgsBeforeOpenDebugLog are initialized in a thread-safe manner.
  *
  * NOTE: fileoutDebugLog, fileoutErrorLog, mutexDebugLog and sometimes
@@ -212,8 +212,8 @@ static boost::once_flag errorPrintInitFlag = BOOST_ONCE_INIT;
  */
 static FILE* fileoutDebugLog = nullptr;
 static FILE* fileoutErrorLog = nullptr;
-static boost::mutex* mutexDebugLog = nullptr;
-static boost::mutex* mutexErrorLog = nullptr;
+static std::mutex* mutexDebugLog = nullptr;
+static std::mutex* mutexErrorLog = nullptr;
 static list<string> *vMsgsBeforeOpenDebugLog;
 static list<string> *vMsgsBeforeOpenErrorLog;
 
@@ -238,23 +238,23 @@ static int ErrorLogWriteStr(const std::string &str)
 static void DebugPrintInit()
 {
     assert(mutexDebugLog == nullptr);
-    mutexDebugLog = new boost::mutex();
+    mutexDebugLog = new std::mutex();
     vMsgsBeforeOpenDebugLog = new list<string>;
 }
 
 static void ErrorPrintInit()
 {
     assert(mutexErrorLog == nullptr);
-    mutexErrorLog = new boost::mutex();
+    mutexErrorLog = new std::mutex();
     vMsgsBeforeOpenErrorLog = new list<string>;
 }
 
 void OpenDebugLog()
 {
-    boost::call_once(&DebugPrintInit, debugPrintInitFlag);
-    boost::call_once(&ErrorPrintInit, errorPrintInitFlag);
-    boost::mutex::scoped_lock scoped_lock_debug(*mutexDebugLog);
-    boost::mutex::scoped_lock scoped_lock_error(*mutexErrorLog);
+    std::call_once(debugPrintInitFlag, &DebugPrintInit);
+    std::call_once(errorPrintInitFlag, &ErrorPrintInit);
+    std::scoped_lock scoped_lock_debug(*mutexDebugLog);
+    std::scoped_lock scoped_lock_error(*mutexErrorLog);
 
     assert(fileoutDebugLog == nullptr);
     assert(fileoutErrorLog == nullptr);
@@ -298,7 +298,7 @@ bool LogAcceptCategory(const char* category)
         // This helps prevent issues debugging global destructors,
         // where mapMultiArgs might be deleted before another
         // global destructor calls LogPrint()
-        static boost::thread_specific_ptr<set<string> > ptrCategory;
+        static std::unique_ptr<set<string> > ptrCategory;
         if (ptrCategory.get() == nullptr)
         {
             const vector<string>& categories = mapMultiArgs["-debug"];
@@ -371,8 +371,8 @@ int DebugLogPrintStr(const std::string &str)
     }
     else if (fPrintToDebugLog)
     {
-        boost::call_once(&DebugPrintInit, debugPrintInitFlag);
-        boost::mutex::scoped_lock scoped_lock_debug(*mutexDebugLog);
+        std::call_once(debugPrintInitFlag, &DebugPrintInit);
+        std::scoped_lock scoped_lock_debug(*mutexDebugLog);
 
         // buffer if we haven't opened the log yet
         if (fileoutDebugLog == nullptr) {
@@ -412,8 +412,8 @@ int ErrorLogPrintStr(const std::string &str)
     }
     else if (fPrintToDebugLog)
     {
-        boost::call_once(&ErrorPrintInit, errorPrintInitFlag);
-        boost::mutex::scoped_lock scoped_lock_error(*mutexErrorLog);
+        std::call_once(errorPrintInitFlag, &ErrorPrintInit);
+        std::scoped_lock scoped_lock_error(*mutexErrorLog);
 
         // buffer if we haven't opened the log yet
         if (fileoutErrorLog == nullptr) {
@@ -1083,11 +1083,7 @@ bool SetupNetworking()
 
 int GetNumCores()
 {
-#if BOOST_VERSION >= 105600
-    return boost::thread::physical_concurrency();
-#else // Must fall back to hardware_concurrency, which unfortunately counts virtual cores
-    return boost::thread::hardware_concurrency();
-#endif
+    return std::thread::hardware_concurrency();
 }
 
 std::string CopyrightHolders(const std::string& strPrefix)

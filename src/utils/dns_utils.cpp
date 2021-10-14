@@ -30,10 +30,8 @@
 #include "util.h"
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/lock_guard.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #include <deque>
 #include <stdlib.h>
 #include <random>
@@ -43,7 +41,7 @@
 
 namespace bf = boost::filesystem;
 
-static boost::mutex instance_lock;
+static std::mutex instance_lock;
 
 namespace
 {
@@ -284,7 +282,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
 
     DNSResolver& DNSResolver::instance()
     {
-        boost::lock_guard<boost::mutex> lock(instance_lock);
+        std::lock_guard<std::mutex> lock(instance_lock);
 
         static DNSResolver staticInstance;
         return staticInstance;
@@ -407,11 +405,11 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         size_t first_index = dis(gen);
 
         // send all requests in parallel
-        std::vector<boost::thread> threads(dns_urls.size());
+        std::vector<std::thread> threads(dns_urls.size());
         std::deque<bool> avail(dns_urls.size(), false), valid(dns_urls.size(), false);
         for (size_t n = 0; n < dns_urls.size(); ++n)
         {
-            threads[n] = boost::thread([n, dns_urls, &records, &avail, &valid](){
+            threads[n] = std::thread([n, dns_urls, &records, &avail, &valid](){
                 records[n] = utils::DNSResolver::instance().get_txt_record(dns_urls[n], avail[n], valid[n]);
             });
         }
