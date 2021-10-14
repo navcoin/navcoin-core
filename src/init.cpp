@@ -646,7 +646,7 @@ static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex
     std::string strCmd = GetArg("-blocknotify", "");
 
     boost::replace_all(strCmd, "%s", pBlockIndex->GetBlockHash().GetHex());
-    std::thread t(runCommand, strCmd); // thread runs free
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
 
 struct CImportingNow
