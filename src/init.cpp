@@ -1921,5 +1921,5 @@ void AlertNotify(const std::string& strMessage)
     safeStatus = singleQuote+safeStatus+singleQuote;
     boost::replace_all(strCmd, "%s", safeStatus);
 
-    std::thread t(runCommand, strCmd); // thread runs free
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
