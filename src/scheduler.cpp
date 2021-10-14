@@ -69,7 +69,7 @@ void CScheduler::serviceQueue()
 void CScheduler::stop(bool drain)
 {
     {
-        std::lock_guard<std::mutex> lock(newTaskMutex);
+        std::unique_lock<std::mutex> lock(newTaskMutex);
         if (drain)
             stopWhenEmpty = true;
         else
@@ -106,7 +106,7 @@ void CScheduler::scheduleEvery(CScheduler::Function f, int64_t deltaSeconds)
 size_t CScheduler::getQueueInfo(std::chrono::system_clock::time_point &first,
                              std::chrono::system_clock::time_point &last) const
 {
-    std::lock_guard<std::mutex> lock(newTaskMutex);
+    std::unique_lock<std::mutex> lock(newTaskMutex);
     size_t result = taskQueue.size();
     if (!taskQueue.empty()) {
         first = taskQueue.begin()->first;
