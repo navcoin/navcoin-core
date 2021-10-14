@@ -30,7 +30,7 @@ struct BasicTestingSetup {
 struct TestingSetup: public BasicTestingSetup {
     CStateViewDB *pcoinsdbview;
     boost::filesystem::path pathTemp;
-    std::vector<std::thread> threadGroup;
+    boost::thread_group threadGroup;
 
     TestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
     ~TestingSetup();

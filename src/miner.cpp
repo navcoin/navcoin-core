@@ -1015,6 +1015,11 @@ void NavcoinStaker(const CChainParams& chainparams)
 
         }
     }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("NavcoinStaker terminated\n");
+        throw;
+    }
     catch (const std::runtime_error &e)
     {
         LogPrintf("NavcoinStaker runtime error: %s\n", e.what());

@@ -988,6 +988,11 @@ void AggregationSessionThread()
             MilliSleep(GetRand(aggSleep, 180000));
         }
     }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("NavcoinCandidateCoinsThread terminated\n");
+        throw;
+    }
     catch (const std::runtime_error &e)
     {
         LogPrintf("NavcoinCandidateCoinsThread runtime error: %s\n", e.what());
@@ -1105,6 +1110,11 @@ void CandidateVerificationThread()
 
             MilliSleep(GetRand(verSleep, verSleep + 100));
         }
+    }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("NavcoinCandidateVerificationThread terminated\n");
+        throw;
     }
     catch (const std::runtime_error &e)
     {
