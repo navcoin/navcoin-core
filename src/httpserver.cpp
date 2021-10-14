@@ -477,8 +477,17 @@ void StopHTTPServer()
     }
     if (eventBase) {
         LogPrint("http", "Waiting for HTTP event thread to exit\n");
-        MilliSleep(2000);
-        threadHTTP.join();
+        // Give event loop a few seconds to exit (to send back last RPC responses), then break it
+        // Before this was solved with event_base_loopexit, but that didn't work as expected in
+        // at least libevent 2.0.21 and always introduced a delay. In libevent
+        // master that appears to be solved, so in the future that solution
+        // could be used again (if desirable).
+        // (see discussion in https://github.com/navcoin/navcoin/pull/6990)
+        if (!threadHTTP.timed_join(boost::posix_time::milliseconds(2000))) {
+            LogPrintf("HTTP event loop did not exit within allotted time, sending loopbreak\n");
+            event_base_loopbreak(eventBase);
+            threadHTTP.join();
+        }
     }
     if (eventHTTP) {
         evhttp_free(eventHTTP);
