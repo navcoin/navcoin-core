@@ -6,6 +6,7 @@
 #define EPHEMERALSERVER_H
 
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 #include <torcontrol.h>
 #include <util.h>
@@ -110,7 +111,7 @@ private:
     int live_until;
     bool fState;
 
-    std::thread ephemeralServerThread;
+    boost::thread ephemeralServerThread;
     std::promise<std::string> *p;
     cb_t data_cb;
     hs_cb_t hs_cb;

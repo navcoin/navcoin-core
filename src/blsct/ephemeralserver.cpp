@@ -10,7 +10,7 @@
 EphemeralServer::EphemeralServer(hs_cb_t hs_cb_in, cb_t data_cb_in, int timeout) :
     live_until(timeout), hs_cb(hs_cb_in), data_cb(data_cb_in), fState(0)
 {
-    ephemeralServerThread = std::thread(std::bind(&EphemeralServer::Start, this));
+    ephemeralServerThread = boost::thread(std::bind(&EphemeralServer::Start, this));
 }
 
 bool EphemeralServer::IsRunning() const
