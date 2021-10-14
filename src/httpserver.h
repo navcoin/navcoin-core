@@ -9,6 +9,8 @@
 #include <thread>
 #include <functional>
 #include <stdint.h>
+
+#include <boost/thread.hpp>
 #include <boost/scoped_ptr.hpp>
 
 static const int DEFAULT_HTTP_THREADS=4;

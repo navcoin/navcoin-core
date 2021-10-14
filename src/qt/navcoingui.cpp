@@ -1962,21 +1962,21 @@ void SetStaked(NavcoinGUI *gui, const CAmount& all, const CAmount& today, const 
 void NavcoinGUI::subscribeToCoreSignals()
 {
     // Connect signals to client
-    uiInterface.ThreadSafeMessageBox.connect(std::bind(ThreadSafeMessageBox, this, _1, _2, _3));
-    uiInterface.ThreadSafeQuestion.connect(std::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.SetBalance.connect(std::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
-    uiInterface.AskForPin.connect(std::bind(AskForPin, this));
-    uiInterface.SetStaked.connect(std::bind(SetStaked, this, _1, _2, _3));
+    uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
+    uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
+    uiInterface.AskForPin.connect(boost::bind(AskForPin, this));
+    uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
 void NavcoinGUI::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from client
-    uiInterface.ThreadSafeMessageBox.disconnect(std::bind(ThreadSafeMessageBox, this, _1, _2, _3));
-    uiInterface.ThreadSafeQuestion.disconnect(std::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.SetBalance.disconnect(std::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
-    uiInterface.AskForPin.disconnect(std::bind(AskForPin, this));
-    uiInterface.SetStaked.disconnect(std::bind(SetStaked, this, _1, _2, _3));
+    uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
+    uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
+    uiInterface.AskForPin.disconnect(boost::bind(AskForPin, this));
+    uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
 /** Get restart command-line parameters and request restart */
