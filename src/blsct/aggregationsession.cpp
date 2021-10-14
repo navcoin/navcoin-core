@@ -5,6 +5,8 @@
 #include "aggregationsession.h"
 #include <main.h>
 
+#include <boost/thread.hpp>
+
 #include <random>
 
 CCriticalSection cs_aggregation;
@@ -396,7 +398,7 @@ bool static IntRecv(char* data, size_t len, int timeout, SOCKET& hSocket)
                 return false;
             }
         }
-        //boost::this_thread::interruption_point();
+        boost::this_thread::interruption_point();
         curTime = GetTimeMillis();
     }
     return len == 0;
