@@ -138,7 +138,7 @@ public:
     /** Interrupt and exit loops */
     void Interrupt()
     {
-        std::lock_guard<std::mutex> lock(cs);
+        std::unique_lock<std::mutex> lock(cs);
         running = false;
         cond.notify_all();
     }
@@ -153,7 +153,7 @@ public:
     /** Return current depth of queue */
     size_t Depth()
     {
-        std::lock_guard<std::mutex> lock(cs);
+        std::unique_lock<std::mutex> lock(cs);
         return queue.size();
     }
 };
