@@ -796,7 +796,7 @@ void TorControlThread::Start()
         return;
     }
 
-    torControlThread = std::thread(std::bind(&TorControlThread::Run, this));
+    torControlThread = boost::thread(std::bind(&TorControlThread::Run, this));
 }
 
 void TorControlThread::Interrupt()
