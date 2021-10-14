@@ -90,26 +90,10 @@
 #include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/program_options/detail/config_file.hpp>
-#include <boost/program_options/parsers.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 #include <openssl/conf.h>
-
-// Work around clang compilation problem in Boost 1.46:
-// /usr/include/boost/program_options/detail/config_file.hpp:163:17: error: call to function 'to_internal' that is neither visible in the template definition nor found by argument-dependent lookup
-// See also: http://stackoverflow.com/questions/10020179/compilation-fail-in-boost-librairies-program-options
-//           http://clang.debian.net/status.php?version=3.0&key=CANNOT_FIND_FUNCTION
-namespace boost {
-
-    namespace program_options {
-        std::string to_internal(const std::string&);
-    }
-
-} // namespace boost
-
-using namespace std;
 
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
@@ -661,21 +645,57 @@ boost::filesystem::path GetConfigFile()
     return pathConfigFile;
 }
 
+static std::string TrimString(const std::string& str, const std::string& pattern)
+{
+    std::string::size_type front = str.find_first_not_of(pattern);
+    if (front == std::string::npos) {
+        return std::string();
+
+    }
+    std::string::size_type end = str.find_last_not_of(pattern);
+    return str.substr(front, end - front + 1);
+
+}
+
+static std::vector<std::pair<std::string, std::string>> GetConfigOptions(std::istream& stream)
+{
+    std::vector<std::pair<std::string, std::string>> options;
+    std::string str, prefix;
+    std::string::size_type pos;
+    while (std::getline(stream, str)) {
+        if ((pos = str.find('#')) != std::string::npos) {
+            str = str.substr(0, pos);
+
+        }
+        const static std::string pattern = " \t\r\n";
+        str = TrimString(str, pattern);
+        if (!str.empty()) {
+            if (*str.begin() == '[' && *str.rbegin() == ']') {
+                prefix = str.substr(1, str.size() - 2) + '.';
+
+            } else if ((pos = str.find('=')) != std::string::npos) {
+                std::string name = prefix + TrimString(str.substr(0, pos), pattern);
+                std::string value = TrimString(str.substr(pos + 1), pattern);
+                options.emplace_back(name, value);
+
+            }
+
+        }
+
+    }
+    return options;
+}
+
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
-    if (!streamConfig.good())
+    boost::filesystem::ifstream stream(GetConfigFile());
+    if (!stream.good())
         return; // No navcoin.conf file is OK
 
-    set<string> setOptions;
-    setOptions.insert("*");
-
-    for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
-    {
-        // Don't overwrite existing settings so command line settings override navcoin.conf
-        string strKey = string("-") + it->string_key;
-        string strValue = it->value[0];
+    for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
+        std::string strKey = std::string("-") + option.first;
+        std::string strValue = option.second;
 
         if(strKey == "-addproposalvoteyes" || strKey == "-addpaymentrequestvoteyes" || strKey == "-voteyes")
         {
@@ -724,31 +744,26 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 void WriteConfigFile(std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    boost::filesystem::ifstream stream(GetConfigFile());
 
-    if(streamConfig.good())
+    if(stream.good())
     {
 
         set<string> setOptions;
         setOptions.insert("*");
-
-        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
-        {
-              if(it->string_key == key && it->value[0] == value)
-                  alreadyInConfigFile = true;
+        for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
+            std::string strKey = std::string("-") + option.first;
+            std::string strValue = option.second;
+            if(strKey == key && strValue == value)
+                alreadyInConfigFile = true;
         }
-
     }
 
     if(!alreadyInConfigFile)
     {
-
         boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);
-
         outStream << std::endl << key + string("=") + value;
-
         outStream.close();
-
     }
 
 }
@@ -756,20 +771,19 @@ void WriteConfigFile(std::string key, std::string value)
 bool ExistsKeyInConfigFile(std::string key)
 {
 
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    boost::filesystem::ifstream stream(GetConfigFile());
 
-    if(streamConfig.good())
+    if(stream.good())
     {
 
         set<string> setOptions;
         setOptions.insert("*");
 
-        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
-        {
-              if(it->string_key == key)
-                  return true;
+        for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
+            std::string strKey = std::string("-") + option.first;
+            if(strKey == key)
+                return true;
         }
-
     }
 
     return false;
@@ -778,15 +792,15 @@ bool ExistsKeyInConfigFile(std::string key)
 
 void RemoveConfigFile(std::string key, std::string value)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
-    if (!streamConfig.good())
+    boost::filesystem::ifstream stream(GetConfigFile());
+    if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
     set<string> setOptions;
     setOptions.insert("*");
 
-    while (std::getline(streamConfig, line))
+    while (std::getline(stream, line))
     {
           if(line != key + "=" + value && line != "")
               configBuffer += line + "\n";
@@ -799,15 +813,15 @@ void RemoveConfigFile(std::string key, std::string value)
 
 void RemoveConfigFilePair(std::string key, std::string value)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
-    if (!streamConfig.good())
+    boost::filesystem::ifstream stream(GetConfigFile());
+    if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
     set<string> setOptions;
     setOptions.insert("*");
 
-    while (std::getline(streamConfig, line))
+    while (std::getline(stream, line))
     {
           if(line.substr(0,key.length()+1+value.length()) != key + "=" + value && line != "")
               configBuffer += line + "\n";
@@ -820,15 +834,15 @@ void RemoveConfigFilePair(std::string key, std::string value)
 
 void RemoveConfigFile(std::string key)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
-    if (!streamConfig.good())
+    boost::filesystem::ifstream stream(GetConfigFile());
+    if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
     set<string> setOptions;
     setOptions.insert("*");
 
-    while (std::getline(streamConfig, line))
+    while (std::getline(stream, line))
     {
           if(line.substr(0,key.length()+1) != key + "=" && line != "")
               configBuffer += line + "\n";
