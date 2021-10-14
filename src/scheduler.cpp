@@ -81,7 +81,7 @@ void CScheduler::stop(bool drain)
 void CScheduler::schedule(CScheduler::Function f, std::chrono::system_clock::time_point t)
 {
     {
-        std::lock_guard<std::mutex> lock(newTaskMutex);
+        std::unique_lock<std::mutex> lock(newTaskMutex);
         taskQueue.insert(std::make_pair(t, f));
     }
     newTaskScheduled.notify_one();
