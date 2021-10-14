@@ -477,7 +477,8 @@ void StopHTTPServer()
     }
     if (eventBase) {
         LogPrint("http", "Waiting for HTTP event thread to exit\n");
-        if (threadHTTP.joinable()) threadHTTP.join();
+        MilliSleep(2000);
+        threadHTTP.join();
     }
     if (eventHTTP) {
         evhttp_free(eventHTTP);
