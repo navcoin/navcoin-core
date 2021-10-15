@@ -95,12 +95,12 @@ void CScheduler::scheduleFromNow(CScheduler::Function f, int64_t deltaSeconds)
 static void Repeat(CScheduler* s, CScheduler::Function f, int64_t deltaSeconds)
 {
     f();
-    s->scheduleFromNow(std::bind(&Repeat, s, f, deltaSeconds), deltaSeconds);
+    s->scheduleFromNow(boost::bind(&Repeat, s, f, deltaSeconds), deltaSeconds);
 }
 
 void CScheduler::scheduleEvery(CScheduler::Function f, int64_t deltaSeconds)
 {
-    scheduleFromNow(std::bind(&Repeat, this, f, deltaSeconds), deltaSeconds);
+    scheduleFromNow(boost::bind(&Repeat, this, f, deltaSeconds), deltaSeconds);
 }
 
 size_t CScheduler::getQueueInfo(std::chrono::system_clock::time_point &first,
