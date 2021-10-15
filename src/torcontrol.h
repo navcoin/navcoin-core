@@ -10,6 +10,8 @@
 
 #include <scheduler.h>
 
+#include <boost/thread.hpp>
+
 extern const std::string DEFAULT_TOR_CONTROL;
 static const bool DEFAULT_LISTEN_ONION = true;
 
@@ -28,7 +30,7 @@ public:
     void Stop();
 private:
     struct event_base *base;
-    std::thread torControlThread;
+    boost::thread torControlThread;
     int listen;
     hidden_service_cb ready_cb;
 };
