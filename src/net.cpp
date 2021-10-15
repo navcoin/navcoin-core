@@ -2140,12 +2140,19 @@ void ThreadOpenAddedConnections()
         vAddedNodes = mapMultiArgs["-addnode"];
     }
 
-    for (unsigned int i = 0; true; i++)
+    for (;;)
     {
+        CSemaphoreGrant grant(*semOutbound);
         std::vector<AddedNodeInfo> vInfo = GetAddedNodeInfo();
+        bool tried = false;
         for (const AddedNodeInfo& info : vInfo) {
             if (!info.fConnected) {
-                CSemaphoreGrant grant(*semOutbound);
+                if (!grant.TryAcquire()) {
+                    // If we've used up our semaphore and need a new one, let's not wait here since while we are waiting
+                    // the addednodeinfo state might change.
+                    break;
+                }
+                tried = true;
                 // If strAddedNode is an IP/port, decode it immediately, so
                 // OpenNetworkConnection can detect existing connections to that IP/port.
                 CService service(info.strAddedNode, Params().GetDefaultPort());
@@ -2153,8 +2160,10 @@ void ThreadOpenAddedConnections()
                 MilliSleep(500);
             }
         }
+        boost::this_thread::interruption_point();
 
-        MilliSleep(120000); // Retry every 2 minutes
+        // Retry every 60 seconds if a connection was attempted, otherwise two seconds
+        MilliSleep(tried ? 60000 : 2000); // Retry every minute
     }
 }
 
@@ -2195,6 +2204,7 @@ void ThreadMessageHandler()
 
     while (true)
     {
+        boost::this_thread::interruption_point();
         std::vector<CNode*> vNodesCopy;
         {
             LOCK(cs_vNodes);
