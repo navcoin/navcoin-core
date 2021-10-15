@@ -30,6 +30,7 @@
 #include "util.h"
 
 #include <boost/filesystem/fstream.hpp>
+#include <boost/thread/thread.hpp>
 #include <thread>
 #include <mutex>
 #include <deque>
@@ -405,11 +406,11 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         size_t first_index = dis(gen);
 
         // send all requests in parallel
-        std::vector<std::thread> threads(dns_urls.size());
+        std::vector<boost::thread> threads(dns_urls.size());
         std::deque<bool> avail(dns_urls.size(), false), valid(dns_urls.size(), false);
         for (size_t n = 0; n < dns_urls.size(); ++n)
         {
-            threads[n] = std::thread([n, dns_urls, &records, &avail, &valid](){
+            threads[n] = boost::thread([n, dns_urls, &records, &avail, &valid](){
                 records[n] = utils::DNSResolver::instance().get_txt_record(dns_urls[n], avail[n], valid[n]);
             });
         }

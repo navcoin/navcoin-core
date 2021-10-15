@@ -76,16 +76,16 @@ BOOST_AUTO_TEST_CASE(manythreads)
     BOOST_CHECK(last > now);
 
     // As soon as these are created they will start running and servicing the queue
-    std::vector<std::thread> microThreads;
+    std::vector<boost::thread> microThreads;
     for (int i = 0; i < 5; i++)
-        microThreads.emplace_back(std::bind(&CScheduler::serviceQueue, &microTasks));
+        microThreads.emplace_back(boost::bind(&CScheduler::serviceQueue, &microTasks));
 
     MicroSleep(600);
     now = std::chrono::system_clock::now();
 
     // More threads and more tasks:
     for (int i = 0; i < 5; i++)
-        microThreads.emplace_back(std::bind(&CScheduler::serviceQueue, &microTasks));
+        microThreads.emplace_back(boost::bind(&CScheduler::serviceQueue, &microTasks));
     for (int i = 0; i < 100; i++) {
         std::chrono::system_clock::time_point t = now + std::chrono::microseconds(randomMsec(rng));
         std::chrono::system_clock::time_point tReschedule = now + std::chrono::microseconds(500 + randomMsec(rng));
