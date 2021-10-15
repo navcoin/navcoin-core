@@ -432,11 +432,11 @@ bool AggregationSession::Join()
 
     if (nVersion == 1)
     {
-        boost::thread(boost::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
+        boost::thread(std::bind(&AggregationSession::JoinThread, GetHiddenService(), vAvailableCoins, inputs)).detach();
     }
     else if (nVersion == 2)
     {
-        boost::thread(boost::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
+        boost::thread(std::bind(&AggregationSession::JoinThreadV2, vPublicKey, vAvailableCoins, inputs)).detach();
     }
 
 
@@ -895,7 +895,7 @@ bool AggregationSession::JoinThreadV2(const std::vector<unsigned char> &vPublicK
 
     for (unsigned int i = 0; i < nThreads; i++)
     {
-        sessionsThreadGroup.create_thread(boost::bind(&AggregationSession::JoinSingleV2, i, vPublicKey, vAvailableCoins, inputs));
+        sessionsThreadGroup.create_thread(std::bind(&AggregationSession::JoinSingleV2, i, vPublicKey, vAvailableCoins, inputs));
     }
 
     sessionsThreadGroup.join_all();
@@ -915,7 +915,7 @@ bool AggregationSession::JoinThread(const std::string &hiddenService, const std:
 
     for (unsigned int i = 0; i < nThreads; i++)
     {
-        sessionsThreadGroup.create_thread(boost::bind(&AggregationSession::JoinSingle, i, hiddenService, vAvailableCoins, inputs));
+        sessionsThreadGroup.create_thread(std::bind(&AggregationSession::JoinSingle, i, hiddenService, vAvailableCoins, inputs));
     }
 
     sessionsThreadGroup.join_all();

@@ -1296,8 +1296,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     }
 
     // Start the lightweight task scheduler thread
-    CScheduler::Function serviceLoop = boost::bind(&CScheduler::serviceQueue, &scheduler);
-    threadGroup.create_thread(boost::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
+    CScheduler::Function serviceLoop = std::bind(&CScheduler::serviceQueue, &scheduler);
+    threadGroup.create_thread(std::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
 
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
@@ -1834,7 +1834,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         for(const std::string& strFile: mapMultiArgs["-loadblock"])
                 vImportFiles.push_back(strFile);
     }
-    threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
+    threadGroup.create_thread(std::bind(&ThreadImport, vImportFiles));
 
     // Wait for genesis block to be processed
     bool fHaveGenesis = false;
@@ -1881,12 +1881,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
     uiInterface.InitMessage(_("Booting staking thread"));
-    threadGroup.create_thread(boost::bind(&NavcoinStaker, boost::cref(chainparams)));
+    threadGroup.create_thread(std::bind(&NavcoinStaker, boost::cref(chainparams)));
     if (pwalletMain && GetBoolArg("-blsctmix", DEFAULT_MIX))
     {
         uiInterface.InitMessage(_("Booting blsCT threads"));
-        threadGroup.create_thread(boost::bind(&AggregationSessionThread));
-        threadGroup.create_thread(boost::bind(&CandidateVerificationThread));
+        threadGroup.create_thread(std::bind(&AggregationSessionThread));
+        threadGroup.create_thread(std::bind(&CandidateVerificationThread));
     }
 #endif
 
@@ -1898,7 +1898,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         pwalletMain->ReacceptWalletTransactions();
 
         // Run a thread to flush wallet periodically
-        threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+        threadGroup.create_thread(std::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
 #endif
 

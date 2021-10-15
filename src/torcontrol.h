@@ -28,7 +28,7 @@ public:
     void Stop();
 private:
     struct event_base *base;
-    boost::thread torControlThread;
+    std::thread torControlThread;
     int listen;
     hidden_service_cb ready_cb;
 };

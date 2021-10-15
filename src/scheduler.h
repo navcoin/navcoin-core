@@ -9,10 +9,9 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <thread>
 
 #include <sync.h>
-
-#include <boost/thread/thread.hpp>
 
 /**
  * Simple class for background tasks that should be run
