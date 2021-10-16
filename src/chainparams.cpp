@@ -250,6 +250,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1612137600; // Feb 1st, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
+        // Deployment of Burn Fees
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -499,6 +504,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
 
+        // Deployment of Burn Fees
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -731,6 +741,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
+
+        // Deployment of Burn Fees
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -974,6 +989,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
+
+        // Deployment of Burn Fees
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
