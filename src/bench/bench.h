@@ -8,7 +8,6 @@
 #include <map>
 #include <string>
 
-#include <boost/function.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
 

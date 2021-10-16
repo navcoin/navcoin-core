@@ -20,8 +20,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/function.hpp>
-
 class CBlockIndex;
 class CStateViewDBCursor;
 class uint256;

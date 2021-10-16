@@ -5,7 +5,6 @@
 #ifndef NAVCOIN_SCHEDULER_H
 #define NAVCOIN_SCHEDULER_H
 
-#include <boost/function.hpp>
 #include <boost/chrono/chrono.hpp>
 #include <boost/thread.hpp>
 #include <map>
