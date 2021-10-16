@@ -189,11 +189,11 @@ public:
     bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
-    bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex,
-                            boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
-                            boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
-                            boost::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
-                            boost::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes);
+    bool LoadBlockIndexGuts(std::function<CBlockIndex*(const uint256&)> insertBlockIndex,
+                            std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
+                            std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
+                            std::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
+                            std::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes);
     bool ReadProposalIndex(const uint256 &proposalid, CProposal &proposal);
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CProposal> >&vect);
     bool GetProposalIndex(std::vector<CProposal>&vect);
