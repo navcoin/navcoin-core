@@ -37,7 +37,8 @@ enum DeploymentPos
     DEPLOYMENT_BLSCT,
     DEPLOYMENT_EXCLUDE,
     DEPLOYMENT_DAO_SUPER,
-    MAX_VERSION_BITS_DEPLOYMENTS
+    DEPLOYMENT_BURN_FEES,
+    MAX_VERSION_BITS_DEPLOYMENTS,
 };
 
 static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
@@ -62,6 +63,7 @@ static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     "Activates the privacy protocol blsCT and the private token xNAV",
     "Excludes inactive voters from the DAO quorums",
     "Enables Super proposals and allows combined vote of consensus parameters"
+    "Burns the transaction fees"
 };
 
 /**

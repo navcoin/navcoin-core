@@ -3178,6 +3178,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsDaoSuperEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoSuperVersionMask;
 
+    if(IsBurnFeesEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nBurnFeeVersionMask;
+
 #if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
 #else
@@ -5959,6 +5962,18 @@ bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
 }
 
+bool IsBurnFeesEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_BURN_FEES, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsBurnFeesLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_BURN_FEES, versionbitscache) == THRESHOLD_LOCKED_IN);
+}
+
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -6115,6 +6130,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nDAOVersionMask) != nDAOVersionMask && IsDAOEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                              "rejected no consultations block");
+
+    if((block.nVersion & nBurnFeeVersionMask) != nBurnFeeVersionMask && IsBurnFeesEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no burn fee block");
 
 #if CLIENT_BUILD_IS_TEST_RELEASE
     bool fTestnet = GetBoolArg("-testnet", true);
@@ -10650,29 +10669,33 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 // staker's coin stake reward based on coin age spent (coin-days)
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev, const CStateViewCache& view)
 {
-    int64_t nSubsidy;
+  int64_t nSubsidy;
 
-    if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-        nSubsidy = GetStakingRewardPerBlock(view);
-    } else {
-        int64_t nRewardCoinYear;
-        nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+  if (IsBurnFeesEnabled(pindexPrev, Params().GetConsensus())){
+      nFees = 0;
+  }
 
-        if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
-            nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
-        else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
-            nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-        else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
-            nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-        else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
-            nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
-        else
-            nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+  if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
+      nSubsidy = GetStakingRewardPerBlock(view);
+  } else {
+      int64_t nRewardCoinYear;
+      nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
-        nSubsidy = nCoinAge * nRewardCoinYear / 365;
-    }
+      if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
+          nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
+          nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
+      else
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
 
-    return  nSubsidy + nFees;
+       nSubsidy = nCoinAge * nRewardCoinYear / 365;
+  }
+
+  return  nSubsidy + nFees;
 }
 
 unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime)

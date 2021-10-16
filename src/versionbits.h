@@ -32,6 +32,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 6 -> C FUND
 * Bit 7 -> C FUND ACCUMULATION
 * Bit 8 -> NTP SYNC
+* Bit 9 -> BURN FEE
 * Bit 10 -> BLSCT
 * Bit 11 -> SUPER DAO
 * Bit 12 -> EXCLUDE
@@ -50,6 +51,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 6  -> C FUND
 * Bit 7  -> NTP SYNC
 * Bit 8  -> CFUND ACCUMULATION
+* Bit 9  -> BURN FEE
 * Bit 10 -> BLSCT
 * Bit 11 -> SUPER DAO
 * Bit 12 -> EXCLUDE
@@ -68,6 +70,7 @@ static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
 static const int32_t nCFundAccVersionMask = 0x00000100;
+static const int32_t nBurnFeeVersionMask = 0x00000200;
 static const int32_t nBLSCTVersionMask = 0x00000400;
 static const int32_t nDaoSuperVersionMask = 0x00000800;
 static const int32_t nColdStakingVersionMask = 0x00002000;
