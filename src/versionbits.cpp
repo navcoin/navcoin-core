@@ -9,18 +9,18 @@
 #include <consensus/params.h>
 
 const struct BIP9DeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
-    {
-        /*.name =*/ "testdummy",
-        /*.gbt_force =*/ true,
-    },
-    {
-        /*.name =*/ "csv",
-        /*.gbt_force =*/ true,
-    },
-    {
-        /*.name =*/ "segwit",
-        /*.gbt_force =*/ false,
-    }
+{
+    /*.name =*/ "testdummy",
+    /*.gbt_force =*/ true,
+},
+{
+    /*.name =*/ "csv",
+    /*.gbt_force =*/ true,
+},
+{
+    /*.name =*/ "segwit",
+    /*.gbt_force =*/ false,
+}
 };
 
 ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache) const
@@ -63,44 +63,44 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
         vToCompute.pop_back();
 
         switch (state) {
-            case THRESHOLD_DEFINED: {
-                if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
-                    stateNext = THRESHOLD_FAILED;
-                } else if (pindexPrev->GetMedianTimePast() >= nTimeStart) {
-                    stateNext = THRESHOLD_STARTED;
-                }
+        case THRESHOLD_DEFINED: {
+            if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
+                stateNext = THRESHOLD_FAILED;
+            } else if (pindexPrev->GetMedianTimePast() >= nTimeStart) {
+                stateNext = THRESHOLD_STARTED;
+            }
+            break;
+        }
+        case THRESHOLD_STARTED: {
+            if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
+                stateNext = THRESHOLD_FAILED;
                 break;
             }
-            case THRESHOLD_STARTED: {
-                if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
-                    stateNext = THRESHOLD_FAILED;
-                    break;
+            // We need to count
+            const CBlockIndex* pindexCount = pindexPrev;
+            int count = 0;
+            for (int i = 0; i < nPeriod; i++) {
+                if (Condition(pindexCount, params)) {
+                    count++;
                 }
-                // We need to count
-                const CBlockIndex* pindexCount = pindexPrev;
-                int count = 0;
-                for (int i = 0; i < nPeriod; i++) {
-                    if (Condition(pindexCount, params)) {
-                        count++;
-                    }
-                    pindexCount = pindexCount->pprev;
-                }
+                pindexCount = pindexCount->pprev;
+            }
 
-                if (count >= nThreshold) {
-                    stateNext = THRESHOLD_LOCKED_IN;
-                }
-                break;
+            if (count >= nThreshold) {
+                stateNext = THRESHOLD_LOCKED_IN;
             }
-            case THRESHOLD_LOCKED_IN: {
-                // Always progresses into ACTIVE.
-                stateNext = THRESHOLD_ACTIVE;
-                break;
-            }
-            case THRESHOLD_FAILED:
-            case THRESHOLD_ACTIVE: {
-                // Nothing happens, these are terminal states.
-                break;
-            }
+            break;
+        }
+        case THRESHOLD_LOCKED_IN: {
+            // Always progresses into ACTIVE.
+            stateNext = THRESHOLD_ACTIVE;
+            break;
+        }
+        case THRESHOLD_FAILED:
+        case THRESHOLD_ACTIVE: {
+            // Nothing happens, these are terminal states.
+            break;
+        }
         }
         cache[pindexPrev] = state = stateNext;
     }
@@ -125,13 +125,16 @@ protected:
 
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const
     {
-        return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS)
-                && (pindex->nVersion & Mask(params)) != 0);
+        if (params.vDeployments[id].bit > 32)
+            return (pindex->nNonce & (Mask(params)>>32)) != 0;
+        else
+            return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS)
+                    && (pindex->nVersion & Mask(params)) != 0);
     }
 
 public:
     VersionBitsConditionChecker(Consensus::DeploymentPos id_) : id(id_) {}
-    uint32_t Mask(const Consensus::Params& params) const { return ((uint32_t)1) << params.vDeployments[id].bit; }
+    uint64_t Mask(const Consensus::Params& params) const { return ((uint64_t)1) << params.vDeployments[id].bit; }
 };
 
 }
@@ -150,9 +153,9 @@ bool IsVersionBitRejected(const Consensus::Params& params, Consensus::Deployment
     {
         if (isdigit(acceptedBit[0]))
         {
-          int rBit =  stoi(acceptedBit);
-          if(rBit == bitTest)
-              return false;
+            int rBit =  stoi(acceptedBit);
+            if(rBit == bitTest)
+                return false;
         }
     }
 

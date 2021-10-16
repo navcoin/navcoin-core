@@ -167,7 +167,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
-    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    auto versionBits = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+
+    pblock->nVersion = versionBits.first;
 
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
@@ -427,6 +429,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = GetBoolArg("-excludevote", false) ? 1 : 0;
+    pblock->nNonce        |= versionBits.second;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
     if (pFees)

@@ -3123,16 +3123,21 @@ void ThreadScriptCheck() {
 // Protected by cs_main
 VersionBitsCache versionbitscache;
 
-int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+std::pair<int32_t, int32_t> ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
     int32_t nVersion = IsSigHFEnabled(Params().GetConsensus(), pindexPrev) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS;
+    int32_t nNonce;
 
     for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
         ThresholdState state = VersionBitsState(pindexPrev, params, (Consensus::DeploymentPos)i, versionbitscache);
         if ((state == THRESHOLD_LOCKED_IN || state == THRESHOLD_ACTIVE  ||
              (state == THRESHOLD_STARTED && !IsVersionBitRejected(params, (Consensus::DeploymentPos)i)))) {
-            nVersion |= VersionBitsMask(params, (Consensus::DeploymentPos)i);
+            auto mask = VersionBitsMask(params, (Consensus::DeploymentPos)i);
+            if (mask > 0xFFFFFFFF)
+                nNonce |= mask;
+            else
+                nVersion |= mask;
         }
     }
 
@@ -3187,7 +3192,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsBLSCTEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nBLSCTVersionMask;
 
-    return nVersion;
+    return std::make_pair(nVersion, nNonce);
 }
 
 static bool IsSigHFEnabled(const Consensus::Params &consensus, int64_t nMedianTimePast) {
@@ -3223,7 +3228,7 @@ public:
     {
         return  (pindex->nVersion & VERSIONBITS_TOP_MASK) == (IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS) &&
                ((pindex->nVersion >> bit) & 1) != 0 &&
-               ((ComputeBlockVersion(pindex->pprev, params) >> bit) & 1) == 0;
+               ((ComputeBlockVersion(pindex->pprev, params).first >> bit) & 1) == 0;
     }
 };
 
