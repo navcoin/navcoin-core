@@ -77,7 +77,8 @@ case $host in
   ;;
 esac
 
-AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+dnl Require C++17 compiler (no GNU extensions)
+AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 
 dnl Unless the user specified OBJCXX, force it to be the same as CXX. This ensures
 dnl that we get the same -std flags for both.
