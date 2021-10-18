@@ -179,7 +179,7 @@ bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
     return true;
 }
 
-EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx)
+EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx, const bool& fUpgraded=false)
 {
     std::vector<unsigned char> rand;
     rand.resize(32);
@@ -187,6 +187,9 @@ EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Elemen
     bls::PrivateKey key = bls::AugSchemeMPL::KeyGen(rand);
 
     vPublicKey  = key.GetG1Element().Serialize();
+
+    if (fUpgraded)
+        sessionId = pubKey.Serialize();
 
     bls::G1Element sharedKey = key * pubKey;
 

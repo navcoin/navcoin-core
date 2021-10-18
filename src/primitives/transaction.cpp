@@ -60,6 +60,8 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Ele
 
 uint256 CTxOut::GetHash() const
 {
+    if (cacheHash != uint256())
+        return cacheHash;
     return SerializeHash(*this);
 }
 

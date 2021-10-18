@@ -73,7 +73,7 @@ class EncryptedCandidateTransaction
 {
 public:
     EncryptedCandidateTransaction() {};
-    EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx);
+    EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx, const bool& upgraded);
 
     bool Decrypt(const bls::PrivateKey &key, const CStateViewCache* inputs, CandidateTransaction& tx) const;
 
@@ -84,6 +84,8 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        if (sessionId.size() > 0)
+            READWRITE(sessionId);
         READWRITE(vPublicKey);
         READWRITE(vData);
     }
@@ -96,6 +98,7 @@ public:
 
     std::vector<unsigned char> vPublicKey;
     std::vector<unsigned char> vData;
+    std::vector<unsigned char> sessionId;
     uint256 cachedHash;
     int64_t nTime;
 };

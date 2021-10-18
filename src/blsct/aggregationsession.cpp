@@ -607,7 +607,7 @@ bool AggregationSession::JoinSingleV2(int index, std::vector<unsigned char> &vPu
 
     try
     {
-        EncryptedCandidateTransaction encryptedTx(publicKey, tx);
+        EncryptedCandidateTransaction encryptedTx(publicKey, tx, IsXNavSerEnabled(chainActive.Tip(), Params().GetConsensus()));
 
         encryptedTx.nTime = GetTimeMillis();
 
@@ -1025,6 +1025,12 @@ void CandidateVerificationThread()
                     {
                         try
                         {
+                            if (etx.sessionId.size() > 0)
+                            {
+                                if (it.first != SerializeHash(etx.sessionId))
+                                    continue;
+                            }
+
                             if (etx.Decrypt(it.second, pwalletMain->aggSession->inputs, tx))
                             {
                                 fSolved = true;

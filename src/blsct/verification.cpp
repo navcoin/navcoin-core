@@ -7,12 +7,12 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
-    auto nStart = GetTimeMicros();
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
 
-    bls::G1Element balKey;
+    bls::G1Element balKey, balKeyOut;
     bool fElementZero = true;
+    bool fElementZeroOut = true;
 
     bool fCheckRange = tx.IsCTOutput();
     bool fCheckBLSSignature = tx.IsBLSInput();
@@ -100,6 +100,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
             }
+
             if (fCheckRange)
             {
                 proofs.push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
@@ -115,36 +116,36 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                     return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
                 }
             }
+
             if (fCheckBalance)
             {
-                if (fElementZero)
+                if (fElementZeroOut)
                 {
-                    balKey = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
+                    balKeyOut = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
                 }
                 else
                 {
-                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0].Inverse();
-                    balKey = balKey + t;
+                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
+                    balKeyOut = balKeyOut + t;
                 }
-                fElementZero = false;
+                fElementZeroOut = false;
             }
         }
         else if (fCheckBalance)
         {
-            if (fElementZero)
+            if (fElementZeroOut)
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
-                balKey = BulletproofsRangeproof::H*s.bn;
+                balKeyOut = BulletproofsRangeproof::H*s.bn;
             }
             else
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
                 bls::G1Element t = BulletproofsRangeproof::H*s.bn;
-                t = t.Inverse();
-                balKey = balKey + t;
+                balKeyOut = balKeyOut + t;
             }
             valOut += tx.vout[j].nValue;
-            fElementZero = false;
+            fElementZeroOut = false;
         }
 
         if (fCheckBLSSignature && !tx.vout[j].scriptPubKey.IsFee())
@@ -161,7 +162,9 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
             }
+
             uint256 hash = tx.vout[j].GetHash();
+
             vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
         }
     }
@@ -183,7 +186,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         {
             bls::G2Element sig = bls::G2Element::FromBytes(tx.vchBalanceSig.data());
 
-            if (!bls::BasicSchemeMPL::Verify(balKey, balanceMsg, sig))
+            if (!bls::BasicSchemeMPL::Verify(balKey + balKeyOut.Inverse(), balanceMsg, sig))
                 return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
         }
         catch(std::exception& e)
@@ -210,7 +213,6 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         }
     }
 
-    //std::cout << strprintf("%s: took %.2f ms\n", __func__, (GetTimeMicros()-nStart)/1000);
     return true;
 }
 

@@ -163,6 +163,8 @@ public:
     std::vector<uint8_t> ephemeralKey;
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
+    BulletproofsRangeproof cacheBp;
+    uint256 cacheHash;
 
     CTxOut()
     {
@@ -178,6 +180,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (ser_action.ForRead())
         {
+            bool fXNav = false;
             READWRITE(nValue);
             if (nValue == ~(uint64_t)0)
             {
@@ -188,8 +191,14 @@ public:
                 BulletproofsRangeproof bp_;
                 READWRITE(bp_);
                 bp = bp_.GetVch();
+                if (bp.size() > 0)
+                    cacheBp = bp_;
+                fXNav = true;
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
+
+            if (fXNav)
+                cacheHash = SerializeHash(*this);
         }
         else
         {
@@ -201,8 +210,7 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                BulletproofsRangeproof bp_(bp);
-                READWRITE(bp_);
+                READWRITE(cacheBp);
             }
             else
             {
@@ -223,6 +231,8 @@ public:
 
     BulletproofsRangeproof GetBulletproof() const
     {
+        if (cacheBp.V.size() > 0)
+            return cacheBp;
         if (bp.size() == 0)
             return BulletproofsRangeproof();
         return BulletproofsRangeproof(bp);

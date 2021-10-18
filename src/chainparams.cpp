@@ -255,6 +255,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1637712000; // Nov 24th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
 
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -509,6 +514,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
 
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -746,6 +756,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -994,6 +1009,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

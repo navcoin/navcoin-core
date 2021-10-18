@@ -1827,15 +1827,17 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
             scriptVerifyFlags = GetArg("-promiscuousmempoolflags", scriptVerifyFlags);
         }
 
+        bool fXNavSer = IsXNavSerEnabled(chainActive.Tip(), Params().GetConsensus());
+
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
-        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, blsctData, txdata)) {
+        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, blsctData, txdata, fXNavSer)) {
             // SCRIPT_VERIFY_CLEANSTACK requires SCRIPT_VERIFY_WITNESS, so we
             // need to turn both off, and compare against just turning off CLEANSTACK
             // to see if the failure is specifically due to witness validation.
-            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, blsctData, txdata) &&
-                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, blsctData, txdata)) {
+            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, blsctData, txdata, fXNavSer) &&
+                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, blsctData, txdata, fXNavSer)) {
                 // Only the witness is wrong, so the transaction itself may be fine.
                 state.SetCorruptionPossible();
             }
@@ -1851,7 +1853,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
         // There is a similar check in CreateNewBlock() to prevent creating
         // invalid blocks, however allowing such transactions into the mempool
         // can be exploited as a DoS attack.
-        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, blsctData, txdata))
+        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, blsctData, txdata, fXNavSer))
         {
             return error("%s: BUG! PLEASE REPORT THIS! ConnectInputs failed against MANDATORY but not STANDARD flags %s, %s",
                 __func__, hash.ToString(), FormatStateMessage(state));
@@ -2337,7 +2339,7 @@ int GetSpendHeight(const CStateViewCache& inputs)
 }
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData, CAmount allowedInPrivate = 0)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData, const bool &fXNavSer, CAmount allowedInPrivate = 0)
 {
     // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
     // for an attacker to attempt to split the network.
@@ -2352,7 +2354,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
         const CCoins *coins = inputs.AccessCoins(prevout.hash);
         assert(coins);
 
-        if (coins->vout[prevout.n].IsBLSCT())
+        if ((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof()))
         {
             if (!fHasBLSInput && i > 0)
                 return state.Invalid(false,
@@ -2361,7 +2363,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
             fHasBLSInput = true;
         }
 
-        if (fHasBLSInput && !coins->vout[prevout.n].IsBLSCT())
+        if (fHasBLSInput && !((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof())))
             return state.Invalid(false,
                                  REJECT_INVALID, "bad-mix-bls-inputs",
                                  "transaction mixes bls and legacy inputs");
@@ -2427,11 +2429,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks, CAmount allowedInPrivate)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, const bool &fXNavSer, std::vector<CScriptCheck> *pvChecks, CAmount allowedInPrivate)
 {
     if (!tx.IsCoinBase())
     {
-        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData, allowedInPrivate))
+        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData, fXNavSer, allowedInPrivate))
             return false;
 
         if (pvChecks)
@@ -3127,15 +3129,15 @@ std::pair<int32_t, int32_t> ComputeBlockVersion(const CBlockIndex* pindexPrev, c
 {
     LOCK(cs_main);
     int32_t nVersion = IsSigHFEnabled(Params().GetConsensus(), pindexPrev) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS;
-    int32_t nNonce;
+    int32_t nNonce = 0;
 
     for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
         ThresholdState state = VersionBitsState(pindexPrev, params, (Consensus::DeploymentPos)i, versionbitscache);
         if ((state == THRESHOLD_LOCKED_IN || state == THRESHOLD_ACTIVE  ||
              (state == THRESHOLD_STARTED && !IsVersionBitRejected(params, (Consensus::DeploymentPos)i)))) {
-            auto mask = VersionBitsMask(params, (Consensus::DeploymentPos)i);
+            uint64_t mask = VersionBitsMask(params, (Consensus::DeploymentPos)i);
             if (mask > 0xFFFFFFFF)
-                nNonce |= mask;
+                nNonce |= mask>>32;
             else
                 nVersion |= mask;
         }
@@ -4168,10 +4170,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
             }
 
+            bool fXNavSer = IsXNavSerEnabled(pindex->pprev, Params().GetConsensus());
+
             std::vector<CScriptCheck> vChecks;
             std::vector<RangeproofEncodedData> dummyData;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, tx.IsCTOutput()?blsctData[i]:dummyData, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, tx.IsCTOutput()?blsctData[i]:dummyData, txdata[i], fXNavSer, nScriptCheckThreads ? &vChecks : nullptr))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                              tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
@@ -5919,6 +5923,12 @@ bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Param
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_DAO_CONSENSUS, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsXNavSerEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_XNAV_SER, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 // Compute at which vout of the block's coinbase transaction the witness
