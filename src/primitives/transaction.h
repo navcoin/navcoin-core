@@ -197,6 +197,7 @@ public:
                 bp = bp_.GetVch();
                 if (bp.size() > 0)
                     cacheBp = bp_;
+                newSer = false;
                 fXNav = true;
             }
             else if (nFlags & (uint64_t)0x2<<62)
@@ -221,11 +222,13 @@ public:
                 }
                 if (nFlags & 0x1<<6)
                     READWRITE(vData);
+                READWRITE(newSer);
 
                 fXNav = true;
             }
             else
             {
+                newSer = false;
                 nValue = nFlags;
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
@@ -237,6 +240,8 @@ public:
         {
             if (vData.size() > 0 || tokenId != uint256() || newSer)
             {
+                newSer = true;
+
                 CAmount nMarker = (uint64_t)0x2 << 62;
 
                 if (nValue > 0)
@@ -272,9 +277,11 @@ public:
                 }
                 if (nMarker & 0x1<<6)
                     READWRITE(vData);
+                READWRITE(newSer);
             }
             else if (IsBLSCT())
             {
+                newSer = false;
                 CAmount nMarker = ~(uint64_t)0;
                 READWRITE(nMarker);
                 READWRITE(nValue);
@@ -285,6 +292,7 @@ public:
             }
             else
             {
+                newSer = false;
                 READWRITE(nValue);
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
