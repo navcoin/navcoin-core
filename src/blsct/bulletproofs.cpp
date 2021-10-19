@@ -21,22 +21,22 @@ static Scalar InnerProduct(const std::vector<Scalar> &a, const std::vector<Scala
 Scalar BulletproofsRangeproof::one;
 Scalar BulletproofsRangeproof::two;
 
-std::vector<bls::G1Element> BulletproofsRangeproof::Hi, BulletproofsRangeproof::Gi;
+std::map<uint256, std::vector<bls::G1Element>> BulletproofsRangeproof::Hi, BulletproofsRangeproof::Gi;
 std::vector<Scalar> BulletproofsRangeproof::oneN;
 std::vector<Scalar> BulletproofsRangeproof::twoN;
 Scalar BulletproofsRangeproof::ip12;
 
 boost::mutex BulletproofsRangeproof::init_mutex;
 
-bls::G1Element BulletproofsRangeproof::G;
-bls::G1Element BulletproofsRangeproof::H;
+std::map<uint256, bls::G1Element> BulletproofsRangeproof::G;
+std::map<uint256, bls::G1Element> BulletproofsRangeproof::H;
 
 // Calculate base point
-static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx)
+static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx, std::string tokId = "")
 {
     static const std::string salt("bulletproof");
     std::vector<uint8_t> data =  base.Serialize();
-    std::string toHash = HexStr(data) + salt + std::to_string(idx);
+    std::string toHash = HexStr(data) + salt + std::to_string(idx) + tokId;
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << toHash;
@@ -70,16 +70,16 @@ bool BulletproofsRangeproof::Init()
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
 
-    BulletproofsRangeproof::G = bls::G1Element::Generator();
-    BulletproofsRangeproof::H = GetBaseG1Element(BulletproofsRangeproof::G, 0);
+    BulletproofsRangeproof::G[uint256()] = bls::G1Element::Generator();
+    BulletproofsRangeproof::H[uint256()] = GetBaseG1Element(BulletproofsRangeproof::G[uint256()], 0);
 
-    BulletproofsRangeproof::Hi.resize(maxMN);
-    BulletproofsRangeproof::Gi.resize(maxMN);
+    BulletproofsRangeproof::Hi[uint256()].resize(maxMN);
+    BulletproofsRangeproof::Gi[uint256()].resize(maxMN);
 
     for (size_t i = 0; i < maxMN; ++i)
     {
-        BulletproofsRangeproof::Hi[i] = GetBaseG1Element(BulletproofsRangeproof::H, i * 2 + 1);
-        BulletproofsRangeproof::Gi[i] = GetBaseG1Element(BulletproofsRangeproof::H, i * 2 + 2);
+        BulletproofsRangeproof::Hi[uint256()][i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 1);
+        BulletproofsRangeproof::Gi[uint256()][i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 2);
     }
 
     BulletproofsRangeproof::oneN = VectorDup(BulletproofsRangeproof::one, maxN);
@@ -89,6 +89,27 @@ bool BulletproofsRangeproof::Init()
     fInit = true;
 
     return true;
+}
+
+Generators BulletproofsRangeproof::GetGenerators(const uint256& tokenId)
+{
+    if (BulletproofsRangeproof::H.count(tokenId) && BulletproofsRangeproof::Gi.count(tokenId) && BulletproofsRangeproof::Hi.count(tokenId))
+    {
+        return {BulletproofsRangeproof::G[uint256()], BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi[tokenId], BulletproofsRangeproof::Hi[tokenId]};
+    }
+
+    BulletproofsRangeproof::H[tokenId] = GetBaseG1Element(BulletproofsRangeproof::G[uint256()], 1, tokenId.ToString());
+
+    BulletproofsRangeproof::Hi[uint256()].resize(maxMN);
+    BulletproofsRangeproof::Gi[uint256()].resize(maxMN);
+
+    for (size_t i = 0; i < maxMN; ++i)
+    {
+        BulletproofsRangeproof::Hi[tokenId][i] = GetBaseG1Element(BulletproofsRangeproof::H[tokenId], i * 2 + 2, tokenId.ToString());
+        BulletproofsRangeproof::Gi[tokenId][i] = GetBaseG1Element(BulletproofsRangeproof::H[tokenId], i * 2 + 3, tokenId.ToString());
+    }
+
+    return {BulletproofsRangeproof::G[uint256()], BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi[tokenId], BulletproofsRangeproof::Hi[tokenId]};
 }
 
 // Todo multi-exp optimization
@@ -137,16 +158,18 @@ bls::G1Element MultiExpLegacy(std::vector<MultiexpData> multiexp_data)
 }
 
 /* Given two Scalar arrays, construct a vector commitment */
-static bls::G1Element VectorCommitment(const std::vector<Scalar> &a, const std::vector<Scalar> &b)
+static bls::G1Element VectorCommitment(const std::vector<Scalar> &a, const std::vector<Scalar> &b, const uint256& tokenId=uint256())
 {
     CHECK_AND_ASSERT_THROW_MES(a.size() == b.size(), "Incompatible sizes of a and b");
     CHECK_AND_ASSERT_THROW_MES(a.size() <= maxMN, "Incompatible sizes of a and maxN");
 
+    Generators gens = BulletproofsRangeproof::GetGenerators(tokenId);
+
     std::vector<MultiexpData> multiexp_data;
     for (size_t i = 0; i < a.size(); ++i)
     {
-        multiexp_data.push_back({BulletproofsRangeproof::Gi[i], a[i]});
-        multiexp_data.push_back({BulletproofsRangeproof::Hi[i], b[i]});
+        multiexp_data.push_back({gens.Gi[i], a[i]});
+        multiexp_data.push_back({gens.Hi[i], b[i]});
     }
 
     return MultiExp(multiexp_data);
@@ -399,7 +422,7 @@ bls::G1Element CrossVectorExponent(size_t size, const std::vector<bls::G1Element
     return MultiExp(multiexp_data);
 }
 
-void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message)
+void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message, const uint256& tokenId)
 {
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
@@ -413,6 +436,8 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, 
     CHECK_AND_ASSERT_THROW_MES(!v.empty(), "sv is empty");
 
     Init();
+
+    Generators gens = GetGenerators(tokenId);
 
     const size_t N = 1<<BulletproofsRangeproof::logN;
 
@@ -438,8 +463,8 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, 
 
     for (unsigned int j = 0; j < v.size(); j++)
     {
-        bls::G1Element gammaElement = G*gamma[j].bn;
-        bls::G1Element valueElement = H*v[j].bn;
+        bls::G1Element gammaElement = gens.G*gamma[j].bn;
+        bls::G1Element valueElement = gens.H*v[j].bn;
         this->V[j] = gammaElement + valueElement;
         hasher << this->V[j];
     }
@@ -482,7 +507,7 @@ try_again:
 
     this->A = VectorCommitment(aL, aR);
     {
-    bls::G1Element alphaElement = G*alpha.bn;
+    bls::G1Element alphaElement = gens.G*alpha.bn;
     this->A = this->A + alphaElement;
     }
 
@@ -502,7 +527,7 @@ try_again:
 
     this->S = VectorCommitment(sL, sR);
     {
-    bls::G1Element rhoElement = G*rho.bn;
+    bls::G1Element rhoElement = gens.G*rho.bn;
     this->S = this->S + rhoElement;
     }
 
@@ -570,10 +595,10 @@ try_again:
     tau1 = tau1 + sM2;
 
     {
-    bls::G1Element t1Element = H*t1.bn;
-    bls::G1Element t2Element = H*t2.bn;
-    bls::G1Element tau1Element = G*tau1.bn;
-    bls::G1Element tau2Element = G*tau2.bn;
+    bls::G1Element t1Element = gens.H*t1.bn;
+    bls::G1Element t2Element = gens.H*t2.bn;
+    bls::G1Element tau1Element = gens.G*tau1.bn;
+    bls::G1Element tau2Element = gens.G*tau2.bn;
 
     this->T1 = t1Element + tau1Element;
     this->T2 = t2Element + tau2Element;
@@ -642,8 +667,8 @@ try_again:
 
     for (unsigned int i = 0; i < nprime; i++)
     {
-        gprime[i] = BulletproofsRangeproof::Gi[i];
-        hprime[i] = BulletproofsRangeproof::Hi[i];
+        gprime[i] = gens.Gi[i];
+        hprime[i] = gens.Hi[i];
 
         if(i > 1)
             yinvpow[i] = yinvpow[i-1] * yinv;
@@ -677,9 +702,9 @@ try_again:
 
         // PAPER LINES 23-24
         tmp = cL * x_ip;
-        this->L[round] = CrossVectorExponent(nprime, gprime, nprime, hprime, 0, aprime, 0, bprime, nprime, scale, &H, &tmp);
+        this->L[round] = CrossVectorExponent(nprime, gprime, nprime, hprime, 0, aprime, 0, bprime, nprime, scale, &gens.H, &tmp);
         tmp = cR * x_ip;
-        this->R[round] = CrossVectorExponent(nprime, gprime, 0, hprime, nprime, aprime, nprime, bprime, 0, scale, &H, &tmp);
+        this->R[round] = CrossVectorExponent(nprime, gprime, 0, hprime, nprime, aprime, nprime, bprime, 0, scale, &gens.H, &tmp);
 
         // PAPER LINES 25-27
         hasher << this->L[round];
@@ -723,7 +748,7 @@ struct proof_data_t
     size_t logM, inv_offset;
 };
 
-bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& vData, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover)
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& vData, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover, const uint256& tokenId)
 {
     bool fRecover = false;
 
@@ -734,6 +759,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
 
     BulletproofsRangeproof::Init();
+
+    Generators gens = BulletproofsRangeproof::GetGenerators(tokenId);
 
     unsigned int N = 1 << BulletproofsRangeproof::logN;
 
@@ -860,8 +887,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             data.message = std::string(vMsgTrimmed.begin(), vMsgTrimmed.end()) + std::string(vMsg2Trimmed.begin(), vMsg2Trimmed.end());
 
             {
-            bls::G1Element gammaElement = BulletproofsRangeproof::G*gamma.bn;
-            bls::G1Element valueElement = BulletproofsRangeproof::H*amount.bn;
+            bls::G1Element gammaElement = gens.G*gamma.bn;
+            bls::G1Element valueElement = gens.H*amount.bn;
             bool fIsMine = ((gammaElement + valueElement) == pd.V[0]);
 
             if (fIsMine)
@@ -1038,17 +1065,17 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
     tmp = y0 - z1;
 
-    multiexpdata.push_back({BulletproofsRangeproof::G, tmp});
+    multiexpdata.push_back({gens.G, tmp});
 
 
     tmp = z3 - y1;
 
-    multiexpdata.push_back({BulletproofsRangeproof::H, tmp});
+    multiexpdata.push_back({gens.H, tmp});
 
     for (size_t i = 0; i < maxMN; ++i)
     {
-        multiexpdata[i * 2] = {BulletproofsRangeproof::Gi[i], z4[i]};
-        multiexpdata[i * 2 + 1] = {BulletproofsRangeproof::Hi[i], z5[i]};
+        multiexpdata[i * 2] = {gens.Gi[i], z4[i]};
+        multiexpdata[i * 2 + 1] = {gens.Hi[i], z5[i]};
     }
 
     bls::G1Element mexp = MultiExp(multiexpdata);

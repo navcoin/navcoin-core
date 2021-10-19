@@ -144,8 +144,9 @@ bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
 
     for (unsigned int i = 0; i < tx.vout.size(); i++)
     {
+        Generators gens = BulletproofsRangeproof::GetGenerators();
         Scalar s = minAmount;
-        bls::G1Element l = (BulletproofsRangeproof::H*s.bn).Inverse();
+        bls::G1Element l = (gens.H*s.bn).Inverse();
         bls::G1Element r = tx.vout[i].GetBulletproof().V[0];
         l = l + r;
         if (!(l == minAmountProofs.V[i]))

@@ -33,6 +33,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     std::vector<bls::G1Element> txSigningKeys;
     std::vector<std::vector<uint8_t>> vMessages;
 
+    Generators gens = BulletproofsRangeproof::GetGenerators();
+
     CAmount valIn = 0;
     CAmount valOut = 0;
 
@@ -44,7 +46,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             sMixFee = sMixFee.Negate();
 
         Scalar s = Scalar(sMixFee).bn;
-        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        bls::G1Element t = gens.H*s.bn;
         balKey = fElementZero ? t : balKey + t;
         valIn += nMixFee;
         fElementZero = false;
@@ -66,7 +68,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 else
                 {
                     Scalar s = Scalar(prevOut.nValue).bn;
-                    bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+                    bls::G1Element t = gens.H*s.bn;
                     balKey = fElementZero ? t : balKey + t;
                     valIn += prevOut.nValue;
                     fElementZero = false;
@@ -136,12 +138,12 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             if (fElementZeroOut)
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
-                balKeyOut = BulletproofsRangeproof::H*s.bn;
+                balKeyOut = gens.H*s.bn;
             }
             else
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
-                bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+                bls::G1Element t = gens.H*s.bn;
                 balKeyOut = balKeyOut + t;
             }
             valOut += tx.vout[j].nValue;
@@ -222,6 +224,8 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
 
+    Generators gens = BulletproofsRangeproof::GetGenerators();
+
     bls::G1Element balKey;
     bool fElementZero = true;
 
@@ -239,7 +243,7 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
             sMixFee = sMixFee.Negate();
 
         Scalar s = Scalar(sMixFee).bn;
-        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        bls::G1Element t = gens.H*s.bn;
         balKey = fElementZero ? t : balKey + t;
         valIn += nMixFee;
         fElementZero = false;

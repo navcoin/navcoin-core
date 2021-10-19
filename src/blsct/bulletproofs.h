@@ -48,6 +48,13 @@ public:
     MultiexpData(bls::G1Element base_, Scalar exp_) : base(base_), exp(exp_){}
 };
 
+struct Generators {
+    bls::G1Element G;
+    bls::G1Element H;
+    std::vector<bls::G1Element> Gi;
+    std::vector<bls::G1Element> Hi;
+};
+
 class BulletproofsRangeproof
 {
 public:
@@ -82,7 +89,9 @@ public:
 
     static bool Init();
 
-    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
+    static Generators GetGenerators(const uint256& tokenId=uint256());
+
+    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>(), const uint256& tokenId=uint256());
 
     bool operator==(const BulletproofsRangeproof& rh) const {
         return (V == rh.V &&
@@ -165,13 +174,13 @@ public:
 
     static const size_t logN = 6;
 
-    static bls::G1Element G;
-    static bls::G1Element H;
+    static std::map<uint256, bls::G1Element> G;
+    static std::map<uint256, bls::G1Element> H;
 
     static Scalar one;
     static Scalar two;
 
-    static std::vector<bls::G1Element> Hi, Gi;
+    static std::map<uint256, std::vector<bls::G1Element>> Hi, Gi;
     static std::vector<Scalar> oneN;
     static std::vector<Scalar> twoN;
     static Scalar ip12;
@@ -201,6 +210,6 @@ struct RangeproofEncodedData
     bool valid = false;
 };
 
-bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover = false);
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover = false, const uint256& tokenId=uint256());
 
 #endif // NAVCOIN_BLSCT_BULLETPROOFS_H
