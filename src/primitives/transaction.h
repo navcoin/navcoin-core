@@ -163,8 +163,11 @@ public:
     std::vector<uint8_t> ephemeralKey;
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
+    std::vector<uint8_t> vData;
+    uint256 tokenId;
     BulletproofsRangeproof cacheBp;
     uint256 cacheHash;
+    bool newSer;
 
     CTxOut()
     {
@@ -181,8 +184,9 @@ public:
         if (ser_action.ForRead())
         {
             bool fXNav = false;
-            READWRITE(nValue);
-            if (nValue == ~(uint64_t)0)
+            uint64_t nFlags;
+            READWRITE(nFlags);
+            if (nFlags == ~(uint64_t)0)
             {
                 READWRITE(nValue);
                 READWRITE(ephemeralKey);
@@ -195,6 +199,35 @@ public:
                     cacheBp = bp_;
                 fXNav = true;
             }
+            else if (nFlags & (uint64_t)0x2<<62)
+            {
+                if (nFlags & 0x1<<0)
+                    READWRITE(nValue);
+                if (nFlags & 0x1<<1)
+                    READWRITE(ephemeralKey);
+                if (nFlags & 0x1<<2)
+                    READWRITE(outputKey);
+                if (nFlags & 0x1<<3)
+                    READWRITE(spendingKey);
+                if (nFlags & 0x1<<4)
+                {
+                    BulletproofsRangeproof bp_;
+                    READWRITE(bp_);
+                    bp = bp_.GetVch();
+                    if (bp.size() > 0)
+                        cacheBp = bp_;
+                    if (nFlags & 0x1<<5)
+                        READWRITE(tokenId);
+                }
+                if (nFlags & 0x1<<6)
+                    READWRITE(vData);
+
+                fXNav = true;
+            }
+            else
+            {
+                nValue = nFlags;
+            }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
 
             if (fXNav)
@@ -202,7 +235,45 @@ public:
         }
         else
         {
-            if (IsBLSCT())
+            if (vData.size() > 0 || tokenId != uint256() || newSer)
+            {
+                CAmount nMarker = (uint64_t)0x2 << 62;
+
+                if (nValue > 0)
+                    nMarker  |= 0x1<<0;
+                if (ephemeralKey.size() > 0)
+                    nMarker  |= 0x1<<1;
+                if (outputKey.size() > 0)
+                    nMarker  |= 0x1<<2;
+                if (spendingKey.size() > 0)
+                    nMarker  |= 0x1<<3;
+                if (cacheBp.V.size() > 0) {
+                    nMarker  |= 0x1<<4;
+                    if (tokenId != uint256())
+                        nMarker  |= 0x1<<5;
+                }
+                if (vData.size() > 0)
+                    nMarker  |= 0x1<<6;
+
+                READWRITE(nMarker);
+
+                if (nMarker & 0x1<<0)
+                    READWRITE(nValue);
+                if (nMarker & 0x1<<1)
+                    READWRITE(ephemeralKey);
+                if (nMarker & 0x1<<2)
+                    READWRITE(outputKey);
+                if (nMarker & 0x1<<3)
+                    READWRITE(spendingKey);
+                if (nMarker & 0x1<<4) {
+                    READWRITE(cacheBp);
+                    if (nMarker & 0x1<<5)
+                        READWRITE(tokenId);
+                }
+                if (nMarker & 0x1<<6)
+                    READWRITE(vData);
+            }
+            else if (IsBLSCT())
             {
                 CAmount nMarker = ~(uint64_t)0;
                 READWRITE(nMarker);
@@ -223,10 +294,13 @@ public:
     void SetNull()
     {
         nValue = -1;
+        newSer = false;
         scriptPubKey.clear();
         ephemeralKey.clear();
         outputKey.clear();
         spendingKey.clear();
+        vData.clear();
+        tokenId = uint256();
     }
 
     BulletproofsRangeproof GetBulletproof() const
@@ -481,7 +555,7 @@ inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, in
     }
     READWRITE(*const_cast<uint32_t*>(&tx.nLockTime));
     if(tx.nVersion >= 2) {
-      READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
+        READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
     if (tx.nVersion & TX_BLS_CT_FLAG || tx.nVersion & TX_BLS_INPUT_FLAG)
         READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchBalanceSig));
     if (tx.nVersion & TX_BLS_INPUT_FLAG)
