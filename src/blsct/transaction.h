@@ -84,10 +84,21 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        if (sessionId.size() > 0)
+        if (ser_action.ForRead()) {
+            READWRITE(vPublicKey);
             READWRITE(sessionId);
-        READWRITE(vPublicKey);
-        READWRITE(vData);
+            if (sessionId.size() > 48) {
+                vData = sessionId;
+                sessionId.clear();
+            } else {
+                READWRITE(vData);
+            }
+        } else {
+            READWRITE(vPublicKey);
+            if (sessionId.size() > 0)
+                READWRITE(sessionId);
+            READWRITE(vData);
+        }
     }
 
     uint256 GetHash() {
