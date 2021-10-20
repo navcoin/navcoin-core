@@ -21,14 +21,14 @@ static Scalar InnerProduct(const std::vector<Scalar> &a, const std::vector<Scala
 Scalar BulletproofsRangeproof::one;
 Scalar BulletproofsRangeproof::two;
 
-std::map<uint256, std::vector<bls::G1Element>> BulletproofsRangeproof::Hi, BulletproofsRangeproof::Gi;
+std::vector<bls::G1Element> BulletproofsRangeproof::Hi, BulletproofsRangeproof::Gi;
 std::vector<Scalar> BulletproofsRangeproof::oneN;
 std::vector<Scalar> BulletproofsRangeproof::twoN;
 Scalar BulletproofsRangeproof::ip12;
 
 boost::mutex BulletproofsRangeproof::init_mutex;
 
-std::map<uint256, bls::G1Element> BulletproofsRangeproof::G;
+bls::G1Element BulletproofsRangeproof::G;
 std::map<uint256, bls::G1Element> BulletproofsRangeproof::H;
 
 // Calculate base point
@@ -70,16 +70,16 @@ bool BulletproofsRangeproof::Init()
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
 
-    BulletproofsRangeproof::G[uint256()] = bls::G1Element::Generator();
-    BulletproofsRangeproof::H[uint256()] = GetBaseG1Element(BulletproofsRangeproof::G[uint256()], 0);
+    BulletproofsRangeproof::G = bls::G1Element::Generator();
+    BulletproofsRangeproof::H[uint256()] = GetBaseG1Element(BulletproofsRangeproof::G, 0);
 
-    BulletproofsRangeproof::Hi[uint256()].resize(maxMN);
-    BulletproofsRangeproof::Gi[uint256()].resize(maxMN);
+    BulletproofsRangeproof::Hi.resize(maxMN);
+    BulletproofsRangeproof::Gi.resize(maxMN);
 
     for (size_t i = 0; i < maxMN; ++i)
     {
-        BulletproofsRangeproof::Hi[uint256()][i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 1);
-        BulletproofsRangeproof::Gi[uint256()][i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 2);
+        BulletproofsRangeproof::Hi[i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 1);
+        BulletproofsRangeproof::Gi[i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 2);
     }
 
     BulletproofsRangeproof::oneN = VectorDup(BulletproofsRangeproof::one, maxN);
@@ -93,28 +93,19 @@ bool BulletproofsRangeproof::Init()
 
 Generators BulletproofsRangeproof::GetGenerators(const uint256& tokenId)
 {
-    if (BulletproofsRangeproof::H.count(tokenId) && BulletproofsRangeproof::Gi.count(tokenId) && BulletproofsRangeproof::Hi.count(tokenId))
+    if (BulletproofsRangeproof::H.count(tokenId))
     {
-        return {BulletproofsRangeproof::G[uint256()], BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi[tokenId], BulletproofsRangeproof::Hi[tokenId]};
+        return {BulletproofsRangeproof::G, BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi, BulletproofsRangeproof::Hi};
     }
 
-    BulletproofsRangeproof::H[tokenId] = GetBaseG1Element(BulletproofsRangeproof::G[uint256()], 1, tokenId.ToString());
+    BulletproofsRangeproof::H[tokenId] = GetBaseG1Element(BulletproofsRangeproof::G, 0, tokenId.ToString());
 
-    BulletproofsRangeproof::Hi[uint256()].resize(maxMN);
-    BulletproofsRangeproof::Gi[uint256()].resize(maxMN);
-
-    for (size_t i = 0; i < maxMN; ++i)
-    {
-        BulletproofsRangeproof::Hi[tokenId][i] = GetBaseG1Element(BulletproofsRangeproof::H[tokenId], i * 2 + 2, tokenId.ToString());
-        BulletproofsRangeproof::Gi[tokenId][i] = GetBaseG1Element(BulletproofsRangeproof::H[tokenId], i * 2 + 3, tokenId.ToString());
-    }
-
-    return {BulletproofsRangeproof::G[uint256()], BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi[tokenId], BulletproofsRangeproof::Hi[tokenId]};
+    return {BulletproofsRangeproof::G, BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi, BulletproofsRangeproof::Hi};
 }
 
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
-{
+{    
     G1 x[multiexp_data.size()], z;
     Fr y[multiexp_data.size()];
 
@@ -1066,7 +1057,6 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
     tmp = y0 - z1;
 
     multiexpdata.push_back({gens.G, tmp});
-
 
     tmp = z3 - y1;
 

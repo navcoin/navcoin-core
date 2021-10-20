@@ -174,13 +174,13 @@ public:
 
     static const size_t logN = 6;
 
-    static std::map<uint256, bls::G1Element> G;
+    static bls::G1Element G;
     static std::map<uint256, bls::G1Element> H;
 
     static Scalar one;
     static Scalar two;
 
-    static std::map<uint256, std::vector<bls::G1Element>> Hi, Gi;
+    static std::vector<bls::G1Element> Hi, Gi;
     static std::vector<Scalar> oneN;
     static std::vector<Scalar> twoN;
     static Scalar ip12;
