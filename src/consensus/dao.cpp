@@ -3448,7 +3448,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     if (pblockindex) blockhash = pblockindex->GetBlockHash();
 
     ret.pushKV("version", (uint64_t)nVersion);
-    ret.pushKV("super_proposal", (uint64_t)nVersion&CProposal::SUPER_VERSION);
+    ret.pushKV("super_proposal", ((uint64_t)nVersion&CProposal::SUPER_VERSION)?true:false);
     ret.pushKV("hash", hash.ToString());
     ret.pushKV("blockHash", txblockhash.ToString());
     ret.pushKV("description", strDZeel);
