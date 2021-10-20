@@ -137,7 +137,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         // Description
         string sDesc = ui->plainTextEditDescription->text().toStdString();
 
-        bool fSuper = ui->superProposalCheckbox.isChecked();
+        bool fSuper = ui->superProposalCheckbox->isChecked();
 
         UniValue strDZeel(UniValue::VOBJ);
         uint64_t nVersion = CProposal::BASE_VERSION;
