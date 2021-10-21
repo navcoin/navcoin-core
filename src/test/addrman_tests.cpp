@@ -9,8 +9,6 @@
 #include <hash.h>
 #include <random.h>
 
-using namespace std;
-
 class CAddrManTest : public CAddrMan
 {
     uint64_t state;
@@ -198,7 +196,7 @@ BOOST_AUTO_TEST_CASE(addrman_new_collisions)
     BOOST_CHECK(addrman.size() == 0);
 
     for (unsigned int i = 1; i < 18; i++) {
-        CService addr = CService("250.1.1." + boost::to_string(i));
+        CService addr = CService("250.1.1." + std::to_string(i));
         addrman.Add(CAddress(addr, NODE_NONE), source);
 
         //Test 13: No collision in new table yet.
@@ -227,7 +225,7 @@ BOOST_AUTO_TEST_CASE(addrman_tried_collisions)
     BOOST_CHECK(addrman.size() == 0);
 
     for (unsigned int i = 1; i < 80; i++) {
-        CService addr = CService("250.1.1." + boost::to_string(i));
+        CService addr = CService("250.1.1." + std::to_string(i));
         addrman.Add(CAddress(addr, NODE_NONE), source);
         addrman.Good(CAddress(addr, NODE_NONE));
 
@@ -365,7 +363,7 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
     addrman.Add(addr5, source1);
 
     // GetAddr returns 23% of addresses, 23% of 5 is 1 rounded down.
-    BOOST_CHECK(addrman.GetAddr().size() == 1); 
+    BOOST_CHECK(addrman.GetAddr().size() == 1);
 
     // Test 24: Ensure GetAddr works with new and tried addresses.
     addrman.Good(CAddress(addr1, NODE_NONE));
@@ -377,9 +375,9 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
         int octet1 = i % 256;
         int octet2 = (i / 256) % 256;
         int octet3 = (i / (256 * 2)) % 256;
-        string strAddr = boost::to_string(octet1) + "." + boost::to_string(octet2) + "." + boost::to_string(octet3) + ".23";
+        std::string strAddr = std::to_string(octet1) + "." + std::to_string(octet2) + "." + std::to_string(octet3) + ".23";
         CAddress addr = CAddress(CService(strAddr), NODE_NONE);
-        
+
         // Ensure that for all addrs in addrman, isTerrible == false.
         addr.nTime = GetAdjustedTime();
         addrman.Add(addr, CNetAddr(strAddr));
@@ -427,11 +425,11 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     BOOST_CHECK(info1.GetKey() != info2.GetKey());
     BOOST_CHECK(info1.GetTriedBucket(nKey1) != info2.GetTriedBucket(nKey1));
 
-    set<int> buckets;
+    std::set<int> buckets;
     for (int i = 0; i < 255; i++) {
         CAddrInfo infoi = CAddrInfo(
-            CAddress(CService("250.1.1." + boost::to_string(i)), NODE_NONE),
-            CNetAddr("250.1.1." + boost::to_string(i)));
+            CAddress(CService("250.1.1." + std::to_string(i)), NODE_NONE),
+            CNetAddr("250.1.1." + std::to_string(i)));
         int bucket = infoi.GetTriedBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -442,8 +440,8 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     buckets.clear();
     for (int j = 0; j < 255; j++) {
         CAddrInfo infoj = CAddrInfo(
-            CAddress(CService("250." + boost::to_string(j) + ".1.1"), NODE_NONE),
-            CNetAddr("250." + boost::to_string(j) + ".1.1"));
+            CAddress(CService("250." + std::to_string(j) + ".1.1"), NODE_NONE),
+            CNetAddr("250." + std::to_string(j) + ".1.1"));
         int bucket = infoj.GetTriedBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -480,11 +478,11 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     BOOST_CHECK(info1.GetKey() != info2.GetKey());
     BOOST_CHECK(info1.GetNewBucket(nKey1) == info2.GetNewBucket(nKey1));
 
-    set<int> buckets;
+    std::set<int> buckets;
     for (int i = 0; i < 255; i++) {
         CAddrInfo infoi = CAddrInfo(
-            CAddress(CService("250.1.1." + boost::to_string(i)), NODE_NONE),
-            CNetAddr("250.1.1." + boost::to_string(i)));
+            CAddress(CService("250.1.1." + std::to_string(i)), NODE_NONE),
+            CNetAddr("250.1.1." + std::to_string(i)));
         int bucket = infoi.GetNewBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -496,7 +494,7 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     for (int j = 0; j < 4 * 255; j++) {
         CAddrInfo infoj = CAddrInfo(CAddress(
                                         CService(
-                                            boost::to_string(250 + (j / 255)) + "." + boost::to_string(j % 256) + ".1.1"), NODE_NONE),
+                                            std::to_string(250 + (j / 255)) + "." + std::to_string(j % 256) + ".1.1"), NODE_NONE),
             CNetAddr("251.4.1.1"));
         int bucket = infoj.GetNewBucket(nKey1);
         buckets.insert(bucket);
@@ -509,7 +507,7 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     for (int p = 0; p < 255; p++) {
         CAddrInfo infoj = CAddrInfo(
             CAddress(CService("250.1.1.1"), NODE_NONE),
-            CNetAddr("250." + boost::to_string(p) + ".1.1"));
+            CNetAddr("250." + std::to_string(p) + ".1.1"));
         int bucket = infoj.GetNewBucket(nKey1);
         buckets.insert(bucket);
     }
