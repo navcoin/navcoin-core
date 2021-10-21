@@ -37,7 +37,7 @@
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex)
 {
     txnouttype type;
-    vector<CTxDestination> addresses;
+    std::vector<CTxDestination> addresses;
     int nRequired;
 
     out.pushKV("asm", ScriptToAsmStr(scriptPubKey));
@@ -59,7 +59,7 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
             || type == TX_DAOSUPPORT || type == TX_DAOSUPPORTREMOVE || type == TX_CONSULTATIONVOTE
             || type == TX_CONSULTATIONVOTEABSTENTION || type == TX_CONSULTATIONVOTEREMOVE)
     {
-        vector<std::vector<unsigned char>> vSolutions;
+        std::vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
 
         if (Solver(scriptPubKey, whichType, vSolutions))
@@ -658,8 +658,8 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
     UniValue res(UniValue::VARR);
 
-    vector<uint256> vMatch;
-    vector<unsigned int> vIndex;
+    std::vector<uint256> vMatch;
+    std::vector<unsigned int> vIndex;
     if (merkleBlock.txn.ExtractMatches(vMatch, vIndex) != merkleBlock.header.hashMerkleRoot)
         return res;
 
@@ -775,7 +775,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     }
 
     set<CNavcoinAddress> setAddress;
-    vector<string> addrList = sendTo.getKeys();
+    std::vector<string> addrList = sendTo.getKeys();
     for(const string& name_: addrList) {
         CNavcoinAddress address(name_);
         if (address.IsValid()) {
@@ -906,7 +906,7 @@ UniValue decodescript(const UniValue& params, bool fHelp)
     UniValue r(UniValue::VOBJ);
     CScript script;
     if (params[0].get_str().size() > 0){
-        vector<unsigned char> scriptData(ParseHexV(params[0], "argument"));
+        std::vector<unsigned char> scriptData(ParseHexV(params[0], "argument"));
         script = CScript(scriptData.begin(), scriptData.end());
     } else {
         // Empty scripts are valid
@@ -997,9 +997,9 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 #endif
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VARR)(UniValue::VARR)(UniValue::VSTR), true);
 
-    vector<unsigned char> txData(ParseHexV(params[0], "argument 1"));
+    std::vector<unsigned char> txData(ParseHexV(params[0], "argument 1"));
     CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
-    vector<CMutableTransaction> txVariants;
+    std::vector<CMutableTransaction> txVariants;
     while (!ssData.empty()) {
         try {
             CMutableTransaction tx;
@@ -1081,7 +1081,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
             if (nOut < 0)
                 throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "vout must be positive");
 
-            vector<unsigned char> pkData(ParseHexO(prevOut, "scriptPubKey"));
+            std::vector<unsigned char> pkData(ParseHexO(prevOut, "scriptPubKey"));
             CScript scriptPubKey(pkData.begin(), pkData.end());
 
             {
@@ -1113,7 +1113,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
                     });
                 UniValue v = find_value(prevOut, "redeemScript");
                 if (!v.isNull()) {
-                    vector<unsigned char> rsData(ParseHexV(v, "redeemScript"));
+                    std::vector<unsigned char> rsData(ParseHexV(v, "redeemScript"));
                     CScript redeemScript(rsData.begin(), rsData.end());
                     tempKeystore.AddCScript(redeemScript);
                 }
