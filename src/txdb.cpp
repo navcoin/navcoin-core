@@ -803,11 +803,11 @@ bool CBlockTreeDB::ReadFlag(const std::string &name, bool &fValue) {
     return true;
 }
 
-bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex,
-                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
-                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
-                                      boost::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
-                                      boost::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes)
+bool CBlockTreeDB::LoadBlockIndexGuts(std::function<CBlockIndex*(const uint256&)> insertBlockIndex,
+                                      std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
+                                      std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
+                                      std::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
+                                      std::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
