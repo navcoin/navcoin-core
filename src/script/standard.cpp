@@ -12,7 +12,7 @@
 #include <util.h>
 #include <utilstrencodings.h>
 
-typedef vector<unsigned char> valtype;
+typedef std::vector<unsigned char> valtype;
 
 bool fAcceptDatacarrier = DEFAULT_ACCEPT_DATACARRIER;
 unsigned nMaxDatacarrierBytes = MAX_OP_RETURN_RELAY;
@@ -55,20 +55,20 @@ const char* GetTxnOutputType(txnouttype t)
 /**
  * Return public keys or hashes from scriptPubKey, for 'standard' transaction types.
  */
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet)
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet)
 {
     // Templates
-    static multimap<txnouttype, CScript> mTemplates;
+    static std::multimap<txnouttype, CScript> mTemplates;
     if (mTemplates.empty())
     {
         // Standard tx, sender provides pubkey, receiver adds signature
-        mTemplates.insert(make_pair(TX_PUBKEY, CScript() << OP_PUBKEY << OP_CHECKSIG));
+        mTemplates.insert(std::make_pair(TX_PUBKEY, CScript() << OP_PUBKEY << OP_CHECKSIG));
 
         // Navcoin address tx, sender provides hash of pubkey, receiver provides signature and pubkey
-        mTemplates.insert(make_pair(TX_PUBKEYHASH, CScript() << OP_DUP << OP_HASH160 << OP_PUBKEYHASH << OP_EQUALVERIFY << OP_CHECKSIG));
+        mTemplates.insert(std::make_pair(TX_PUBKEYHASH, CScript() << OP_DUP << OP_HASH160 << OP_PUBKEYHASH << OP_EQUALVERIFY << OP_CHECKSIG));
 
         // Sender provides N pubkeys, receivers provides M signatures
-        mTemplates.insert(make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
+        mTemplates.insert(std::make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
     }
 
     vSolutionsRet.clear();
@@ -78,7 +78,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if (scriptPubKey.IsPayToScriptHash())
     {
         typeRet = TX_SCRIPTHASH;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
+        std::vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -87,9 +87,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if (scriptPubKey.IsColdStaking() && scriptPubKey.size() >= 1+1+25+1+25+1)
     {
         typeRet = TX_COLDSTAKING;
-        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
+        std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
         vSolutionsRet.push_back(stakingPubKey);
-        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
+        std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
         vSolutionsRet.push_back(spendingPubKey);
         return true;
     }
@@ -97,11 +97,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if (scriptPubKey.IsColdStakingv2() && scriptPubKey.size() == 1+1+25+1+25+1+22)
     {
         typeRet = TX_COLDSTAKING_V2;
-        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
+        std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
         vSolutionsRet.push_back(stakingPubKey);
-        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
+        std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
         vSolutionsRet.push_back(spendingPubKey);
-        vector<unsigned char> votingPubKey(scriptPubKey.begin()+1, scriptPubKey.begin()+21);
+        std::vector<unsigned char> votingPubKey(scriptPubKey.begin()+1, scriptPubKey.begin()+21);
         vSolutionsRet.push_back(votingPubKey);
         return true;
     }
@@ -130,7 +130,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             typeRet = TX_PAYMENTREQUESTABSVOTE;
         else if (scriptPubKey.IsPaymentRequestVoteRemove())
             typeRet = TX_PAYMENTREQUESTREMOVEVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
+        std::vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -141,7 +141,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             typeRet = TX_DAOSUPPORT;
         else if(scriptPubKey.IsSupportVoteRemove())
             typeRet = TX_DAOSUPPORTREMOVE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        std::vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -154,11 +154,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             typeRet = TX_CONSULTATIONVOTEABSTENTION;
         else if(scriptPubKey.IsConsultationVoteRemove())
             typeRet = TX_CONSULTATIONVOTEREMOVE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        std::vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
         vSolutionsRet.push_back(hashBytes);
         if (scriptPubKey.size() > 36)
         {
-            vector<unsigned char> vVote(scriptPubKey.begin()+37, scriptPubKey.end());
+            std::vector<unsigned char> vVote(scriptPubKey.begin()+37, scriptPubKey.end());
             vSolutionsRet.push_back(vVote);
         }
         return true;
@@ -204,7 +204,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         vSolutionsRet.clear();
 
         opcodetype opcode1, opcode2;
-        vector<unsigned char> vch1, vch2;
+        std::vector<unsigned char> vch1, vch2;
 
         // Compare
         CScript::const_iterator pc1 = script1.begin();
@@ -283,7 +283,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
 bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
 {
-    vector<valtype> vSolutions;
+    std::vector<valtype> vSolutions;
     txnouttype whichType;
 
     if (!Solver(scriptPubKey, whichType, vSolutions))
@@ -310,23 +310,23 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     }
     else if (whichType == TX_COLDSTAKING)
     {
-        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
+        addressRet = std::make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
         return true;
     }
     else if (whichType == TX_COLDSTAKING_V2)
     {
-        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), make_pair(CKeyID(uint160(vSolutions[1])), CKeyID(uint160(vSolutions[2]))));
+        addressRet = std::make_pair(CKeyID(uint160(vSolutions[0])), std::make_pair(CKeyID(uint160(vSolutions[1])), CKeyID(uint160(vSolutions[2]))));
         return true;
     }
     // Multisig txns have more than one address...
     return false;
 }
 
-bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vector<CTxDestination>& addressRet, int& nRequiredRet)
+bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet)
 {
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
-    vector<valtype> vSolutions;
+    std::vector<valtype> vSolutions;
 
     if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
@@ -405,13 +405,13 @@ public:
         return true;
     }
 
-    bool operator()(const pair<CKeyID, CKeyID>&keyPairID) const {
+    bool operator()(const std::pair<CKeyID, CKeyID>&keyPairID) const {
         script->clear();
         *script << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
         return true;
     }
 
-    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>>&keyPairID) const {
+    bool operator()(const std::pair<CKeyID, std::pair<CKeyID, CKeyID>>&keyPairID) const {
         script->clear();
         *script << ToByteVector(keyPairID.second.second) << OP_DROP << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
         return true;
