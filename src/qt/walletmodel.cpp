@@ -30,7 +30,7 @@ struct StakeRange {
     int64_t End;
     int64_t Total;
     int Count;
-    string Name;
+    std::string Name;
 };
 
 typedef vector<StakeRange> vStakeRange;
@@ -433,7 +433,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         std::string strFailReason;
         bool fCreated;
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
-        std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
+        std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
 
         CWalletTx *newTx = transaction.getTransaction();
 
@@ -493,7 +493,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           int nChangePosRet = -1;
           std::string strFailReason;
           CReserveKey *keyChange = transaction.getPossibleKeyChange();
-          std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
+          std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTBlindingKey();
 
           CWalletTx *wTx;
           wTx = new CWalletTx();
