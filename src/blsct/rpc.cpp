@@ -30,10 +30,10 @@ UniValue startaggregationsession(const UniValue& params, bool fHelp)
                 );
 
     if (!pwalletMain->aggSession)
-        throw JSONRPCError(RPC_INTERNAL_ERROR, string("Error internal structures"));
+        throw JSONRPCError(RPC_INTERNAL_ERROR, std::string("Error internal structures"));
 
     if (!pwalletMain->aggSession->Start())
-        throw JSONRPCError(RPC_INTERNAL_ERROR, string("Could not start mix session"));
+        throw JSONRPCError(RPC_INTERNAL_ERROR, std::string("Could not start mix session"));
 
     return true;
 }
@@ -49,10 +49,10 @@ UniValue stopaggregationsession(const UniValue& params, bool fHelp)
     {
         LOCK(pwalletMain->cs_wallet);
         if (!pwalletMain->aggSession)
-            throw JSONRPCError(RPC_INTERNAL_ERROR, string("Error internal structures"));
+            throw JSONRPCError(RPC_INTERNAL_ERROR, std::string("Error internal structures"));
 
         if (!pwalletMain->aggSession->GetState())
-            throw JSONRPCError(RPC_INTERNAL_ERROR, string("Could not find a started mix session"));
+            throw JSONRPCError(RPC_INTERNAL_ERROR, std::string("Could not find a started mix session"));
 
         pwalletMain->aggSession->Stop();
 
@@ -166,7 +166,7 @@ UniValue dumpviewprivkey(const UniValue& params, bool fHelp)
         return NullUniValue;
 
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "dumpviewprivkey\n"
                 "\nReveals the current blsct view key.\n"
                 "\nResult:\n"
@@ -205,7 +205,7 @@ struct blsctOutputInfo
 UniValue scanviewkey(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "scanviewkey \"view key\" ( \"from time\")\n"
                 "\nScans the blockchain using the specified BLSCT view key.\n"
                 "\nArguments:\n"
@@ -229,7 +229,7 @@ UniValue scanviewkey(const UniValue& params, bool fHelp)
     blsctKey vk = key.GetKey();
 
     if (!vk.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid view key: ")+params[0].get_str());
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid view key: ")+params[0].get_str());
 
     UniValue ret(UniValue::VOBJ);
 
