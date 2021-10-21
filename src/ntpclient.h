@@ -15,9 +15,9 @@
 
 class CNtpClient
 {
-    string sHostName;
+    std::string sHostName;
   public:
-    CNtpClient(string server) : sHostName(server) { }
+    CNtpClient(std::string server) : sHostName(server) { }
     bool getTimestamp(uint64_t&);
 };
 
