@@ -75,7 +75,7 @@ UniValue GetNetworkHashPS(int lookup, int height) {
 UniValue getnetworkhashps(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
             "getnetworkhashps ( blocks height )\n"
             "\nReturns the estimated network hashes per second based on the last n blocks.\n"
             "Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.\n"
@@ -161,7 +161,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
 UniValue generate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
             "generate numblocks ( maxtries )\n"
             "\nMine up to numblocks blocks immediately (before the RPC call returns)\n"
             "\nArguments:\n"
@@ -200,7 +200,7 @@ UniValue generate(const UniValue& params, bool fHelp)
 UniValue generatetoaddress(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 3)
-        throw runtime_error(
+        throw std::runtime_error(
             "generatetoaddress numblocks address (maxtries)\n"
             "\nMine blocks immediately to a specified address (before the RPC call returns)\n"
             "\nArguments:\n"
@@ -236,7 +236,7 @@ UniValue generatetoaddress(const UniValue& params, bool fHelp)
 UniValue getmininginfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
             "getmininginfo\n"
             "\nReturns a json object containing mining-related information."
             "\nResult:\n"
@@ -281,7 +281,7 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
 UniValue prioritisetransaction(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
-        throw runtime_error(
+        throw std::runtime_error(
             "prioritisetransaction <txid> <priority delta> <fee delta>\n"
             "Accepts the transaction into mined blocks at a higher (or lower) priority\n"
             "\nArguments:\n"
@@ -341,7 +341,7 @@ std::string gbt_vb_name(const Consensus::DeploymentPos pos) {
 UniValue getblocktemplate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "getblocktemplate ( \"jsonrequestobject\" )\n"
             "\nIf the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.\n"
             "It returns data needed to construct a block to work on.\n"
@@ -579,7 +579,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
 
     UniValue transactions(UniValue::VARR);
-    map<uint256, int64_t> setTxIndex;
+    std::map<uint256, int64_t> setTxIndex;
     int i = 0;
     for(CTransaction& tx: pblock->vtx) {
         uint256 txHash = tx.GetHash();
@@ -731,7 +731,7 @@ protected:
 UniValue submitblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
             "submitblock \"hexdata\" ( \"jsonparametersobject\" )\n"
             "\nAttempts to submit new block to network.\n"
             "The 'jsonparametersobject' parameter is currently ignored.\n"
@@ -803,7 +803,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
 UniValue estimatefee(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "estimatefee nblocks\n"
             "\nEstimates the approximate fee per kilobyte needed for a transaction to begin\n"
             "confirmation within nblocks blocks.\n"
@@ -834,7 +834,7 @@ UniValue estimatefee(const UniValue& params, bool fHelp)
 UniValue estimatepriority(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "estimatepriority nblocks\n"
             "\nEstimates the approximate priority a zero-fee transaction needs to begin\n"
             "confirmation within nblocks blocks.\n"
@@ -861,7 +861,7 @@ UniValue estimatepriority(const UniValue& params, bool fHelp)
 UniValue estimatesmartfee(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "estimatesmartfee nblocks\n"
             "\nWARNING: This interface is unstable and may disappear or change!\n"
             "\nEstimates the approximate fee per kilobyte needed for a transaction to begin\n"
@@ -897,7 +897,7 @@ UniValue estimatesmartfee(const UniValue& params, bool fHelp)
 UniValue setcoinbasestrdzeel(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "setcoinbasestrdzeel string\n"
             "Sets the value of strDZeel for the coinbase of the next generated block\n"
             "Empty string deactivates the feature\n"
@@ -913,7 +913,7 @@ UniValue setcoinbasestrdzeel(const UniValue& params, bool fHelp)
 UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "setcoinstakestrdzeel string\n"
             "Sets the value of strDZeel for the coinstake of the next generated block\n"
             "Empty string deactivates the feature\n"
@@ -929,7 +929,7 @@ UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
 UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "coinbaseoutputs [array_of_strings]\n"
             "Adds the hex-encoded outputs to the coinbase of the next generated block\n"
             );
@@ -956,7 +956,7 @@ UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
 UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "coinstakeoutputs [array_of_strings]\n"
             "Adds the hex-encoded outputs to the coinstake of the next generated block\n"
             );
@@ -983,7 +983,7 @@ UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
 UniValue coinstakeinputs(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "coinstakeinputs [array_of_strings]\n"
             "Adds the hex-encoded inputs to the coinstake of the next generated block\n"
             );
@@ -1010,7 +1010,7 @@ UniValue coinstakeinputs(const UniValue& params, bool fHelp)
 UniValue forcetransactions(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "forcetransactions [array_of_strings]\n"
             "Adds the hex-encoded transactions to the next generated block\n"
             );
@@ -1037,7 +1037,7 @@ UniValue forcetransactions(const UniValue& params, bool fHelp)
 UniValue staking(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "staking bool\n"
             "Turns staking on or off\n"
             );
@@ -1057,7 +1057,7 @@ UniValue staking(const UniValue& params, bool fHelp)
 UniValue estimatesmartpriority(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
             "estimatesmartpriority nblocks\n"
             "\nWARNING: This interface is unstable and may disappear or change!\n"
             "\nEstimates the approximate priority a zero-fee transaction needs to begin\n"
