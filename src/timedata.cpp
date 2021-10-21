@@ -14,8 +14,6 @@
 #include <util.h>
 #include <utilstrencodings.h>
 
-using namespace std;
-
 static CCriticalSection cs_nTimeOffset;
 static int64_t nTimeOffset = 0;
 

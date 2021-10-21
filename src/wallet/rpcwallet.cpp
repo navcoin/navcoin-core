@@ -30,8 +30,6 @@
 #include <boost/lexical_cast.hpp>
 #include <univalue.h>
 
-using namespace std;
-
 int64_t nWalletUnlockTime;
 int64_t nWalletFirstStakeTime = -1;
 static CCriticalSection cs_nWalletUnlockTime;

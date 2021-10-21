@@ -21,8 +21,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 UniValue getconnectioncount(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)

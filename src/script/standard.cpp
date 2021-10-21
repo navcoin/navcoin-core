@@ -12,8 +12,6 @@
 #include <util.h>
 #include <utilstrencodings.h>
 
-using namespace std;
-
 typedef vector<unsigned char> valtype;
 
 bool fAcceptDatacarrier = DEFAULT_ACCEPT_DATACARRIER;

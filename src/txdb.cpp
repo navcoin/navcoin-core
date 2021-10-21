@@ -15,8 +15,6 @@
 
 #include <boost/thread.hpp>
 
-using namespace std;
-
 static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';

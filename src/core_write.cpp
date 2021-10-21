@@ -17,8 +17,6 @@
 
 #include <boost/assign/list_of.hpp>
 
-using namespace std;
-
 string FormatScript(const CScript& script)
 {
     string ret;

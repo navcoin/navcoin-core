@@ -13,8 +13,6 @@
 #include <script/script.h>
 #include <uint256.h>
 
-using namespace std;
-
 typedef vector<unsigned char> valtype;
 
 namespace {

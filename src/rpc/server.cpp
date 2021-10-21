@@ -25,7 +25,6 @@
 #include <boost/algorithm/string/case_conv.hpp> // for to_upper()
 
 using namespace RPCServer;
-using namespace std;
 
 static bool fRPCRunning = false;
 static bool fRPCInWarmup = true;

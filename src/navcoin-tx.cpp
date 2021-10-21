@@ -26,8 +26,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 
-using namespace std;
-
 static bool fCreateBlank;
 static map<string,UniValue> registers;
 

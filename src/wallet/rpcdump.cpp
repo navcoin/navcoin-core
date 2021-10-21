@@ -26,8 +26,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 void EnsureWalletIsUnlocked();
 bool EnsureWalletIsAvailable(bool avoidException);
 

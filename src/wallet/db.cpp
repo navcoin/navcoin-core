@@ -23,11 +23,7 @@
 #include <boost/thread.hpp>
 #include <boost/version.hpp>
 
-using namespace std;
-
-
 unsigned int nWalletDBUpdated;
-
 
 //
 // CDB

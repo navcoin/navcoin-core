@@ -9,8 +9,6 @@
 #include <consensus/consensus.h>
 #include <utilstrencodings.h>
 
-using namespace std;
-
 CMerkleBlock::CMerkleBlock(const CBlock& block, CBloomFilter& filter)
 {
     header = block.GetBlockHeader();

@@ -13,8 +13,6 @@
 
 #define DEFAULT_NTP_TIMEOUT 5
 
-using namespace std;
-
 class CNtpClient
 {
     string sHostName;

@@ -12,8 +12,6 @@
 #include <errno.h>
 #include <limits>
 
-using namespace std;
-
 static const string CHARS_ALPHA_NUM = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 static const string SAFE_CHARS[] =

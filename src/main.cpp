@@ -54,8 +54,6 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/thread.hpp>
 
-using namespace std;
-
 #if defined(NDEBUG)
 # error "Navcoin cannot be compiled without assertions."
 #endif
@@ -8657,7 +8655,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
     else if (strCommand == NetMsgType::ENCRYPTEDCANDIDATE)
-    {        
+    {
         EncryptedCandidateTransaction ec;
         vRecv >> ec;
 
@@ -10192,8 +10190,6 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge, const 
 
     return true;
 }
-
-using namespace std;
 
 // Get time weight
 int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)

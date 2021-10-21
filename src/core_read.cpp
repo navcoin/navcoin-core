@@ -20,8 +20,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/assign/list_of.hpp>
 
-using namespace std;
-
 CScript ParseScript(const std::string& s)
 {
     CScript result;

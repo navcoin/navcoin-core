@@ -34,8 +34,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex)
 {
     txnouttype type;

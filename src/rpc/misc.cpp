@@ -27,8 +27,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 /**
  * @note Do not add or change anything in the information returned by this
  * method. `getinfo` exists for backwards-compatibility only. It combines
@@ -1226,14 +1224,14 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
             return a_.blockHeight < b_.blockHeight;
         }
     });
-    
-    struct balStruct 
+
+    struct balStruct
     {
         CAmount spendable;
         CAmount stakable;
         CAmount voting_weight;
     };
-    
+
     std::map<CNavcoinAddress, balStruct> balance;
 
     UniValue result(UniValue::VARR);
@@ -1245,11 +1243,11 @@ UniValue getaddresshistory(const UniValue& params, bool fHelp)
         if (balance.count(address) == 0) {
             balance.insert(std::make_pair(address, (struct balStruct){.spendable = 0, .stakable = 0, .voting_weight = 0}));
         }
-       
+
         balance[address].spendable += (*it).second.spendable;
         balance[address].stakable += (*it).second.stakable;
         balance[address].voting_weight += (*it).second.voting_weight;
-        
+
         if (!(!range || (range && (*it).first.blockHeight >= start && (*it).first.blockHeight <= end)))
             continue;
 

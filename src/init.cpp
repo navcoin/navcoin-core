@@ -71,8 +71,6 @@
 #include <zmq/zmqnotificationinterface.h>
 #endif
 
-using namespace std;
-
 bool fFeeEstimatesInitialized = false;
 volatile bool fRestartRequested = false; // true: restart false: shutdown
 static const bool DEFAULT_PROXYRANDOMIZE = true;

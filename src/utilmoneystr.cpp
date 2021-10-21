@@ -9,8 +9,6 @@
 #include <tinyformat.h>
 #include <utilstrencodings.h>
 
-using namespace std;
-
 std::string FormatMoney(const CAmount& n)
 {
     // Note: not using straight sprintf here because we do NOT want

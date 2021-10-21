@@ -13,7 +13,6 @@
 
 #include "dao/flags.h"
 
-using namespace std;
 using namespace DAOFlags;
 
 class CTransaction;
