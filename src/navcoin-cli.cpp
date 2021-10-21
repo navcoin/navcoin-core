@@ -7,6 +7,7 @@
 #include <config/navcoin-config.h>
 #endif
 
+#include <fs.h>
 #include <chainparamsbase.h>
 #include <clientversion.h>
 #include <rpc/client.h>
@@ -14,7 +15,6 @@
 #include <util.h>
 #include <utilstrencodings.h>
 
-#include <boost/filesystem/operations.hpp>
 #include <stdio.h>
 
 #include <event2/event.h>
@@ -87,7 +87,7 @@ static bool AppInitRPC(int argc, char* argv[])
         fprintf(stdout, "%s", strUsage.c_str());
         return false;
     }
-    if (!boost::filesystem::is_directory(GetDataDir(false))) {
+    if (!fs::is_directory(GetDataDir(false))) {
         fprintf(stderr, "Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
         return false;
     }

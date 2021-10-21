@@ -5,14 +5,13 @@
 #ifndef NAVCOIN_DBWRAPPER_H
 #define NAVCOIN_DBWRAPPER_H
 
+#include <fs.h>
 #include <clientversion.h>
 #include <serialize.h>
 #include <streams.h>
 #include <util.h>
 #include <utilstrencodings.h>
 #include <version.h>
-
-#include <boost/filesystem/path.hpp>
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
@@ -195,7 +194,7 @@ public:
      * @param[in] compression   Enable snappy compression for the database
      * @param[in] maxOpenFiles  The maximum number of open files for the database
      */
-    CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, bool fMemory = false, bool fWipe = false, bool obfuscate = false, bool compression = false, int maxOpenFiles = 64);
+    CDBWrapper(const fs::path& path, size_t nCacheSize, bool fMemory = false, bool fWipe = false, bool obfuscate = false, bool compression = false, int maxOpenFiles = 64);
     ~CDBWrapper();
 
     template <typename K, typename V>

@@ -5,6 +5,7 @@
 
 #include <wallet/walletdb.h>
 
+#include <fs.h>
 #include <base58.h>
 #include <consensus/validation.h>
 #include <main.h> // For CheckTransaction
@@ -16,7 +17,6 @@
 #include <wallet/wallet.h>
 
 #include <boost/version.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread.hpp>
 

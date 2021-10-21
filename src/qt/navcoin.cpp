@@ -27,6 +27,7 @@
 #include <qt/walletmodel.h>
 #endif
 
+#include <fs.h>
 #include <init.h>
 #include <net.h>
 #include <rpc/server.h>
@@ -40,7 +41,6 @@
 
 #include <stdint.h>
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/thread.hpp>
 
 #include <QApplication>
@@ -631,7 +631,7 @@ int main(int argc, char *argv[])
 
     /// 5. Determine availability of data directory and parse navcoin.conf
     /// - Do not call GetDataDir(true) before this step finishes
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    if (!fs::is_directory(GetDataDir(false)))
     {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
