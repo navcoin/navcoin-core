@@ -17,9 +17,9 @@
 
 #include <boost/assign/list_of.hpp>
 
-string FormatScript(const CScript& script)
+std::string FormatScript(const CScript& script)
 {
-    string ret;
+    std::string ret;
     CScript::const_iterator it = script.begin();
     opcodetype op;
     while (it != script.end()) {
@@ -33,9 +33,9 @@ string FormatScript(const CScript& script)
                 ret += strprintf("%i ", op - OP_1NEGATE - 1);
                 continue;
             } else if (op >= OP_NOP && op <= OP_NOP10) {
-                string str(GetOpName(op));
-                if (str.substr(0, 3) == string("OP_")) {
-                    ret += str.substr(3, string::npos) + " ";
+                std::string str(GetOpName(op));
+                if (str.substr(0, 3) == std::string("OP_")) {
+                    ret += str.substr(3, std::string::npos) + " ";
                     continue;
                 }
             }
@@ -52,14 +52,14 @@ string FormatScript(const CScript& script)
     return ret.substr(0, ret.size() - 1);
 }
 
-const map<unsigned char, string> mapSigHashTypes =
+const std::map<unsigned char, std::string> mapSigHashTypes =
     boost::assign::map_list_of
-    (static_cast<unsigned char>(SIGHASH_ALL), string("ALL"))
-    (static_cast<unsigned char>(SIGHASH_ALL|SIGHASH_ANYONECANPAY), string("ALL|ANYONECANPAY"))
-    (static_cast<unsigned char>(SIGHASH_NONE), string("NONE"))
-    (static_cast<unsigned char>(SIGHASH_NONE|SIGHASH_ANYONECANPAY), string("NONE|ANYONECANPAY"))
-    (static_cast<unsigned char>(SIGHASH_SINGLE), string("SINGLE"))
-    (static_cast<unsigned char>(SIGHASH_SINGLE|SIGHASH_ANYONECANPAY), string("SINGLE|ANYONECANPAY"))
+    (static_cast<unsigned char>(SIGHASH_ALL), std::string("ALL"))
+    (static_cast<unsigned char>(SIGHASH_ALL|SIGHASH_ANYONECANPAY), std::string("ALL|ANYONECANPAY"))
+    (static_cast<unsigned char>(SIGHASH_NONE), std::string("NONE"))
+    (static_cast<unsigned char>(SIGHASH_NONE|SIGHASH_ANYONECANPAY), std::string("NONE|ANYONECANPAY"))
+    (static_cast<unsigned char>(SIGHASH_SINGLE), std::string("SINGLE"))
+    (static_cast<unsigned char>(SIGHASH_SINGLE|SIGHASH_ANYONECANPAY), std::string("SINGLE|ANYONECANPAY"))
     ;
 
 /**
@@ -69,9 +69,9 @@ const map<unsigned char, string> mapSigHashTypes =
  *                                     of a signature. Only pass true for scripts you believe could contain signatures. For example,
  *                                     pass false, or omit the this argument (defaults to false), for scriptPubKeys.
  */
-string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
+std::string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
 {
-    string str;
+    std::string str;
     opcodetype opcode;
     vector<unsigned char> vch;
     CScript::const_iterator pc = script.begin();
@@ -89,7 +89,7 @@ string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
             } else {
                 // the IsUnspendable check makes sure not to try to decode OP_RETURN data that may match the format of a signature
                 if (fAttemptSighashDecode && !script.IsUnspendable()) {
-                    string strSigHashDecode;
+                    std::string strSigHashDecode;
                     // goal: only attempt to decode a defined sighash type from data that looks like a signature within a scriptSig.
                     // this won't decode correctly formatted public keys in Pubkey or Multisig scripts due to
                     // the restrictions on the pubkey formats (see IsCompressedOrUncompressedPubKey) being incongruous with the
@@ -113,21 +113,21 @@ string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
     return str;
 }
 
-string EncodeHexTx(const CTransaction& tx)
+std::string EncodeHexTx(const CTransaction& tx)
 {
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << tx;
     return HexStr(ssTx.begin(), ssTx.end());
 }
 
-string EncodeHexTxOut(const CTxOut& txout)
+std::string EncodeHexTxOut(const CTxOut& txout)
 {
     CDataStream ssTxout(SER_NETWORK, PROTOCOL_VERSION);
     ssTxout << txout;
     return HexStr(ssTxout.begin(), ssTxout.end());
 }
 
-string EncodeHexTxIn(const CTxIn& txin)
+std::string EncodeHexTxIn(const CTxIn& txin)
 {
     CDataStream ssTxin(SER_NETWORK, PROTOCOL_VERSION);
     ssTxin << txin;
