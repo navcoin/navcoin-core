@@ -8973,7 +8973,6 @@ bool static ProcessMessage(CNode* pfrom, std::string strCommand, CDataStream& vR
         }
     }
 
-
     else if (strCommand == NetMsgType::HEADERS && !fImporting && !fReindex) // Ignore headers received while importing
     {
         std::vector<CBlock> headers;
@@ -8996,119 +8995,100 @@ bool static ProcessMessage(CNode* pfrom, std::string strCommand, CDataStream& vR
         }
 
         {
-            LOCK(cs_main);
+        LOCK(cs_main);
 
-            if (nCount == 0) {
-                // Nothing interesting. Stop asking this peers for more headers.
-                return true;
+        if (nCount == 0) {
+            // Nothing interesting. Stop asking this peers for more headers.
+            return true;
+        }
+
+        CNodeState *nodestate = State(pfrom->GetId());
+
+        // If this looks like it could be a block announcement (nCount <
+        // MAX_BLOCKS_TO_ANNOUNCE), use special logic for handling headers that
+        // don't connect:
+        // - Send a getheaders message in response to try to connect the chain.
+        // - The peer can send up to MAX_UNCONNECTING_HEADERS in a row that
+        //   don't connect before giving DoS points
+        // - Once a headers message is received that is valid and does connect,
+        //   nUnconnectingHeaders gets reset back to 0.
+        if (mapBlockIndex.find(headers[0].hashPrevBlock) == mapBlockIndex.end() && nCount < MAX_BLOCKS_TO_ANNOUNCE) {
+            nodestate->nUnconnectingHeaders++;
+            pfrom->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), uint256());
+            LogPrint("net", "received header %s: missing prev block %s, sending getheaders (%d) to end (peer=%d, nUnconnectingHeaders=%d)\n",
+                    headers[0].GetHash().ToString(),
+                    headers[0].hashPrevBlock.ToString(),
+                    pindexBestHeader->nHeight,
+                    pfrom->id, nodestate->nUnconnectingHeaders);
+            // Set hashLastUnknownBlock for this peer, so that if we
+            // eventually get the headers - even from a different peer -
+            // we can use this peer to download.
+            UpdateBlockAvailability(pfrom->GetId(), headers.back().GetHash());
+
+            if (nodestate->nUnconnectingHeaders % MAX_UNCONNECTING_HEADERS == 0) {
+                Misbehaving(pfrom->GetId(), 20);
             }
 
-            CNodeState *nodestate = State(pfrom->GetId());
+            return true;
+        }
 
-            // If this looks like it could be a block announcement (nCount <
-            // MAX_BLOCKS_TO_ANNOUNCE), use special logic for handling headers that
-            // don't connect:
-            // - Send a getheaders message in response to try to connect the chain.
-            // - The peer can send up to MAX_UNCONNECTING_HEADERS in a row that
-            //   don't connect before giving DoS points
-            // - Once a headers message is received that is valid and does connect,
-            //   nUnconnectingHeaders gets reset back to 0.
-            if (mapBlockIndex.find(headers[0].hashPrevBlock) == mapBlockIndex.end() && nCount < MAX_BLOCKS_TO_ANNOUNCE) {
-                nodestate->nUnconnectingHeaders++;
-                pfrom->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), uint256());
-                LogPrint("net", "received header %s: missing prev block %s, sending getheaders (%d) to end (peer=%d, nUnconnectingHeaders=%d)\n",
-                         headers[0].GetHash().ToString(),
-                        headers[0].hashPrevBlock.ToString(),
-                        pindexBestHeader->nHeight,
-                        pfrom->id, nodestate->nUnconnectingHeaders);
-                // Set hashLastUnknownBlock for this peer, so that if we
-                // eventually get the headers - even from a different peer -
-                // we can use this peer to download.
-                UpdateBlockAvailability(pfrom->GetId(), headers.back().GetHash());
+        bool ret = true;
+        bool bFirst = true;
+        std::string strError = "";
 
-                if (nodestate->nUnconnectingHeaders % MAX_UNCONNECTING_HEADERS == 0) {
-                    Misbehaving(pfrom->GetId(), 20);
-                }
+        int nFirst = 0;
+        int nLast = 0;
 
-                return true;
+        CBlockIndex *pindexLast = nullptr;
+
+        std::vector<uint256> vHeaderHashes;
+
+        for(const CBlock& header: headers) {
+            CValidationState state;
+            if (pindexLast != NULL && header.hashPrevBlock != pindexLast->GetBlockHash()) {
+                Misbehaving(pfrom->GetId(), 20);
+                ret = false;
+                strError = "non-continuous headers sequence";
+                break;
             }
-
-            bool ret = true;
-            bool bFirst = true;
-            std::string strError = "";
-
-            int nFirst = 0;
-            int nLast = 0;
-
-            CBlockIndex *pindexLast = nullptr;
-
-            std::vector<uint256> vHeaderHashes;
-
-            for(const CBlock& header: headers) {
-                CValidationState state;
-                if (pindexLast != NULL && header.hashPrevBlock != pindexLast->GetBlockHash()) {
-                    Misbehaving(pfrom->GetId(), 20);
-                    ret = false;
-                    strError = "non-continuous headers sequence";
-                    break;
-                }
-                CBlockHeader pblockheader = CBlockHeader(header);
-                if (!AcceptBlockHeader(pblockheader, state, chainparams, &pindexLast)) {
-                    int nDoS;
-                    if (state.IsInvalid(nDoS)) {
-                        if (nDoS > 0)
-                            Misbehaving(pfrom->GetId(), nDoS);
-                        ret = false;
-                        strError = "invalid header received";
-                        break;
-                    }
-                }
-                vHeaderHashes.push_back(pblockheader.GetHash());
-                if (pindexLast) {
-                    nLast = pindexLast->nHeight;
-                    if (bFirst){
-                        nFirst = pindexLast->nHeight;
-                        bFirst = false;
-                    }
-                }
-            }
-
-            if(GetBoolArg("-headerspamfilter", DEFAULT_HEADER_SPAM_FILTER) && !IsInitialBlockDownload())
-            {
-                LOCK(cs_main);
-                CValidationState state;
-                CNodeState *nodestate = State(pfrom->GetId());
-                CNodeHeaders& headers = ServiceHeaders(nodestate->address);
-                headers.addHeaders(vHeaderHashes);
+            CBlockHeader pblockheader = CBlockHeader(header);
+            if (!AcceptBlockHeader(pblockheader, state, chainparams, &pindexLast)) {
                 int nDoS;
-                ret = headers.updateState(state, ret);
                 if (state.IsInvalid(nDoS)) {
                     if (nDoS > 0)
                         Misbehaving(pfrom->GetId(), nDoS);
                     ret = false;
-                    strError = strError!="" ? strError + " / ": "";
-                    strError = "header spam protection";
+                    strError = "invalid header received";
+                    break;
                 }
             }
-
-            if (!ret)
-                return error(strError.c_str());
-
-            if (nodestate->nUnconnectingHeaders > 0) {
-                LogPrint("net", "peer=%d: resetting nUnconnectingHeaders (%d -> 0)\n", pfrom->id, nodestate->nUnconnectingHeaders);
+            vHeaderHashes.push_back(pblockheader.GetHash());
+            if (pindexLast) {
+                nLast = pindexLast->nHeight;
+                if (bFirst){
+                    nFirst = pindexLast->nHeight;
+                    bFirst = false;
+                }
             }
-            nodestate->nUnconnectingHeaders = 0;
+        }
 
-            assert(pindexLast);
-            UpdateBlockAvailability(pfrom->GetId(), pindexLast->GetBlockHash());
-
-            if (nCount == MAX_HEADERS_RESULTS) {
-                // Headers message had its maximum size; the peer may have more headers.
-                // TODO: optimize: if pindexLast is an ancestor of chainActive.Tip or pindexBestHeader, continue
-                // from there instead.
-                LogPrint("net", "more getheaders (%d) to end to peer=%d (startheight:%d)\n", pindexLast->nHeight, pfrom->id, pfrom->nStartingHeight);
-                pfrom->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexLast), uint256());
+        if(GetBoolArg("-headerspamfilter", DEFAULT_HEADER_SPAM_FILTER) && !IsInitialBlockDownload())
+        {
+            LOCK(cs_main);
+            CValidationState state;
+            CNodeState *nodestate = State(pfrom->GetId());
+            CNodeHeaders& headers = ServiceHeaders(nodestate->address);
+            headers.addHeaders(vHeaderHashes);
+            int nDoS;
+            ret = headers.updateState(state, ret);
+            if (state.IsInvalid(nDoS)) {
+                if (nDoS > 0)
+                    Misbehaving(pfrom->GetId(), nDoS);
+                ret = false;
+                strError = strError!="" ? strError + " / ": "";
+                strError = "header spam protection";
             }
+        }
 
         if (!ret)
             return error(strError.c_str());
@@ -9162,10 +9142,30 @@ bool static ProcessMessage(CNode* pfrom, std::string strCommand, CDataStream& vR
                         // Can't download any more from this peer
                         break;
                     }
+                    uint32_t nFetchFlags = GetFetchFlags(pfrom, pindex->pprev, chainparams.GetConsensus());
+                    vGetData.push_back(CInv(MSG_BLOCK | nFetchFlags, pindex->GetBlockHash()));
+                    MarkBlockAsInFlight(pfrom->GetId(), pindex->GetBlockHash(), chainparams.GetConsensus(), pindex);
+                    LogPrint("net", "Requesting block %s from  peer=%d\n",
+                            pindex->GetBlockHash().ToString(), pfrom->id);
+                }
+                if (vGetData.size() > 1) {
+                    LogPrint("net", "Downloading blocks toward %s (%d) via headers direct fetch\n",
+                            pindexLast->GetBlockHash().ToString(), pindexLast->nHeight);
+                }
+                if (vGetData.size() > 0) {
+//                    if (nodestate->fProvidesHeaderAndIDs && vGetData.size() == 1 && mapBlocksInFlight.size() == 1 && pindexLast->pprev->IsValid(BLOCK_VALID_CHAIN) && !(nLocalServices & NODE_WITNESS)) {
+//                        // We seem to be rather well-synced, so it appears pfrom was the first to provide us
+//                        // with this block! Let's get them to announce using compact blocks in the future.
+//                        MaybeSetPeerAsAnnouncingHeaderAndIDs(nodestate, pfrom);
+//                        // In any case, we want to download using a compact block, not a regular one
+//                        vGetData[0] = CInv(MSG_CMPCT_BLOCK, vGetData[0].hash);
+//                    }
+                    pfrom->PushMessage(NetMsgType::GETDATA, vGetData);
                 }
             }
+        }
 
-            CheckBlockIndex(chainparams.GetConsensus());
+        CheckBlockIndex(chainparams.GetConsensus());
         }
 
         NotifyHeaderTip();

@@ -2216,7 +2216,7 @@ bool IsValidConsensusParameterProposal(std::vector<Consensus::ConsensusParamsPos
         std::string proposal = vProposal[i];
         Consensus::ConsensusParamsPos pos = vPos[i];
 
-        if (proposal.empty() || proposal.find_first_not_of("0123456789") != string::npos)
+        if (proposal.empty() || proposal.find_first_not_of("0123456789") != std::string::npos)
             return error("%s: Proposed parameter is empty or not integer", __func__);
 
         uint64_t val = stoll(proposal);
