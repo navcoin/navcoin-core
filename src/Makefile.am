@@ -118,6 +118,7 @@ NAVCOIN_CORE_H = \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
+  fs.h \
   httprpc.h \
   httpserver.h \
   indirectmap.h \
@@ -206,6 +207,7 @@ libnavcoin_server_a_SOURCES = \
   checkpoints.cpp \
   daoversionbit.cpp \
   consensus/dao.cpp \
+  fs.cpp \
   httprpc.cpp \
   httpserver.cpp \
   kernel.cpp \
