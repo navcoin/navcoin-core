@@ -2192,15 +2192,15 @@ void DaoChart::updateView() {
                 }
 
                 if (consultation.mapVotes.count(VoteFlags::VOTE_ABSTAIN))
-                    mapVotes.insert(make_pair(QString(tr("Abstain") + " (" + QString::number(consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ")"), consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)));
+                    mapVotes.insert(std::make_pair(QString(tr("Abstain") + " (" + QString::number(consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ")"), consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)));
             }
 
             if (consultation.IsRange())
             {
                 if (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED)
                 {
-                    mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
-                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nCurrentBlock-consultation.nSupport) + ")", nCurrentBlock-consultation.nSupport));
+                    mapVotes.insert(std::make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
+                    mapVotes.insert(std::make_pair(tr("Did not show support") + " (" + QString::number(nCurrentBlock-consultation.nSupport) + ")", nCurrentBlock-consultation.nSupport));
                 }
                 else
                 {
@@ -2208,7 +2208,7 @@ void DaoChart::updateView() {
                     {
                         if (it.first == -1)
                             continue;
-                        mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
+                        mapVotes.insert(std::make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
                     }
                 }
             }
@@ -2226,7 +2226,7 @@ void DaoChart::updateView() {
                         {
                             auto fState = consultation.GetLastState();
                             uint64_t nAmount = (!consultation.IsSupported(view) || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION || fState == DAOFlags::NIL) ? answer.nSupport : answer.nVotes;
-                            mapVotes.insert(make_pair(QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, answer.sAnswer) : answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/nVotingLength)+ "%)",nAmount));
+                            mapVotes.insert(std::make_pair(QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, answer.sAnswer) : answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/nVotingLength)+ "%)",nAmount));
                         }
                     }
                 }
@@ -2244,9 +2244,9 @@ void DaoChart::updateView() {
             if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED  || fState == DAOFlags::ACCEPTED_EXPIRED)
                 fShouldShowCycleInfo = false;
 
-            mapVotes.insert(make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
-            mapVotes.insert(make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
-            mapVotes.insert(make_pair(QString("Abstain (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
+            mapVotes.insert(std::make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
+            mapVotes.insert(std::make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
+            mapVotes.insert(std::make_pair(QString("Abstain (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
         }
         else if (view.GetPaymentRequest(hash, prequest))
         {
@@ -2260,9 +2260,9 @@ void DaoChart::updateView() {
             if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED || fState == DAOFlags::PAID)
                 fShouldShowCycleInfo = false;
 
-            mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
-            mapVotes.insert(make_pair(QString("No (" + QString::number(prequest.nVotesNo) + ")"), prequest.nVotesNo));
-            mapVotes.insert(make_pair(QString("Abstain (" + QString::number(prequest.nVotesAbs) + ")"), prequest.nVotesAbs));
+            mapVotes.insert(std::make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
+            mapVotes.insert(std::make_pair(QString("No (" + QString::number(prequest.nVotesNo) + ")"), prequest.nVotesNo));
+            mapVotes.insert(std::make_pair(QString("Abstain (" + QString::number(prequest.nVotesAbs) + ")"), prequest.nVotesAbs));
         }
     }
 

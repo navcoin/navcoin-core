@@ -57,7 +57,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
                 }
     });
 
-    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
+    std::string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
     QString warning = tr("By submitting the proposal a contribution of %1 NAV to the Community Fund will occur from your wallet.").arg(QString::fromStdString(fee));
     ui->labelWarning->setText(warning);
 }
@@ -126,7 +126,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         bool fSubtractFeeFromAmount = false;
 
         // Address
-        string Address = ui->lineEditNavcoinAddress->text().toStdString().c_str();
+        std::string Address = ui->lineEditNavcoinAddress->text().toStdString().c_str();
 
         // Requested Amount
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
@@ -135,7 +135,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
         // Description
-        string sDesc = ui->plainTextEditDescription->text().toStdString();
+        std::string sDesc = ui->plainTextEditDescription->text().toStdString();
 
         bool fSuper = ui->superProposalCheckbox->isChecked();
 
@@ -186,7 +186,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) {
             QMessageBox msgBox(this);
-            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
+            std::string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
             std::string str = tr("You require at least %1 NAV mature and available to create a proposal\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -227,7 +227,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
                 bool created_proposal = true;
 
-                std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+                std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
                 if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {

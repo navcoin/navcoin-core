@@ -16,19 +16,17 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace std;
-
-static const string strSecret1     ("PHSecPt927qh8bVhLhv4Rr66JMUYWRcaQfsdPnP8nucyhE4Lhc8b");
-static const string strSecret2     ("PEc7Ctgscq6fJCCBAsmi9NQr2W2dLfpraVJgYqSEhacGP4YwqaDF");
-//static const string strSecret1C    ("Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw");
-//static const string strSecret2C    ("L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g");
+static const std::string strSecret1     ("PHSecPt927qh8bVhLhv4Rr66JMUYWRcaQfsdPnP8nucyhE4Lhc8b");
+static const std::string strSecret2     ("PEc7Ctgscq6fJCCBAsmi9NQr2W2dLfpraVJgYqSEhacGP4YwqaDF");
+//static const std::string strSecret1C    ("Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw");
+//static const std::string strSecret2C    ("L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g");
 static const CNavcoinAddress addr1 ("NfWVKf7BxmvNCm8e82eegeKeHyFM2Dy2Nv");
 static const CNavcoinAddress addr2 ("NMxJRcqfcgfQvzhKy42zHVSzTfrnS2HLQo");
 //static const CNavcoinAddress addr1C("1NoJrossxPBKfCHuJXT4HadJrXRE9Fxiqs");
 //static const CNavcoinAddress addr2C("1CRj2HyM1CXWzHAXLQtiGLyggNT9WQqsDs");
 
 
-static const string strAddressBad("1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
+static const std::string strAddressBad("1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
 
 
 #ifdef KEY_TESTS_DUMPINFO
@@ -113,7 +111,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
 
 //    for (int n=0; n<16; n++)
 //    {
-//        string strMsg = strprintf("Very secret message %i: 11", n);
+//        std::string strMsg = strprintf("Very secret message %i: 11", n);
 //        uint256 hashMsg = Hash(strMsg.begin(), strMsg.end());
 
 //        // normal signatures
@@ -170,7 +168,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
 //    // test deterministic signing
 
 //    std::vector<unsigned char> detsig, detsigc;
-//    string strMsg = "Very deterministic message";
+//    std::string strMsg = "Very deterministic message";
 //    uint256 hashMsg = Hash(strMsg.begin(), strMsg.end());
 //    BOOST_CHECK(key1.Sign(hashMsg, detsig));
 //    BOOST_CHECK(key1C.Sign(hashMsg, detsigc));

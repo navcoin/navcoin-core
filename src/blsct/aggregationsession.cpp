@@ -126,7 +126,7 @@ bool AggregationSession::CleanCandidateTransactions()
     {
         AssertLockHeld(cs_aggregation);
 
-        set<CTxIn> seenInputs;
+        std::set<CTxIn> seenInputs;
 
         vTransactionCandidates.erase(std::remove_if(vTransactionCandidates.begin(), vTransactionCandidates.end(), [=, &seenInputs](CandidateTransaction x) {
             if (!inputs->HaveInputs(x.tx))

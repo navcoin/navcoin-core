@@ -40,7 +40,7 @@ public:
     CReserveKey *getPossibleKeyChange();
 
     void newPossibleBLSCTBlindingKey(CWallet *wallet);
-    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *getPossibleBLSCTBlindingKey();
+    std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> *getPossibleBLSCTBlindingKey();
 
     void reassignAmounts(int nChangePosRet, CWalletTx* wTx, int index); // needed for the subtract-fee-from-amount feature
     QList<SendCoinsRecipient> recipients;
@@ -50,7 +50,7 @@ public:
 private:
     CWalletTx *walletTransaction = new CWalletTx();
     CReserveKey *keyChange;
-    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *blsctBlindingKey;
+    std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> *blsctBlindingKey;
     CAmount fee;
 };
 
