@@ -114,7 +114,20 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (!ser_action.ForRead()) {
-            if (txout.IsBLSCT())
+            if (txout.vData.size() > 0)
+            {
+                CAmount nMarker = MAX_MONEY-1;
+                READWRITE(VARINT(nMarker));
+                uint64_t nVal = CompressAmount(txout.nValue);
+                READWRITE(VARINT(nVal));
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                READWRITE(txout.bp);
+                READWRITE(txout.vData);
+                READWRITE(txout.tokenId);
+            }
+            else if (txout.IsBLSCT())
             {
                 CAmount nMarker = MAX_MONEY;
                 READWRITE(VARINT(nMarker));
@@ -123,8 +136,7 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                BulletproofsRangeproof bp = txout.GetBulletproof();
-                READWRITE(bp);
+                READWRITE(txout.bp);
             }
             else
             {
@@ -141,9 +153,18 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                BulletproofsRangeproof bp_;
-                READWRITE(bp_);
-                txout.bp = bp_.GetVch();
+                READWRITE(txout.bp);
+            }
+            else if (nVal == MAX_MONEY-1)
+            {
+                READWRITE(VARINT(nVal));
+                txout.nValue = DecompressAmount(nVal);
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                READWRITE(txout.bp);
+                READWRITE(txout.vData);
+                READWRITE(txout.tokenId);
             }
             else
             {

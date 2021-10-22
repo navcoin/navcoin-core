@@ -192,11 +192,7 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                BulletproofsRangeproof bp_;
-                READWRITE(bp_);
-                bp = bp_.GetVch();
-                if (bp.size() > 0)
-                    cacheBp = bp_;
+                READWRITE(bp);
                 newSer = false;
                 fXNav = true;
             }
@@ -204,24 +200,25 @@ public:
             {
                 if (nFlags & 0x1<<0)
                     READWRITE(nValue);
+                else
+                    nValue=0;
                 if (nFlags & 0x1<<1)
                     READWRITE(ephemeralKey);
                 if (nFlags & 0x1<<2)
                     READWRITE(outputKey);
                 if (nFlags & 0x1<<3)
                     READWRITE(spendingKey);
+
                 if (nFlags & 0x1<<4)
                 {
-                    BulletproofsRangeproof bp_;
-                    READWRITE(bp_);
-                    bp = bp_.GetVch();
-                    if (bp.size() > 0)
-                        cacheBp = bp_;
+                    READWRITE(bp);
                     if (nFlags & 0x1<<5)
                         READWRITE(tokenId);
                 }
                 if (nFlags & 0x1<<6)
+                {
                     READWRITE(vData);
+                }
                 READWRITE(newSer);
 
                 fXNav = true;
@@ -252,13 +249,15 @@ public:
                     nMarker  |= 0x1<<2;
                 if (spendingKey.size() > 0)
                     nMarker  |= 0x1<<3;
-                if (cacheBp.V.size() > 0) {
+                if (bp.size() > 0) {
                     nMarker  |= 0x1<<4;
                     if (tokenId != uint256())
                         nMarker  |= 0x1<<5;
                 }
                 if (vData.size() > 0)
+                {
                     nMarker  |= 0x1<<6;
+                }
 
                 READWRITE(nMarker);
 
@@ -271,12 +270,14 @@ public:
                 if (nMarker & 0x1<<3)
                     READWRITE(spendingKey);
                 if (nMarker & 0x1<<4) {
-                    READWRITE(cacheBp);
+                    READWRITE(bp);
                     if (nMarker & 0x1<<5)
                         READWRITE(tokenId);
                 }
                 if (nMarker & 0x1<<6)
+                {
                     READWRITE(vData);
+                }
                 READWRITE(newSer);
             }
             else if (IsBLSCT())
@@ -288,7 +289,7 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                READWRITE(cacheBp);
+                READWRITE(bp);
             }
             else
             {
@@ -317,7 +318,8 @@ public:
             return cacheBp;
         if (bp.size() == 0)
             return BulletproofsRangeproof();
-        return BulletproofsRangeproof(bp);
+        const_cast<CTxOut*>(this)->cacheBp = BulletproofsRangeproof(bp);
+        return cacheBp;
     }
 
     bool IsBLSCT() const
@@ -416,7 +418,9 @@ public:
                 a.ephemeralKey == b.ephemeralKey &&
                 a.outputKey    == b.outputKey &&
                 a.spendingKey  == b.spendingKey &&
-                a.bp           == b.bp);
+                a.bp           == b.bp &&
+                a.tokenId      == b.tokenId &&
+                a.vData        == b.vData);
     }
 
     friend bool operator!=(const CTxOut& a, const CTxOut& b)

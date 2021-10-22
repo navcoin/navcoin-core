@@ -155,6 +155,8 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("outputKey", HexStr(txout.outputKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
+        out.pushKV("vData", HexStr(txout.vData));
+        out.pushKV("tokenId", HexStr(txout.tokenId));
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
 
         // Add spent information if spentindex is enabled

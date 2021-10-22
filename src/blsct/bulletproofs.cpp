@@ -743,6 +743,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 {
     bool fRecover = false;
 
+    auto nStart = GetTimeMicros();
+
     if (nonces.size() == proofs.size())
         fRecover = true;
 
@@ -1069,6 +1071,8 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
     }
 
     bls::G1Element mexp = MultiExp(multiexpdata);
+
+    //std::cout << strprintf("%s: took %.3fms\n", __func__, (GetTimeMicros()-nStart)/1000);
 
     return mexp == bls::G1Element::Infinity();
 }

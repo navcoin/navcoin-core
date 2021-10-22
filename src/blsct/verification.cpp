@@ -58,6 +58,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         {
             const CTxOut &prevOut = view.GetOutputFor(tx.vin[j]);
 
+            gens = BulletproofsRangeproof::GetGenerators(prevOut.tokenId);
+
             if (fCheckBalance)
             {
                 if (prevOut.HasRangeProof())
@@ -96,6 +98,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
 
     for (size_t j = 0; j < tx.vout.size(); j++)
     {
+        gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
         if (tx.vout[j].HasRangeProof())
         {
             if (tx.vout[j].ephemeralKey.size() == 0)
