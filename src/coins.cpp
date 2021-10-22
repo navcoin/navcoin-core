@@ -195,12 +195,12 @@ CConsultationMap::const_iterator CStateViewCache::FetchConsultation(const uint25
 
     if (it != cacheConsultations.end())
         return it;
-    
+
     CConsultation tmp;
 
     if (!base->GetConsultation(cid, tmp) || tmp.IsNull())
         return cacheConsultations.end();
-    
+
     CConsultationMap::iterator ret = cacheConsultations.insert(std::make_pair(cid, CConsultation())).first;
     tmp.swap(ret->second);
 
@@ -316,7 +316,7 @@ bool CStateViewCache::GetAllProposals(CProposalMap& mapProposal) {
 
     for (CProposalMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
-            mapProposal.insert(make_pair(it->first, it->second));
+            mapProposal.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapProposal.begin(); it != mapProposal.end();)
         it->second.IsNull() ? mapProposal.erase(it++) : ++it;
@@ -345,7 +345,7 @@ bool CStateViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
-            mapPaymentRequests.insert(make_pair(it->first, it->second));
+            mapPaymentRequests.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();)
         it->second.IsNull() ? mapPaymentRequests.erase(it++) : ++it;
@@ -364,7 +364,7 @@ bool CStateViewCache::GetAllVotes(CVoteMap& mapVotes) {
 
     for (CVoteMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
-            mapVotes.insert(make_pair(it->first, it->second));
+            mapVotes.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapVotes.begin(); it != mapVotes.end();)
         it->second.IsNull() ? mapVotes.erase(it++) : ++it;
@@ -383,7 +383,7 @@ bool CStateViewCache::GetAllConsultations(CConsultationMap& mapConsultations) {
 
     for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
-            mapConsultations.insert(make_pair(it->first, it->second));
+            mapConsultations.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapConsultations.begin(); it != mapConsultations.end();)
         it->second.IsNull() ? mapConsultations.erase(it++) : ++it;
@@ -402,7 +402,7 @@ bool CStateViewCache::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswe
 
     for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
-            mapAnswers.insert(make_pair(it->first, it->second));
+            mapAnswers.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapAnswers.begin(); it != mapAnswers.end();)
         it->second.IsNull() ? mapAnswers.erase(it++) : ++it;
