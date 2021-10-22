@@ -25,7 +25,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     ui->setupUi(this);
 
     LOCK(pwalletMain->cs_wallet);
-    for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const std::pair<CTxDestination, CAddressBookData>& item: pwalletMain->mapAddressBook)
     {
         const CNavcoinAddress& addressbook = item.first;
         bool fMine = IsMine(*pwalletMain, addressbook.Get());
@@ -72,7 +72,7 @@ void getAddressToReceive::showPrivateAddress(int what)
     if (!ui->typeBox->currentIndex())
     {
         LOCK(pwalletMain->cs_wallet);
-        for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
+        for(const std::pair<CTxDestination, CAddressBookData>& item: pwalletMain->mapAddressBook)
         {
             const CNavcoinAddress& addressbook = item.first;
             bool fMine = IsMine(*pwalletMain, addressbook.Get());

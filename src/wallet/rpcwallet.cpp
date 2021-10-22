@@ -101,7 +101,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     }
     entry.pushKV("bip125-replaceable", rbfStatus);
 
-    for(const PAIRTYPE(string,string)& item: wtx.mapValue)
+    for(const std::pair<std::string, std::string>& item: wtx.mapValue)
         entry.pushKV(item.first, item.second);
 }
 
@@ -492,7 +492,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    for(const PAIRTYPE(CNavcoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const std::pair<CNavcoinAddress, CAddressBookData>& item: pwalletMain->mapAddressBook)
     {
         const CNavcoinAddress& address = item.first;
         const string& strName = item.second.name;
@@ -519,7 +519,7 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    for(const PAIRTYPE(string, CAddressBookData)& item: pwalletMain->mapPrivateAddressBook)
+    for(const std::pair<string, CAddressBookData>& item: pwalletMain->mapPrivateAddressBook)
     {
         const string& address = item.first;
         const string& strName = item.second.name;
@@ -2526,7 +2526,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
     // Reply
     UniValue ret(UniValue::VARR);
     map<string, tallyitem> mapAccountTally;
-    for(const PAIRTYPE(CNavcoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
+    for(const std::pair<CNavcoinAddress, CAddressBookData>& item: pwalletMain->mapAddressBook)
     {
         const CNavcoinAddress& address = item.first;
         const string& strAccount = item.second.name;
@@ -2961,7 +2961,7 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
             includeWatchonly = includeWatchonly | ISMINE_WATCH_ONLY;
 
     map<string, CAmount> mapAccountBalances;
-    for(const PAIRTYPE(CTxDestination, CAddressBookData)& entry: pwalletMain->mapAddressBook) {
+    for(const std::pair<CTxDestination, CAddressBookData>& entry: pwalletMain->mapAddressBook) {
         if (IsMine(*pwalletMain, entry.first) & includeWatchonly) // This address belongs to me
             mapAccountBalances[entry.second.name] = 0;
     }
@@ -2995,7 +2995,7 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
         mapAccountBalances[entry.strAccount] += entry.nCreditDebit;
 
     UniValue ret(UniValue::VOBJ);
-    for(const PAIRTYPE(string, CAmount)& accountBalance: mapAccountBalances) {
+    for(const std::pair<string, CAmount>& accountBalance: mapAccountBalances) {
         ret.pushKV(accountBalance.first, ValueFromAmount(accountBalance.second));
     }
     return ret;

@@ -750,7 +750,7 @@ void CoinControlDialog::updateView()
         ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
     }
 
-    for(const PAIRTYPE(QString, std::vector<COutput>)& coins: mapCoins) {
+    for(const std::pair<QString, std::vector<COutput>>& coins: mapCoins) {
         QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
         itemWalletAddress->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
         QString sWalletAddress = coins.first;
