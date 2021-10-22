@@ -13,8 +13,6 @@
 #include <script/script.h>
 #include <uint256.h>
 
-using namespace std;
-
 typedef vector<unsigned char> valtype;
 
 namespace {
@@ -59,7 +57,7 @@ bool CastToBool(const valtype& vch)
 static inline void popstack(vector<valtype>& stack)
 {
     if (stack.empty())
-        throw runtime_error("popstack(): stack empty");
+        throw std::runtime_error("popstack(): stack empty");
     stack.pop_back();
 }
 

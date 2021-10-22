@@ -16,8 +16,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 extern UniValue createArgs(int nRequired, const char* address1 = nullptr, const char* address2 = nullptr);
 extern UniValue CallRPC(string args);
 
