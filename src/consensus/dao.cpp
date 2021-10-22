@@ -1408,14 +1408,19 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
 
                             auto answers = answer->GetAnswers();
-                            for (size_t i = 0; i < answers.size(); i++) {
-                                mapConsensusToChange.insert(std::make_pair(parent.vParameters[i], stoll(answers[i])));
+                            auto parameters = parent->GetParameters();
+                            
+                            if (answers.size() == parameters.size()) 
+                            {
+                                for (size_t i = 0; i < answers.size(); i++) {
+                                    mapConsensusToChange.insert(std::make_pair(parameters[i], stoll(answers[i])));
+                                }
+
+                                answer->SetState(pindexNew, DAOFlags::PASSED);
+                                answer->fDirty = true;
+
+                                updateMapConsultationAnswers[answer->hash] = *answer;
                             }
-
-                            answer->SetState(pindexNew, DAOFlags::PASSED);
-                            answer->fDirty = true;
-
-                            updateMapConsultationAnswers[answer->hash] = *answer;
                         }
                     }
                 }
