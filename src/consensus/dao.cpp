@@ -1408,7 +1408,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
 
                             auto answers = answer->GetAnswers();
-                            auto parameters = parent->GetParameters();
+                            auto parameters = parent.GetParameters();
                             
                             if (answers.size() == parameters.size()) 
                             {
