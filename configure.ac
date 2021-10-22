@@ -206,11 +206,12 @@ AC_ARG_ENABLE([lcov],
   [use_lcov=yes],
   [use_lcov=no])
 
+dnl Don't use ASM as of now since we still need more changes for it to work properly
 AC_ARG_ENABLE([asm],
   [AS_HELP_STRING([--disable-asm],
   [disable assembly routines (enabled by default)])],
   [use_asm=$enableval],
-  [use_asm=yes])
+  [use_asm=no])
 
 if test "x$use_asm" = xyes; then
   AC_DEFINE(USE_ASM, 1, [Define this symbol to build in assembly routines])
@@ -1567,7 +1568,13 @@ echo "  with zmq      = $use_zmq"
 echo "  with test     = $use_tests"
 echo "  with bench    = $use_bench"
 echo "  with upnp     = $use_upnp"
+echo
 echo "  use asm       = $use_asm"
+echo "  enable sse42  = $enable_sse42"
+echo "  enable sse41  = $enable_sse41"
+echo "  enable avx2   = $enable_avx2"
+echo "  enable shani  = $enable_shani"
+echo
 echo "  debug enabled = $enable_debug"
 echo
 echo "  bls OPSYS     = $BLS_OPSYS"
