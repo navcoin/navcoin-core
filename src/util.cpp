@@ -104,15 +104,15 @@ std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 std::map<uint256, int64_t> mapAddedVotes;
 std::map<uint256, bool> mapSupported;
 
-map<string, string> mapArgs;
-map<string, vector<string> > mapMultiArgs;
+std::map<std::string, std::string> mapArgs;
+std::map<std::string, std::vector<std::string> > mapMultiArgs;
 bool fDebug = false;
 bool fPrintToConsole = false;
 bool fPrintToDebugLog = true;
 bool fDaemon = false;
 bool fServer = false;
 bool fTorServer = false;
-string strMiscWarning;
+std::string strMiscWarning;
 bool fLogTimestamps = DEFAULT_LOGTIMESTAMPS;
 bool fLogTimeMicros = DEFAULT_LOGTIMEMICROS;
 bool fLogIPs = DEFAULT_LOGIPS;
@@ -197,8 +197,8 @@ static FILE* fileoutDebugLog = nullptr;
 static FILE* fileoutErrorLog = nullptr;
 static boost::mutex* mutexDebugLog = nullptr;
 static boost::mutex* mutexErrorLog = nullptr;
-static list<string> *vMsgsBeforeOpenDebugLog;
-static list<string> *vMsgsBeforeOpenErrorLog;
+static std::list<std::string> *vMsgsBeforeOpenDebugLog;
+static std::list<std::string> *vMsgsBeforeOpenErrorLog;
 
 static int FileWriteStr(const std::string &str, FILE *fp)
 {
@@ -222,14 +222,14 @@ static void DebugPrintInit()
 {
     assert(mutexDebugLog == nullptr);
     mutexDebugLog = new boost::mutex();
-    vMsgsBeforeOpenDebugLog = new list<string>;
+    vMsgsBeforeOpenDebugLog = new std::list<std::string>;
 }
 
 static void ErrorPrintInit()
 {
     assert(mutexErrorLog == nullptr);
     mutexErrorLog = new boost::mutex();
-    vMsgsBeforeOpenErrorLog = new list<string>;
+    vMsgsBeforeOpenErrorLog = new std::list<std::string>;
 }
 
 void OpenDebugLog()
@@ -281,19 +281,19 @@ bool LogAcceptCategory(const char* category)
         // This helps prevent issues debugging global destructors,
         // where mapMultiArgs might be deleted before another
         // global destructor calls LogPrint()
-        static boost::thread_specific_ptr<set<string> > ptrCategory;
+        static boost::thread_specific_ptr<std::set<std::string> > ptrCategory;
         if (ptrCategory.get() == nullptr)
         {
-            const vector<string>& categories = mapMultiArgs["-debug"];
-            ptrCategory.reset(new set<string>(categories.begin(), categories.end()));
+            const std::vector<std::string>& categories = mapMultiArgs["-debug"];
+            ptrCategory.reset(new std::set<std::string>(categories.begin(), categories.end()));
             // thread_specific_ptr automatically deletes the set when the thread ends.
         }
-        const set<string>& setCategories = *ptrCategory.get();
+        const std::set<std::string>& setCategories = *ptrCategory.get();
 
         // if not debugging everything and not debugging specific category, LogPrint does nothing.
-        if (setCategories.count(string("")) == 0 &&
-            setCategories.count(string("1")) == 0 &&
-            setCategories.count(string(category)) == 0)
+        if (setCategories.count(std::string("")) == 0 &&
+            setCategories.count(std::string("1")) == 0 &&
+            setCategories.count(std::string(category)) == 0)
             return false;
     }
 
@@ -307,7 +307,7 @@ bool LogAcceptCategory(const char* category)
  */
 static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine)
 {
-    string strStamped;
+    std::string strStamped;
 
     if (!fLogTimestamps)
         return str;
@@ -344,7 +344,7 @@ int DebugLogPrintStr(const std::string &str)
     int ret = 0; // Returns total number of characters written
     static bool fStartedNewLine = true;
 
-    string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
+    std::string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
 
     if (fPrintToConsole)
     {
@@ -385,7 +385,7 @@ int ErrorLogPrintStr(const std::string &str)
     int ret = 0; // Returns total number of characters written
     static bool fStartedNewLine = true;
 
-    string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
+    std::string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
 
     if (fPrintToConsole)
     {
@@ -685,8 +685,8 @@ static std::vector<std::pair<std::string, std::string>> GetConfigOptions(std::is
     return options;
 }
 
-void ReadConfigFile(map<string, string>& mapSettingsRet,
-                    map<string, vector<string> >& mapMultiSettingsRet)
+void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet,
+                    std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet)
 {
     fs::ifstream stream(GetConfigFile());
     if (!stream.good())
@@ -748,7 +748,7 @@ void WriteConfigFile(std::string key, std::string value)
     if(stream.good())
     {
 
-        set<string> setOptions;
+        std::set<std::string> setOptions;
         setOptions.insert("*");
         for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
             std::string strKey = std::string("-") + option.first;
@@ -761,7 +761,7 @@ void WriteConfigFile(std::string key, std::string value)
     if(!alreadyInConfigFile)
     {
         fs::ofstream outStream(GetConfigFile(), std::ios_base::app);
-        outStream << std::endl << key + string("=") + value;
+        outStream << std::endl << key + std::string("=") + value;
         outStream.close();
     }
 
@@ -775,7 +775,7 @@ bool ExistsKeyInConfigFile(std::string key)
     if(stream.good())
     {
 
-        set<string> setOptions;
+        std::set<std::string> setOptions;
         setOptions.insert("*");
 
         for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
@@ -796,7 +796,7 @@ void RemoveConfigFile(std::string key, std::string value)
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -817,7 +817,7 @@ void RemoveConfigFilePair(std::string key, std::string value)
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -838,7 +838,7 @@ void RemoveConfigFile(std::string key)
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -1150,7 +1150,7 @@ bool BdbEncrypted(fs::path wallet)
         file.read(buffer, 5);
 
         // Check if we have it
-        if (string(buffer) == "main") {
+        if (std::string(buffer) == "main") {
             // Close the file
             file.close();
 

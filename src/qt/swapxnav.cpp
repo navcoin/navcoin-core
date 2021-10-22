@@ -277,11 +277,11 @@ void SwapXNAVDialog::Ok()
     }
     vecSend.push_back(recipient);
 
-    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+    std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     for (unsigned int i = 0; i < vecSend.size()+2; i++)
     {
-        shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
+        std::shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(pwalletMain));
         reserveBLSCTKey.insert(reserveBLSCTKey.begin(), std::move(rk));
     }
 
