@@ -254,7 +254,6 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 {
 
     if (fHelp || params.size() < 2)
-  "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
         throw std::runtime_error(
             "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
             "Returns a coldstaking address based on the address inputs\n"
@@ -1232,7 +1231,7 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
     CStateViewCache view(pcoinsTip);
 
     if (fHelp || params.size() < 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "proposecombinedconsensuschange parameters values ( fee dump_raw )\n"
             "\nCreates a proposal to the DAO for changing various consensus paremeters.\n"
             + HelpRequiringPassphrase() +
