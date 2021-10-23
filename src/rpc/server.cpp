@@ -181,7 +181,7 @@ std::string CRPCTable::help(const std::string& strCommand) const
         vCommands.push_back(std::make_pair(mi->second->category + mi->first, mi->second));
     sort(vCommands.begin(), vCommands.end());
 
-    for(const PAIRTYPE(std::string, const CRPCCommand*)& command: vCommands)
+    for(const std::pair<std::string, const CRPCCommand*>& command: vCommands)
     {
         const CRPCCommand *pcmd = command.second;
         std::string strMethod = pcmd->name;
