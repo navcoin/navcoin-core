@@ -114,18 +114,21 @@ public:
     bool HaveConsultationAnswer(const uint256 &aid) const;
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
+    bool GetToken(const bls::G1Element &id, TokenInfo &token) const;
+    bool HaveToken(const bls::G1Element &id) const;
 
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, const uint256 &hashBlock,
                     const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);
     bool GetAllConsultations(CConsultationMap &map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
+    bool GetAllTokens(TokenMap &map);
     int GetExcludeVotes() const;
     CStateViewCursor *Cursor() const;
 };
@@ -203,6 +206,13 @@ public:
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
     bool GetPaymentRequestIndex(std::vector<CPaymentRequest>&vect);
     bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
+    bool WriteToken(const std::vector<Token>&vect);
+    bool ReadTokenIndex(const bls::G1Element &id, TokenInfo &token);
+    bool GetTokenIndex(std::vector<Token>&vect);
+    TokenInfo GetToken(const bls::G1Element& id);
+    bool UpdateTokenIndex(const std::vector<Token>&vect);
+    bool WriteTokenIndex(const std::vector<Token>&vect);
+
 };
 
 #endif // NAVCOIN_TXDB_H

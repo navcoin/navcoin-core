@@ -297,16 +297,16 @@ public:
     mutable bool fDebitCached;
     mutable bool fCreditCached;
     mutable bool fImmatureCreditCached;
-    mutable bool fImmaturePrivateCreditCached;
+    mutable std::map<uint256, bool> fImmaturePrivateCreditCached;
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
-    mutable bool fPrivateCreditCached;
-    mutable bool fAvailablePrivateCreditCached;
+    mutable std::map<uint256, bool> fPrivateCreditCached;
+    mutable std::map<uint256, bool> fAvailablePrivateCreditCached;
     mutable bool fAvailableStakableCreditCached;
-    mutable bool fPrivateDebitCached;
+    mutable std::map<uint256, bool> fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
@@ -314,16 +314,16 @@ public:
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
-    mutable CAmount nImmaturePrivateCreditCached;
+    mutable std::map<uint256, CAmount> nImmaturePrivateCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
-    mutable CAmount nPrivateCreditCached;
-    mutable CAmount nAvailablePrivateCreditCached;
+    mutable std::map<uint256, CAmount> nPrivateCreditCached;
+    mutable std::map<uint256, CAmount> nAvailablePrivateCreditCached;
     mutable CAmount nAvailableStakableCreditCached;
-    mutable CAmount nPrivateDebitCached;
+    mutable std::map<uint256, CAmount> nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -373,11 +373,11 @@ public:
         fWatchCreditCached = false;
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
-        fPrivateCreditCached = false;
-        fAvailablePrivateCreditCached = false;
+        fPrivateCreditCached.clear();
+        fAvailablePrivateCreditCached.clear();
         fAvailableStakableCreditCached = false;
-        fImmaturePrivateCreditCached = false;
-        fPrivateDebitCached = false;
+        fImmaturePrivateCreditCached.clear();
+        fPrivateDebitCached .clear();
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fSpendsColdStaking = false;
@@ -390,11 +390,11 @@ public:
         nAvailableCreditCached = 0;
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
-        nPrivateCreditCached = 0;
-        nAvailablePrivateCreditCached = 0;
+        nPrivateCreditCached.clear();
+        nAvailablePrivateCreditCached.clear();
         nAvailableStakableCreditCached = 0;
-        nImmaturePrivateCreditCached = 0;
-        nPrivateDebitCached = 0;
+        nImmaturePrivateCreditCached.clear();
+        nPrivateDebitCached.clear();
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
@@ -468,10 +468,10 @@ public:
         fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
-        fPrivateCreditCached = false;
-        fAvailablePrivateCreditCached = false;
+        fPrivateCreditCached.clear();
+        fAvailablePrivateCreditCached.clear();
         fAvailableStakableCreditCached = false;
-        fImmaturePrivateCreditCached = false;
+        fImmaturePrivateCreditCached.clear();
         fDebitCached = false;
         fChangeCached = false;
     }
@@ -497,10 +497,10 @@ public:
                 vfSpent[i] = true;
                 fReturn = true;
                 fAvailableCreditCached = false;
-                fAvailablePrivateCreditCached = false;
+                fAvailablePrivateCreditCached .clear();
                 fAvailableStakableCreditCached = false;
-                fPrivateCreditCached = false;
-                fImmaturePrivateCreditCached = false;
+                fPrivateCreditCached.clear();
+                fImmaturePrivateCreditCached.clear();
             }
         }
         return fReturn;
@@ -515,10 +515,10 @@ public:
         {
             vfSpent[nOut] = true;
             fAvailableCreditCached = false;
-            fPrivateCreditCached = false;
-            fAvailablePrivateCreditCached = false;
+            fPrivateCreditCached.clear();
+            fAvailablePrivateCreditCached.clear();
             fAvailableStakableCreditCached = false;
-            fImmaturePrivateCreditCached = false;
+            fImmaturePrivateCreditCached.clear();
         }
     }
 
@@ -531,10 +531,10 @@ public:
         {
             vfSpent[nOut] = false;
             fAvailableCreditCached = false;
-            fAvailablePrivateCreditCached = false;
+            fAvailablePrivateCreditCached.clear();
             fAvailableStakableCreditCached = false;
-            fPrivateCreditCached = false;
-            fImmaturePrivateCreditCached = false;
+            fPrivateCreditCached.clear();
+            fImmaturePrivateCreditCached.clear();
         }
     }
 
@@ -548,13 +548,13 @@ public:
     }
 
     //! filter decides which addresses will count towards the debit
-    CAmount GetDebit(const isminefilter& filter) const;
-    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true) const;
+    CAmount GetDebit(const isminefilter& filter, const uint256& tokenId=uint256()) const;
+    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true, const uint256& tokenId=uint256()) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true) const;
-    CAmount GetPendingPrivateCredit(const bool& fUseCache=true) const;
+    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true, const uint256& tokenId=uint256()) const;
+    CAmount GetPendingPrivateCredit(const bool& fUseCache=true, const uint256& tokenId=uint256()) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -887,7 +887,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
-    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true) const;
+    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const uint256& tokenId=uint256()) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -984,9 +984,9 @@ public:
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
     CAmount GetColdStakingBalance() const;
-    CAmount GetPrivateBalance() const;
-    CAmount GetPrivateBalancePending() const;
-    CAmount GetPrivateBalanceLocked() const;
+    CAmount GetPrivateBalance(const uint256& tokenId=uint256()) const;
+    CAmount GetPrivateBalancePending(const uint256& tokenId=uint256()) const;
+    CAmount GetPrivateBalanceLocked(const uint256& tokenId=uint256()) const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
@@ -1009,7 +1009,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0);
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const uint256& tokenId=uint256());
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
@@ -1062,9 +1062,9 @@ public:
     std::set<CTxDestination> GetAccountAddresses(const std::string& strAccount) const;
 
     isminetype IsMine(const CTxIn& txin) const;
-    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter) const;
+    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, const uint256& tokenId=uint256()) const;
     isminetype IsMine(const CTxOut& txout) const;
-    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
+    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, const uint256& tokenId=uint256()) const;
     bool IsChange(const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
     bool IsMine(const CTransaction& tx) const;

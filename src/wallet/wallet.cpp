@@ -1914,7 +1914,7 @@ isminetype CWallet::IsMine(const CTxIn &txin) const
     return ISMINE_NO;
 }
 
-CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
+CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter, const uint256& tokenId) const
 {
     {
         LOCK(cs_wallet);
@@ -1926,7 +1926,7 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
                 if (IsMine(prev.vout[txin.prevout.n]) & filter)
                 {
                     if (prev.vout[txin.prevout.n].HasRangeProof())
-                        return prev.vAmounts[txin.prevout.n];
+                        return prev.vout[txin.prevout.n].tokenId == tokenId ? prev.vAmounts[txin.prevout.n] : 0;
                     else
                         return prev.vout[txin.prevout.n].nValue;
                 }
@@ -1960,7 +1960,7 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
         return ::IsMine(*this, txout.scriptPubKey);
 }
 
-CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter) const
+CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter, const uint256& tokenId) const
 {
     if (!MoneyRange(txout.nValue))
         throw std::runtime_error("CWallet::GetCredit(): value out of range");
@@ -2433,7 +2433,7 @@ set<uint256> CWalletTx::GetConflicts() const
     return result;
 }
 
-CAmount CWalletTx::GetDebit(const isminefilter& filter) const
+CAmount CWalletTx::GetDebit(const isminefilter& filter, const uint256& tokenId) const
 {
     if (vin.empty())
         return 0;
@@ -2477,20 +2477,20 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
 
     if (filter & ISMINE_SPENDABLE_PRIVATE)
     {
-        if (fPrivateDebitCached) {
-            debit += nPrivateDebitCached;
+        if (fPrivateDebitCached.count(tokenId) && fPrivateDebitCached.at(tokenId) == true) {
+            debit += nPrivateDebitCached[tokenId];
         } else
         {
-            nPrivateDebitCached = pwallet->GetDebit(*this, ISMINE_SPENDABLE_PRIVATE);
-            fPrivateDebitCached = true;
-            debit += nPrivateDebitCached;
+            nPrivateDebitCached[tokenId] = pwallet->GetDebit(*this, ISMINE_SPENDABLE_PRIVATE);
+            fPrivateDebitCached[tokenId] = true;
+            debit += nPrivateDebitCached[tokenId];
         }
     }
 
     return debit;
 }
 
-CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) const
+CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity, const uint256& tokenId) const
 {
     // Must wait until coinbase is safely deep enough in the chain before valuing it
     if (fCheckMaturity && (IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
@@ -2536,8 +2536,8 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) co
 
     if (filter & ISMINE_SPENDABLE_PRIVATE)
     {
-        if (fPrivateCreditCached)
-            credit += nPrivateCreditCached;
+        if (fPrivateCreditCached.count(tokenId) && fPrivateCreditCached.at(tokenId) == true)
+            credit += nPrivateCreditCached[tokenId];
         else
         {
             CAmount nCredit = 0;
@@ -2546,6 +2546,9 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) co
             {
                 i++;
                 if (txout.spendingKey.size() == 0)
+                    continue;
+
+                if (txout.tokenId != tokenId)
                     continue;
 
                 CAmount amount = i < vAmounts.size() ? vAmounts[i] : 0;
@@ -2558,9 +2561,9 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) co
                 if (!MoneyRange(nCredit))
                     throw std::runtime_error("CWallet::GetCredit(): value out of range");
             }
-            nPrivateCreditCached = nCredit;
-            fPrivateCreditCached = true;
-            credit += nPrivateCreditCached;
+            nPrivateCreditCached[tokenId] = nCredit;
+            fPrivateCreditCached[tokenId] = true;
+            credit += nPrivateCreditCached[tokenId];
         }
     }
 
@@ -2631,7 +2634,7 @@ CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
     return nCredit;
 }
 
-CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache) const
+CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache, const uint256& tokenId) const
 {
     if (pwallet == 0)
         return 0;
@@ -2640,14 +2643,14 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache) const
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
-    if (fUseCache && fAvailablePrivateCreditCached)
-        return nAvailablePrivateCreditCached;
+    if (fUseCache && fAvailablePrivateCreditCached.count(tokenId) && fAvailablePrivateCreditCached.at(tokenId) == true)
+        return nAvailablePrivateCreditCached[tokenId];
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
     for (unsigned int i = 0; i < vout.size(); i++)
     {
-        if (!pwallet->IsSpent(hashTx, i))
+        if (!pwallet->IsSpent(hashTx, i) && vout[i].tokenId == tokenId)
         {
             const CTxOut &txout = vout[i];
             nCredit += (pwallet->IsMine(txout) & ISMINE_SPENDABLE_PRIVATE) ? vAmounts[i] : 0;
@@ -2656,25 +2659,25 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache) const
         }
     }
 
-    nAvailablePrivateCreditCached = nCredit;
-    fAvailablePrivateCreditCached = true;
+    nAvailablePrivateCreditCached[tokenId] = nCredit;
+    fAvailablePrivateCreditCached[tokenId] = true;
 
     return nCredit;
 }
 
-CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache) const
+CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache, const uint256& tokenId) const
 {
     if (pwallet == 0)
         return 0;
 
-    if (fUseCache && fImmaturePrivateCreditCached)
-        return nImmaturePrivateCreditCached;
+    if (fUseCache && fImmaturePrivateCreditCached.count(tokenId) && fImmaturePrivateCreditCached.at(tokenId) == true)
+        return nImmaturePrivateCreditCached[tokenId];
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
     for (unsigned int i = 0; i < vout.size(); i++)
     {
-        if (!pwallet->IsSpent(hashTx, i))
+        if (!pwallet->IsSpent(hashTx, i) && vout[i].tokenId == tokenId)
         {
             const CTxOut &txout = vout[i];
             nCredit += (pwallet->IsMine(txout) & ISMINE_SPENDABLE_PRIVATE) ? vAmounts[i] : 0;
@@ -2683,8 +2686,8 @@ CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache) const
         }
     }
 
-    nImmaturePrivateCreditCached = nCredit;
-    fImmaturePrivateCreditCached = true;
+    nImmaturePrivateCreditCached[tokenId] = nCredit;
+    fImmaturePrivateCreditCached[tokenId] = true;
     return nCredit;
 }
 
@@ -2940,7 +2943,7 @@ CAmount CWallet::GetBalance() const
     return nTotal;
 }
 
-CAmount CWallet::GetPrivateBalance() const
+CAmount CWallet::GetPrivateBalance(const uint256& tokenId) const
 {
     CAmount nTotal = 0;
     {
@@ -2951,7 +2954,7 @@ CAmount CWallet::GetPrivateBalance() const
             if (pcoin->IsCTOutput())
                 if (pcoin->IsInMainChain())
                 {
-                    nTotal += pcoin->GetAvailablePrivateCredit();
+                    nTotal += pcoin->GetAvailablePrivateCredit(true, tokenId);
                 }
         }
     }
@@ -2959,7 +2962,7 @@ CAmount CWallet::GetPrivateBalance() const
     return nTotal;
 }
 
-CAmount CWallet::GetPrivateBalancePending() const
+CAmount CWallet::GetPrivateBalancePending(const uint256& tokenId) const
 {
     CAmount nTotal = 0;
     {
@@ -2969,14 +2972,14 @@ CAmount CWallet::GetPrivateBalancePending() const
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
                 if (pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
-                    nTotal += pcoin->GetPendingPrivateCredit(true);
+                    nTotal += pcoin->GetPendingPrivateCredit(true, tokenId);
         }
     }
 
     return nTotal;
 }
 
-CAmount CWallet::GetPrivateBalanceLocked() const
+CAmount CWallet::GetPrivateBalanceLocked(const uint256& tokenId) const
 {
     CAmount nTotal = 0;
 
@@ -2987,7 +2990,7 @@ CAmount CWallet::GetPrivateBalanceLocked() const
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
                 if (pcoin->IsInMainChain())
-                    nTotal += pcoin->GetAvailablePrivateCredit(true);
+                    nTotal += pcoin->GetAvailablePrivateCredit(true, tokenId);
         }
     }
 
@@ -3129,7 +3132,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
     }
 }
 
-void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount, bool fRecursive, bool fTryToSpendLocked) const
+void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount, bool fRecursive, bool fTryToSpendLocked, const uint256& tokenId) const
 {
     vCoins.clear();
 
@@ -3178,6 +3181,9 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                 if (pcoin->vout[i].spendingKey.size() == 0)
                     continue;
 
+                if (pcoin->vout[i].tokenId != tokenId)
+                    continue;
+
                 std::string memo = pcoin->vMemos[i];
                 CAmount amount = pcoin->vAmounts[i];
                 Scalar gamma = pcoin->vGammas[i];
@@ -3212,7 +3218,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
 
     if (vCoins.size() == 0 && nLockedOutputs >= 1 && !fRecursive && fTryToSpendLocked)
     {
-        AvailablePrivateCoins(vCoins, fOnlyConfirmed, coinControl, fIncludeZeroValue, nMinAmount, true);
+        AvailablePrivateCoins(vCoins, fOnlyConfirmed, coinControl, fIncludeZeroValue, nMinAmount, true, true, tokenId);
     }
 }
 
@@ -3495,7 +3501,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey,
                                 std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, bool fPrivate, const CCoinControl* coinControl,
-                                bool sign, const CandidateTransaction* coinsToMix, uint64_t nBLSCTAccount)
+                                bool sign, const CandidateTransaction* coinsToMix, uint64_t nBLSCTAccount, const uint256& tokenId)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -3598,7 +3604,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
             std::vector<COutput> vAvailableCoins;
 
             if(fPrivate)
-                AvailablePrivateCoins(vAvailableCoins, true, coinControl);
+                AvailablePrivateCoins(vAvailableCoins, true, coinControl, false, 0, false, true, tokenId);
             else
                 AvailableCoins(vAvailableCoins, true, coinControl);
 

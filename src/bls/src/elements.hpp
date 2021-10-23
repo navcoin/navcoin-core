@@ -55,6 +55,7 @@ public:
     friend bool operator==(const G1Element &a, const G1Element &b);
     friend bool operator!=(const G1Element &a, const G1Element &b);
     friend std::ostream &operator<<(std::ostream &os, const G1Element &s);
+    friend int operator<(const G1Element &a, const G1Element &b);
     friend G1Element operator+(const G1Element &a, const G1Element &b);
     friend G1Element operator*(const G1Element &a, const bn_t &k);
     friend G1Element operator*(const bn_t &k, const G1Element &a);

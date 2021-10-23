@@ -539,7 +539,6 @@ inline void Unserialize(Stream& s, Consensus::ConsensusParamsPos& a, int nType, 
 }
 
 // Serialization for bls::G1Element
-inline unsigned int GetSerializedSize(bls::G1Element a, int, int = 0) { return bls::G1Element::SIZE; }
 template <typename Stream>
 inline void Serialize(Stream& s, bls::G1Element a, int nType, int nVersion = 0)
 {
@@ -553,6 +552,11 @@ inline void Unserialize(Stream& s, bls::G1Element & a, int nType, int nVersion =
     std::vector<uint8_t> f(bls::G1Element::SIZE);
     Unserialize(s, f, nType, nVersion);
     a = bls::G1Element::FromByteVector(f);
+}
+
+unsigned int GetSerializeSize(bls::G1Element item, int nType, int nVersion)
+{
+    return item.Serialize().size();
 }
 
 /**

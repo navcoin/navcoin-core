@@ -204,6 +204,11 @@ G1Element operator+(const G1Element& a, const G1Element& b)
     return ret;
 }
 
+int operator<(const G1Element& a, const G1Element& b)
+{
+    return g1_cmp(a.p, b.p);
+}
+
 G1Element operator*(const G1Element& a, const bn_t& k)
 {
     G1Element nonConstA(a);
