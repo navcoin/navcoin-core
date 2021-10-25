@@ -62,7 +62,7 @@ static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     "Allows staking pools to charge a fee",
     "Activates the privacy protocol blsCT and the private token xNAV",
     "Excludes inactive voters from the DAO quorums",
-    "Enables Super proposals and allows combined vote of consensus parameters"
+    "Enables Super proposals and allows combined vote of consensus parameters",
     "Burns the transaction fees"
 };
 
