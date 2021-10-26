@@ -72,12 +72,13 @@ std::string CTxOut::ToString() const
         return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
     else
     {
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s%s vData=%d)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
                          scriptPubKey.ToString(),
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
-                         GetBulletproof().V.size()>0 ? " rangeProof=1":"");
+                         GetBulletproof().V.size()>0 ? " rangeProof=1":"",
+                         tokenId==bls::G1Element() ? "": strprintf(" tokenId=%s", HexStr(tokenId.Serialize())), vData.size());
     }
 }
 

@@ -297,16 +297,16 @@ public:
     mutable bool fDebitCached;
     mutable bool fCreditCached;
     mutable bool fImmatureCreditCached;
-    mutable std::map<uint256, bool> fImmaturePrivateCreditCached;
+    mutable std::map<bls::G1Element, bool> fImmaturePrivateCreditCached;
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
-    mutable std::map<uint256, bool> fPrivateCreditCached;
-    mutable std::map<uint256, bool> fAvailablePrivateCreditCached;
+    mutable std::map<bls::G1Element, bool> fPrivateCreditCached;
+    mutable std::map<bls::G1Element, bool> fAvailablePrivateCreditCached;
     mutable bool fAvailableStakableCreditCached;
-    mutable std::map<uint256, bool> fPrivateDebitCached;
+    mutable std::map<bls::G1Element, bool> fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
@@ -314,16 +314,16 @@ public:
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
-    mutable std::map<uint256, CAmount> nImmaturePrivateCreditCached;
+    mutable std::map<bls::G1Element, CAmount> nImmaturePrivateCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
-    mutable std::map<uint256, CAmount> nPrivateCreditCached;
-    mutable std::map<uint256, CAmount> nAvailablePrivateCreditCached;
+    mutable std::map<bls::G1Element, CAmount> nPrivateCreditCached;
+    mutable std::map<bls::G1Element, CAmount> nAvailablePrivateCreditCached;
     mutable CAmount nAvailableStakableCreditCached;
-    mutable std::map<uint256, CAmount> nPrivateDebitCached;
+    mutable std::map<bls::G1Element, CAmount> nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -548,13 +548,13 @@ public:
     }
 
     //! filter decides which addresses will count towards the debit
-    CAmount GetDebit(const isminefilter& filter, const uint256& tokenId=uint256()) const;
-    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true, const uint256& tokenId=uint256()) const;
+    CAmount GetDebit(const isminefilter& filter, const bls::G1Element& tokenId=bls::G1Element()) const;
+    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true, const bls::G1Element& tokenId=bls::G1Element()) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true, const uint256& tokenId=uint256()) const;
-    CAmount GetPendingPrivateCredit(const bool& fUseCache=true, const uint256& tokenId=uint256()) const;
+    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true, const bls::G1Element& tokenId=bls::G1Element()) const;
+    CAmount GetPendingPrivateCredit(const bool& fUseCache=true, const bls::G1Element& tokenId=bls::G1Element()) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -597,6 +597,8 @@ struct CRecipient
     std::vector<unsigned char> sk;
     std::vector<unsigned char> vk;
     std::string sMemo;
+    std::vector<unsigned char> vData;
+    bls::G1Element tokenId;
 };
 
 class COutput
@@ -612,16 +614,17 @@ public:
     CAmount nAmount;
     Scalar gamma;
     string sAddress;
+    bls::G1Element tokenId;
     int mixCount;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0)
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0, bls::G1Element tokenIdIn = bls::G1Element())
     {
-        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn;
+        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0)
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0, bls::G1Element tokenIdIn = bls::G1Element())
     {
-        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn;
+        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
 
     std::string ToString() const;
@@ -808,6 +811,7 @@ public:
     std::map<uint64_t, std::set<uint64_t>> mapBLSCTSubAddressKeyPool;
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
     std::map<CKeyID, CBLSCTBlindingKeyMetadata> mapBLSCTBlindingKeyMetadata;
+    std::map<CKeyID, CBLSCTTokenKeyMetadata> mapBLSCTTokenKeyMetadata;
     std::map<uint256, std::vector<unsigned char>> mapNonces;
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
@@ -887,7 +891,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
-    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const uint256& tokenId=uint256()) const;
+    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const bls::G1Element& tokenId=bls::G1Element()) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -919,18 +923,22 @@ public:
      */
     CPubKey GenerateNewKey();
     blsctPublicKey GenerateNewBlindingKey();
+    blsctPublicKey GenerateNewTokenKey();
     bool GenerateNewSubAddress(const uint64_t& account, blsctDoublePublicKey& pk);
     //! Adds a key to the store, and saves it to disk.
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
     bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
+    bool AddBLSCTTokenKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
     bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     //! Adds a key to the store, without saving it to disk (used by LoadWallet)
     bool LoadKey(const CKey& key, const CPubKey &pubkey) { return CCryptoKeyStore::AddKeyPubKey(key, pubkey); }
     bool LoadBLSCTBlindingKey(const blsctKey& key, const blsctPublicKey &pubkey) { return CBasicKeyStore::AddBLSCTBlindingKeyPubKey(key, pubkey); }
+    bool LoadBLSCTTokenKey(const blsctKey& key, const blsctPublicKey &pubkey) { return CBasicKeyStore::AddBLSCTTokenKeyPubKey(key, pubkey); }
     bool LoadBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index) { return CBasicKeyStore::AddBLSCTSubAddress(hashId, index); }
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CPubKey &pubkey, const CKeyMetadata &metadata);
     bool LoadBLSCTBlindingKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTBlindingKeyMetadata &metadata);
+    bool LoadBLSCTTokenKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTTokenKeyMetadata &metadata);
 
     bool WriteCandidateTransactions();
     bool WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce);
@@ -984,9 +992,9 @@ public:
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
     CAmount GetColdStakingBalance() const;
-    CAmount GetPrivateBalance(const uint256& tokenId=uint256()) const;
-    CAmount GetPrivateBalancePending(const uint256& tokenId=uint256()) const;
-    CAmount GetPrivateBalanceLocked(const uint256& tokenId=uint256()) const;
+    CAmount GetPrivateBalance(const bls::G1Element& tokenId=bls::G1Element()) const;
+    CAmount GetPrivateBalancePending(const bls::G1Element& tokenId=bls::G1Element()) const;
+    CAmount GetPrivateBalanceLocked(const bls::G1Element& tokenId=bls::G1Element()) const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
@@ -1009,7 +1017,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const uint256& tokenId=uint256());
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const bls::G1Element& tokenId=bls::G1Element());
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
@@ -1062,9 +1070,9 @@ public:
     std::set<CTxDestination> GetAccountAddresses(const std::string& strAccount) const;
 
     isminetype IsMine(const CTxIn& txin) const;
-    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, const uint256& tokenId=uint256()) const;
+    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, const bls::G1Element& tokenId=bls::G1Element()) const;
     isminetype IsMine(const CTxOut& txout) const;
-    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, const uint256& tokenId=uint256()) const;
+    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, const bls::G1Element& tokenId=bls::G1Element()) const;
     bool IsChange(const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
     bool IsMine(const CTransaction& tx) const;
@@ -1111,7 +1119,7 @@ public:
     }
 
     bool SetDefaultKey(const CPubKey &vchPubKey);
-    bool SetBLSCTKeys(const bls::PrivateKey& v, const bls::PrivateKey& s, const bls::PrivateKey& b);
+    bool SetBLSCTKeys(const bls::PrivateKey& v, const bls::PrivateKey& s, const bls::PrivateKey& b, const bls::PrivateKey& t);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
     bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = NULL, bool fExplicit = false);

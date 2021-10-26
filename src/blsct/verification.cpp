@@ -7,8 +7,9 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
-    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    std::map<bls::G1Element, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
     std::vector<bls::G1Element> nonces;
+
 
     bls::G1Element balKey, balKeyOut;
     bool fElementZero = true;
@@ -56,6 +57,9 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     {
         if (fCheckBalance || fCheckBLSSignature)
         {
+            if (tx.vin[j].prevout.hash == ArithToUint256(~arith_uint256()))
+                continue;
+
             const CTxOut &prevOut = view.GetOutputFor(tx.vin[j]);
 
             gens = BulletproofsRangeproof::GetGenerators(prevOut.tokenId);
@@ -99,6 +103,53 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     for (size_t j = 0; j < tx.vout.size(); j++)
     {
         gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+        uint256 hash;
+
+        if (tx.vout[j].vData.size() > 0)
+        {
+            try {
+                Predicate program(tx.vout[j].vData);
+
+                if (program.action == ERR) {
+                    return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                } else if (program.action == CREATE_TOKEN) {
+                    auto tokenId = program.kParameters[0];
+
+                    txSigningKeys.push_back(tokenId);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                } else if (program.action == MINT) {
+                    auto tokenId = program.kParameters[0];
+
+                    txSigningKeys.push_back(tokenId);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
+                    Scalar s = Scalar(program.nParameters[0]);
+
+                    if (fElementZero)
+                    {
+                        balKey = gensToken.H*s.bn;
+                    }
+                    else
+                    {
+                        bls::G1Element t = gensToken.H*s.bn;
+                        balKey = balKey + t;
+                    }
+                    fElementZero = false;
+                } else if (program.action == STOP_MINT) {
+                    auto tokenId = program.kParameters[0];
+
+                    txSigningKeys.push_back(tokenId);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                }
+            } catch(...) {
+                return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+            }
+        }
 
         if (tx.vout[j].HasRangeProof())
         {
@@ -109,7 +160,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
 
             if (fCheckRange)
             {
-                proofs.push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
+                proofs[tx.vout[j].tokenId].push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
@@ -139,6 +190,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         }
         else if (fCheckBalance)
         {
+            gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
             if (fElementZeroOut)
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
@@ -169,17 +222,23 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
             }
 
-            uint256 hash = tx.vout[j].GetHash();
+            if (hash == uint256())
+                hash = tx.vout[j].GetHash();
 
             vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
         }
     }
 
-    if (fCheckRange && proofs.size() > 0)
+    if (fCheckRange)
     {
-        if (!VerifyBulletproof(proofs, vData, nonces, fOnlyRecover))
-        {
-            return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+        for (auto& it: proofs){
+            if (it.second.size() > 0)
+            {
+                if (!VerifyBulletproof(it.second, vData, nonces, fOnlyRecover, it.first))
+                {
+                    return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+                }
+            }
         }
     }
 

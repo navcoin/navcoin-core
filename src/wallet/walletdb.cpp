@@ -137,6 +137,17 @@ bool CWalletDB::WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const bls
     return Write(std::make_pair(std::string("blsctblindingkey"), vchPubKey), vchPrivKey, false);
 }
 
+bool CWalletDB::WriteBLSCTTokenKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTTokenKeyMetadata& keyMeta)
+{
+    nWalletDBUpdated++;
+
+    if (!Write(std::make_pair(std::string("blscttokenkeymeta"), vchPubKey),
+               keyMeta, false))
+        return false;
+
+    return Write(std::make_pair(std::string("blscttokenkey"), vchPubKey), vchPrivKey, false);
+}
+
 bool CWalletDB::WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index)
 {
     nWalletDBUpdated++;
@@ -232,6 +243,12 @@ bool CWalletDB::WriteBLSCTBlindingMasterKey(const blsctKey& key)
     return Write(std::string("blsctblindingmasterkey"), key);
 }
 
+bool CWalletDB::WriteBLSCTTokenMasterKey(const blsctKey& key)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("blscttokenmasterkey"), key);
+}
+
 bool CWalletDB::WriteBLSCTDoublePublicKey(const blsctDoublePublicKey& key)
 {
     nWalletDBUpdated++;
@@ -250,7 +267,7 @@ bool CWalletDB::WriteBLSCTKey(const CWallet* pwallet)
     std::vector<unsigned char> vchCk;
     blsctKey v, s;
     blsctDoublePublicKey p;
-    blsctKey b;
+    blsctKey b, t;
 
     if (!pwallet->GetCryptedBLSCTSpendKey(vchCk))
         if (!pwallet->GetBLSCTSpendKey(s))
@@ -280,6 +297,12 @@ bool CWalletDB::WriteBLSCTKey(const CWallet* pwallet)
         return false;
 
     if (!WriteBLSCTBlindingMasterKey(b))
+        return false;
+
+    if (!pwallet->GetBLSCTTokenMasterKey(t))
+        return false;
+
+    if (!WriteBLSCTTokenMasterKey(t))
         return false;
 
     return true;
@@ -501,13 +524,14 @@ public:
     unsigned int nCKeys;
     unsigned int nKeyMeta;
     unsigned int nBLSCTBlindingKeyMeta;
+    unsigned int nBLSCTTokenKeyMeta;
     bool fIsEncrypted;
     bool fAnyUnordered;
     int nFileVersion;
     vector<uint256> vWalletUpgrade;
 
     CWalletScanState() {
-        nKeys = nCKeys = nKeyMeta = nSubAddresses = nBLSCTBlindingKeyMeta = nBLSCTKeys = 0;
+        nKeys = nCKeys = nKeyMeta = nSubAddresses = nBLSCTBlindingKeyMeta = nBLSCTTokenKeyMeta = nBLSCTKeys = 0;
         fIsEncrypted = false;
         fAnyUnordered = false;
         nFileVersion = 0;
@@ -696,6 +720,26 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 return false;
             }
         }
+        else if (strType == "blscttokenkey")
+        {
+            blsctPublicKey vchPubKey;
+            ssKey >> vchPubKey;
+            if (!vchPubKey.IsValid())
+            {
+                strErr = "Error reading wallet database: blsctDoublePublicKey corrupt";
+                return false;
+            }
+            blsctKey key;
+
+            wss.nBLSCTKeys++;
+            ssValue >> key;
+
+            if (!pwallet->LoadBLSCTTokenKey(key, vchPubKey))
+            {
+                strErr = "Error reading wallet database: LoadBLSCTBlindingKey failed";
+                return false;
+            }
+        }
         else if (strType == "blsctsubaddress")
         {
             CKeyID hashId;
@@ -772,6 +816,16 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             pwallet->LoadBLSCTBlindingKeyMetadata(vchPubKey, keyMeta);
         }
+        else if (strType == "blscttokenkeymeta")
+        {
+            blsctPublicKey vchPubKey;
+            ssKey >> vchPubKey;
+            CBLSCTTokenKeyMetadata keyMeta;
+            ssValue >> keyMeta;
+            wss.nBLSCTTokenKeyMeta++;
+
+            pwallet->LoadBLSCTTokenKeyMetadata(vchPubKey, keyMeta);
+        }
         else if (strType == "defaultkey")
         {
             ssValue >> pwallet->vchDefaultKey;
@@ -802,6 +856,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             blsctKey v;
             ssValue >> v;
             pwallet->SetBLSCTBlindingMasterKey(v);
+        }
+        else if (strType == "blscttokenmasterkey")
+        {
+            blsctKey v;
+            ssValue >> v;
+            pwallet->SetBLSCTTokenMasterKey(v);
         }
         else if (strType == "blsctspendkey")
         {

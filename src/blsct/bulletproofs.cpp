@@ -29,7 +29,8 @@ Scalar BulletproofsRangeproof::ip12;
 boost::mutex BulletproofsRangeproof::init_mutex;
 
 bls::G1Element BulletproofsRangeproof::G;
-std::map<uint256, bls::G1Element> BulletproofsRangeproof::H;
+std::map<bls::G1Element, bls::G1Element> BulletproofsRangeproof::H;
+bls::G1Element BulletproofsRangeproof::g1_zero = bls::G1Element();
 
 // Calculate base point
 static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx, std::string tokId = "")
@@ -71,15 +72,15 @@ bool BulletproofsRangeproof::Init()
     BulletproofsRangeproof::two = 2;
 
     BulletproofsRangeproof::G = bls::G1Element::Generator();
-    BulletproofsRangeproof::H[uint256()] = GetBaseG1Element(BulletproofsRangeproof::G, 0);
+    BulletproofsRangeproof::H[BulletproofsRangeproof::g1_zero] = GetBaseG1Element(BulletproofsRangeproof::G, 0);
 
     BulletproofsRangeproof::Hi.resize(maxMN);
     BulletproofsRangeproof::Gi.resize(maxMN);
 
     for (size_t i = 0; i < maxMN; ++i)
     {
-        BulletproofsRangeproof::Hi[i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 1);
-        BulletproofsRangeproof::Gi[i] = GetBaseG1Element(BulletproofsRangeproof::H[uint256()], i * 2 + 2);
+        BulletproofsRangeproof::Hi[i] = GetBaseG1Element(BulletproofsRangeproof::H[BulletproofsRangeproof::g1_zero], i * 2 + 1);
+        BulletproofsRangeproof::Gi[i] = GetBaseG1Element(BulletproofsRangeproof::H[BulletproofsRangeproof::g1_zero], i * 2 + 2);
     }
 
     BulletproofsRangeproof::oneN = VectorDup(BulletproofsRangeproof::one, maxN);
@@ -91,14 +92,14 @@ bool BulletproofsRangeproof::Init()
     return true;
 }
 
-Generators BulletproofsRangeproof::GetGenerators(const uint256& tokenId)
+Generators BulletproofsRangeproof::GetGenerators(const bls::G1Element& tokenId)
 {
     if (BulletproofsRangeproof::H.count(tokenId))
     {
         return {BulletproofsRangeproof::G, BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi, BulletproofsRangeproof::Hi};
     }
 
-    BulletproofsRangeproof::H[tokenId] = GetBaseG1Element(BulletproofsRangeproof::G, 0, tokenId.ToString());
+    BulletproofsRangeproof::H[tokenId] = GetBaseG1Element(BulletproofsRangeproof::G, 0, SerializeHash(tokenId).ToString());
 
     return {BulletproofsRangeproof::G, BulletproofsRangeproof::H[tokenId], BulletproofsRangeproof::Gi, BulletproofsRangeproof::Hi};
 }
@@ -149,7 +150,7 @@ bls::G1Element MultiExpLegacy(std::vector<MultiexpData> multiexp_data)
 }
 
 /* Given two Scalar arrays, construct a vector commitment */
-static bls::G1Element VectorCommitment(const std::vector<Scalar> &a, const std::vector<Scalar> &b, const uint256& tokenId=uint256())
+static bls::G1Element VectorCommitment(const std::vector<Scalar> &a, const std::vector<Scalar> &b, const bls::G1Element& tokenId=bls::G1Element())
 {
     CHECK_AND_ASSERT_THROW_MES(a.size() == b.size(), "Incompatible sizes of a and b");
     CHECK_AND_ASSERT_THROW_MES(a.size() <= maxMN, "Incompatible sizes of a and maxN");
@@ -413,7 +414,7 @@ bls::G1Element CrossVectorExponent(size_t size, const std::vector<bls::G1Element
     return MultiExp(multiexp_data);
 }
 
-void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message, const uint256& tokenId)
+void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message, const bls::G1Element& tokenId)
 {
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
@@ -739,7 +740,7 @@ struct proof_data_t
     size_t logM, inv_offset;
 };
 
-bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& vData, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover, const uint256& tokenId)
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& vData, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover, const bls::G1Element& tokenId)
 {
     bool fRecover = false;
 

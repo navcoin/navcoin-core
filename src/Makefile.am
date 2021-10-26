@@ -114,6 +114,8 @@ NAVCOIN_CORE_H = \
   consensus/dao.h \
   consensus/daoconsensusparams.h \
   consensus/dao/flags.h \
+  consensus/programs.h \
+  ctokens/ctokens.h \
   daoversionbit.h \
   consensus/consensus.h \
   core_io.h \

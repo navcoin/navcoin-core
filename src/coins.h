@@ -593,7 +593,6 @@ protected:
     /* Whether this cache has an active modifier. */
     bool hasModifier;
     bool hasModifierConsensus;
-    bool hasModifierToken;
 
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
@@ -652,10 +651,12 @@ public:
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
+    bool AddToken(const Token& token) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
+    bool RemoveToken(const bls::G1Element &pid) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);
 

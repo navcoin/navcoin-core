@@ -13,6 +13,7 @@
 #include <script/script.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <arith_uint256.h>
 #include <univalue/include/univalue.h>
 
 #define TX_BLS_INPUT_FLAG 0x10
@@ -80,6 +81,7 @@ public:
     COutPoint prevout;
     CScript scriptSig;
     uint32_t nSequence;
+    std::vector<unsigned char> vData;
 
     /* Setting nSequence to this value for every input in a transaction
      * disables nLockTime. */
@@ -123,6 +125,8 @@ public:
         READWRITE(prevout);
         READWRITE(*(CScriptBase*)(&scriptSig));
         READWRITE(nSequence);
+        if (prevout.hash == ArithToUint256(~arith_uint256()))
+            READWRITE(vData);
     }
 
     friend bool operator==(const CTxIn& a, const CTxIn& b)
@@ -164,7 +168,7 @@ public:
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
     std::vector<uint8_t> vData;
-    uint256 tokenId;
+    bls::G1Element tokenId;
     BulletproofsRangeproof cacheBp;
     uint256 cacheHash;
     bool newSer;
@@ -235,7 +239,7 @@ public:
         }
         else
         {
-            if (vData.size() > 0 || tokenId != uint256() || newSer)
+            if (vData.size() > 0 || tokenId != bls::G1Element() || newSer)
             {
                 newSer = true;
 
@@ -251,7 +255,7 @@ public:
                     nMarker  |= 0x1<<3;
                 if (bp.size() > 0) {
                     nMarker  |= 0x1<<4;
-                    if (tokenId != uint256())
+                    if (tokenId != bls::G1Element())
                         nMarker  |= 0x1<<5;
                 }
                 if (vData.size() > 0)
@@ -309,7 +313,7 @@ public:
         outputKey.clear();
         spendingKey.clear();
         vData.clear();
-        tokenId = uint256();
+        tokenId = bls::G1Element();
     }
 
     BulletproofsRangeproof GetBulletproof() const

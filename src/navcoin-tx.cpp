@@ -488,6 +488,8 @@ static void MutateTxSign(CMutableTransaction& tx, const string& flagStr)
     // Sign what we can:
     for (unsigned int i = 0; i < mergedTx.vin.size(); i++) {
         CTxIn& txin = mergedTx.vin[i];
+        if (txin.prevout.hash == ArithToUint256(~arith_uint256()))
+            continue;
         const CCoins* coins = view.AccessCoins(txin.prevout.hash);
         if (!coins || !coins->IsAvailable(txin.prevout.n)) {
             fComplete = false;

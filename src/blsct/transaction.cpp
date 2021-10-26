@@ -5,9 +5,13 @@
 #include "transaction.h"
 
 bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
-                       Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify)
+                       Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData,
+                       const bls::G1Element& tokenId)
 {
     newTxOut = CTxOut(0, CScript(OP_1));
+
+    newTxOut.vData = vData;
+    newTxOut.tokenId = tokenId;
 
     std::vector<Scalar> value;
     value.push_back(nAmount);
@@ -36,7 +40,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
 
     try
     {
-        bprp.Prove(value, nonces[0], vMemo);
+        bprp.Prove(value, nonces[0], vMemo, newTxOut.tokenId);
     }
     catch(std::runtime_error& e)
     {
@@ -48,7 +52,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     proofs.push_back(std::make_pair(0,bprp));
     std::vector<RangeproofEncodedData> data;
 
-    if (GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces))
+    if (GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces, false, tokenId))
     {
         strFailReason = "Range proof failed";
         return false;

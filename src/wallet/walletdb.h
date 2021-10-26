@@ -52,6 +52,7 @@ class CHDChain
 public:
     uint32_t nExternalChainCounter;
     uint32_t nExternalBLSCTChainCounter;
+    uint32_t nExternalBLSCTTokenCounter;
     std::map<uint64_t, uint64_t> nExternalBLSCTSubAddressCounter;
     CKeyID masterKeyID; //!< master key hash160
 
@@ -184,6 +185,42 @@ public:
     }
 };
 
+class CBLSCTTokenKeyMetadata
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime; // 0 means unknown
+    std::string hdKeypath; //optional HD/bip32 keypath
+
+    CBLSCTTokenKeyMetadata()
+    {
+        SetNull();
+    }
+    CBLSCTTokenKeyMetadata(int64_t nCreateTime_)
+    {
+        SetNull();
+        nCreateTime = nCreateTime_;
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(this->nVersion);
+        nVersion = this->nVersion;
+        READWRITE(nCreateTime);
+        READWRITE(hdKeypath);
+    }
+
+    void SetNull()
+    {
+        nVersion = CBLSCTTokenKeyMetadata::CURRENT_VERSION;
+        nCreateTime = 0;
+        hdKeypath.clear();
+    }
+};
+
 /** Access to the wallet database */
 class CWalletDB : public CDB
 {
@@ -248,9 +285,11 @@ public:
     bool WriteBLSCTViewKey(const blsctKey& key);
     bool WriteBLSCTDoublePublicKey(const blsctDoublePublicKey& key);
     bool WriteBLSCTBlindingMasterKey(const blsctKey& key);
+    bool WriteBLSCTTokenMasterKey(const blsctKey& key);
     bool WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck);
     bool WriteBLSCTKey(const CWallet* pwallet);
     bool WriteBLSCTBlindingKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTBlindingKeyMetadata& keyMeta);
+    bool WriteBLSCTTokenKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTTokenKeyMetadata& keyMeta);
     bool WriteBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     bool WriteCandidateTransactions(const std::vector<CandidateTransaction>& candidates);
     bool WriteOutputNonce(const uint256& hash, const std::vector<unsigned char>& nonce);

@@ -256,7 +256,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw runtime_error(
-            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
+                "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
             "Returns a coldstaking address based on the address inputs\n"
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
@@ -264,9 +264,9 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             "3. \"voting\"          (string, optional) The navcoin voting address.\n\n"
             "\nExamples:\n"
             + HelpExampleCli("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"") +
-            "\nAs a json rpc call\n"
+                "\nAs a json rpc call\n"
             + HelpExampleRpc("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\", \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"")
-        );
+                );
 
     if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
@@ -274,7 +274,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && params.size() == 3)
         throw runtime_error(
-            "Cold Staking v2 is not active yet.");
+                "Cold Staking v2 is not active yet.");
 
     if (params[0].get_str() == params[1].get_str())
         throw runtime_error(
@@ -535,16 +535,31 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const bls::G1Element &tokenId=bls::G1Element())
 {
-    CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance() : pwalletMain->GetBalance();
+    CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance(tokenId) : pwalletMain->GetBalance();
 
     // Check amount
-    if (nValue <= 0)
+    if (nValue < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
 
-    if (nValue > curBalance)
-        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+    CAmount toMint = 0;
+
+    if (tokenId != bls::G1Element()) {
+        fSubtractFeeFromAmount = false;
+        if (vData.size() > 0)
+        {
+            Predicate program(vData);
+
+            if (program.action == MINT && program.kParameters[0] == tokenId)
+            {
+                toMint += program.nParameters[0];
+            }
+        }
+    }
+
+    if (nValue-toMint > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strprintf("Insufficient funds (available %d, trying to send %d)", curBalance, nValue-toMint));
 
     CScript CFContributionScript;
 
@@ -552,7 +567,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CScript scriptPubKey = GetScriptForDestination(address);
 
     if(donate)
-      SetScriptForCommunityFundContribution(scriptPubKey);
+        SetScriptForCommunityFundContribution(scriptPubKey);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -574,7 +589,9 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         recipient.sk = sk.Serialize();
         recipient.vk = vk.Serialize();
         recipient.sMemo = wtxNew.mapValue["comment"];
+        recipient.tokenId = tokenId;
     }
+    recipient.vData = vData;
     vecSend.push_back(recipient);
 
     std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
@@ -588,7 +605,8 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         }
     }
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix, 0, tokenId)) {
+        LogPrintf("%s: %s\n", __func__, strError);
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -979,10 +997,10 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw runtime_error(
-            "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
+                "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
             "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. \"navcoinaddress\"       (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"               (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
@@ -995,8 +1013,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 86400 \"Development\"")
-            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 12000 3600 \"Promotional stickers for everyone\" 100")
-        );
+                + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 12000 3600 \"Promotional stickers for everyone\" 100")
+                );
 
     if (!Params().GetConsensus().fDaoClientActivated)
         throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
@@ -1018,11 +1036,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CNavcoinAddress paddress(paymentAddress);
     if (!paddress.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for payment");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for payment");
 
     CNavcoinAddress oaddress(ownerAddress);
     if (!oaddress.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for the owner");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for the owner");
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
@@ -1079,6 +1097,133 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     }
 }
 
+UniValue createtoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw runtime_error(
+            "createtoken \"name\" \"token_code\" max_supply\n"
+            "\nCreates a confidential token.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name of the token\n"
+            "2. max_supply     (numeric, optional) The max supply of the token.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createtoken", "\"BabyNAV\" \"BNAV\" 1000")
+                + HelpExampleCli("createtoken", "\"Wrapped Bitcoin\" \"wBTC\" 21000000")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name and token_code must be strings");
+
+    string sName = params[0].get_str();
+    string sDesc = params[1].get_str();
+
+    // Supply
+    CAmount nSupply = AmountFromValue(params[2]);
+    if (nSupply <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
+
+    blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
+    bls::G1Element pkg1;
+    pk.GetG1Element(pkg1);
+
+    while(view.HaveToken(pkg1)) {
+        pk = pwalletMain->GenerateNewTokenKey();
+        pk.GetG1Element(pkg1);
+    }
+
+    TokenInfo token(pkg1, sName, sDesc, nSupply);
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, token.GetCreateProgram());
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue minttoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw runtime_error(
+            "minttoken \"tokenid\" \"destination\" amount\n"
+            "\nMints confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "2. \"destination\" (string, required) The xNAV destination addressn"
+            "3. amount        (string, required) The amount to mint\n"
+            "\nExamples:\n"
+            + HelpExampleCli("minttoken", "\"a7be93b41e708d21d6c94920401ca5fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    bls::G1Element tokenId;
+
+    try {
+        tokenId = bls::G1Element::FromByteVector(ParseHex(token));
+    }
+    catch (...) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong token id");
+    }
+
+    if (!view.HaveToken(tokenId))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    if (!pwalletMain->HaveBLSCTTokenKey(tokenId))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+
+    string address = params[1].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Supply
+    CAmount amount = AmountFromValue(params[2]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, tokenInfo.GetMintProgram(amount, tokenId), tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
 UniValue getconsensusparameters(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -1128,10 +1273,10 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
         throw runtime_error(
-            "proposeconsensuschange parameter value ( fee dump_raw )\n"
+                "proposeconsensuschange parameter value ( fee dump_raw )\n"
             "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(nMinFee) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. parameter        (numeric, required) The parameter id as specified in the output of the getconsensusparameters rpc command.\n"
             "2. value            (numeric, optional) The proposed value.\n"
             "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
@@ -1141,7 +1286,7 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("proposeconsensuschange", "1 10")
-        );
+                );
 
     CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -1225,10 +1370,10 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 1)
         throw runtime_error(
-            "createconsultation \"question\" ( min max range fee dump_raw )\n"
+                "createconsultation \"question\" ( min max range fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. \"question\"       (string, required) The question of the new consultation.\n"
             "2. min              (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
             "3. max              (numeric, optional) The maximum amount of answers a block can vote for.\n"
@@ -1240,8 +1385,8 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("createconsultation", "\"Who should be the CEO of Navcoin? /s\" 1 1")
-            + HelpExampleCli("createconsultation", "\"How much should Navcoin's CEO earn per month? /s\" 1000 5000 true")
-        );
+                + HelpExampleCli("createconsultation", "\"How much should Navcoin's CEO earn per month? /s\" 1000 5000 true")
+                );
 
     CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -1321,10 +1466,10 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw runtime_error(
-            "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
+                "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. \"question\"            (string, required) The question of the new consultation.\n"
             "2.  \"[answers]\"          (array of strings, required) An array of strings with the proposed answers.\n"
             "3. maxanswers            (numeric, optional) The maximum amount of answers a block can vote for at the same time.\n"
@@ -1336,7 +1481,7 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of Navcoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
-        );
+                );
 
     CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -1411,16 +1556,16 @@ std::string random_string( size_t length )
 {
     auto randchar = []() -> char
     {
-            const char charset[] =
-            "0123456789"
+        const char charset[] =
+                "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
-            const size_t max_index = (sizeof(charset) - 1);
-            return charset[ rand() % max_index ];
-};
-std::string str(length,0);
-std::generate_n( str.begin(), length, randchar );
-return str;
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
 }
 
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
@@ -1430,10 +1575,10 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 3)
         throw runtime_error(
-            "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
+                "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to withdraw. eg 10\n"
             "3. \"id\"                 (string, required) Unique id to identify the payment request\n"
@@ -1443,7 +1588,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("createpaymentrequest", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" 1000 \"Invoice March 2017\"")
-        );
+                );
 
     if (!Params().GetConsensus().fDaoClientActivated)
         throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
@@ -1563,10 +1708,10 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw runtime_error(
-            "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
+                "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
             "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
-            "\nArguments:\n"
+                "\nArguments:\n"
             "1. \"hash\"         (string, required) The hash of the already existing consultation.\n"
             "2. \"answer\"       (string, required) The proposed answer.\n"
             "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
@@ -1576,10 +1721,10 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Vitalik Buterin\"")
-            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Satoshi Nakamoto\"")
-            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Charlie Lee\"")
-            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
-        );
+                + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Satoshi Nakamoto\"")
+                + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Charlie Lee\"")
+                + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
+                );
 
     CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -2708,9 +2853,9 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
         entry.pushKV("amount", ValueFromAmount(r.amount));
 
         entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
-                                          (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                           !CNavcoinAddress(r.destination).IsColdStakingAddress(Params()) &&
-                                           !CNavcoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
+                                  (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
+                                   !CNavcoinAddress(r.destination).IsColdStakingAddress(Params()) &&
+                                   !CNavcoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
         entry.pushKV("canSpend", ((::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) || (pwalletMain->IsMine(wtx.vout[r.vout]) & ISMINE_SPENDABLE_PRIVATE)) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
             entry.pushKV("label", account);
@@ -3502,7 +3647,7 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "encrypttxdata \"passphrase\"\n"
+                "encrypttxdata \"passphrase\"\n"
             "\nEncrypts the wallet database using \"passphrase\", effectively encrypting your\n"
             "transaction data and addressbook, you can also use this rpc command to change the\n"
             "encryption \"passphrase\" of an already encrypted wallet database.\n"
@@ -3512,9 +3657,9 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             "\nEncrypt you wallet\n"
             + HelpExampleCli("encrypttxdata", "\"my pass phrase\"") +
-            "\nAs a json rpc call\n"
+                "\nAs a json rpc call\n"
             + HelpExampleRpc("encrypttxdata", "\"my pass phrase\"")
-        );
+                );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -3529,7 +3674,7 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
 
     if (strWalletPass.length() < 1)
         throw runtime_error(
-            "encrypttxdata <passphrase>\n"
+                "encrypttxdata <passphrase>\n"
             "Encrypts the txdata with <passphrase>.");
 
     if (!pwalletMain->EncryptTx(strWalletPass))
@@ -3606,7 +3751,7 @@ UniValue lockunspent(const UniValue& params, bool fHelp)
         const UniValue& o = output.get_obj();
 
         RPCTypeCheckObj(o,
-        {
+                        {
                             {"txid", UniValueType(UniValue::VSTR)},
                             {"vout", UniValueType(UniValue::VNUM)},
                         });
@@ -3963,7 +4108,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
             UniValue options = params[1];
 
             RPCTypeCheckObj(options,
-            {
+                            {
                                 {"changeAddress", UniValueType(UniValue::VSTR)},
                                 {"changePosition", UniValueType(UniValue::VNUM)},
                                 {"includeWatching", UniValueType(UniValue::VBOOL)},
@@ -4394,7 +4539,7 @@ UniValue support(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1)
         throw runtime_error(
-            "support \"hash\" ( add )\n"
+                "support \"hash\" ( add )\n"
             "\nShows support for the consultation or consultation answer identified by \"hash\".\n"
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The hash\n"
@@ -4455,9 +4600,9 @@ UniValue consultationvote(const UniValue& params, bool fHelp)
         strCommand = params[1].get_str();
 
     if (fHelp || params.size() < 2 ||
-        (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
         throw runtime_error(
-            "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
+                "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The consultation/answer hash\n"
             "2. \"command\"       (string, required) 'yes' to vote yes, 'value' to vote for a range,\n"
@@ -4646,9 +4791,9 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no"  && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "no"  && strCommand != "abs" && strCommand != "remove"))
         throw runtime_error(
-            "proposalvote \"proposal_hash\" \"yes|no|abs|remove\"\n"
+                "proposalvote \"proposal_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"proposal_hash\" (string, required) The proposal hash\n"
@@ -4735,7 +4880,7 @@ UniValue getstakervote(const UniValue& params, bool fHelp)
 
     if (!view.GetCachedVoter(stakerScript, pVoteList))
     {
-         return ret;
+        return ret;
     }
 
     std::map<int, std::map<uint256, int64_t>>* list= pVoteList.GetFullList();
@@ -4828,9 +4973,9 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no" && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "no" && strCommand != "abs" && strCommand != "remove"))
         throw runtime_error(
-            "paymentrequestvote \"request_hash\" \"yes|no|abs|remove\"\n"
+                "paymentrequestvote \"request_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds/removes a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"request_hash\" (string, required) The payment request hash\n"
@@ -4870,12 +5015,12 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     }
     else if(strCommand == "remove")
     {
-      bool ret = RemoveVote(strHash);
-      if (ret) {
-        return NullUniValue;
-      } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is not in the list: ")+strHash);
-      }
+        bool ret = RemoveVote(strHash);
+        if (ret) {
+            return NullUniValue;
+        } else {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is not in the list: ")+strHash);
+        }
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request: ")+strHash);
@@ -4976,6 +5121,43 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listtokens(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw runtime_error(
+                "listtokens\n"
+                "\nList the confidential tokens.\n"
+
+                + HelpExampleCli("listtokens", "")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VARR);
+    TokenMap mapTokens;
+    CStateViewCache view(pcoinsTip);
+
+    if(view.GetAllTokens(mapTokens))
+    {
+        for (TokenMap::iterator it = mapTokens.begin(); it != mapTokens.end(); it++)
+        {
+            TokenInfo token;
+            if (!view.GetToken(it->first, token))
+                continue;
+
+            UniValue o(UniValue::VOBJ);
+            o.pushKV("id", HexStr(it->first.Serialize()));
+            o.pushKV("name", it->second.sName);
+            o.pushKV("token_code", it->second.sDesc);
+            o.pushKV("current_supply", FormatMoney(it->second.currentSupply));
+            o.pushKV("max_supply", FormatMoney(it->second.totalSupply));
+            o.pushKV("balance", pwalletMain->GetPrivateBalance(it->first));
+            ret.push_back(o);
+        }
+    }
+    return ret;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue dumpmnemonic(const UniValue& params, bool fHelp);
@@ -4990,89 +5172,92 @@ extern UniValue removeprunedfunds(const UniValue& params, bool fHelp);
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
   //  --------------------- ------------------------    -----------------------    ----------
-    { "wallet",             "getnewprivateaddress",     &getnewprivateaddress,     true  },
-    { "wallet",             "listprivateunspent",       &listprivateunspent,       false },
-    { "wallet",             "privatesendtoaddress",     &privatesendtoaddress,     false },
-    { "wallet",             "privatesendmixtoaddress",  &privatesendmixtoaddress,  false },
-    { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
-    { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
-    { "wallet",             "abandontransaction",       &abandontransaction,       false },
-    { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true  },
-    { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
-    { "wallet",             "backupwallet",             &backupwallet,             true  },
-    { "wallet",             "createrawscriptaddress",   &createrawscriptaddress,   true  },
-    { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
-    { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
-    { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
-    { "wallet",             "dumpwallet",               &dumpwallet,               true  },
-    { "wallet",             "encryptwallet",            &encryptwallet,            true  },
-    { "wallet",             "encrypttxdata",            &encrypttxdata,            true  },
-    { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
-    { "wallet",             "getaccount",               &getaccount,               true  },
-    { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
-    { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
-    { "wallet",             "getbalance",               &getbalance,               false },
-    { "wallet",             "getnewaddress",            &getnewaddress,            true  },
-    { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
-    { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
-    { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
-    { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
-    { "wallet",             "getstakereport",           &getstakereport,           false },
-    { "wallet",             "gettransaction",           &gettransaction,           false },
-    { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false },
-    { "wallet",             "getwalletinfo",            &getwalletinfo,            false },
-    { "wallet",             "importprivkey",            &importprivkey,            true  },
-    { "wallet",             "importwallet",             &importwallet,             true  },
-    { "wallet",             "importaddress",            &importaddress,            true  },
-    { "wallet",             "importprunedfunds",        &importprunedfunds,        true  },
-    { "wallet",             "importpubkey",             &importpubkey,             true  },
-    { "wallet",             "keypoolrefill",            &keypoolrefill,            true  },
-    { "wallet",             "listaccounts",             &listaccounts,             false },
-    { "wallet",             "listaddressgroupings",     &listaddressgroupings,     false },
-    { "wallet",             "listlockunspent",          &listlockunspent,          false },
-    { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    false },
-    { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    false },
-    { "wallet",             "listsinceblock",           &listsinceblock,           false },
-    { "wallet",             "listtransactions",         &listtransactions,         false },
-    { "wallet",             "listunspent",              &listunspent,              false },
-    { "wallet",             "lockunspent",              &lockunspent,              true  },
-    { "wallet",             "move",                     &movecmd,                  false },
-    { "wallet",             "sendfrom",                 &sendfrom,                 false },
-    { "wallet",             "sendmany",                 &sendmany,                 false },
-    { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
-    { "communityfund",      "donatefund",               &donatefund,               false },
-    { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
-    { "communityfund",      "createproposal",           &createproposal,           false },
-    { "dao",                "createconsultation",       &createconsultation,       false },
-    { "dao",                "createconsultationwithanswers",
-                                                        &createconsultationwithanswers,
-                                                                                   false },
-    { "dao",                "getstakervote",            &getstakervote,            false },
-    { "dao",                "proposeanswer",            &proposeanswer,            false },
-    { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
-    { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
-    { "dao",                "setexclude",               &setexclude,               false },
-    { "wallet",             "stakervote",               &stakervote,               false },
-    { "dao",                "support",                  &support,                  false },
-    { "dao",                "supportlist",              &supportlist,              false },
-    { "dao",                "consultationvote",         &consultationvote,         false },
-    { "dao",                "consultationvotelist",     &consultationvotelist,     false },
-    { "communityfund",      "proposalvote",             &proposalvote,             false },
-    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
-    { "communityfund",      "listproposals",            &listproposals,            true  },
-    { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
-    { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
-    { "communityfund",      "proposalvote",             &proposalvote,             false },
-    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
-    { "wallet",             "generateblsctkeys",        &generateblsctkeys,        true  },
-    { "wallet",             "setaccount",               &setaccount,               true  },
-    { "wallet",             "settxfee",                 &settxfee,                 true  },
-    { "wallet",             "signmessage",              &signmessage,              true  },
-    { "wallet",             "walletlock",               &walletlock,               true  },
-    { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
-    { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
-    { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
-    { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+  { "wallet",             "getnewprivateaddress",     &getnewprivateaddress,     true  },
+  { "wallet",             "listprivateunspent",       &listprivateunspent,       false },
+  { "wallet",             "privatesendtoaddress",     &privatesendtoaddress,     false },
+  { "wallet",             "privatesendmixtoaddress",  &privatesendmixtoaddress,  false },
+  { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
+  { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
+  { "wallet",             "abandontransaction",       &abandontransaction,       false },
+  { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true  },
+  { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
+  { "wallet",             "backupwallet",             &backupwallet,             true  },
+  { "wallet",             "createrawscriptaddress",   &createrawscriptaddress,   true  },
+  { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
+  { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
+  { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
+  { "wallet",             "dumpwallet",               &dumpwallet,               true  },
+  { "wallet",             "minttoken",                &minttoken,                true  },
+  { "wallet",             "createtoken",              &createtoken,              true  },
+  { "wallet",             "encryptwallet",            &encryptwallet,            true  },
+  { "wallet",             "encrypttxdata",            &encrypttxdata,            true  },
+  { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
+  { "wallet",             "getaccount",               &getaccount,               true  },
+  { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
+  { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
+  { "wallet",             "listtokens",               &listtokens,               true  },
+  { "wallet",             "getbalance",               &getbalance,               false },
+  { "wallet",             "getnewaddress",            &getnewaddress,            true  },
+  { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
+  { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
+  { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
+  { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
+  { "wallet",             "getstakereport",           &getstakereport,           false },
+  { "wallet",             "gettransaction",           &gettransaction,           false },
+  { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false },
+  { "wallet",             "getwalletinfo",            &getwalletinfo,            false },
+  { "wallet",             "importprivkey",            &importprivkey,            true  },
+  { "wallet",             "importwallet",             &importwallet,             true  },
+  { "wallet",             "importaddress",            &importaddress,            true  },
+  { "wallet",             "importprunedfunds",        &importprunedfunds,        true  },
+  { "wallet",             "importpubkey",             &importpubkey,             true  },
+  { "wallet",             "keypoolrefill",            &keypoolrefill,            true  },
+  { "wallet",             "listaccounts",             &listaccounts,             false },
+  { "wallet",             "listaddressgroupings",     &listaddressgroupings,     false },
+  { "wallet",             "listlockunspent",          &listlockunspent,          false },
+  { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    false },
+  { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    false },
+  { "wallet",             "listsinceblock",           &listsinceblock,           false },
+  { "wallet",             "listtransactions",         &listtransactions,         false },
+  { "wallet",             "listunspent",              &listunspent,              false },
+  { "wallet",             "lockunspent",              &lockunspent,              true  },
+  { "wallet",             "move",                     &movecmd,                  false },
+  { "wallet",             "sendfrom",                 &sendfrom,                 false },
+  { "wallet",             "sendmany",                 &sendmany,                 false },
+  { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
+  { "communityfund",      "donatefund",               &donatefund,               false },
+  { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
+  { "communityfund",      "createproposal",           &createproposal,           false },
+  { "dao",                "createconsultation",       &createconsultation,       false },
+  { "dao",                "createconsultationwithanswers",
+    &createconsultationwithanswers,
+    false },
+  { "dao",                "getstakervote",            &getstakervote,            false },
+  { "dao",                "proposeanswer",            &proposeanswer,            false },
+  { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
+  { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
+  { "dao",                "setexclude",               &setexclude,               false },
+  { "wallet",             "stakervote",               &stakervote,               false },
+  { "dao",                "support",                  &support,                  false },
+  { "dao",                "supportlist",              &supportlist,              false },
+  { "dao",                "consultationvote",         &consultationvote,         false },
+  { "dao",                "consultationvotelist",     &consultationvotelist,     false },
+  { "communityfund",      "proposalvote",             &proposalvote,             false },
+  { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+  { "communityfund",      "listproposals",            &listproposals,            true  },
+  { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
+  { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
+  { "communityfund",      "proposalvote",             &proposalvote,             false },
+  { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+  { "wallet",             "generateblsctkeys",        &generateblsctkeys,        true  },
+  { "wallet",             "setaccount",               &setaccount,               true  },
+  { "wallet",             "settxfee",                 &settxfee,                 true  },
+  { "wallet",             "signmessage",              &signmessage,              true  },
+  { "wallet",             "walletlock",               &walletlock,               true  },
+  { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
+  { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
+  { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
+  { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

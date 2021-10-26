@@ -518,7 +518,7 @@ CConsensusParameterModifier CStateViewCache::ModifyConsensusParameter(const int 
 }
 
 TokenModifier CStateViewCache::ModifyToken(const bls::G1Element &id, int nHeight) {
-    assert(!hasModifierToken);
+    assert(!hasModifier);
     std::pair<TokenMap::iterator, bool> ret = cacheTokens.insert(std::make_pair(id, TokenInfo()));
     if (ret.second) {
         if (!base->GetToken(id, ret.first->second)) {
@@ -649,6 +649,20 @@ bool CStateViewCache::AddConsultationAnswer(const CConsultationAnswer& answer) {
     return true;
 }
 
+bool CStateViewCache::AddToken(const Token& token) const {
+    if (HaveToken(token.first))
+        return false;
+
+    assert(token.second.fDirty == true);
+
+    if (cacheTokens.count(token.first))
+        cacheTokens[token.first]=token.second;
+    else
+        cacheTokens.insert(std::make_pair(token.first, token.second));
+
+    return true;
+}
+
 bool CStateViewCache::RemoveProposal(const uint256 &pid) const {
     if (!HaveProposal(pid))
         return false;
@@ -657,6 +671,18 @@ bool CStateViewCache::RemoveProposal(const uint256 &pid) const {
     cacheProposals[pid].SetNull();
 
     assert(cacheProposals[pid].IsNull());
+
+    return true;
+}
+
+bool CStateViewCache::RemoveToken(const bls::G1Element &id) const {
+    if (!HaveToken(id))
+        return false;
+
+    cacheTokens[id] = TokenInfo();
+    cacheTokens[id].SetNull();
+
+    assert(cacheTokens[id].IsNull());
 
     return true;
 }
@@ -960,7 +986,11 @@ CAmount CStateViewCache::GetValueIn(const CTransaction& tx) const
 
     CAmount nResult = 0;
     for (unsigned int i = 0; i < tx.vin.size(); i++)
+    {
+        if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
+            continue;
         nResult += GetOutputFor(tx.vin[i]).nValue;
+    }
 
     return nResult;
 }
@@ -970,6 +1000,10 @@ bool CStateViewCache::HaveInputs(const CTransaction& tx) const
     if (!tx.IsCoinBase()) {
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             const COutPoint &prevout = tx.vin[i].prevout;
+
+            if (prevout.hash == ArithToUint256(~arith_uint256()))
+                continue;
+
             const CCoins* coins = AccessCoins(prevout.hash);
             if (!coins || !coins->IsAvailable(prevout.n)) {
                 return false;
@@ -1150,15 +1184,15 @@ CConsensusParameterModifier::~CConsensusParameterModifier()
 }
 
 TokenModifier::TokenModifier(CStateViewCache& cache_, TokenMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
-    assert(!cache.hasModifierToken);
-    cache.hasModifierToken = true;
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
     prev = it->second;
 }
 
 TokenModifier::~TokenModifier()
 {
-    assert(cache.hasModifierToken);
-    cache.hasModifierToken = false;
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
 
     if (it->second.IsNull()) {
         cache.cacheTokens[it->first].SetNull();
