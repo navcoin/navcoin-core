@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <assert.h>
 #include <bls.hpp>
-#include <consensus/program_actions.h>
 #include <ios>
 #include <limits>
 #include <map>
@@ -22,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "consensus/program_actions.h"
 #include "consensus/daoconsensusparams.h"
 
 #include "prevector.h"
