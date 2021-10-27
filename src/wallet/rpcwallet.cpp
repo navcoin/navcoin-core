@@ -17,6 +17,7 @@
 #include <rpc/server.h>
 #include <txdb.h>
 #include <timedata.h>
+#include <uint256.h>
 #include <util.h>
 #include <utils/dns_utils.h>
 #include <utilmoneystr.h>
@@ -535,7 +536,7 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const bls::G1Element &tokenId=bls::G1Element())
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const uint256 &tokenId=uint256())
 {
     CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance(tokenId) : pwalletMain->GetBalance();
 
@@ -545,17 +546,23 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
     CAmount toMint = 0;
 
-    if (tokenId != bls::G1Element()) {
-        fSubtractFeeFromAmount = false;
-        if (vData.size() > 0)
-        {
-            Predicate program(vData);
+    uint256 tokenId_;
 
-            if (program.action == MINT && program.kParameters[0] == tokenId)
-            {
+
+    if (vData.size() > 0)
+    {
+        Predicate program(vData);
+
+        if (program.action == MINT)
+        {
+            if (SerializeHash(program.kParameters[0]) == tokenId)
                 toMint += program.nParameters[0];
-            }
+            tokenId_ = SerializeHash(program.kParameters[0]);
         }
+    }
+
+    if (tokenId != uint256() || tokenId_ != uint256()) {
+        fSubtractFeeFromAmount = false;
     }
 
     if (nValue-toMint > curBalance)
@@ -589,9 +596,9 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         recipient.sk = sk.Serialize();
         recipient.vk = vk.Serialize();
         recipient.sMemo = wtxNew.mapValue["comment"];
-        recipient.tokenId = tokenId;
     }
     recipient.vData = vData;
+    recipient.tokenId = tokenId_ == uint256() ? tokenId : tokenId_;
     vecSend.push_back(recipient);
 
     std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
@@ -606,7 +613,6 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     }
 
     if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix, 0, tokenId)) {
-        LogPrintf("%s: %s\n", __func__, strError);
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -1140,7 +1146,7 @@ UniValue createtoken(const UniValue& params, bool fHelp)
     bls::G1Element pkg1;
     pk.GetG1Element(pkg1);
 
-    while(view.HaveToken(pkg1)) {
+    while(view.HaveToken(SerializeHash(pkg1))) {
         pk = pwalletMain->GenerateNewTokenKey();
         pk.GetG1Element(pkg1);
     }
@@ -1187,14 +1193,7 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     if (!IsHex(token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
 
-    bls::G1Element tokenId;
-
-    try {
-        tokenId = bls::G1Element::FromByteVector(ParseHex(token));
-    }
-    catch (...) {
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong token id");
-    }
+    uint256 tokenId = uint256S(token);
 
     if (!view.HaveToken(tokenId))
         throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
@@ -1204,7 +1203,7 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     if (!view.GetToken(tokenId, tokenInfo))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
-    if (!pwalletMain->HaveBLSCTTokenKey(tokenId))
+    if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
 
     string address = params[1].get_str();
@@ -1218,8 +1217,81 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     if (amount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
 
+    if (!tokenInfo.IncreaseSupply(amount))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Not enough supply available");
+
+    tokenInfo.DecreaseSupply(amount);
+
     EnsureWalletIsUnlocked();
-    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, tokenInfo.GetMintProgram(amount, tokenId), tokenId);
+
+    auto vData = tokenInfo.GetMintProgram(amount, tokenInfo.key);
+
+    if (!vData.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
+
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue sendtoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw runtime_error(
+            "sendtoken \"tokenid\" \"destination\" amount\n"
+            "Sends confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "2. \"destination\" (string, required) The xNAV destination addressn"
+            "3. amount        (string, required) The amount to mint\n"
+            "\nExamples:\n"
+            + HelpExampleCli("sendtoken", "\"a7be93fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    uint256 tokenId = uint256S(token);
+
+    if (!view.HaveToken(tokenId))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    string address = params[1].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Supply
+    CAmount amount = AmountFromValue(params[2]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, std::vector<unsigned char>(), tokenId);
 
     return wtx.GetHash().GetHex();
 }
@@ -5146,12 +5218,13 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                 continue;
 
             UniValue o(UniValue::VOBJ);
-            o.pushKV("id", HexStr(it->first.Serialize()));
+            o.pushKV("id", it->first.ToString());
+            o.pushKV("pubkey", HexStr(it->second.key.Serialize()));
             o.pushKV("name", it->second.sName);
             o.pushKV("token_code", it->second.sDesc);
             o.pushKV("current_supply", FormatMoney(it->second.currentSupply));
             o.pushKV("max_supply", FormatMoney(it->second.totalSupply));
-            o.pushKV("balance", pwalletMain->GetPrivateBalance(it->first));
+            o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(it->first)));
             ret.push_back(o);
         }
     }
@@ -5188,6 +5261,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
   { "wallet",             "dumpwallet",               &dumpwallet,               true  },
   { "wallet",             "minttoken",                &minttoken,                true  },
+  { "wallet",             "sendtoken",                &sendtoken,                true  },
   { "wallet",             "createtoken",              &createtoken,              true  },
   { "wallet",             "encryptwallet",            &encryptwallet,            true  },
   { "wallet",             "encrypttxdata",            &encrypttxdata,            true  },

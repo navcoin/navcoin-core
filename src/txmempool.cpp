@@ -499,9 +499,6 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewC
 
     uint256 txhash = tx.GetHash();
     for (unsigned int j = 0; j < tx.vin.size(); j++) {
-        if (tx.vin[j].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CTxIn input = tx.vin[j];
         const CTxOut &prevout = view.GetOutputFor(input);
         if (prevout.scriptPubKey.IsPayToScriptHash()) {
@@ -577,9 +574,6 @@ void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CStateViewCac
 
     uint256 txhash = tx.GetHash();
     for (unsigned int j = 0; j < tx.vin.size(); j++) {
-        if (tx.vin[j].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CTxIn input = tx.vin[j];
         const CTxOut &prevout = view.GetOutputFor(input);
         uint160 addressHash;
@@ -740,8 +734,6 @@ void CTxMemPool::removeForReorg(const CStateViewCache *pcoins, unsigned int nMem
             transactionsToRemove.push_back(tx);
         } else if (it->GetSpendsCoinbase()) {
             for(const CTxIn& txin: tx.vin) {
-                if (txin.prevout.hash == ArithToUint256(~arith_uint256()))
-                    continue;
                 indexed_transaction_set::const_iterator it2 = mapTx.find(txin.prevout.hash);
                 if (it2 != mapTx.end())
                     continue;

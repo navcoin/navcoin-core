@@ -37,7 +37,7 @@ class CWalletDB;
 
 bool CreateBLSCTOutput(bls::PrivateKey ephemeralKey, bls::G1Element &nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                   Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify = true, const std::vector<unsigned char>& vData = std::vector<unsigned char>(),
-                  const bls::G1Element& tokenId = bls::G1Element());
+                  const uint256& tokenId = uint256());
 bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& destKey, std::vector<unsigned char>& spendingKey, std::vector<unsigned char>& outputKey, std::vector<unsigned char>& ephemeralKey);
 bool SignBLSOutput(const bls::PrivateKey& ephemeralKey, CTxOut& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);
 bool SignBLSInput(const bls::PrivateKey& ephemeralKey, CTxIn& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);

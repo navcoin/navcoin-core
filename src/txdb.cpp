@@ -63,11 +63,11 @@ bool CStateViewDB::HaveProposal(const uint256 &pid) const {
     return db.Exists(make_pair(DB_PROPINDEX, pid));
 }
 
-bool CStateViewDB::GetToken(const bls::G1Element &id, TokenInfo &token) const {
+bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
     return db.Read(make_pair(DB_TOKENS, id), token);
 }
 
-bool CStateViewDB::HaveToken(const bls::G1Element &id) const {
+bool CStateViewDB::HaveToken(const uint256 &id) const {
     return db.Exists(make_pair(DB_TOKENS, id));
 }
 
@@ -160,7 +160,7 @@ bool CStateViewDB::GetAllTokens(TokenMap& map) {
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
-        std::pair<char, bls::G1Element> key;
+        std::pair<char, uint256> key;
         if (pcursor->GetKey(key) && key.first == DB_TOKENS) {
             TokenInfo token;
             if (pcursor->GetValue(token)) {
@@ -379,10 +379,11 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
     for (TokenMap::iterator it = mapTokens.begin(); it != mapTokens.end();) {
         if (it->second.fDirty)
         {
-            if (it->second.IsNull())
+            if (it->second.IsNull()) {
                 batch.Erase(make_pair(DB_TOKENS, it->first));
-            else
+            } else {
                 batch.Write(make_pair(DB_TOKENS, it->first), it->second);
+            }
         }
         TokenMap::iterator itOld = it++;
         mapTokens.erase(itOld);
@@ -584,83 +585,6 @@ CProposal CBlockTreeDB::GetProposal(uint256 hash)
     }
 
     return CProposal();
-}
-
-bool CBlockTreeDB::ReadTokenIndex(const bls::G1Element &id, TokenInfo &token) {
-    return Read(make_pair(DB_TOKENS, id), token);
-}
-
-bool CBlockTreeDB::WriteTokenIndex(const std::vector<Token>&vect) {
-    CDBBatch batch(*this);
-    for (std::vector<Token>::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_TOKENS, it->first), it->second);
-    return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::UpdateTokenIndex(const std::vector<Token >&vect) {
-    CDBBatch batch(*this);
-    for (std::vector<Token>::const_iterator it=vect.begin(); it!=vect.end(); it++) {
-        if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_PROPINDEX, it->first));
-        } else {
-            batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
-        }
-    }
-    return WriteBatch(batch, true);
-}
-
-bool CBlockTreeDB::GetTokenIndex(std::vector<Token>&vect) {
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    pcursor->Seek(make_pair(DB_TOKENS, uint256()));
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char, bls::G1Element> key;
-        if (pcursor->GetKey(key) && key.first == DB_TOKENS) {
-            TokenInfo token;
-            if (pcursor->GetValue(token)) {
-                vect.push_back(std::make_pair(key.second, token));
-                pcursor->Next();
-            } else {
-                return error("GetProposalIndex() : failed to read value");
-            }
-        } else {
-            break;
-        }
-    }
-
-    return true;
-}
-
-TokenInfo CBlockTreeDB::GetToken(const bls::G1Element& id)
-{
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    pcursor->Seek(make_pair(DB_TOKENS, uint256()));
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char, bls::G1Element> key;
-        if (pcursor->GetKey(key) && key.first == DB_TOKENS) {
-            TokenInfo token;
-            if (pcursor->GetValue(token)) {
-                if(key.second == id){
-                    return token;
-
-                }
-            pcursor->Next();
-            } else {
-                return TokenInfo();
-            }
-        } else {
-            break;
-        }
-    }
-
-    bls::G1Element zero;
-
-    return TokenInfo();
 }
 
 bool CBlockTreeDB::ReadPaymentRequestIndex(const uint256 &prequestid, CPaymentRequest &prequest) {

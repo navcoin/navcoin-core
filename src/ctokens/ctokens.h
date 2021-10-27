@@ -65,6 +65,7 @@ public:
     }
 
     void SetNull() {
+        key = bls::G1Element();
         nVersion = 0;
         sName = "";
         sDesc = "";
@@ -75,7 +76,8 @@ public:
     }
 
     bool IsNull() const {
-        return nVersion == 0 &&
+        return key == bls::G1Element() &&
+                nVersion == 0 &&
                 sName == "" &&
                 sDesc == "" &&
                 totalSupply == 0 &&
@@ -89,7 +91,8 @@ public:
     }
 
     bool operator==(const TokenInfo& other) {
-        return (nVersion == other.nVersion &&
+        return (key == other.key &&
+                nVersion == other.nVersion &&
                 sName == other.sName &&
                 sDesc == other.sDesc &&
                 totalSupply == other.totalSupply &&
@@ -105,6 +108,7 @@ public:
         std::swap(to.currentSupply, currentSupply);
         std::swap(to.canMint, canMint);
         std::swap(to.fDirty, fDirty);
+        std::swap(to.key, key);
     }
 
     ADD_SERIALIZE_METHODS;
@@ -115,6 +119,7 @@ public:
 
         if (this->nVersion == 0)
         {
+            READWRITE(key);
             READWRITE(sName);
             READWRITE(sDesc);
             READWRITE(totalSupply);
@@ -150,6 +155,10 @@ public:
         return true;
     }
 
+    uint256 GetId() {
+        return SerializeHash(key);
+    }
+
     bool StopMinting() {
         if (!CanMint())
             return false;
@@ -158,7 +167,7 @@ public:
     }
 };
 
-typedef std::pair<bls::G1Element, TokenInfo> Token;
-typedef std::map<bls::G1Element, TokenInfo> TokenMap;
+typedef std::pair<uint256, TokenInfo> Token;
+typedef std::map<uint256, TokenInfo> TokenMap;
 
 #endif

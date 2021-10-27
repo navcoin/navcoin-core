@@ -1132,9 +1132,6 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CStateViewCache& in
     unsigned int nSigOps = 0;
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CTxOut &prevout = inputs.GetOutputFor(tx.vin[i]);
         if (prevout.scriptPubKey.IsPayToScriptHash())
             nSigOps += prevout.scriptPubKey.GetSigOpCount(tx.vin[i].scriptSig);
@@ -1155,9 +1152,6 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CStateViewCache& i
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CTxOut &prevout = inputs.GetOutputFor(tx.vin[i]);
         nSigOps += CountWitnessSigOps(tx.vin[i].scriptSig, prevout.scriptPubKey, i < tx.wit.vtxinwit.size() ? &tx.wit.vtxinwit[i].scriptWitness : nullptr, flags);
     }
@@ -1500,7 +1494,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             if (program.action == ERR) {
                                 return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                             } else if (program.action == MINT) {
-                                auto tokenId = program.kParameters[0];
+                                auto tokenId = SerializeHash(program.kParameters[0]);
 
                                 if (!viewMemPool.HaveToken(tokenId))
                                 {
@@ -1513,20 +1507,20 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
                                 }
                             } else if (program.action == CREATE_TOKEN) {
-                                auto tokenId = program.kParameters[0];
+                                auto tokenId = SerializeHash(program.kParameters[0]);
 
                                 if (viewMemPool.HaveToken(tokenId))
                                 {
                                     return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
                                 }
 
-                                TokenInfo token(tokenId, program.sParameters[0], program.sParameters[1], program.nParameters[0]);
+                                TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[0]);
 
                                 token.fDirty = true;
 
                                 viewMemPool.AddToken(std::make_pair(tokenId, token));
                             } else if (program.action == STOP_MINT) {
-                                auto tokenId = program.kParameters[0];
+                                auto tokenId = SerializeHash(program.kParameters[0]);
 
                                 if (!viewMemPool.HaveToken(tokenId))
                                 {
@@ -1677,9 +1671,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
         // during reorgs to ensure Params().GetConsensus().nCoinbaseMaturity is still met.
         bool fSpendsCoinbase = false;
         for(const CTxIn &txin: tx.vin) {
-            if (txin.prevout.hash == ArithToUint256(~arith_uint256()))
-                continue;
-
             const CCoins *coins = view.AccessCoins(txin.prevout.hash);
             if (coins->IsCoinBase() || coins->IsCoinStake()) {
                 fSpendsCoinbase = true;
@@ -2418,10 +2409,6 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
         const COutPoint &prevout = tx.vin[i].prevout;
-
-        if (prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CCoins *coins = inputs.AccessCoins(prevout.hash);
         assert(coins);
 
@@ -2522,14 +2509,7 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateVi
         // this optimisation would allow an invalid chain to be accepted.
         if (fScriptChecks) {
             for (unsigned int i = 0; i < tx.vin.size(); i++) {
-                if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-                    continue;
-
                 const COutPoint &prevout = tx.vin[i].prevout;
-
-                if (prevout.hash == ArithToUint256(~arith_uint256()))
-                    continue;
-
                 const CCoins* coins = inputs.AccessCoins(prevout.hash);
                 assert(coins);
 
@@ -2768,28 +2748,28 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 try {
                     Predicate program(txout.vData);
 
-                    if (program.action == MINT) {
-                        auto tokenId = program.kParameters[0];
+                    if (program.action == ERR)
+                    {
+                        return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                    }
+                    else if (program.action == MINT)
+                    {
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
-                        if (program.action == ERR) {
-                            return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
-                        }
-                        else if (!view.HaveToken(tokenId))
+                        if (!view.HaveToken(tokenId))
                         {
                             return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
                         }
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
-                        if (!token->DecreaseSupply(program.nParameters[0])) {
-                            return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
-                        }
+                        token->DecreaseSupply(program.nParameters[0]);
                     } else if (program.action == CREATE_TOKEN) {
-                        auto tokenId = program.kParameters[0];
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
                         view.RemoveToken(tokenId);
                     } else if (program.action == STOP_MINT) {
-                        auto tokenId = program.kParameters[0];
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -2935,8 +2915,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             if (txundo.vprevout.size() != tx.vin.size())
                 return error("DisconnectBlock(): transaction and undo data inconsistent");
             for (unsigned int j = tx.vin.size(); j-- > 0;) {
-                if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-                    continue;
                 const COutPoint &out = tx.vin[j].prevout;
                 const CTxInUndo &undo = txundo.vprevout[j];
                 if (!ApplyTxInUndo(undo, view, out))
@@ -4047,8 +4025,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             // be in ConnectBlock because they require the UTXO set
             prevheights.resize(tx.vin.size());
             for (size_t j = 0; j < tx.vin.size(); j++) {
-                if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-                    continue;
                 prevheights[j] = view.AccessCoins(tx.vin[j].prevout.hash)->nHeight;
             }
 
@@ -4073,8 +4049,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (fAddressIndex || fSpentIndex)
             {
                 for (size_t j = 0; j < tx.vin.size(); j++) {
-                    if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-                        continue;
                     const CTxIn input = tx.vin[j];
                     const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
                     uint160 hashBytes;
@@ -4501,7 +4475,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (program.action == ERR) {
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     } else if (program.action == MINT) {
-                        auto tokenId = program.kParameters[0];
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -4510,24 +4484,28 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
+                        LogPrint("token", "%s: Minting %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+
                         if (!token->IncreaseSupply(program.nParameters[0])) {
                             return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
                         }
                     } else if (program.action == CREATE_TOKEN) {
-                        auto tokenId = program.kParameters[0];
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
                         if (view.HaveToken(tokenId))
                         {
                             return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
                         }
 
-                        TokenInfo token(tokenId, program.sParameters[0], program.sParameters[1], program.nParameters[0]);
+                        TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[0]);
 
                         token.fDirty = true;
 
+                        LogPrint("token", "%s: Creating token %s\n", __func__, tokenId.ToString());
+
                         view.AddToken(std::make_pair(tokenId, token));
                     } else if (program.action == STOP_MINT) {
-                        auto tokenId = program.kParameters[0];
+                        auto tokenId = SerializeHash(program.kParameters[0]);
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -4535,6 +4513,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
 
                         TokenModifier token = view.ModifyToken(tokenId);
+
+                        LogPrint("token", "%s: Stopping minting for token %s\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString());
 
                         if (!token->StopMinting()) {
                             return state.DoS(100, false, REJECT_INVALID, "cant-stop-minting");
@@ -7015,7 +6995,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
             if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             if (!ConnectBlock(block, state, pindex, coins, chainparams, blsctData))
-                return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+                return error("VerifyDB(): *** found unconnectable block at %d, hash=%s %s", pindex->nHeight, pindex->GetBlockHash().ToString(), state.GetRejectReason());
             if (!VoteStep(state, pindex, false, coins))
                 return error("VerifyDB(): *** VoteStep failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         }

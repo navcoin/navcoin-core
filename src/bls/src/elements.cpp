@@ -204,9 +204,19 @@ G1Element operator+(const G1Element& a, const G1Element& b)
     return ret;
 }
 
-int operator<(const G1Element& a, const G1Element& b)
+bool operator<(const G1Element& a, const G1Element& b)
 {
-    return g1_cmp(a.p, b.p);
+    auto a_ = a.Serialize();
+    auto b_ = b.Serialize();
+
+    for (size_t i = 0; i < a_.size(); i++)
+    {
+        if (a_[i] == b_[i])
+            continue;
+        if (a_[i] < b_[i])
+            return true;
+    }
+    return false;
 }
 
 G1Element operator*(const G1Element& a, const bn_t& k)

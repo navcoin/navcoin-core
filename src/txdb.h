@@ -114,8 +114,8 @@ public:
     bool HaveConsultationAnswer(const uint256 &aid) const;
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
-    bool GetToken(const bls::G1Element &id, TokenInfo &token) const;
-    bool HaveToken(const bls::G1Element &id) const;
+    bool GetToken(const uint256 &id, TokenInfo &token) const;
+    bool HaveToken(const uint256 &id) const;
 
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
@@ -206,13 +206,6 @@ public:
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
     bool GetPaymentRequestIndex(std::vector<CPaymentRequest>&vect);
     bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect);
-    bool WriteToken(const std::vector<Token>&vect);
-    bool ReadTokenIndex(const bls::G1Element &id, TokenInfo &token);
-    bool GetTokenIndex(std::vector<Token>&vect);
-    TokenInfo GetToken(const bls::G1Element& id);
-    bool UpdateTokenIndex(const std::vector<Token>&vect);
-    bool WriteTokenIndex(const std::vector<Token>&vect);
-
 };
 
 #endif // NAVCOIN_TXDB_H

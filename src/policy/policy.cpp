@@ -134,9 +134,6 @@ bool AreInputsStandard(const CTransaction& tx, const CStateViewCache& mapInputs)
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        if (tx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
-
         const CTxOut& prev = mapInputs.GetOutputFor(tx.vin[i]);
 
         std::vector<std::vector<unsigned char> > vSolutions;

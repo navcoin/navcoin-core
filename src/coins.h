@@ -131,7 +131,7 @@ public:
 
     void ClearUnspendable() {
         for(CTxOut &txout: vout) {
-            if (!txout.IsBLSCT() && txout.scriptPubKey.IsUnspendable())
+            if (!txout.HasRangeProof() && txout.scriptPubKey.IsUnspendable())
                 txout.SetNull();
         }
         Cleanup();
@@ -150,6 +150,7 @@ public:
          // Empty CCoins objects are always equal.
          if (a.IsPruned() && b.IsPruned())
              return true;
+
          return a.fCoinBase == b.fCoinBase &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
@@ -380,9 +381,9 @@ public:
     virtual bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     virtual bool HaveConsensusParameter(const int &pid) const;
 
-    virtual bool GetToken(const bls::G1Element &id, TokenInfo& token) const;
+    virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
     virtual bool GetAllTokens(TokenMap& map);
-    virtual bool HaveToken(const bls::G1Element &id) const;
+    virtual bool HaveToken(const uint256 &id) const;
 
     virtual int GetExcludeVotes() const;
     virtual bool SetExcludeVotes(int count);
@@ -433,9 +434,9 @@ public:
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
-    bool GetToken(const bls::G1Element &id, TokenInfo& token) const;
+    bool GetToken(const uint256 &id, TokenInfo& token) const;
     bool GetAllTokens(TokenMap& map);
-    bool HaveToken(const bls::G1Element &id) const;
+    bool HaveToken(const uint256 &id) const;
 
     int GetExcludeVotes() const;
     bool SetExcludeVotes(int count);
@@ -625,14 +626,14 @@ public:
     bool HaveConsultation(const uint256 &cid) const;
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool HaveConsensusParameter(const int& pid) const;
-    bool HaveToken(const bls::G1Element& id) const;
+    bool HaveToken(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
     bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool GetConsultation(const uint256 &cid, CConsultation& consultation) const;
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
-    bool GetToken(const bls::G1Element& pid, TokenInfo& token) const;
+    bool GetToken(const uint256& pid, TokenInfo& token) const;
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap& map);
@@ -656,7 +657,7 @@ public:
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
-    bool RemoveToken(const bls::G1Element &pid) const;
+    bool RemoveToken(const uint256 &pid) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);
 
@@ -692,7 +693,7 @@ public:
     CConsultationModifier ModifyConsultation(const uint256 &cid, int nHeight = 0);
     CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
     CConsensusParameterModifier ModifyConsensusParameter(const int &pid, int nHeight = 0);
-    TokenModifier ModifyToken(const bls::G1Element &id, int nHeight = 0);
+    TokenModifier ModifyToken(const uint256 &id, int nHeight = 0);
 
     /**
      * Return a modifiable reference to a CCoins. Assumes that no entry with the given
@@ -764,7 +765,7 @@ private:
     CConsultationMap::const_iterator FetchConsultation(const uint256 &cid) const;
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
     CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
-    TokenMap::const_iterator FetchToken(const bls::G1Element &id) const;
+    TokenMap::const_iterator FetchToken(const uint256 &id) const;
 
     /**
      * By making the copy constructor private, we prevent accidentally using it when one intends to create a cache on top of a base cache.

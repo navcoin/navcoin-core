@@ -156,7 +156,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("outputKey", HexStr(txout.outputKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
         out.pushKV("vData", HexStr(txout.vData));
-        out.pushKV("tokenId", HexStr(txout.tokenId.Serialize()));
+        out.pushKV("tokenId", txout.tokenId.ToString());
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
 
         // Add spent information if spentindex is enabled
@@ -1032,8 +1032,6 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
         view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
 
         for(const CTxIn& txin: mergedTx.vin) {
-            if (txin.prevout.hash == ArithToUint256(~arith_uint256()))
-                continue;
             const uint256& prevHash = txin.prevout.hash;
             CCoins coins;
             view.AccessCoins(prevHash); // this is certainly allowed to fail
@@ -1161,8 +1159,6 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     const CTransaction txConst(mergedTx);
     // Sign what we can:
     for (unsigned int i = 0; i < mergedTx.vin.size(); i++) {
-        if (mergedTx.vin[i].prevout.hash == ArithToUint256(~arith_uint256()))
-            continue;
         CTxIn& txin = mergedTx.vin[i];
         const CCoins* coins = view.AccessCoins(txin.prevout.hash);
         if (coins == NULL || !coins->IsAvailable(txin.prevout.n)) {

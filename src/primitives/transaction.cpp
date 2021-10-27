@@ -78,7 +78,7 @@ std::string CTxOut::ToString() const
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
                          GetBulletproof().V.size()>0 ? " rangeProof=1":"",
-                         tokenId==bls::G1Element() ? "": strprintf(" tokenId=%s", HexStr(tokenId.Serialize())), vData.size());
+                         tokenId==uint256() ? "": strprintf(" tokenId=%s", tokenId.ToString()), vData.size());
     }
 }
 
