@@ -32,7 +32,7 @@
 ### Need to configure this!!
 
 ### Path to binaries
-navpath=./src
+navpath=../src
 
 ### How many voting cycles to run the stresser
 cycles=10
