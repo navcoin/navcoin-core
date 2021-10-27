@@ -7,11 +7,12 @@
 
 enum ProgramActions
 {
-    NONE,
+    NO_PROGRAM,
+    ERR,
     CREATE_TOKEN,
     MINT,
     STOP_MINT,
-    ERR
+    BURN
 };
 
 #endif // PROGRAM_ACTIONS_H

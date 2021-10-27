@@ -413,7 +413,7 @@ bls::G1Element CrossVectorExponent(size_t size, const std::vector<bls::G1Element
     return MultiExp(multiexp_data);
 }
 
-void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message, const uint256& tokenId)
+void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message, const uint256& tokenId, const std::vector<Scalar>& useGammas)
 {
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
@@ -444,9 +444,14 @@ void BulletproofsRangeproof::Prove(std::vector<Scalar> v, bls::G1Element nonce, 
     std::vector<Scalar> gamma;
     gamma.resize(v.size());
 
-    for (auto i = 0; i < gamma.size(); i++)
+    if (useGammas.size() > 0 && useGammas.size() == v.size())
     {
-        gamma[i] =  HashG1Element(nonce, 100+i);
+        gamma = useGammas;
+    } else {
+        for (auto i = 0; i < gamma.size(); i++)
+        {
+            gamma[i] = HashG1Element(nonce, 100+i);
+        }
     }
 
     // This hash is updated for Fiat-Shamir throughout the proof
@@ -498,8 +503,8 @@ try_again:
 
     this->A = VectorCommitment(aL, aR);
     {
-    bls::G1Element alphaElement = gens.G*alpha.bn;
-    this->A = this->A + alphaElement;
+        bls::G1Element alphaElement = gens.G*alpha.bn;
+        this->A = this->A + alphaElement;
     }
 
     // PAPER LINES 45-47
@@ -518,8 +523,8 @@ try_again:
 
     this->S = VectorCommitment(sL, sR);
     {
-    bls::G1Element rhoElement = gens.G*rho.bn;
-    this->S = this->S + rhoElement;
+        bls::G1Element rhoElement = gens.G*rho.bn;
+        this->S = this->S + rhoElement;
     }
 
     // PAPER LINES 48-50
@@ -586,13 +591,13 @@ try_again:
     tau1 = tau1 + sM2;
 
     {
-    bls::G1Element t1Element = gens.H*t1.bn;
-    bls::G1Element t2Element = gens.H*t2.bn;
-    bls::G1Element tau1Element = gens.G*tau1.bn;
-    bls::G1Element tau2Element = gens.G*tau2.bn;
+        bls::G1Element t1Element = gens.H*t1.bn;
+        bls::G1Element t2Element = gens.H*t2.bn;
+        bls::G1Element tau1Element = gens.G*tau1.bn;
+        bls::G1Element tau2Element = gens.G*tau2.bn;
 
-    this->T1 = t1Element + tau1Element;
-    this->T2 = t2Element + tau2Element;
+        this->T1 = t1Element + tau1Element;
+        this->T2 = t2Element + tau2Element;
     }
 
     // PAPER LINES 54-56
@@ -878,12 +883,12 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
             data.message = std::string(vMsgTrimmed.begin(), vMsgTrimmed.end()) + std::string(vMsg2Trimmed.begin(), vMsg2Trimmed.end());
 
             {
-            bls::G1Element gammaElement = gens.G*gamma.bn;
-            bls::G1Element valueElement = gens.H*amount.bn;
-            bool fIsMine = ((gammaElement + valueElement) == pd.V[0]);
+                bls::G1Element gammaElement = gens.G*gamma.bn;
+                bls::G1Element valueElement = gens.H*amount.bn;
+                bool fIsMine = ((gammaElement + valueElement) == pd.V[0]);
 
-            if (fIsMine)
-                vData.push_back(data);
+                if (fIsMine)
+                    vData.push_back(data);
             }
 
             j++;

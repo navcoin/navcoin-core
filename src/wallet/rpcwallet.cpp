@@ -1111,7 +1111,7 @@ UniValue createtoken(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CStateViewCache view(pcoinsTip);
 
-    if (fHelp || params.size() < 2)
+    if (fHelp || params.size() < 3)
         throw runtime_error(
             "createtoken \"name\" \"token_code\" max_supply\n"
             "\nCreates a confidential token.\n"
@@ -1234,6 +1234,78 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+UniValue burntoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw runtime_error(
+            "burntoken \"tokenid\" amount\n"
+            "\nBurns confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "3. amount        (string, required) The amount to burn\n"
+            "\nExamples:\n"
+            + HelpExampleCli("burntoken", "\"a7be93b41e708d21d6c94920401ca5fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    uint256 tokenId = uint256S(token);
+
+    if (!view.HaveToken(tokenId))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+
+    string address = "xNVLBgqgCpracwFFqCNibevSZ4fTBcgW2wuWdrnhH5iYmTeZ5RRtCYj4wVPatP7R4g7LQ2Mk9m2pgKXckZJDdhcqE1Kv47tqCdX9g8m2oqECqtGWYfgLvnr6MYJ5a3Sz7apgvssuwrV"; //dummy
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Burn amount
+    CAmount amount = AmountFromValue(params[1]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    if (!tokenInfo.DecreaseSupply(amount))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Not enough supply available");
+
+    tokenInfo.IncreaseSupply(amount);
+
+    EnsureWalletIsUnlocked();
+
+    auto vData = tokenInfo.GetBurnProgram(amount);
+
+    if (!vData.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
+
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
 UniValue sendtoken(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -1242,10 +1314,10 @@ UniValue sendtoken(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CStateViewCache view(pcoinsTip);
 
-    if (fHelp || params.size() < 3)
+    if (fHelp || params.size() < 2)
         throw runtime_error(
             "sendtoken \"tokenid\" \"destination\" amount\n"
-            "Sends confidential tokens.\n"
+            "\nSends confidential tokens.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
             "1. \"tokenid\"     (string, required) The token id\n"
@@ -5260,6 +5332,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
   { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
   { "wallet",             "dumpwallet",               &dumpwallet,               true  },
+  { "wallet",             "burntoken",                &burntoken,                true  },
   { "wallet",             "minttoken",                &minttoken,                true  },
   { "wallet",             "sendtoken",                &sendtoken,                true  },
   { "wallet",             "createtoken",              &createtoken,              true  },

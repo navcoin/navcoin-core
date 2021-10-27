@@ -93,7 +93,7 @@ public:
 
     static Generators GetGenerators(const uint256& tokenId=uint256());
 
-    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>(), const uint256& tokenId=uint256());
+    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>(), const uint256& tokenId=uint256(), const std::vector<Scalar>& useGammas=std::vector<Scalar>());
 
     bool operator==(const BulletproofsRangeproof& rh) const {
         return (V == rh.V &&

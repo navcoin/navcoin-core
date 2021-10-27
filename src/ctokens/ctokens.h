@@ -64,6 +64,15 @@ public:
         return program.GetVchData();
     }
 
+    std::vector<unsigned char> GetBurnProgram(const uint64_t& amount) {
+        if (!DecreaseSupply(amount))
+            return std::vector<unsigned char>();
+
+        Predicate program(BURN);
+        program.Push(amount);
+        return program.GetVchData();
+    }
+
     void SetNull() {
         key = bls::G1Element();
         nVersion = 0;
@@ -148,6 +157,9 @@ public:
 
     bool DecreaseSupply(CAmount amount) {
         if (!MoneyRange(amount))
+            return false;
+
+        if (!MoneyRange(currentSupply - amount))
             return false;
 
         currentSupply -= amount;

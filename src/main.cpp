@@ -1506,6 +1506,19 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 if (!token->IncreaseSupply(program.nParameters[0])) {
                                     return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
                                 }
+                            } else if (program.action == BURN) {
+                                auto tokenId = txout.tokenId;
+
+                                if (!viewMemPool.HaveToken(tokenId))
+                                {
+                                    return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                                }
+
+                                TokenModifier token = view.ModifyToken(tokenId);
+
+                                if (!token->DecreaseSupply(program.nParameters[0])) {
+                                    return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                                }
                             } else if (program.action == CREATE_TOKEN) {
                                 auto tokenId = SerializeHash(program.kParameters[0]);
 
@@ -2764,7 +2777,22 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         TokenModifier token = view.ModifyToken(tokenId);
 
                         token->DecreaseSupply(program.nParameters[0]);
-                    } else if (program.action == CREATE_TOKEN) {
+                    }
+                    else if (program.action == BURN)
+                    {
+                        auto tokenId = txout.tokenId;
+
+                        if (!view.HaveToken(tokenId))
+                        {
+                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                        }
+
+                        TokenModifier token = view.ModifyToken(tokenId);
+
+                        token->IncreaseSupply(program.nParameters[0]);
+                    }
+                    else if (program.action == CREATE_TOKEN)
+                    {
                         auto tokenId = SerializeHash(program.kParameters[0]);
 
                         view.RemoveToken(tokenId);
@@ -4488,6 +4516,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         if (!token->IncreaseSupply(program.nParameters[0])) {
                             return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                        }
+                    } else if (program.action == BURN) {
+                        auto tokenId = vout.tokenId;
+
+                        if (!view.HaveToken(tokenId))
+                        {
+                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                        }
+
+                        TokenModifier token = view.ModifyToken(tokenId);
+
+                        LogPrint("token", "%s: Burning %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+
+                        if (!token->DecreaseSupply(program.nParameters[0])) {
+                            return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
                         }
                     } else if (program.action == CREATE_TOKEN) {
                         auto tokenId = SerializeHash(program.kParameters[0]);

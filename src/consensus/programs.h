@@ -50,7 +50,7 @@ public:
         sigParameters.push_back(parameter);
     }
 
-    Predicate(const std::vector<unsigned char>& program) : action(NONE) {
+    Predicate(const std::vector<unsigned char>& program) : action(NO_PROGRAM) {
         try
         {
             CDataStream strm(program, 0, 0);
@@ -103,6 +103,11 @@ public:
                 bls::G1Element id;
                 READWRITE(id);
                 Push(id);
+            } else if (action == BURN)
+            {
+                CAmount amount;
+                READWRITE(amount);
+                Push(amount);
             }
         } else {
             if (action == CREATE_TOKEN && kParameters.size() == 1 && sParameters.size() == 2 && nParameters.size() == 1)
@@ -120,6 +125,10 @@ public:
             else if (action == STOP_MINT && kParameters.size() == 1)
             {
                 READWRITE(kParameters[0]);
+            }
+            else if (action == BURN && nParameters.size() == 1)
+            {
+                READWRITE(nParameters[0]);
             }
         }
     }

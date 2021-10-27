@@ -132,6 +132,26 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                         balKey = balKey + t;
                     }
                     fElementZero = false;
+                } else if (program.action == BURN) {
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
+                    Scalar s = Scalar(program.nParameters[0]);
+
+                    auto amountH = gensToken.H*s.bn;
+
+                    if (fElementZeroOut)
+                    {
+                        balKeyOut = amountH;
+                    }
+                    else
+                    {
+                        balKeyOut = balKeyOut + amountH;
+                    }
+
+                    fElementZeroOut = false;
+
+                    if (tx.vout[j].scriptPubKey != CScript(OP_RETURN))
+                        return state.DoS(100, false, REJECT_INVALID, "burn-wrong-script");
                 } else if (program.action == STOP_MINT) {
                     txSigningKeys.push_back(program.kParameters[0]);
                     hash = tx.vout[j].GetHash();
@@ -179,7 +199,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 fElementZeroOut = false;
             }
         }
-        else if (fCheckBalance)
+        else if (fCheckBalance && tx.vout[j].nValue > 0)
         {
             gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
 
@@ -198,12 +218,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             fElementZeroOut = false;
         }
 
-        if (fCheckBLSSignature && !tx.vout[j].scriptPubKey.IsFee())
+        if (fCheckBLSSignature && tx.vout[j].ephemeralKey.size() > 0)
         {
-            if (tx.vout[j].ephemeralKey.size() == 0)
-            {
-                return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
-            }
             try
             {
                 txSigningKeys.push_back(bls::G1Element::FromBytes(tx.vout[j].ephemeralKey.data()));

@@ -6,9 +6,9 @@
 
 bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                        Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData,
-                       const uint256& tokenId)
+                       const uint256& tokenId, const bool& fIsBurn)
 {
-    newTxOut = CTxOut(0, CScript(OP_1));
+    newTxOut = CTxOut(0, CScript(fIsBurn ? OP_RETURN : OP_1));
 
     newTxOut.vData = vData;
     newTxOut.tokenId = tokenId;
@@ -31,16 +31,24 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     // Masking key - Used for bulletproof
     Scalar gamma = HashG1Element(nonce, 100);
     std::vector<Scalar> gammas;
-    gammaAcc = gammaAcc + gamma;
-    gammas.push_back(gamma);
+
 
     BulletproofsRangeproof bprp;
     std::vector<unsigned char> vMemo(sMemo.length());
     std::copy(sMemo.begin(), sMemo.end(), vMemo.begin());
 
+    std::vector<Scalar> useGammas;
+
+    if (!fIsBurn)
+    {
+        gammaAcc = gammaAcc + gamma;
+        gammas.push_back(gamma);
+    }
+
     try
     {
-        bprp.Prove(value, nonces[0], vMemo, newTxOut.tokenId);
+        if (!fIsBurn)
+            bprp.Prove(value, nonces[0], vMemo, newTxOut.tokenId, useGammas);
     }
     catch(std::runtime_error& e)
     {
@@ -64,6 +72,12 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     {
         strFailReason = "Could not generate tx output keys";
         return false;
+    }
+
+    if (fIsBurn)
+    {
+        newTxOut.spendingKey.clear();
+        newTxOut.outputKey.clear();
     }
 
     if (fBLSSign)

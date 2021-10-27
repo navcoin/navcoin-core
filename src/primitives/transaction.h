@@ -160,13 +160,12 @@ class CTxOut
 public:
     CAmount nValue;
     CScript scriptPubKey;
-    std::vector<uint8_t> bp;
     std::vector<uint8_t> ephemeralKey;
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
     std::vector<uint8_t> vData;
     uint256 tokenId;
-    BulletproofsRangeproof cacheBp;
+    BulletproofsRangeproof bp;
     uint256 cacheHash;
     bool newSer;
 
@@ -213,9 +212,9 @@ public:
                 if (nFlags & 0x1<<4)
                 {
                     READWRITE(bp);
-                    if (nFlags & 0x1<<5)
-                        READWRITE(tokenId);
                 }
+                if (nFlags & 0x1<<5)
+                    READWRITE(tokenId);
                 if (nFlags & 0x1<<6)
                 {
                     READWRITE(vData);
@@ -250,10 +249,11 @@ public:
                     nMarker  |= 0x1<<2;
                 if (spendingKey.size() > 0)
                     nMarker  |= 0x1<<3;
-                if (bp.size() > 0) {
+                if (bp.V.size() > 0) {
                     nMarker  |= 0x1<<4;
-                    if (tokenId != uint256())
-                        nMarker  |= 0x1<<5;
+                }
+                if (tokenId != uint256()) {
+                    nMarker  |= 0x1<<5;
                 }
                 if (vData.size() > 0)
                 {
@@ -272,9 +272,9 @@ public:
                     READWRITE(spendingKey);
                 if (nMarker & 0x1<<4) {
                     READWRITE(bp);
-                    if (nMarker & 0x1<<5)
-                        READWRITE(tokenId);
                 }
+                if (nMarker & 0x1<<5)
+                    READWRITE(tokenId);
                 if (nMarker & 0x1<<6)
                 {
                     READWRITE(vData);
@@ -315,12 +315,7 @@ public:
 
     BulletproofsRangeproof GetBulletproof() const
     {
-        if (cacheBp.V.size() > 0)
-            return cacheBp;
-        if (bp.size() == 0)
-            return BulletproofsRangeproof();
-        const_cast<CTxOut*>(this)->cacheBp = BulletproofsRangeproof(bp);
-        return cacheBp;
+        return bp;
     }
 
     bool IsBLSCT() const

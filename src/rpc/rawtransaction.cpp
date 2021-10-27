@@ -243,6 +243,8 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         out.pushKV("scriptPubKey", o);
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
+        out.pushKV("outputKey", HexStr(txout.outputKey));
+        out.pushKV("tokenId", txout.tokenId.ToString());
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
         vout.push_back(out);
     }
@@ -526,7 +528,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
         {
             in.pushKV("outputKey", HexStr(prevtx.vout[txin.prevout.n].outputKey));
             in.pushKV("spendingKey", HexStr(prevtx.vout[txin.prevout.n].spendingKey));
-
+            in.pushKV("tokenId", prevtx.vout[txin.prevout.n].tokenId.ToString());
         }
         else
         {
@@ -548,6 +550,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
         {
             out.pushKV("outputKey", HexStr(txout.outputKey));
             out.pushKV("spendingKey", HexStr(txout.spendingKey));
+            out.pushKV("tokenId", txout.tokenId.ToString());
         }
         else
         {

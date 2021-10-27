@@ -73,6 +73,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createproposal", 2 },
     { "createproposal", 5 },
     { "createtoken", 2 },
+    { "burntoken", 1 },
     { "minttoken", 2 },
     { "sendtoken", 2 },
     { "createconsultation", 1 },

@@ -1695,7 +1695,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                     {
                         CTxOut out = wtx.vout[i];
 
-                        if (out.outputKey.size() == 0 || out.ephemeralKey.size() == 0 || out.spendingKey.size() == 0)
+                        if (out.outputKey.size() == 0 || out.ephemeralKey.size() == 0 || out.GetBulletproof().V.size() == 0)
                             continue;
 
                         bls::G1Element n = bls::G1Element::FromByteVector(out.outputKey);
@@ -3748,6 +3748,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     bls::G1Element nonce;
 
                     txout.vData = recipient.vData;
+                    Predicate program(txout.vData);
 
                     if (!recipient.fBLSCT)
                     {
@@ -3803,15 +3804,12 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         auto blsctAmount = program.action == MINT ? program.nParameters[0] : recipient.nAmount;
 
-                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), blsctAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId))
+                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), blsctAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId, program.action == BURN))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
                             return false;
                         }
-
                     }
-
-                    Predicate program(txout.vData);
 
                     if (program.kParameters.size() > 0 && (program.action == CREATE_TOKEN || program.action == MINT || program.action == STOP_MINT))
                     {
@@ -3887,7 +3885,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 const CAmount nChange = nValueIn - nValueToSelect;
                 const CAmount nChangeToken = nValueInToken - nValueToSelectToken;
-
 
                 if (nChangeToken > 0 && tokenId != uint256())
                 {
