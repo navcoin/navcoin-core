@@ -585,15 +585,26 @@ function dice_proposal {
 	dice=$(bc <<< "$RANDOM % 100")
 	shuffle_array "${array_stressing_nodes[@]}"
 	node=${shuffled_array[0]}
+	dice_super=$(bc <<< "$RANDOM % 2")
 
-	if [ $dice -lt $chances_create_proposal ];
-	then
-		random_sentence=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
-		amount=$(bc <<< "$RANDOM % 1000")
-		deadline=$(bc <<< "$RANDOM % 1000000")
-		address=$(nav_cli ${array_stressing_nodes[$node]} getnewaddress)
-		out=$(nav_cli ${array_stressing_nodes[$node]} "createproposal $address $amount $deadline \"$random_sentence\"")
-	fi
+        if [ $dice -lt $chances_create_proposal ];
+        then
+                if [ $dice_super == "0" ];
+                then
+                        random_sentence=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
+                        amount=$(bc <<< "$RANDOM % 1000")
+                        deadline=$(bc <<< "$RANDOM % 1000000")
+                        address=$(nav_cli ${array_stressing_nodes[$node]} getnewaddress)
+                        out=$(nav_cli ${array_stressing_nodes[$node]} "createproposal $address $amount $deadline \"$random_sentence\"")
+                else
+
+                        random_sentence=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
+                        amount=$(bc <<< "$RANDOM % 1000")
+                        deadline=$(bc <<< "$RANDOM % 1000000")
+                        address=$(nav_cli ${array_stressing_nodes[$node]} getnewaddress)
+                        out=$(nav_cli ${array_stressing_nodes[$node]} "createproposal $address $amount $deadline \"$random_sentence\" 50 false $address true")
+                fi
+        fi
 
 	dice=$(bc <<< "$RANDOM % 100")
 	shuffle_array "${array_stressing_nodes[@]}"
