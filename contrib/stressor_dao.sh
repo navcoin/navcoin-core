@@ -100,7 +100,8 @@ chances_create_payment_request=50
 chances_create_range_consultation=10
 chances_create_answer_consultation=10
 chances_create_no_answer_consultation=10
-chances_create_consensus_consultation=50
+chances_create_consensus_consultation=20
+chances_create_combined_consensus_consultation=80
 chances_add_answer_consultation=50
 
 
