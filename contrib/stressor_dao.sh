@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 
 # This file serves the purpose of testing the network behavior under extreme load of
@@ -83,16 +83,16 @@ stress_sleep_time=4
 #################### Advanced Settings ##################
 
 ###Set to 1 to active the test
-bool_proposal=0
-bool_proposal_vote=0
+bool_proposal=1
+bool_proposal_vote=1
 bool_consultation=1
 bool_consultation_vote=1
-bool_random_tx=0
-bool_random_verifychain_check=0
-bool_stopstart_nodes=0
-bool_random_new_topology=0
-bool_sync_new_node=0
-bool_network_split=0
+bool_random_tx=1
+bool_random_verifychain_check=1
+bool_stopstart_nodes=1
+bool_random_new_topology=1
+bool_sync_new_node=1
+bool_network_split=1
 
 ###Chances of entering the functions when stressing in % (50 = 50%) integers only
 chances_create_proposal=30
@@ -157,7 +157,7 @@ function copy_array {
 
 
 function nav_cli {
-	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet $2 #2> /dev/null
+	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet $2 2> /dev/null
 }
 
 function terminate {
@@ -744,9 +744,9 @@ function dice_consultation {
 			array_changing_consensus_value[$i]=$value
 			changing_consensus_value=$(join_by ',' ${array_changing_consensus_value[@]})
 		done
-		echo "changing consensus $changing_consensus with values $changing_consensus_value"
+#		echo "changing consensus $changing_consensus with values $changing_consensus_value"
 		out=$(nav_cli ${array_stressing_nodes[$node]} "proposecombinedconsensuschange [$changing_consensus] [$changing_consensus_value]")
-		echo "out = $out"
+#		echo "out = $out"
 #		echo "Proposing changing consensus ${consensus_parameter_name[$consensus]} from ${consensusparameter_new[$consensus]} to $value"
 	fi
 
