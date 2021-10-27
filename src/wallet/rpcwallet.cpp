@@ -565,7 +565,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         fSubtractFeeFromAmount = false;
     }
 
-    if (nValue-toMint > curBalance)
+    if (nValue > curBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strprintf("Insufficient funds (available %d, trying to send %d)", curBalance, nValue-toMint));
 
     CScript CFContributionScript;
@@ -1229,7 +1229,7 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     if (!vData.size())
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
 
-    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData);
+    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData);
 
     return wtx.GetHash().GetHex();
 }

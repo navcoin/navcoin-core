@@ -3799,7 +3799,11 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         bls::PrivateKey ephemeralKey = bk.GetKey();
 
-                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), recipient.nAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId))
+                        Predicate program(recipient.vData);
+
+                        auto blsctAmount = program.action == MINT ? program.nParameters[0] : recipient.nAmount;
+
+                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), blsctAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
                             return false;
@@ -3849,7 +3853,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         return false;
                     }
                 } else {
-                    if (!SelectCoins(vAvailableCoins, nValueToSelect==0?1:nValueToSelect, setCoins, nValueIn, coinControl))
+                    if (!SelectCoins(vAvailableCoins, nValueToSelect, setCoins, nValueIn, coinControl))
                     {
                         strFailReason = _("Insufficient funds");
                         return false;

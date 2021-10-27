@@ -31,7 +31,7 @@ public:
 
     TokenInfo(const bls::G1Element& key_, const std::string& name, const std::string& desc, const CAmount& totalSupply_=-1, const CAmount& nVersion_=0) : key(key_), nVersion(nVersion_), sName(name), sDesc(desc), canMint(true), currentSupply(0), fDirty(false) {
         if (!MoneyRange(totalSupply))
-            totalSupply = MAX_MONEY;
+            totalSupply = MAX_MONEY-1;
         else
             totalSupply = totalSupply_;
     };
