@@ -219,7 +219,6 @@ public:
                 {
                     READWRITE(vData);
                 }
-                READWRITE(newSer);
 
                 fXNav = true;
             }
@@ -279,7 +278,6 @@ public:
                 {
                     READWRITE(vData);
                 }
-                READWRITE(newSer);
             }
             else if (IsBLSCT())
             {
