@@ -3273,7 +3273,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
     vector<std::pair<CAmount, std::pair<const CWalletTx*,unsigned int> > > vValue;
     CAmount nTotalLower = 0;
 
-    std::random_shuffle(vCoins.begin(), vCoins.end(), GetRandInt);
+    RandomShuffle(vCoins);
 
     std::sort(vCoins.begin(), vCoins.end(), [](const COutput &a, const COutput &b) {
         return a.mixCount > b.mixCount;
