@@ -163,7 +163,7 @@ bool AggregationSession::SelectCandidates(CandidateTransaction &ret)
 {
     LOCK(cs_aggregation);
 
-    std::random_shuffle(vTransactionCandidates.begin(), vTransactionCandidates.end(), GetRandInt);
+    RandomShuffle(vTransactionCandidates);
 
     size_t nSelect = std::min(vTransactionCandidates.size(), (size_t)GetArg("-defaultmixin", DEFAULT_TX_MIXCOINS));
 
@@ -973,7 +973,7 @@ void AggregationSessionThread()
 
             pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
 
-            std::random_shuffle(vAvailableCoins.begin(), vAvailableCoins.end(), GetRandInt);
+            RandomShuffle(vAvailableCoins);
 
             MilliSleep(GetRand(aggSleep, 180000));
         }
