@@ -167,7 +167,6 @@ public:
     uint256 tokenId;
     BulletproofsRangeproof bp;
     uint256 cacheHash;
-    bool newSer;
 
     CTxOut()
     {
@@ -193,7 +192,6 @@ public:
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
                 READWRITE(bp);
-                newSer = false;
                 fXNav = true;
             }
             else if (nFlags & (uint64_t)0x2<<62)
@@ -224,7 +222,6 @@ public:
             }
             else
             {
-                newSer = false;
                 nValue = nFlags;
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
@@ -234,10 +231,8 @@ public:
         }
         else
         {
-            if (vData.size() > 0 || tokenId != uint256() || newSer)
+            if (vData.size() > 0 || tokenId != uint256())
             {
-                newSer = true;
-
                 CAmount nMarker = (uint64_t)0x2 << 62;
 
                 if (nValue > 0)
@@ -281,7 +276,6 @@ public:
             }
             else if (IsBLSCT())
             {
-                newSer = false;
                 CAmount nMarker = ~(uint64_t)0;
                 READWRITE(nMarker);
                 READWRITE(nValue);
@@ -292,7 +286,6 @@ public:
             }
             else
             {
-                newSer = false;
                 READWRITE(nValue);
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
@@ -302,7 +295,6 @@ public:
     void SetNull()
     {
         nValue = -1;
-        newSer = false;
         scriptPubKey.clear();
         ephemeralKey.clear();
         outputKey.clear();
