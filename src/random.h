@@ -10,6 +10,7 @@
 #include <uint256.h>
 
 #include <limits>
+#include <random>
 
 #include <stdint.h>
 
@@ -154,5 +155,14 @@ public:
     static constexpr uint64_t max() { return std::numeric_limits<uint64_t>::max(); }
     inline uint64_t operator()() noexcept { return rand64(); }
 };
+
+template <typename T>
+void RandomShuffle(T& w)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::shuffle(w.begin(), w.end(), gen);
+}
 
 #endif // NAVCOIN_RANDOM_H
