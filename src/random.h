@@ -9,6 +9,7 @@
 #include <crypto/chacha20.h>
 #include <uint256.h>
 
+#include <algorithm>
 #include <limits>
 #include <random>
 
