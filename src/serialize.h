@@ -571,12 +571,6 @@ inline void Unserialize(Stream& s, bls::G1Element & a, int nType, int nVersion =
     a = bls::G1Element::FromByteVector(f);
 }
 
-unsigned int GetSerializeSize(bls::G1Element item, int nType, int nVersion)
-{
-    return item.Serialize().size();
-}
-
-
 
 // Serialization for bls::G2Element
 template <typename Stream>
@@ -592,11 +586,6 @@ inline void Unserialize(Stream& s, bls::G2Element & a, int nType, int nVersion =
     std::vector<uint8_t> f(bls::G2Element::SIZE);
     Unserialize(s, f, nType, nVersion);
     a = bls::G2Element::FromByteVector(f);
-}
-
-unsigned int GetSerializeSize(bls::G2Element item, int nType, int nVersion)
-{
-    return item.Serialize().size();
 }
 
 /**

@@ -9,7 +9,6 @@
 #include <amount.h>
 #include <bls.hpp>
 #include <streams.h>
-#include <serialize.h>
 #include <consensus/program_actions.h>
 
 class Predicate

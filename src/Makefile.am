@@ -114,9 +114,6 @@ NAVCOIN_CORE_H = \
   consensus/dao.h \
   consensus/daoconsensusparams.h \
   consensus/dao/flags.h \
-  consensus/programs.h \
-  consensus/program_actions.h \
-  ctokens/ctokens.h \
   daoversionbit.h \
   consensus/consensus.h \
   core_io.h \
@@ -322,6 +319,9 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
+  consensus/programs.h \
+  consensus/program_actions.h \
+  ctokens/ctokens.h \
   aes_helper.c \
   blake.c \
   bmw.c \

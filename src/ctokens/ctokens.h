@@ -10,7 +10,6 @@
 #include <blsct/scalar.h>
 #include <bls.hpp>
 
-#include <serialize.h>
 #include <uint256.h>
 #include <amount.h>
 

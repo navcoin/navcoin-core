@@ -51,6 +51,10 @@ public:
     GTElement Pair(const G2Element &b) const;
     uint32_t GetFingerprint() const;
     std::vector<uint8_t> Serialize() const;
+    unsigned int GetSerializeSize(int nType=0, int nVersion=0)
+    {
+        return Serialize().size();
+    }
 
     friend bool operator==(const G1Element &a, const G1Element &b);
     friend bool operator!=(const G1Element &a, const G1Element &b);
@@ -86,6 +90,10 @@ public:
     G2Element Negate() const;
     GTElement Pair(const G1Element &a) const;
     std::vector<uint8_t> Serialize() const;
+    unsigned int GetSerializeSize(int nType=0, int nVersion=0)
+    {
+        return Serialize().size();
+    }
 
     friend bool operator==(G2Element const &a, G2Element const &b);
     friend bool operator!=(G2Element const &a, G2Element const &b);
