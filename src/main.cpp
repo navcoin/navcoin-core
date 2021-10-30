@@ -6638,7 +6638,7 @@ bool static LoadBlockIndexDB()
     // Calculate nChainWork
     std::vector<std::pair<int, CBlockIndex*> > vSortedByHeight;
     vSortedByHeight.reserve(mapBlockIndex.size());
-    for(const PAIRTYPE(uint256, CBlockIndex*)& item: mapBlockIndex)
+    for(const std::pair<uint256, CBlockIndex*>& item: mapBlockIndex)
     {
         if (++nMapBlockInc % PROGRESS_INTERVAL == 0) {
             // Update the progress
@@ -6648,7 +6648,7 @@ bool static LoadBlockIndexDB()
         vSortedByHeight.push_back(std::make_pair(pindex->nHeight, pindex));
     }
     std::sort(vSortedByHeight.begin(), vSortedByHeight.end());
-    for(const PAIRTYPE(int, CBlockIndex*)& item: vSortedByHeight)
+    for(const std::pair<int, CBlockIndex*>& item: vSortedByHeight)
     {
         if (++nMapBlockInc % PROGRESS_INTERVAL == 0) {
             // Update the progress
@@ -6700,7 +6700,7 @@ bool static LoadBlockIndexDB()
     // Check presence of blk files
     LogPrintf("Checking all blk files are present...\n");
     std::set<int> setBlkDataFiles;
-    for(const PAIRTYPE(uint256, CBlockIndex*)& item: mapBlockIndex)
+    for(const std::pair<uint256, CBlockIndex*>& item: mapBlockIndex)
     {
         CBlockIndex* pindex = item.second;
         if (pindex->nStatus & BLOCK_HAVE_DATA) {
@@ -10329,7 +10329,7 @@ static bool SelectBlockFromCandidates(std::vector<std::pair<int64_t, uint256> >&
     bool fSelected = false;
     uint256 hashBest = uint256();
     *pindexSelected = (const CBlockIndex*) 0;
-    for(const PAIRTYPE(int64_t, uint256)& item: vSortedByTimestamp)
+    for(const std::pair<int64_t, uint256>& item: vSortedByTimestamp)
     {
         if (!mapBlockIndex.count(item.second))
             return error("SelectBlockFromCandidates: failed to find block index for candidate block %s", item.second.ToString());
@@ -10451,7 +10451,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
                 strSelectionMap.replace(pindex->nHeight - nHeightFirstCandidate, 1, "=");
             pindex = pindex->pprev;
         }
-        for(const PAIRTYPE(uint256, const CBlockIndex*)& item: mapSelectedBlocks)
+        for(const std::pair<uint256, const CBlockIndex*>& item: mapSelectedBlocks)
         {
             // 'S' indicates selected proof-of-stake blocks
             // 'W' indicates selected proof-of-work blocks
