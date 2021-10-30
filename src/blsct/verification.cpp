@@ -118,7 +118,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                     hash = tx.vout[j].GetHash();
                     vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
 
-                    auto gensToken = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(SerializeHash(program.kParameters[0]));
 
                     Scalar s = Scalar(program.nParameters[0]);
 
