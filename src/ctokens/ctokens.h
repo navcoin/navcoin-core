@@ -44,13 +44,14 @@ public:
         return program.GetVchData();
     }
 
-    std::vector<unsigned char> GetMintProgram(const CAmount& amount, const bls::G1Element& key) {
+    std::vector<unsigned char> GetMintProgram(const CAmount& amount, const bls::G1Element& key, const std::vector<unsigned char>& vData=std::vector<unsigned char>()) {
         if (!IncreaseSupply(amount))
             return std::vector<unsigned char>();
 
         Predicate program(MINT);
         program.Push(amount);
         program.Push(key);
+        program.Push(vData);
         return program.GetVchData();
     }
 
@@ -63,12 +64,13 @@ public:
         return program.GetVchData();
     }
 
-    std::vector<unsigned char> GetBurnProgram(const uint64_t& amount) {
+    std::vector<unsigned char> GetBurnProgram(const uint64_t& amount, const std::vector<unsigned char>& vData=std::vector<unsigned char>()) {
         if (!DecreaseSupply(amount))
             return std::vector<unsigned char>();
 
         Predicate program(BURN);
         program.Push(amount);
+        program.Push(vData);
         return program.GetVchData();
     }
 

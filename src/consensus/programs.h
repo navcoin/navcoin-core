@@ -97,6 +97,9 @@ public:
                 CAmount amount;
                 READWRITE(amount);
                 Push(amount);
+                std::vector<unsigned char> data;
+                READWRITE(data);
+                Push(data);
             } else if (action == STOP_MINT)
             {
                 bls::G1Element id;
@@ -107,6 +110,9 @@ public:
                 CAmount amount;
                 READWRITE(amount);
                 Push(amount);
+                std::vector<unsigned char> data;
+                READWRITE(data);
+                Push(data);
             }
         } else {
             if (action == CREATE_TOKEN && kParameters.size() == 1 && sParameters.size() == 2 && nParameters.size() == 1)
@@ -116,18 +122,20 @@ public:
                 READWRITE(sParameters[1]);
                 READWRITE(nParameters[0]);
             }
-            else if (action == MINT && kParameters.size() == 1 && nParameters.size() == 1)
+            else if (action == MINT && kParameters.size() == 1 && nParameters.size() == 1 && vParameters.size() == 1)
             {
                 READWRITE(kParameters[0]);
                 READWRITE(nParameters[0]);
+                READWRITE(vParameters[0]);
             }
             else if (action == STOP_MINT && kParameters.size() == 1)
             {
                 READWRITE(kParameters[0]);
             }
-            else if (action == BURN && nParameters.size() == 1)
+            else if (action == BURN && nParameters.size() == 1 && vParameters.size() == 1)
             {
                 READWRITE(nParameters[0]);
+                READWRITE(vParameters[0]);
             }
         }
     }
