@@ -3853,7 +3853,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CVoteList pVoteList;
                             view.GetCachedVoter(voterScript, pVoteList);
 
-                            LogPrint("daoextra", "%s: Looking for votes to add in the cache at height %d.\n", __func__, pindex->nHeight);
+                            LogPrint("daoextra", "%s: Looking for votes to add in the cache at height %d for %s.\n", __func__, pindex->nHeight, hash.ToString());
 
                             if (fDAOConsultations && fConsultation)
                             {
@@ -3882,6 +3882,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 mVote->Set(pindex->nHeight, hash, vote);
                                 mVote->fDirty = true;
                                 LogPrint("daoextra", "%s: Setting vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
+                            } else if (fDAOConsultations && fSupport) {
+                                LogPrint("daoextra", "%s: did not add support vote for %s because %d %d %d %d\n", __func__,  hash.ToString(),
+                                         view.GetConsultation(hash, consultation),
+                                          view.GetConsultation(hash, consultation) && consultation.CanBeSupported(),
+                                           view.GetConsultationAnswer(hash, answer),
+                                           view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view));
                             }
                         }
                         else if (i == 0)
