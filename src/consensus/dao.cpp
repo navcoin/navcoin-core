@@ -2142,41 +2142,41 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
 
         // Check if we have a question
         if (sQuestion == "")
-            return error("%s: Question can't be empty for proposal %s", __func__, tx.GetHash().ToString());
+            return error("%s: Question can't be empty for consultation %s", __func__, tx.GetHash().ToString());
 
         // Make sure we have enough fee
         if (nContribution < nMinFee)
-            return error("%s: Contribution %d is less than %d for proposal %s", __func__, nContribution, nMinFee, tx.GetHash().ToString());
+            return error("%s: Contribution %d is less than %d for consultation %s", __func__, nContribution, nMinFee, tx.GetHash().ToString());
 
         // Check if we need to validate a range value
         if (fRange)
         {
             if (nMax <= nMin)
-                return error("%s: Max (%d) value for range must be more than min (%d) value for proposal %s", __func__, nMax, nMin, tx.GetHash().ToString());
+                return error("%s: Max (%d) value for range must be more than min (%d) value for consultation %s", __func__, nMax, nMin, tx.GetHash().ToString());
 
             if (nMin < 1)
-                return error("%s: Min (%d) value for range must be atleast 1 for proposal %s", __func__, nMin, tx.GetHash().ToString());
+                return error("%s: Min (%d) value for range must be atleast 1 for consultation %s", __func__, nMin, tx.GetHash().ToString());
 
             if (nMax >= (uint64_t) VoteFlags::VOTE_ABSTAIN)
-                return error("%s: Max (%d) value for range must be less than %d for proposal %s", __func__, nMax, (uint64_t) VoteFlags::VOTE_ABSTAIN, tx.GetHash().ToString());
+                return error("%s: Max (%d) value for range must be less than %d for consultation %s", __func__, nMax, (uint64_t) VoteFlags::VOTE_ABSTAIN, tx.GetHash().ToString());
         }
         else
         {
             if (nMax < 1 || nMax > 15)
-                return error("%s: Max (%d) value must be between 1-15 for proposal %s", __func__, tx.GetHash().ToString());
+                return error("%s: Max (%d) value must be between 1-15 for consultation %s", __func__, tx.GetHash().ToString());
         }
 
         // Make sure we have atleast 2 answers if we don't accept suggestions and it's not a range
         if (!((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange))
-            return error("%s: Need atleast 1 answer for proposal %s", __func__, tx.GetHash().ToString());
+            return error("%s: Need atleast 1 answer for consultation %s", __func__, tx.GetHash().ToString());
 
         // Check our version
         if ((nVersion & ~nMaskVersion) != 0)
-            return error("%s: Wrong version %d for proposal %s", __func__, nVersion, tx.GetHash().ToString());
+            return error("%s: Wrong version %d for consultation %s", __func__, nVersion, tx.GetHash().ToString());
     }
     catch(const std::exception& e)
     {
-        return error("%s: Error: %s", __func__, e.what());
+        return error("%s: Error: %s for consultation %s", __func__, e.what(), tx.GetHash().ToString());
     }
 
     return true;
