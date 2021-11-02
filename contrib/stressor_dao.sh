@@ -1052,8 +1052,8 @@ function random_verifychain_check {
 }
 
 function start_node {
-	$(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 -daemon
-#	gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 &
+	$(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=daoextra -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 -daemon
+#	gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=daoextra -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 &
 }
 
 function stop_node {
