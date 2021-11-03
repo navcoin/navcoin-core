@@ -7,8 +7,8 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
-    std::map<uint256, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
-    std::map<uint256, std::vector<bls::G1Element>> nonces;
+    std::map<std::pair<uint256, uint64_t>, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
+    std::map<std::pair<uint256, uint64_t>, std::vector<bls::G1Element>> nonces;
 
 
     bls::G1Element balKey, balKeyOut;
@@ -118,9 +118,29 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                     hash = tx.vout[j].GetHash();
                     vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
 
-                    auto gensToken = BulletproofsRangeproof::GetGenerators(SerializeHash(program.kParameters[0]));
+                    auto tokenId = SerializeHash(program.kParameters[0]);
 
-                    Scalar s = Scalar(program.nParameters[0]);
+                    Scalar s;
+                    TokenInfo token;
+
+                    if (!view.GetToken(tokenId, token))
+                        return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+
+                    uint64_t tokenNftId = -1;
+
+                    if (token.nVersion == 0)
+                    {
+                        s = Scalar(program.nParameters[0]);
+                    }
+                    else if (token.nVersion == 1)
+                    {
+                        tokenNftId = program.nParameters[0];
+                        s = Scalar(1);
+                    }
+                    else
+                        return state.DoS(100, false, REJECT_INVALID, "wrong-token-version");
+
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(std::make_pair(tokenId, tokenNftId));
 
                     if (fElementZero)
                     {

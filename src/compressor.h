@@ -114,7 +114,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (!ser_action.ForRead()) {
-            if (txout.vData.size() > 0 || txout.tokenId != uint256())
+            if (txout.vData.size() > 0 || txout.tokenId.first != uint256())
             {
                 CAmount nMarker = MAX_MONEY-1;
                 READWRITE(VARINT(nMarker));

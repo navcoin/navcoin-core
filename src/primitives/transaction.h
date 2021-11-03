@@ -164,7 +164,7 @@ public:
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
     std::vector<uint8_t> vData;
-    uint256 tokenId;
+    std::pair<uint256,uint64_t> tokenId;
     BulletproofsRangeproof bp;
     uint256 cacheHash;
 
@@ -212,8 +212,10 @@ public:
                     READWRITE(bp);
                 }
                 if (nFlags & 0x1<<5)
-                    READWRITE(tokenId);
+                    READWRITE(tokenId.first);
                 if (nFlags & 0x1<<6)
+                    READWRITE(tokenId.second);
+                if (nFlags & 0x1<<7)
                 {
                     READWRITE(vData);
                 }
@@ -231,7 +233,7 @@ public:
         }
         else
         {
-            if (vData.size() > 0 || tokenId != uint256())
+            if (vData.size() > 0 || tokenId.first != uint256() || tokenId.second != -1)
             {
                 CAmount nMarker = (uint64_t)0x2 << 62;
 
@@ -246,12 +248,15 @@ public:
                 if (bp.V.size() > 0) {
                     nMarker  |= 0x1<<4;
                 }
-                if (tokenId != uint256()) {
+                if (tokenId.first != uint256()) {
                     nMarker  |= 0x1<<5;
+                }
+                if (tokenId.second != -1) {
+                    nMarker  |= 0x1<<6;
                 }
                 if (vData.size() > 0)
                 {
-                    nMarker  |= 0x1<<6;
+                    nMarker  |= 0x1<<7;
                 }
 
                 READWRITE(nMarker);
@@ -268,8 +273,10 @@ public:
                     READWRITE(bp);
                 }
                 if (nMarker & 0x1<<5)
-                    READWRITE(tokenId);
+                    READWRITE(tokenId.first);
                 if (nMarker & 0x1<<6)
+                    READWRITE(tokenId.second);
+                if (nMarker & 0x1<<7)
                 {
                     READWRITE(vData);
                 }
@@ -300,7 +307,7 @@ public:
         outputKey.clear();
         spendingKey.clear();
         vData.clear();
-        tokenId = uint256();
+        tokenId = std::make_pair(uint256(), -1);
     }
 
     BulletproofsRangeproof GetBulletproof() const

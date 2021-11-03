@@ -1503,11 +1503,25 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
 
                                 TokenModifier token = view.ModifyToken(tokenId);
 
-                                if (!token->IncreaseSupply(program.nParameters[0])) {
-                                    return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                                if (token->nVersion == 0) {
+                                    if (!token->IncreaseSupply(program.nParameters[0])) {
+                                        return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                                    }
+                                } else if (token->nVersion == 1) {
+                                    if (program.nParameters[0] < 0 || program.nParameters[0] > token->totalSupply)
+                                    {
+                                        return state.DoS(100, false, REJECT_INVALID, "wrong-nft-id");
+                                    }
+                                    if (token->mapMetadata.count(program.nParameters[0])) {
+                                        return state.DoS(100, false, REJECT_INVALID, "already-minted");
+                                    }
+                                    std::string md{program.vParameters[0].begin(), program.vParameters[0].end()};
+                                    token->mapMetadata[program.nParameters[0]] = md;
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                                 }
                             } else if (program.action == BURN) {
-                                auto tokenId = txout.tokenId;
+                                auto tokenId = txout.tokenId.first;
 
                                 if (!viewMemPool.HaveToken(tokenId))
                                 {
@@ -1516,8 +1530,13 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
 
                                 TokenModifier token = view.ModifyToken(tokenId);
 
-                                if (!token->DecreaseSupply(program.nParameters[0])) {
-                                    return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                                if (token->nVersion == 0)
+                                {
+                                    if (!token->DecreaseSupply(program.nParameters[0])) {
+                                        return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                                    }
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "cant-burn");
                                 }
                             } else if (program.action == CREATE_TOKEN) {
                                 auto tokenId = SerializeHash(program.kParameters[0]);
@@ -1527,7 +1546,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
                                 }
 
-                                TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[0]);
+                                TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[1], program.nParameters[0]);
 
                                 token.fDirty = true;
 
@@ -2776,11 +2795,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
-                        token->DecreaseSupply(program.nParameters[0]);
+                        if (token->nVersion == 0) {
+                            token->DecreaseSupply(program.nParameters[0]);
+                        } else if (token->nVersion == 1) {
+                            if (!token->mapMetadata.count(program.nParameters[0])) {
+                                return state.DoS(100, false, REJECT_INVALID, "unknown-nft");
+                            }
+                            token->mapMetadata.erase(program.nParameters[0]);
+                        } else {
+                            return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
+                        }
                     }
                     else if (program.action == BURN)
                     {
-                        auto tokenId = txout.tokenId;
+                        auto tokenId = txout.tokenId.first;
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -2789,7 +2817,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
-                        token->IncreaseSupply(program.nParameters[0]);
+                        if (token->nVersion == 0)
+                        {
+                            token->IncreaseSupply(program.nParameters[0]);
+                        }
                     }
                     else if (program.action == CREATE_TOKEN)
                     {
@@ -4512,13 +4543,27 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
-                        LogPrint("token", "%s: Minting %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+                        if (token->nVersion == 0) {
+                            LogPrint("token", "%s: Minting %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
 
-                        if (!token->IncreaseSupply(program.nParameters[0])) {
-                            return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                            if (!token->IncreaseSupply(program.nParameters[0])) {
+                                return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                            }
+                        } else if (token->nVersion == 1) {
+                            if (program.nParameters[0] < 0 || program.nParameters[0] > token->totalSupply)
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-nft-id");
+                            }
+                            if (token->mapMetadata.count(program.nParameters[0])) {
+                                return state.DoS(100, false, REJECT_INVALID, "already-minted");
+                            }
+                            std::string md{program.vParameters[0].begin(), program.vParameters[0].end()};
+                            token->mapMetadata[program.nParameters[0]] = md;
+                        } else {
+                            return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                         }
                     } else if (program.action == BURN) {
-                        auto tokenId = vout.tokenId;
+                        auto tokenId = vout.tokenId.first;
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -4527,10 +4572,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         TokenModifier token = view.ModifyToken(tokenId);
 
-                        LogPrint("token", "%s: Burning %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+                        if (token->nVersion == 0)
+                        {
+                            LogPrint("token", "%s: Burning %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
 
-                        if (!token->DecreaseSupply(program.nParameters[0])) {
-                            return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                            if (!token->DecreaseSupply(program.nParameters[0])) {
+                                return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                            }
                         }
                     } else if (program.action == CREATE_TOKEN) {
                         auto tokenId = SerializeHash(program.kParameters[0]);
@@ -4540,7 +4588,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
                         }
 
-                        TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[0]);
+                        TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[1], program.nParameters[0]);
 
                         token.fDirty = true;
 
@@ -5323,7 +5371,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     // ... and about transactions that got confirmed:
     for(size_t i = 0; i<pblock->vtx.size(); i++) {
         CTransaction tx = pblock->vtx[i];
-        SyncWithWallets(tx, pindexNew, pblock, true, &(blsctData[i]));
+        SyncWithWallets(tx, pindexNew, pblock, true, blsctData.count(i) ? &(blsctData[i]) : nullptr);
     }
 
     int64_t nTime7 = GetTimeMicros(); nTimePostConnect += nTime7 - nTime6; nTimeTotal += nTime7 - nTime1;

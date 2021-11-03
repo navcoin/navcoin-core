@@ -83,6 +83,9 @@ public:
                 std::string name;
                 READWRITE(name);
                 Push(name);
+                uint64_t v;
+                READWRITE(v);
+                Push(v);
                 std::string desc;
                 READWRITE(desc);
                 Push(desc);
@@ -115,12 +118,13 @@ public:
                 Push(data);
             }
         } else {
-            if (action == CREATE_TOKEN && kParameters.size() == 1 && sParameters.size() == 2 && nParameters.size() == 1)
+            if (action == CREATE_TOKEN && kParameters.size() == 1 && sParameters.size() == 2 && nParameters.size() == 2)
             {
                 READWRITE(kParameters[0]);
                 READWRITE(sParameters[0]);
-                READWRITE(sParameters[1]);
                 READWRITE(nParameters[0]);
+                READWRITE(sParameters[1]);
+                READWRITE(nParameters[1]);
             }
             else if (action == MINT && kParameters.size() == 1 && nParameters.size() == 1 && vParameters.size() == 1)
             {

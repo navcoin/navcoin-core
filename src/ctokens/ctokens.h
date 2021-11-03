@@ -21,6 +21,7 @@ public:
     std::string sDesc;
     CAmount totalSupply;
     CAmount currentSupply;
+    std::map<uint64_t, std::string> mapMetadata;
     bool canMint;
     bool fDirty;
 
@@ -38,6 +39,7 @@ public:
     std::vector<unsigned char> GetCreateProgram() {
         Predicate program(CREATE_TOKEN);
         program.Push(key);
+        program.Push(nVersion);
         program.Push(sName);
         program.Push(sDesc);
         program.Push(totalSupply);
@@ -45,7 +47,7 @@ public:
     }
 
     std::vector<unsigned char> GetMintProgram(const CAmount& amount, const bls::G1Element& key, const std::vector<unsigned char>& vData=std::vector<unsigned char>()) {
-        if (!IncreaseSupply(amount))
+        if (nVersion == 0 && !IncreaseSupply(amount))
             return std::vector<unsigned char>();
 
         Predicate program(MINT);
@@ -56,6 +58,9 @@ public:
     }
 
     std::vector<unsigned char> GetStopMintingProgram(const bls::G1Element& key) {
+        if (nVersion != 0)
+            return std::vector<unsigned char>();
+
         if (!StopMinting())
             return std::vector<unsigned char>();
 
@@ -65,6 +70,9 @@ public:
     }
 
     std::vector<unsigned char> GetBurnProgram(const uint64_t& amount, const std::vector<unsigned char>& vData=std::vector<unsigned char>()) {
+        if (nVersion != 0)
+            return std::vector<unsigned char>();
+
         if (!DecreaseSupply(amount))
             return std::vector<unsigned char>();
 
@@ -83,10 +91,12 @@ public:
         currentSupply = 0;
         canMint = false;
         fDirty = false;
+        mapMetadata.clear();
     }
 
     bool IsNull() const {
         return key == bls::G1Element() &&
+                mapMetadata.size() == 0 &&
                 nVersion == 0 &&
                 sName == "" &&
                 sDesc == "" &&
@@ -107,7 +117,8 @@ public:
                 sDesc == other.sDesc &&
                 totalSupply == other.totalSupply &&
                 currentSupply == other.currentSupply &&
-                canMint == other.canMint);
+                canMint == other.canMint &&
+                mapMetadata == other.mapMetadata);
     }
 
     void swap(TokenInfo &to) {
@@ -116,6 +127,7 @@ public:
         std::swap(to.sDesc, sDesc);
         std::swap(to.totalSupply, totalSupply);
         std::swap(to.currentSupply, currentSupply);
+        std::swap(to.mapMetadata, mapMetadata);
         std::swap(to.canMint, canMint);
         std::swap(to.fDirty, fDirty);
         std::swap(to.key, key);
@@ -126,15 +138,20 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
+        READWRITE(key);
+        READWRITE(sName);
+        READWRITE(sDesc);
 
         if (this->nVersion == 0)
         {
-            READWRITE(key);
-            READWRITE(sName);
-            READWRITE(sDesc);
             READWRITE(totalSupply);
             READWRITE(currentSupply);
             READWRITE(canMint);
+        }
+        else if (this->nVersion == 1)
+        {
+            READWRITE(totalSupply);
+            READWRITE(mapMetadata);
         }
     }
 

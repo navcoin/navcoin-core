@@ -46,6 +46,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
+    tokenId = std::make_pair(uint256(), -1);
 }
 
 CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Element& ephemeralKeyIn, const bls::G1Element& outputKeyIn, const bls::G1Element& spendingKeyIn, const BulletproofsRangeproof& bpIn)
@@ -56,6 +57,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Ele
     outputKey = outputKeyIn.Serialize();
     spendingKey = spendingKeyIn.Serialize();
     bp = bpIn.GetVch();
+    tokenId = std::make_pair(uint256(), -1);
 }
 
 uint256 CTxOut::GetHash() const
@@ -78,7 +80,7 @@ std::string CTxOut::ToString() const
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
                          GetBulletproof().V.size()>0 ? " rangeProof=1":"",
-                         tokenId==uint256() ? "": strprintf(" tokenId=%s", tokenId.ToString()), vData.size());
+                         tokenId.first==uint256() ? "": strprintf(" tokenId=%s%s", tokenId.first.ToString(), tokenId.second!=-1?strprintf(",%d",tokenId.second):""), vData.size());
     }
 }
 
