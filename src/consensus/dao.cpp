@@ -2543,9 +2543,18 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
         CConsultationAnswerMap mapConsultationAnswers;
         CConsultationAnswer answer;
 
+        std::vector<std::string> vSAnswers;
+
         for (auto& it: vAnswers)
         {
-            if (!view.GetConsultationAnswer(it, answer))
+            vSAnswers.push_back(it.ToString());
+        }
+
+        std::sort(vSAnswers.begin(), vSAnswers.end());
+
+        for (auto& it: vSAnswers)
+        {
+            if (!view.GetConsultationAnswer(uint256S(it), answer))
                 continue;
 
             if (answer.parent != hash)

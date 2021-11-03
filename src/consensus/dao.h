@@ -801,6 +801,7 @@ public:
             for (auto&it: vAnswer) {
                 ret.push_back(it);
             }
+            std::sort(ret.begin(), ret.end());
         } else {
             ret.push_back(sAnswer);
         }
@@ -935,6 +936,7 @@ public:
                 for (auto&it: vParameters) {
                     ret.push_back(it);
                 }
+                std::sort(ret.begin(), ret.end());
             } else {
                 ret.push_back(nMin);
             }
