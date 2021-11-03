@@ -4580,6 +4580,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
                             }
                         }
+                        else
+                        {
+                            return state.DoS(100, false, REJECT_INVALID, "cant-burn");
+                        }
                     } else if (program.action == CREATE_TOKEN) {
                         auto tokenId = SerializeHash(program.kParameters[0]);
 

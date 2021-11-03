@@ -3804,6 +3804,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         auto tokenVersion = 0;
 
+                        if (program.action == MINT)
                         {
                             CStateViewCache inputs(pcoinsTip);
                             TokenInfo token;

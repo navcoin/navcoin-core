@@ -1195,8 +1195,8 @@ UniValue createnft(const UniValue& params, bool fHelp)
     string sDesc = params[1].get_str();
 
     // Supply
-    CAmount nSupply = AmountFromValue(params[2]);
-    if (nSupply <= 0)
+    CAmount nSupply = params[2].get_int64();
+    if (nSupply <= 0 || !MoneyRange(nSupply))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
 
     blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
