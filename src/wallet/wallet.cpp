@@ -3802,9 +3802,18 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         Predicate program(recipient.vData);
 
-                        auto blsctAmount = program.action == MINT ? program.nParameters[0] : recipient.nAmount;
+                        auto tokenVersion = 0;
 
-                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), blsctAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId, program.action == BURN))
+                        {
+                            CStateViewCache inputs(pcoinsTip);
+                            TokenInfo token;
+                            if (inputs.GetToken(SerializeHash(program.kParameters[0]), token))
+                                tokenVersion = token.nVersion;
+                        }
+
+                        auto blsctAmount = program.action == MINT ? (tokenVersion == 1 ? 1 : program.nParameters[0]) : recipient.nAmount;
+
+                        if (!CreateBLSCTOutput(ephemeralKey, nonce, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), blsctAmount, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures, true, recipient.vData, recipient.tokenId, program.action == BURN, tokenVersion != 1))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
                             return false;

@@ -1169,14 +1169,16 @@ UniValue createnft(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 3)
         throw runtime_error(
-            "createnft \"name\" \"token_code\" max_supply\n"
+            "createnft \"name\" \"scheme\" max_supply\n"
             "\nCreates a nft.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
-            "1. \"name\"       (string, required) The name of the token\n"
-            "2. max_supply     (numeric, optional) The max supply of the token.\n"
+            "1. \"name\"       (string, required) The name of the NFT\n"
+            "1. \"scheme\"     (string, required) The scheme for the NFT metadata\n"
+            "2. max_supply     (numeric, optional) The max supply of the NFT.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createnft", "\"NAV Artwork\" \"NavArt\" 1000")
+            + HelpExampleCli("createnft", "\"NAV Artwork\" \"{'resource': 'url'}\" 1000")
+            + HelpExampleCli("createnft", "\"Game Item\" \"{'type': 'string', 'power': 'int'}\" 100")
                 );
 
 
@@ -1514,7 +1516,7 @@ UniValue sendnft(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw runtime_error(
-            "sendnft \"tokenid\" \"destination\" amount\n"
+            "sendnft \"tokenid\" \"nftid\" \"destination\"\n"
             "\nSends nft.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"

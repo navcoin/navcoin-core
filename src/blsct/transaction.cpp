@@ -6,9 +6,9 @@
 
 bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                        Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData,
-                       const std::pair<uint256,uint64_t>& tokenId, const bool& fIsBurn)
+                       const std::pair<uint256,uint64_t>& tokenId, const bool& fIsBurn, const bool& fConfidentialAmount)
 {
-    newTxOut = CTxOut(0, CScript(fIsBurn ? OP_RETURN : OP_1));
+    newTxOut = CTxOut(fConfidentialAmount?0:nAmount, CScript(fIsBurn ? OP_RETURN : OP_1));
 
     newTxOut.vData = vData;
     newTxOut.tokenId = tokenId;
@@ -39,7 +39,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
 
     std::vector<Scalar> useGammas;
 
-    if (!fIsBurn)
+    if (!fIsBurn && fConfidentialAmount)
     {
         gammaAcc = gammaAcc + gamma;
         gammas.push_back(gamma);
@@ -47,7 +47,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
 
     try
     {
-        if (!fIsBurn)
+        if (!fIsBurn && fConfidentialAmount)
             bprp.Prove(value, nonces[0], vMemo, newTxOut.tokenId, useGammas);
     }
     catch(std::runtime_error& e)
@@ -60,13 +60,14 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     proofs.push_back(std::make_pair(0,bprp));
     std::vector<RangeproofEncodedData> data;
 
-    if (GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces, false, tokenId))
+    if (fConfidentialAmount && GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces, false, tokenId))
     {
         strFailReason = "Range proof failed";
         return false;
     }
 
-    newTxOut.bp = bprp.GetVch();
+    if (fConfidentialAmount)
+        newTxOut.bp = bprp.GetVch();
 
     if (!GenTxOutputKeys(blindingKey, destKey, newTxOut.spendingKey, newTxOut.outputKey, newTxOut.ephemeralKey))
     {
