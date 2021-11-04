@@ -297,16 +297,16 @@ public:
     mutable bool fDebitCached;
     mutable bool fCreditCached;
     mutable bool fImmatureCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, bool> fImmaturePrivateCreditCached;
+    mutable bool fImmaturePrivateCreditCached;
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
-    mutable std::map<std::pair<uint256,uint64_t>, bool> fPrivateCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, bool> fAvailablePrivateCreditCached;
+    mutable bool fPrivateCreditCached;
+    mutable bool fAvailablePrivateCreditCached;
     mutable bool fAvailableStakableCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, bool> fPrivateDebitCached;
+    mutable bool fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
@@ -314,16 +314,16 @@ public:
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, CAmount> nImmaturePrivateCreditCached;
+    mutable CAmount nImmaturePrivateCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
-    mutable std::map<std::pair<uint256,uint64_t>, CAmount> nPrivateCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, CAmount> nAvailablePrivateCreditCached;
+    mutable CAmount nPrivateCreditCached;
+    mutable CAmount nAvailablePrivateCreditCached;
     mutable CAmount nAvailableStakableCreditCached;
-    mutable std::map<std::pair<uint256,uint64_t>, CAmount> nPrivateDebitCached;
+    mutable CAmount nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -373,11 +373,11 @@ public:
         fWatchCreditCached = false;
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
-        fPrivateCreditCached.clear();
-        fAvailablePrivateCreditCached.clear();
+        fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
         fAvailableStakableCreditCached = false;
-        fImmaturePrivateCreditCached.clear();
-        fPrivateDebitCached .clear();
+        fImmaturePrivateCreditCached = false;
+        fPrivateDebitCached  = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fSpendsColdStaking = false;
@@ -390,11 +390,11 @@ public:
         nAvailableCreditCached = 0;
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
-        nPrivateCreditCached.clear();
-        nAvailablePrivateCreditCached.clear();
+        nPrivateCreditCached = 0;
+        nAvailablePrivateCreditCached = 0;
         nAvailableStakableCreditCached = 0;
-        nImmaturePrivateCreditCached.clear();
-        nPrivateDebitCached.clear();
+        nImmaturePrivateCreditCached = 0;
+        nPrivateDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
@@ -468,10 +468,10 @@ public:
         fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
-        fPrivateCreditCached.clear();
-        fAvailablePrivateCreditCached.clear();
+        fPrivateCreditCached = false;
+        fAvailablePrivateCreditCached = false;
         fAvailableStakableCreditCached = false;
-        fImmaturePrivateCreditCached.clear();
+        fImmaturePrivateCreditCached = false;
         fDebitCached = false;
         fChangeCached = false;
     }
@@ -497,10 +497,10 @@ public:
                 vfSpent[i] = true;
                 fReturn = true;
                 fAvailableCreditCached = false;
-                fAvailablePrivateCreditCached .clear();
+                fAvailablePrivateCreditCached  = false;
                 fAvailableStakableCreditCached = false;
-                fPrivateCreditCached.clear();
-                fImmaturePrivateCreditCached.clear();
+                fPrivateCreditCached = false;
+                fImmaturePrivateCreditCached = false;
             }
         }
         return fReturn;
@@ -515,10 +515,10 @@ public:
         {
             vfSpent[nOut] = true;
             fAvailableCreditCached = false;
-            fPrivateCreditCached.clear();
-            fAvailablePrivateCreditCached.clear();
+            fPrivateCreditCached = false;
+            fAvailablePrivateCreditCached = false;
             fAvailableStakableCreditCached = false;
-            fImmaturePrivateCreditCached.clear();
+            fImmaturePrivateCreditCached = false;
         }
     }
 
@@ -531,10 +531,10 @@ public:
         {
             vfSpent[nOut] = false;
             fAvailableCreditCached = false;
-            fAvailablePrivateCreditCached.clear();
+            fAvailablePrivateCreditCached = false;
             fAvailableStakableCreditCached = false;
-            fPrivateCreditCached.clear();
-            fImmaturePrivateCreditCached.clear();
+            fPrivateCreditCached = false;
+            fImmaturePrivateCreditCached = false;
         }
     }
 
@@ -1078,7 +1078,7 @@ public:
     bool IsMine(const CTransaction& tx) const;
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx) const;
-    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter, const std::pair<uint256, uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
     CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
     CAmount GetChange(const CTransaction& tx) const;
     void SetBestChain(const CBlockLocator& loc);

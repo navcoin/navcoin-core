@@ -2074,12 +2074,12 @@ bool CWallet::IsFromMe(const CTransaction& tx) const
     return (GetDebit(tx, ISMINE_ALL) > 0);
 }
 
-CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter) const
+CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter, const std::pair<uint256, uint64_t>& tokenId) const
 {
     CAmount nDebit = 0;
     for(const CTxIn& txin: tx.vin)
     {
-        nDebit += GetDebit(txin, filter);
+        nDebit += GetDebit(txin, filter, tokenId);
         if (!MoneyRange(nDebit))
             throw std::runtime_error("CWallet::GetDebit(): value out of range");
     }
@@ -2542,13 +2542,18 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter, const std::pair<uint256,
 
     if (filter & ISMINE_SPENDABLE_PRIVATE)
     {
-        if (fPrivateDebitCached.count(tokenId) && fPrivateDebitCached.at(tokenId) == true) {
-            debit += nPrivateDebitCached[tokenId];
+        if (fPrivateDebitCached && tokenId.first == uint256()) {
+            debit += nPrivateDebitCached;
         } else
         {
-            nPrivateDebitCached[tokenId] = pwallet->GetDebit(*this, ISMINE_SPENDABLE_PRIVATE);
-            fPrivateDebitCached[tokenId] = true;
-            debit += nPrivateDebitCached[tokenId];
+            if (tokenId.first == uint256()) {
+                nPrivateDebitCached = pwallet->GetDebit(*this, ISMINE_SPENDABLE_PRIVATE);
+                fPrivateDebitCached = true;
+                debit += nPrivateDebitCached;
+            }
+            else {
+                debit += pwallet->GetDebit(*this, ISMINE_SPENDABLE_PRIVATE, tokenId);
+            }
         }
     }
 
@@ -2601,8 +2606,8 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity, co
 
     if (filter & ISMINE_SPENDABLE_PRIVATE)
     {
-        if (fPrivateCreditCached.count(tokenId) && fPrivateCreditCached.at(tokenId) == true)
-            credit += nPrivateCreditCached[tokenId];
+        if (fPrivateCreditCached && tokenId.first == uint256())
+            credit += nPrivateCreditCached;
         else
         {
             CAmount nCredit = 0;
@@ -2626,9 +2631,11 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity, co
                 if (!MoneyRange(nCredit))
                     throw std::runtime_error("CWallet::GetCredit(): value out of range");
             }
-            nPrivateCreditCached[tokenId] = nCredit;
-            fPrivateCreditCached[tokenId] = true;
-            credit += nPrivateCreditCached[tokenId];
+            if (tokenId.first == uint256()) {
+                nPrivateCreditCached = nCredit;
+                fPrivateCreditCached = true;
+                credit += nPrivateCreditCached;
+            }
         }
     }
 
@@ -2708,8 +2715,8 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache, const std::p
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
-    if (fUseCache && fAvailablePrivateCreditCached.count(tokenId) && fAvailablePrivateCreditCached.at(tokenId) == true)
-        return nAvailablePrivateCreditCached[tokenId];
+    if (fUseCache && fAvailablePrivateCreditCached && tokenId.first == uint256())
+        return nAvailablePrivateCreditCached;
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
@@ -2724,8 +2731,10 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache, const std::p
         }
     }
 
-    nAvailablePrivateCreditCached[tokenId] = nCredit;
-    fAvailablePrivateCreditCached[tokenId] = true;
+    if (tokenId.first == uint256()) {
+        nAvailablePrivateCreditCached = nCredit;
+        fAvailablePrivateCreditCached = true;
+    }
 
     return nCredit;
 }
@@ -2735,8 +2744,8 @@ CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache, const std::pai
     if (pwallet == 0)
         return 0;
 
-    if (fUseCache && fImmaturePrivateCreditCached.count(tokenId) && fImmaturePrivateCreditCached.at(tokenId) == true)
-        return nImmaturePrivateCreditCached[tokenId];
+    if (fUseCache && fImmaturePrivateCreditCached && tokenId.first == uint256())
+        return nImmaturePrivateCreditCached;
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
@@ -2751,8 +2760,10 @@ CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache, const std::pai
         }
     }
 
-    nImmaturePrivateCreditCached[tokenId] = nCredit;
-    fImmaturePrivateCreditCached[tokenId] = true;
+    if (tokenId.first == uint256()) {
+        nImmaturePrivateCreditCached = nCredit;
+        fImmaturePrivateCreditCached = true;
+    }
     return nCredit;
 }
 
