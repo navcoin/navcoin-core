@@ -1938,7 +1938,10 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         CHashWriter hashAnswer(0,0);
 
         hashAnswer << uint256S(Hash);
-        hashAnswer << vAnswers;
+        if (vAnswers.size() == 1)
+            hashAnswer << vAnswers[0];
+        else
+            hashAnswer << vAnswers;
 
         if(coins.HaveConsultationAnswer(hashAnswer.GetHash()))
             return error("%s: Duplicated answers are forbidden, we already have %s.", __func__, hashAnswer.GetHash().ToString());
