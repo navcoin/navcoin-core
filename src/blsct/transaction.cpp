@@ -6,7 +6,7 @@
 
 bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                        Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData,
-                       const std::pair<uint256,uint64_t>& tokenId, const bool& fIsBurn, const bool& fConfidentialAmount)
+                       const TokenId& tokenId, const bool& fIsBurn, const bool& fConfidentialAmount)
 {
     newTxOut = CTxOut(fConfidentialAmount?0:nAmount, CScript(fIsBurn ? OP_RETURN : OP_1));
 

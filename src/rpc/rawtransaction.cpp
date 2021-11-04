@@ -156,9 +156,9 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("outputKey", HexStr(txout.outputKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
         out.pushKV("vData", HexStr(txout.vData));
-        out.pushKV("tokenId", txout.tokenId.first.ToString());
-        if (txout.tokenId.second != -1)
-            out.pushKV("tokenNftId", txout.tokenId.second);
+        out.pushKV("tokenId", txout.tokenId.token.ToString());
+        if (txout.tokenId.subid != -1)
+            out.pushKV("tokenNftId", txout.tokenId.subid);
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
 
         // Add spent information if spentindex is enabled
@@ -246,9 +246,9 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
         out.pushKV("outputKey", HexStr(txout.outputKey));
-        out.pushKV("tokenId", txout.tokenId.first.ToString());
-        if (txout.tokenId.second != -1)
-            out.pushKV("tokenNftId", txout.tokenId.second);
+        out.pushKV("tokenId", txout.tokenId.token.ToString());
+        if (txout.tokenId.subid != -1)
+            out.pushKV("tokenNftId", txout.tokenId.subid);
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
         vout.push_back(out);
     }

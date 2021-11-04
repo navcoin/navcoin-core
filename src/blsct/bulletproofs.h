@@ -18,6 +18,7 @@
 
 #include <amount.h>
 #include <blsct/scalar.h>
+#include <ctokens/tokenid.h>
 #include <bls.hpp>
 #include <streams.h>
 #include <utilstrencodings.h>
@@ -91,9 +92,9 @@ public:
 
     static bool Init();
 
-    static Generators GetGenerators(const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1));
+    static Generators GetGenerators(const TokenId& tokenId=TokenId());
 
-    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>(), const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1), const std::vector<Scalar>& useGammas=std::vector<Scalar>());
+    void Prove(std::vector<Scalar> v, bls::G1Element nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>(), const TokenId& tokenId=TokenId(), const std::vector<Scalar>& useGammas=std::vector<Scalar>());
 
     bool operator==(const BulletproofsRangeproof& rh) const {
         return (V == rh.V &&
@@ -177,7 +178,7 @@ public:
     static const size_t logN = 6;
 
     static bls::G1Element G;
-    static std::map<std::pair<uint256, uint64_t>, bls::G1Element> H;
+    static std::map<TokenId, bls::G1Element> H;
 
     static Scalar one;
     static Scalar two;
@@ -212,6 +213,6 @@ struct RangeproofEncodedData
     bool valid = false;
 };
 
-bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover = false, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1));
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<bls::G1Element>& nonces, const bool &fOnlyRecover = false, const TokenId& tokenId=TokenId());
 
 #endif // NAVCOIN_BLSCT_BULLETPROOFS_H

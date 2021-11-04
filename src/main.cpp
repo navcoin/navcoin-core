@@ -1521,7 +1521,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                                 }
                             } else if (program.action == BURN) {
-                                auto tokenId = txout.tokenId.first;
+                                auto tokenId = txout.tokenId.token;
 
                                 if (!viewMemPool.HaveToken(tokenId))
                                 {
@@ -2808,7 +2808,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                     else if (program.action == BURN)
                     {
-                        auto tokenId = txout.tokenId.first;
+                        auto tokenId = txout.tokenId.token;
 
                         if (!view.HaveToken(tokenId))
                         {
@@ -4563,7 +4563,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                         }
                     } else if (program.action == BURN) {
-                        auto tokenId = vout.tokenId.first;
+                        auto tokenId = vout.tokenId.token;
 
                         if (!view.HaveToken(tokenId))
                         {

@@ -7,8 +7,8 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
-    std::map<std::pair<uint256, uint64_t>, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
-    std::map<std::pair<uint256, uint64_t>, std::vector<bls::G1Element>> nonces;
+    std::map<TokenId, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
+    std::map<TokenId, std::vector<bls::G1Element>> nonces;
 
 
     bls::G1Element balKey, balKeyOut;
@@ -140,7 +140,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                     else
                         return state.DoS(100, false, REJECT_INVALID, "wrong-token-version");
 
-                    auto gensToken = BulletproofsRangeproof::GetGenerators(std::make_pair(tokenId, tokenNftId));
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(TokenId(tokenId, tokenNftId));
 
                     if (fElementZero)
                     {

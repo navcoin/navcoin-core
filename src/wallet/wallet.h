@@ -548,13 +548,13 @@ public:
     }
 
     //! filter decides which addresses will count towards the debit
-    CAmount GetDebit(const isminefilter& filter, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
-    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetDebit(const isminefilter& filter, const TokenId& tokenId=TokenId()) const;
+    CAmount GetCredit(const isminefilter& filter, bool fCheckMaturity=true, const TokenId& tokenId=TokenId()) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
-    CAmount GetPendingPrivateCredit(const bool& fUseCache=true, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetAvailablePrivateCredit(const bool& fUseCache=true, const TokenId& tokenId=TokenId()) const;
+    CAmount GetPendingPrivateCredit(const bool& fUseCache=true, const TokenId& tokenId=TokenId()) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -598,7 +598,7 @@ struct CRecipient
     std::vector<unsigned char> vk;
     std::string sMemo;
     std::vector<unsigned char> vData;
-    std::pair<uint256,uint64_t> tokenId;
+    TokenId tokenId;
 };
 
 class COutput
@@ -614,15 +614,15 @@ public:
     CAmount nAmount;
     Scalar gamma;
     string sAddress;
-    std::pair<uint256, uint64_t> tokenId;
+    TokenId tokenId;
     int mixCount;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0, std::pair<uint256,uint64_t> tokenIdIn = std::make_pair(uint256(),-1))
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
     {
         tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0, std::pair<uint256,uint64_t> tokenIdIn = std::make_pair(uint256(),-1))
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
     {
         tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
@@ -891,7 +891,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
-    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const TokenId& tokenId=TokenId()) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -992,9 +992,9 @@ public:
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
     CAmount GetColdStakingBalance() const;
-    CAmount GetPrivateBalance(const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
-    CAmount GetPrivateBalancePending(const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
-    CAmount GetPrivateBalanceLocked(const std::pair<uint256,uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetPrivateBalance(const TokenId& tokenId=TokenId()) const;
+    CAmount GetPrivateBalancePending(const TokenId& tokenId=TokenId()) const;
+    CAmount GetPrivateBalanceLocked(const TokenId& tokenId=TokenId()) const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
@@ -1017,7 +1017,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const std::pair<uint256, uint64_t>& tokenId=std::make_pair(uint256(),-1));
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const TokenId& tokenId=TokenId());
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
@@ -1070,15 +1070,15 @@ public:
     std::set<CTxDestination> GetAccountAddresses(const std::string& strAccount) const;
 
     isminetype IsMine(const CTxIn& txin) const;
-    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, const std::pair<uint256, uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, const TokenId& tokenId=TokenId()) const;
     isminetype IsMine(const CTxOut& txout) const;
-    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, const std::pair<uint256, uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, const TokenId& tokenId=TokenId()) const;
     bool IsChange(const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
     bool IsMine(const CTransaction& tx) const;
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx) const;
-    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter, const std::pair<uint256, uint64_t>& tokenId=std::make_pair(uint256(),-1)) const;
+    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter, const TokenId& tokenId=TokenId()) const;
     CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
     CAmount GetChange(const CTransaction& tx) const;
     void SetBestChain(const CBlockLocator& loc);

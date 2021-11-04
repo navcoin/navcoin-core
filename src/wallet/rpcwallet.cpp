@@ -536,7 +536,7 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const std::pair<uint256, uint64_t> &tokenId=std::make_pair(uint256(),-1), const std::pair<uint256, uint64_t> &tokenIdMint=std::make_pair(uint256(),-1))
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const TokenId &tokenId=TokenId(), const TokenId &tokenIdMint=TokenId())
 {
     CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance(tokenId) : pwalletMain->GetBalance();
 
@@ -546,8 +546,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
     CAmount toMint = 0;
 
-    std::pair<uint256, uint64_t> tokenId_;
-
+    TokenId tokenId_;
 
     if (vData.size() > 0)
     {
@@ -555,13 +554,13 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
         if (program.action == MINT)
         {
-            if (SerializeHash(program.kParameters[0]) == tokenIdMint.first)
+            if (SerializeHash(program.kParameters[0]) == tokenIdMint.token)
                 toMint += program.nParameters[0];
             tokenId_ = tokenIdMint;
         }
     }
 
-    if (tokenId.first != uint256() || tokenId_.first != uint256()) {
+    if (tokenId.token != uint256() || tokenId_.token != uint256()) {
         fSubtractFeeFromAmount = false;
     }
 
@@ -598,7 +597,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         recipient.sMemo = wtxNew.mapValue["comment"];
     }
     recipient.vData = vData;
-    recipient.tokenId = tokenId_.first == uint256() ? tokenId : tokenId_;
+    recipient.tokenId = tokenId_.token == uint256() ? tokenId : tokenId_;
     vecSend.push_back(recipient);
 
     std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
@@ -1286,7 +1285,7 @@ UniValue minttoken(const UniValue& params, bool fHelp)
     if (!vData.size())
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
 
-    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, std::make_pair(uint256(), -1), std::make_pair(tokenId, -1));
+    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, TokenId(), TokenId(tokenId, -1));
 
     return wtx.GetHash().GetHex();
 }
@@ -1328,14 +1327,14 @@ UniValue mintnft(const UniValue& params, bool fHelp)
 
     uint64_t nftid = params[1].get_int64();
 
-    std::pair<uint256, uint64_t> tokenId = std::make_pair(uint256S(token), nftid);
+    TokenId tokenId(uint256S(token), nftid);
 
-    if (!view.HaveToken(tokenId.first))
+    if (!view.HaveToken(tokenId.token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
 
     TokenInfo tokenInfo;
 
-    if (!view.GetToken(tokenId.first, tokenInfo))
+    if (!view.GetToken(tokenId.token, tokenInfo))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
     if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
@@ -1367,7 +1366,7 @@ UniValue mintnft(const UniValue& params, bool fHelp)
     if (!vData.size())
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
 
-    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, std::make_pair(uint256(), -1), tokenId);
+    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, TokenId(), tokenId);
 
     return wtx.GetHash().GetHex();
 }
@@ -1405,14 +1404,14 @@ UniValue burntoken(const UniValue& params, bool fHelp)
     if (!IsHex(token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
 
-    auto tokenId = std::make_pair(uint256S(token), -1);
+    auto tokenId = TokenId(uint256S(token), -1);
 
-    if (!view.HaveToken(tokenId.first))
+    if (!view.HaveToken(tokenId.token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
 
     TokenInfo tokenInfo;
 
-    if (!view.GetToken(tokenId.first, tokenInfo))
+    if (!view.GetToken(tokenId.token, tokenInfo))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
 
@@ -1478,14 +1477,14 @@ UniValue sendtoken(const UniValue& params, bool fHelp)
     if (!IsHex(token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
 
-    auto tokenId = std::make_pair(uint256S(token), -1);
+    auto tokenId = TokenId(uint256S(token), -1);
 
-    if (!view.HaveToken(tokenId.first))
+    if (!view.HaveToken(tokenId.token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
 
     TokenInfo tokenInfo;
 
-    if (!view.GetToken(tokenId.first, tokenInfo))
+    if (!view.GetToken(tokenId.token, tokenInfo))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
     string address = params[1].get_str();
@@ -1545,14 +1544,14 @@ UniValue sendnft(const UniValue& params, bool fHelp)
     if (nftid <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid nftid");
 
-    auto tokenId = std::make_pair(uint256S(token), nftid);
+    auto tokenId = TokenId(uint256S(token), nftid);
 
-    if (!view.HaveToken(tokenId.first))
+    if (!view.HaveToken(tokenId.token))
         throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
 
     TokenInfo tokenInfo;
 
-    if (!view.GetToken(tokenId.first, tokenInfo))
+    if (!view.GetToken(tokenId.token, tokenInfo))
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
     string address = params[2].get_str();
@@ -5500,7 +5499,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             o.pushKV("max_supply", it->second.nVersion == 0 ? FormatMoney(it->second.totalSupply) : std::to_string(it->second.totalSupply));
             if (it->second.nVersion == 0)
             {
-                o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(std::make_pair(it->first, -1))));
+                o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(TokenId(it->first, -1))));
             }
             else if (it->second.nVersion == 1)
             {
@@ -5509,7 +5508,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     UniValue n(UniValue::VOBJ);
                     n.pushKV("index", it_.first);
                     n.pushKV("metadata", it_.second);
-                    n.pushKV("balance", std::to_string(pwalletMain->GetPrivateBalance(std::make_pair(it->first, it_.first))));
+                    n.pushKV("balance", std::to_string(pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first))));
                     a.push_back(n);
                 }
                 o.pushKV("nfts", a);
