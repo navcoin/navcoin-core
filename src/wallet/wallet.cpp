@@ -1802,10 +1802,6 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
                             LogPrintf("Transaction %s (in block %s) conflicts with wallet transaction %s (both spend %s:%i)\n", tx.GetHash().ToString(), pblock->GetHash().ToString(), range.first->second.ToString(), range.first->first.hash.ToString(), range.first->first.n);
                             MarkConflicted(pblock->GetHash(), range.first->second);
                         }
-                        else
-                        {
-                            AbandonTransaction(range.first->second);
-                        }
                     }
                     range.first++;
                 }
