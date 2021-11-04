@@ -32,11 +32,11 @@ bls::G1Element BulletproofsRangeproof::G;
 std::map<std::pair<uint256,uint64_t>, bls::G1Element> BulletproofsRangeproof::H;
 
 // Calculate base point
-static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx, std::string tokId = "", uint64_t tokNftId = 0)
+static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx, std::string tokId = "", uint64_t tokNftId = -1)
 {
     static const std::string salt("bulletproof");
     std::vector<uint8_t> data =  base.Serialize();
-    std::string toHash = HexStr(data) + salt + std::to_string(idx) + tokId;
+    std::string toHash = HexStr(data) + salt + std::to_string(idx) + tokId + (tokNftId != -1 ? "nft"+ std::to_string(tokNftId) : "");
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << toHash;
