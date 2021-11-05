@@ -5,6 +5,7 @@
 
 #include <wallet/db.h>
 
+#include <fs.h>
 #include <init.h>
 #include <addrman.h>
 #include <hash.h>
@@ -19,7 +20,6 @@
 #include <sys/stat.h>
 #endif
 
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <boost/version.hpp>
 
@@ -70,7 +70,7 @@ void CDBEnv::Close()
     EnvShutdown();
 }
 
-bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
+bool CDBEnv::Open(const fs::path& pathIn, std::string pin)
 {
     if (fDbEnvInit)
         return true;
@@ -82,9 +82,9 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
     boost::this_thread::interruption_point();
 
     strPath = pathIn.string();
-    boost::filesystem::path pathLogDir = pathIn / "database";
+    fs::path pathLogDir = pathIn / "database";
     TryCreateDirectory(pathLogDir);
-    boost::filesystem::path pathErrorFile = pathIn / "db.log";
+    fs::path pathErrorFile = pathIn / "db.log";
     LogPrintf("CDBEnv::Open: LogDir=%s ErrorFile=%s\n", pathLogDir.string(), pathErrorFile.string());
 
     dbenv->set_lg_dir(pathLogDir.string().c_str());
@@ -413,14 +413,14 @@ bool CDB::Rewrite(const std::string& strFile, const char* pszSkip, std::string n
                     _bitdb = new CDBEnv();
 
                     // Get the path
-                    boost::filesystem::path _path = GetDataDir() / "tmp";
+                    fs::path _path = GetDataDir() / "tmp";
 
                     // Remove old tmp if we already have it
-                    if (boost::filesystem::exists(_path))
-                        boost::filesystem::remove_all(_path);
+                    if (fs::exists(_path))
+                        fs::remove_all(_path);
 
                     // Create the directory again
-                    boost::filesystem::create_directory(_path);
+                    fs::create_directory(_path);
 
                     // Make sure the bitdb is open
                     if (!_bitdb->Open(_path, newPin))
@@ -514,7 +514,7 @@ bool CDB::Rewrite(const std::string& strFile, const char* pszSkip, std::string n
                     if (!newPin.empty())
                     {
                         // Remove our old database dir
-                        boost::filesystem::remove_all(GetDataDir() / "database");
+                        fs::remove_all(GetDataDir() / "database");
 
                         // Reset bitdb
                         bitdb.Reset();
@@ -528,7 +528,7 @@ bool CDB::Rewrite(const std::string& strFile, const char* pszSkip, std::string n
                             fSuccess = false;
 
                         // Remove our tmp working dir
-                        boost::filesystem::remove_all(GetDataDir() / "tmp");
+                        fs::remove_all(GetDataDir() / "tmp");
                     } else
                     {
                         Db db(bitdb.dbenv, 0);
@@ -583,7 +583,7 @@ void CDBEnv::Flush(bool fShutdown)
                 dbenv->log_archive(&listp, DB_ARCH_REMOVE);
                 Close();
                 if (!fMockDb)
-                    boost::filesystem::remove_all(boost::filesystem::path(strPath) / "database");
+                    fs::remove_all(fs::path(strPath) / "database");
             }
         }
     }

@@ -13,10 +13,10 @@
 #include <util.h>
 #include <utilstrencodings.h>
 
+#include <fs.h>
 #include <univalue.h>
 
 #include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/shared_ptr.hpp>
