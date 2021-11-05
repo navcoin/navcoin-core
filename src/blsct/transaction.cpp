@@ -4,11 +4,9 @@
 
 #include "transaction.h"
 
-bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
-                       Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData,
-                       const TokenId& tokenId, const bool& fIsBurn, const bool& fConfidentialAmount)
+bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo, Scalar& gammaAcc, std::string& strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify, const std::vector<unsigned char>& vData, const TokenId& tokenId, const bool& fIsBurn, const bool& fConfidentialAmount)
 {
-    newTxOut = CTxOut(fConfidentialAmount?0:nAmount, CScript(fIsBurn ? OP_RETURN : OP_1));
+    newTxOut = CTxOut(fConfidentialAmount ? 0 : nAmount, CScript(fIsBurn ? OP_RETURN : OP_1));
 
     newTxOut.vData = vData;
     newTxOut.tokenId = tokenId;
@@ -19,13 +17,12 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     // Shared key H(r*V) - Used as nonce for bulletproof
     std::vector<bls::G1Element> nonces;
     bls::G1Element vk;
-    if (!destKey.GetViewKey(vk))
-    {
+    if (!destKey.GetViewKey(vk)) {
         strFailReason = "Could not read view key from address";
         return false;
     }
 
-    nonce = blindingKey*vk;
+    nonce = blindingKey * vk;
     nonces.push_back(nonce);
 
     // Masking key - Used for bulletproof
@@ -39,29 +36,24 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
 
     std::vector<Scalar> useGammas;
 
-    if (!fIsBurn && fConfidentialAmount)
-    {
+    if (!fIsBurn && fConfidentialAmount) {
         gammaAcc = gammaAcc + gamma;
         gammas.push_back(gamma);
     }
 
-    try
-    {
+    try {
         if (!fIsBurn && fConfidentialAmount)
             bprp.Prove(value, nonces[0], vMemo, newTxOut.tokenId, useGammas);
-    }
-    catch(std::runtime_error& e)
-    {
+    } catch (std::runtime_error& e) {
         strFailReason = strprintf("Range proof failed with exception: %s", e.what());
         return false;
     }
 
-    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-    proofs.push_back(std::make_pair(0,bprp));
+    std::vector<std::pair<int, BulletproofsRangeproof> > proofs;
+    proofs.push_back(std::make_pair(0, bprp));
     std::vector<RangeproofEncodedData> data;
 
-    if (fConfidentialAmount && GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces, false, tokenId))
-    {
+    if (fConfidentialAmount && GetBoolArg("-blsctverify", false) && fVerify && !VerifyBulletproof(proofs, data, nonces, false, tokenId)) {
         strFailReason = "Range proof failed";
         return false;
     }
@@ -69,20 +61,17 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     if (fConfidentialAmount)
         newTxOut.bp = bprp.GetVch();
 
-    if (!GenTxOutputKeys(blindingKey, destKey, newTxOut.spendingKey, newTxOut.outputKey, newTxOut.ephemeralKey))
-    {
+    if (!GenTxOutputKeys(blindingKey, destKey, newTxOut.spendingKey, newTxOut.outputKey, newTxOut.ephemeralKey)) {
         strFailReason = "Could not generate tx output keys";
         return false;
     }
 
-    if (fIsBurn)
-    {
+    if (fIsBurn) {
         newTxOut.spendingKey.clear();
         newTxOut.outputKey.clear();
     }
 
-    if (fBLSSign)
-    {
+    if (fBLSSign) {
         SignBLSOutput(blindingKey, newTxOut, vBLSSignatures);
     }
 
@@ -112,64 +101,60 @@ bool SignBLSInput(const bls::PrivateKey& signingKey, CTxIn& newTxIn, std::vector
 
 bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& destKey, std::vector<unsigned char>& spendingKey, std::vector<unsigned char>& outputKey, std::vector<unsigned char>& ephemeralKey)
 {
-    try
-    {
+    try {
         // E = r*G
         ephemeralKey = blindingKey.GetG1Element().Serialize();
 
         // R = r*S
         bls::G1Element S, R;
 
-        if(!destKey.GetSpendKey(S))
-        {
+        if (!destKey.GetSpendKey(S)) {
             return false;
         }
-        R = blindingKey*S;
+        R = blindingKey * S;
 
         outputKey = R.Serialize();
 
         // P = H(r*V)*G + S
         bls::G1Element V;
-        if(!destKey.GetViewKey(V))
-        {
+        if (!destKey.GetViewKey(V)) {
             return false;
         }
-        bls::G1Element rV = blindingKey*V;
-        bls::G1Element P = bls::PrivateKey::FromBN(Scalar(HashG1Element(rV,0)).bn).GetG1Element();
+        bls::G1Element rV = blindingKey * V;
+        bls::G1Element P = bls::PrivateKey::FromBN(Scalar(HashG1Element(rV, 0)).bn).GetG1Element();
         P = S + P;
 
         spendingKey = P.Serialize();
-    }
-    catch(...)
-    {
+    } catch (...) {
         return false;
     }
     return true;
 }
 
-CandidateTransaction::CandidateTransaction() : fee(0) {
+CandidateTransaction::CandidateTransaction() : fee(0)
+{
 }
 
-bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
+bool CandidateTransaction::Validate(const CStateViewCache* inputs)
+{
     if (!(tx.IsBLSInput() && tx.IsCTOutput() && tx.vin.size() > 0 && tx.vout.size() == 1 && minAmountProofs.V.size() == tx.vout.size()))
         return error("CandidateTransaction::%s: Received transaction is not BLSCT mix compliant", __func__);
 
-    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    std::vector<std::pair<int, BulletproofsRangeproof> > proofs;
     std::vector<bls::G1Element> nonces;
     std::vector<RangeproofEncodedData> blsctData;
 
     if (!inputs->HaveInputs(tx))
-        return error ("CandidateTransaction::%s: Received spent inputs", __func__);
+        return error("CandidateTransaction::%s: Received spent inputs", __func__);
 
-    for (unsigned int i = 0; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
         Generators gens = BulletproofsRangeproof::GetGenerators();
         Scalar s = minAmount;
-        bls::G1Element l = (gens.H*s.bn).Inverse();
+        bls::G1Element l = (gens.H * s.bn).Inverse();
         bls::G1Element r = tx.vout[i].GetBulletproof().V[0];
         l = l + r;
         if (!(l == minAmountProofs.V[i]))
-            return error ("CandidateTransaction::%s: Failed verification from output's amount %d", __func__, i);
+            return error("CandidateTransaction::%s: Failed verification from output's amount %d", __func__, i);
         proofs.push_back(std::make_pair(i, minAmountProofs));
     }
 
@@ -184,29 +169,25 @@ bool CandidateTransaction::Validate(const CStateViewCache* inputs) {
 
     CValidationState state;
 
-    try
-    {
-        if(!VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, fee))
-        {
+    try {
+        if (!VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, fee)) {
             return error("CandidateTransaction::%s: Failed validation of transaction candidate %s", __func__, state.GetRejectReason());
         }
-    }
-    catch(...)
-    {
+    } catch (...) {
         return error("CandidateTransaction::%s: Failed validation of transaction candidate %s. Catched exception.", __func__, state.GetRejectReason());
     }
 
     return true;
 }
 
-EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx, const bool& fUpgraded=false)
+EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element& pubKey, const CandidateTransaction& tx, const bool& fUpgraded = false)
 {
     std::vector<unsigned char> rand;
     rand.resize(32);
     GetRandBytes(rand.data(), 32);
     bls::PrivateKey key = bls::AugSchemeMPL::KeyGen(rand);
 
-    vPublicKey  = key.GetG1Element().Serialize();
+    vPublicKey = key.GetG1Element().Serialize();
 
     if (fUpgraded)
         sessionId = pubKey.Serialize();
@@ -236,7 +217,47 @@ EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Elemen
         throw std::runtime_error("EncryptSecret returned false");
 }
 
-bool EncryptedCandidateTransaction::Decrypt(const bls::PrivateKey &key, const CStateViewCache* inputs, CandidateTransaction& tx) const
+EncryptedCandidateTransaction::EncryptedCandidateTransaction(const bls::G1Element& pubKey, const UniValue& data, const bool& fUpgraded = false)
+{
+    std::vector<unsigned char> rand;
+    rand.resize(32);
+    GetRandBytes(rand.data(), 32);
+    bls::PrivateKey key = bls::AugSchemeMPL::KeyGen(rand);
+
+    vPublicKey = key.GetG1Element().Serialize();
+
+    if (fUpgraded)
+        sessionId = pubKey.Serialize();
+
+    bls::G1Element sharedKey = key * pubKey;
+
+    uint256 hashedSharedKey = SerializeHash(sharedKey.Serialize());
+
+    bls::G2Element signature = bls::AugSchemeMPL::Sign(key, pubKey.Serialize());
+
+    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+    try {
+        std::string sData = data.write();
+        ss << sData;
+    } catch(...) {
+        return;
+    }
+
+    std::vector<unsigned char> vss(ss.begin(), ss.end());
+
+    CKeyingMaterial vEncryptionKey;
+    vEncryptionKey.resize(bls::PrivateKey::PRIVATE_KEY_SIZE);
+    memcpy(vEncryptionKey.data(), hashedSharedKey.begin(), vEncryptionKey.size());
+
+    CKeyingMaterial vchSecret;
+    vchSecret.resize(vss.size());
+    memcpy(vchSecret.data(), &vss[0], vchSecret.size());
+
+    if (!EncryptSecret(vEncryptionKey, vchSecret, SerializeHash(pubKey.Serialize()), vData))
+        throw std::runtime_error("EncryptSecret returned false");
+}
+
+bool EncryptedCandidateTransaction::Decrypt(const bls::PrivateKey& key, const CStateViewCache* inputs, CandidateTransaction& tx) const
 {
     if (vPublicKey.size() == 0)
         return false;
@@ -254,7 +275,7 @@ bool EncryptedCandidateTransaction::Decrypt(const bls::PrivateKey &key, const CS
     memcpy(vEncryptionKey.data(), hashedSharedKey.begin(), vEncryptionKey.size());
 
     CKeyingMaterial vchSecret;
-    if(!DecryptSecret(vEncryptionKey, vData, SerializeHash(key.GetG1Element().Serialize()), vchSecret))
+    if (!DecryptSecret(vEncryptionKey, vData, SerializeHash(key.GetG1Element().Serialize()), vchSecret))
         return false;
 
     DecryptedCandidateTransaction dct;
@@ -275,6 +296,45 @@ bool EncryptedCandidateTransaction::Decrypt(const bls::PrivateKey &key, const CS
         return false;
 
     tx = dct.tx;
+
+    return true;
+}
+
+bool EncryptedCandidateTransaction::DecryptMessage(const bls::PrivateKey& key, UniValue& msg) const
+{
+    if (vPublicKey.size() == 0)
+        return false;
+
+    bls::G1Element publicKey = bls::G1Element::FromByteVector(vPublicKey);
+
+    if (vData.size() == 0)
+        return false;
+
+    bls::G1Element sharedKey = key * publicKey;
+    uint256 hashedSharedKey = SerializeHash(sharedKey.Serialize());
+
+    CKeyingMaterial vEncryptionKey;
+    vEncryptionKey.resize(bls::PrivateKey::PRIVATE_KEY_SIZE);
+    memcpy(vEncryptionKey.data(), hashedSharedKey.begin(), vEncryptionKey.size());
+
+    CKeyingMaterial vchSecret;
+    if (!DecryptSecret(vEncryptionKey, vData, SerializeHash(key.GetG1Element().Serialize()), vchSecret))
+        return false;
+
+    std::string dcm;
+
+    std::vector<unsigned char> vchDecrptedSecret;
+    vchDecrptedSecret.resize(vchSecret.size());
+    memcpy(vchDecrptedSecret.data(), &vchSecret[0], vchDecrptedSecret.size());
+
+    CDataStream ss(vchDecrptedSecret, SER_NETWORK, PROTOCOL_VERSION);
+    ss >> dcm;
+
+    try {
+        msg.read(dcm);
+    }  catch (...) {
+        return false;
+    }
 
     return true;
 }
