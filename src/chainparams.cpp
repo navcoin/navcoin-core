@@ -422,87 +422,87 @@ public:
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Cold Staking
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Community Fund Accumulation
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].bit = 14;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].bit = 16;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nStartTime = 1533081600; // Aug 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Static Reward
         consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
         consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of VOTING STATE CACHE for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of CONSULTATIONS for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of DAO CONSENSUS
         consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].bit = 25;
         consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Cold Staking
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].bit = 27;
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING_V2].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Cold Staking Pool Fee
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of BLSCT
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
-        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Exclude voters
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
-        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1700784000; // Nov 24th, 2023
 
         // Deployment of Burn Fees
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
@@ -517,7 +517,7 @@ public:
         pchMessageStart[0] = 0x32;
         pchMessageStart[1] = 0x24;
         pchMessageStart[2] = 0xf2;
-        pchMessageStart[3] = 0x17;
+        pchMessageStart[3] = 0x07;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
