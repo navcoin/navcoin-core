@@ -56,7 +56,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Ele
     ephemeralKey = ephemeralKeyIn.Serialize();
     outputKey = outputKeyIn.Serialize();
     spendingKey = spendingKeyIn.Serialize();
-    bp = bpIn.GetVch();
+    bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(bpIn.GetVch()));
     tokenId = TokenId();
 }
 

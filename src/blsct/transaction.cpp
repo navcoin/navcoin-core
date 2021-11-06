@@ -59,7 +59,7 @@ bool CreateBLSCTOutput(bls::PrivateKey blindingKey, bls::G1Element& nonce, CTxOu
     }
 
     if (fConfidentialAmount)
-        newTxOut.bp = bprp.GetVch();
+        newTxOut.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(bprp.GetVch()));
 
     if (!GenTxOutputKeys(blindingKey, destKey, newTxOut.spendingKey, newTxOut.outputKey, newTxOut.ephemeralKey)) {
         strFailReason = "Could not generate tx output keys";

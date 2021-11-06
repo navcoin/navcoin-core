@@ -7,6 +7,7 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
+    //auto nStart = GetTimeMicros();
     std::map<TokenId, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
     std::map<TokenId, std::vector<bls::G1Element>> nonces;
 
@@ -304,6 +305,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             return state.DoS(100, false, REJECT_INVALID, strprintf("caught-blstxsig-exception"));
         }
     }
+
+    //std::cout << strprintf("%s: took %.2fms\n", __func__, (GetTimeMicros()-nStart)/1000);
 
     return true;
 }

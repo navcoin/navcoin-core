@@ -123,7 +123,8 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                auto txbp = txout.GetBulletproof();
+                READWRITE(txbp);
                 READWRITE(txout.vData);
                 READWRITE(txout.tokenId);
             }
@@ -136,7 +137,8 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                auto txbp = txout.GetBulletproof();
+                READWRITE(txbp);
             }
             else
             {
@@ -153,7 +155,9 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                std::vector<unsigned char> vbp;
+                READWRITE(vbp);
+                txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
             }
             else if (nVal == MAX_MONEY-1)
             {
@@ -162,7 +166,9 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                READWRITE(txout.bp);
+                std::vector<unsigned char> vbp;
+                READWRITE(vbp);
+                txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 READWRITE(txout.vData);
                 READWRITE(txout.tokenId);
             }

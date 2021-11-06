@@ -165,7 +165,7 @@ public:
     std::vector<uint8_t> spendingKey;
     std::vector<uint8_t> vData;
     TokenId tokenId;
-    BulletproofsRangeproof bp;
+    std::shared_ptr<BulletproofsRangeproof> bp;
     uint256 cacheHash;
 
     CTxOut()
@@ -191,7 +191,9 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                READWRITE(bp);
+                std::vector<unsigned char> vbp;
+                READWRITE(vbp);
+                bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 fXNav = true;
             }
             else if (nFlags & (uint64_t)0x2<<62)
@@ -209,7 +211,9 @@ public:
 
                 if (nFlags & 0x1<<4)
                 {
-                    READWRITE(bp);
+                    std::vector<unsigned char> vbp;
+                    READWRITE(vbp);
+                    bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 }
                 if (nFlags & 0x1<<5)
                     READWRITE(tokenId.token);
@@ -245,7 +249,7 @@ public:
                     nMarker  |= 0x1<<2;
                 if (spendingKey.size() > 0)
                     nMarker  |= 0x1<<3;
-                if (bp.V.size() > 0) {
+                if (HasRangeProof()) {
                     nMarker  |= 0x1<<4;
                 }
                 if (tokenId.token != uint256()) {
@@ -270,7 +274,8 @@ public:
                 if (nMarker & 0x1<<3)
                     READWRITE(spendingKey);
                 if (nMarker & 0x1<<4) {
-                    READWRITE(bp);
+                    auto txbp = GetBulletproof();
+                    READWRITE(txbp);
                 }
                 if (nMarker & 0x1<<5)
                     READWRITE(tokenId.token);
@@ -289,7 +294,8 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                READWRITE(bp);
+                auto txbp = GetBulletproof();
+                READWRITE(txbp);
             }
             else
             {
@@ -308,11 +314,12 @@ public:
         spendingKey.clear();
         vData.clear();
         tokenId = TokenId();
+        bp = nullptr;
     }
 
     BulletproofsRangeproof GetBulletproof() const
     {
-        return bp;
+        return bp ? *bp : BulletproofsRangeproof();
     }
 
     bool IsBLSCT() const
@@ -322,6 +329,7 @@ public:
 
     bool HasRangeProof() const
     {
+        if (!bp) return false;
         return GetBulletproof().V.size() > 0;
     }
 
@@ -411,7 +419,8 @@ public:
                 a.ephemeralKey == b.ephemeralKey &&
                 a.outputKey    == b.outputKey &&
                 a.spendingKey  == b.spendingKey &&
-                a.bp           == b.bp &&
+                a.GetBulletproof()
+                               == b.GetBulletproof() &&
                 a.tokenId      == b.tokenId &&
                 a.vData        == b.vData);
     }

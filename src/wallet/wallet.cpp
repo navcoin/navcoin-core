@@ -4207,9 +4207,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                             return false;
                         }
                     }
-                    catch(...)
+                    catch(std::exception& e)
                     {
-                        strFailReason = _("Catched mixing exception");
+                        strFailReason = strprintf("Catched mixing exception: %s", e.what());
                         return false;
                     }
 
