@@ -30,8 +30,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 typedef vector<unsigned char> valtype;
 
 // In script_tests.cpp

@@ -611,15 +611,15 @@ public:
     std::string vMemo;
     CAmount nAmount;
     Scalar gamma;
-    string sAddress;
+    std::string sAddress;
     int mixCount;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0)
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, std::string sAddressIn = "", int mixCountIn = 0)
     {
         tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0)
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, std::string sAddressIn = "", int mixCountIn = 0)
     {
         tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn;
     }
@@ -1008,9 +1008,9 @@ public:
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
                            std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0);
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
+    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
 
@@ -1083,7 +1083,7 @@ public:
 
     bool DelAddressBook(const CTxDestination& address);
 
-    bool SetPrivateAddressBook(const string& address, const std::string& strName, const std::string& purpose);
+    bool SetPrivateAddressBook(const std::string& address, const std::string& strName, const std::string& purpose);
 
     void UpdatedTransaction(const uint256 &hashTx);
 

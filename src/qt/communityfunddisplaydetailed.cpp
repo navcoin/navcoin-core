@@ -33,7 +33,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.GetLastState() == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos) {
+    if (proposal.GetLastState() == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == std::string::npos) {
         // Get proposal votes list
         auto it = mapAddedVotes.find(proposal.hash);
 
@@ -80,7 +80,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 
     // Hide ability to vote is the status is expired
     std::string status = ui->labelStatus->text().toStdString();
-    if (status.find("expired") != string::npos) {
+    if (status.find("expired") != std::string::npos) {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 }
@@ -140,7 +140,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
-    if (fLastState== DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != string::npos) {
+    if (fLastState== DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != std::string::npos) {
         if (fLastState == DAOFlags::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -170,17 +170,17 @@ void CommunityFundDisplayDetailed::setProposalLabels()
     ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelLinkToProposal->setOpenExternalLinks(true);
 
-    string amount;
+    std::string amount;
     amount = wallet->formatDisplayAmount(proposal.nAmount);
     ui->labelAmount->setText(QString::fromStdString(amount));
 
-    string fee;
+    std::string fee;
     fee = wallet->formatDisplayAmount(proposal.nFee);
     ui->labelFee->setText(QString::fromStdString(fee));
 
     // If a proposal is expired pending voting of payment requests, change the expiry label text
     std::string status = ui->labelStatus->text().toStdString();
-    if(status.find("expired pending voting of payment requests") != string::npos) {
+    if(status.find("expired pending voting of payment requests") != std::string::npos) {
         ui->labelExpiresIn->setText(QString::fromStdString("After payment request voting"));
     }
 
@@ -193,7 +193,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel.c_str()));
 
     // Hide expiry label is proposal is accepted and waiting for coins
-    if(status.find("accepted waiting for enough coins in fund") != string::npos) {
+    if(status.find("accepted waiting for enough coins in fund") != std::string::npos) {
         ui->labelExpiresIn->setVisible(false);
         ui->labelExpiresInTitle->setVisible(false);
     }

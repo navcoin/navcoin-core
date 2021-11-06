@@ -33,8 +33,6 @@
 
 #include <boost/thread/thread.hpp> // boost::thread::interrupt
 
-using namespace std;
-
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 
@@ -344,7 +342,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
 UniValue getblockcount(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblockcount\n"
                 "\nReturns the number of blocks in the longest block chain.\n"
                 "\nResult:\n"
@@ -361,7 +359,7 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
 UniValue getbestblockhash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getbestblockhash\n"
                 "\nReturns the hash of the best (tip) block in the longest block chain.\n"
                 "\nResult\n"
@@ -378,7 +376,7 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
 UniValue getdifficulty(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getdifficulty\n"
                 "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
                 "\nResult:\n"
@@ -430,7 +428,7 @@ void entryToJSON(UniValue &info, const CTxMemPoolEntry &e)
     info.pushKV("ancestorsize", e.GetSizeWithAncestors());
     info.pushKV("ancestorfees", e.GetModFeesWithAncestors());
     const CTransaction& tx = e.GetTx();
-    set<string> setDepends;
+    std::set<std::string> setDepends;
     for(const CTxIn& txin: tx.vin)
     {
         if (mempool.exists(txin.prevout.hash))
@@ -438,7 +436,7 @@ void entryToJSON(UniValue &info, const CTxMemPoolEntry &e)
     }
 
     UniValue depends(UniValue::VARR);
-    for(const string& dep: setDepends)
+    for(const std::string& dep: setDepends)
     {
         depends.push_back(dep);
     }
@@ -477,7 +475,7 @@ UniValue mempoolToJSON(bool fVerbose = false)
 UniValue getrawmempool(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getrawmempool ( verbose )\n"
                 "\nReturns all transaction ids in memory pool as a json array of string transaction ids.\n"
                 "\nArguments:\n"
@@ -508,7 +506,7 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
 UniValue getmempoolancestors(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2) {
-        throw runtime_error(
+        throw std::runtime_error(
                     "getmempoolancestors txid (verbose)\n"
                     "\nIf txid is in the mempool, returns all in-mempool ancestors.\n"
                     "\nArguments:\n"
@@ -572,7 +570,7 @@ UniValue getmempoolancestors(const UniValue& params, bool fHelp)
 UniValue getmempooldescendants(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2) {
-        throw runtime_error(
+        throw std::runtime_error(
                     "getmempooldescendants txid (verbose)\n"
                     "\nIf txid is in the mempool, returns all in-mempool descendants.\n"
                     "\nArguments:\n"
@@ -636,7 +634,7 @@ UniValue getmempooldescendants(const UniValue& params, bool fHelp)
 UniValue getmempoolentry(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1) {
-        throw runtime_error(
+        throw std::runtime_error(
                     "getmempoolentry txid\n"
                     "\nReturns mempool data for given transaction\n"
                     "\nArguments:\n"
@@ -669,7 +667,7 @@ UniValue getmempoolentry(const UniValue& params, bool fHelp)
 UniValue getblockdeltas(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error("");
+        throw std::runtime_error("");
 
     std::string strHash = params[0].get_str();
     uint256 hash(uint256S(strHash));
@@ -692,7 +690,7 @@ UniValue getblockdeltas(const UniValue& params, bool fHelp)
 UniValue getblockhashes(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblockhashes timestamp\n"
                 "\nReturns array of hashes of blocks within the timestamp range provided.\n"
                 "\nArguments:\n"
@@ -765,7 +763,7 @@ UniValue getblockhashes(const UniValue& params, bool fHelp)
 UniValue getblockhash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblockhash index\n"
                 "\nReturns hash of block in best-block-chain at index provided.\n"
                 "\nArguments:\n"
@@ -790,7 +788,7 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
 UniValue getblockheader(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblockheader \"hash\" ( verbose )\n"
                 "\nIf verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.\n"
                 "If verbose is true, returns an Object with information about blockheader <hash>.\n"
@@ -849,7 +847,7 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
 UniValue getblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblock \"hash\" ( verbose )\n"
                 "\nIf verbose is false, returns a string that is serialized, hex-encoded data for block 'hash'.\n"
                 "If verbose is true, returns an Object with information about block <hash>.\n"
@@ -984,7 +982,7 @@ static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
 UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "gettxoutsetinfo\n"
                 "\nReturns statistics about the unspent transaction output set.\n"
                 "Note this call may take some time.\n"
@@ -1024,7 +1022,7 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getcfunddbstatehash\n"
                 "\nReturns the hash of the Cfund DB current state.\n"
                 "\nResult\n"
@@ -1043,7 +1041,7 @@ UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
 UniValue listconsultations(const UniValue& params, bool fHelp)
 {
     if (fHelp)
-        throw runtime_error(
+        throw std::runtime_error(
                 "listconsultations \"filter\"\n"
                 "\nList the consultations and all the relating data including answers and status.\n"
                 "\nNote passing no argument returns all consultations regardless of state.\n"
@@ -1147,7 +1145,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 {
 
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "cfundstats\n"
                 "\nReturns statistics about the community fund.\n"
                 + HelpExampleCli("cfundstats", "")
@@ -1184,7 +1182,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
                 if(vSeen.count((*pVotes)[i].first) == 0)
                 {
                     if(vCacheProposalsRPC.count((*pVotes)[i].first) == 0)
-                        vCacheProposalsRPC[(*pVotes)[i].first] = make_pair(make_pair(0,0), 0);
+                        vCacheProposalsRPC[(*pVotes)[i].first] = std::make_pair(std::make_pair(0,0), 0);
 
                     if((*pVotes)[i].second == 1)
                         vCacheProposalsRPC[(*pVotes)[i].first].first.first += 1;
@@ -1210,7 +1208,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
                     continue;
                 if(vSeen.count((*prVotes)[i].first) == 0) {
                     if(vCachePaymentRequestRPC.count((*prVotes)[i].first) == 0)
-                        vCachePaymentRequestRPC[(*prVotes)[i].first] = make_pair(make_pair(0,0), 0);
+                        vCachePaymentRequestRPC[(*prVotes)[i].first] = std::make_pair(std::make_pair(0,0), 0);
 
                     if((*prVotes)[i].second == 1)
                         vCachePaymentRequestRPC[(*prVotes)[i].first].first.first += 1;
@@ -1319,7 +1317,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 UniValue gettxout(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 3)
-        throw runtime_error(
+        throw std::runtime_error(
                 "gettxout \"txid\" n ( includemempool )\n"
                 "\nReturns details about an unspent transaction output.\n"
                 "\nArguments:\n"
@@ -1401,7 +1399,7 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     int nCheckLevel = GetArg("-checklevel", DEFAULT_CHECKLEVEL);
     int nCheckDepth = GetArg("-checkblocks", DEFAULT_CHECKBLOCKS);
     if (fHelp || params.size() > 2)
-        throw runtime_error(
+        throw std::runtime_error(
                 "verifychain ( checklevel numblocks )\n"
                 "\nVerifies blockchain database.\n"
                 "\nArguments:\n"
@@ -1490,7 +1488,7 @@ void BIP9SoftForkDescPushBack(UniValue& bip9_softforks, const std::string &name,
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getblockchaininfo\n"
                 "Returns an object containing various state info regarding block chain processing.\n"
                 "\nResult:\n"
@@ -1601,7 +1599,7 @@ struct CompareBlocksByHeight
 UniValue getchaintips(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getchaintips\n"
                 "Return information about all known tips in the block tree,"
                 " including the main chain as well as orphaned branches.\n"
@@ -1644,7 +1642,7 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
     std::set<const CBlockIndex*> setOrphans;
     std::set<const CBlockIndex*> setPrevs;
 
-    for(const PAIRTYPE(const uint256, CBlockIndex*)& item: mapBlockIndex)
+    for(const std::pair<const uint256, CBlockIndex*>& item: mapBlockIndex)
     {
         if (!chainActive.Contains(item.second)) {
             setOrphans.insert(item.second);
@@ -1673,7 +1671,7 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
         const int branchLen = block->nHeight - chainActive.FindFork(block)->nHeight;
         obj.pushKV("branchlen", branchLen);
 
-        string status;
+        std::string status;
         if (chainActive.Contains(block)) {
             // This block is part of the currently active chain.
             status = "active";
@@ -1728,7 +1726,7 @@ UniValue stempoolInfoToJSON()
 UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getmempoolinfo\n"
                 "\nReturns details on the active state of the TX memory pool.\n"
                 "\nResult:\n"
@@ -1751,7 +1749,7 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 UniValue getstempoolinfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getstempoolinfo\n"
                 "\nReturns details on the active state of the dandelion stem pool.\n"
                 "\nResult:\n"
@@ -1770,7 +1768,7 @@ UniValue getstempoolinfo(const UniValue& params, bool fHelp)
 UniValue getproposal(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getproposal \"hash\"\n"
                 "\nShows information about the given proposal.\n"
                 "\nArguments:\n"
@@ -1794,7 +1792,7 @@ UniValue getproposal(const UniValue& params, bool fHelp)
 UniValue getconsultation(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getconsultation \"hash\"\n"
                 "\nShows information about the given consultation.\n"
                 "\nArguments:\n"
@@ -1818,7 +1816,7 @@ UniValue getconsultation(const UniValue& params, bool fHelp)
 UniValue getconsultationanswer(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getconsultationanswer \"hash\"\n"
                 "\nShows information about the given consultation answer.\n"
                 "\nArguments:\n"
@@ -1843,7 +1841,7 @@ UniValue getconsultationanswer(const UniValue& params, bool fHelp)
 UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getpaymentrequest \"hash\"\n"
                 "\nShows information about the given payment request.\n"
                 "\nArguments:\n"
@@ -1868,7 +1866,7 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 UniValue invalidateblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "invalidateblock \"hash\"\n"
                 "\nPermanently marks a block as invalid, as if it violated a consensus rule.\n"
                 "\nArguments:\n"
@@ -1906,7 +1904,7 @@ UniValue invalidateblock(const UniValue& params, bool fHelp)
 UniValue reconsiderblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "reconsiderblock \"hash\"\n"
                 "\nRemoves invalidity status of a block and its descendants, reconsider them for activation.\n"
                 "This can be used to undo the effects of invalidateblock.\n"

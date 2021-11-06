@@ -8,6 +8,7 @@
 #endif
 
 #include <util.h>
+#include <fs.h>
 
 #include <chainparamsbase.h>
 #include <main.h>
@@ -88,8 +89,6 @@
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
@@ -105,15 +104,15 @@ std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 std::map<uint256, int64_t> mapAddedVotes;
 std::map<uint256, bool> mapSupported;
 
-map<string, string> mapArgs;
-map<string, vector<string> > mapMultiArgs;
+std::map<std::string, std::string> mapArgs;
+std::map<std::string, std::vector<std::string> > mapMultiArgs;
 bool fDebug = false;
 bool fPrintToConsole = false;
 bool fPrintToDebugLog = true;
 bool fDaemon = false;
 bool fServer = false;
 bool fTorServer = false;
-string strMiscWarning;
+std::string strMiscWarning;
 bool fLogTimestamps = DEFAULT_LOGTIMESTAMPS;
 bool fLogTimeMicros = DEFAULT_LOGTIMEMICROS;
 bool fLogIPs = DEFAULT_LOGIPS;
@@ -198,8 +197,8 @@ static FILE* fileoutDebugLog = nullptr;
 static FILE* fileoutErrorLog = nullptr;
 static boost::mutex* mutexDebugLog = nullptr;
 static boost::mutex* mutexErrorLog = nullptr;
-static list<string> *vMsgsBeforeOpenDebugLog;
-static list<string> *vMsgsBeforeOpenErrorLog;
+static std::list<std::string> *vMsgsBeforeOpenDebugLog;
+static std::list<std::string> *vMsgsBeforeOpenErrorLog;
 
 static int FileWriteStr(const std::string &str, FILE *fp)
 {
@@ -223,14 +222,14 @@ static void DebugPrintInit()
 {
     assert(mutexDebugLog == nullptr);
     mutexDebugLog = new boost::mutex();
-    vMsgsBeforeOpenDebugLog = new list<string>;
+    vMsgsBeforeOpenDebugLog = new std::list<std::string>;
 }
 
 static void ErrorPrintInit()
 {
     assert(mutexErrorLog == nullptr);
     mutexErrorLog = new boost::mutex();
-    vMsgsBeforeOpenErrorLog = new list<string>;
+    vMsgsBeforeOpenErrorLog = new std::list<std::string>;
 }
 
 void OpenDebugLog()
@@ -282,19 +281,19 @@ bool LogAcceptCategory(const char* category)
         // This helps prevent issues debugging global destructors,
         // where mapMultiArgs might be deleted before another
         // global destructor calls LogPrint()
-        static boost::thread_specific_ptr<set<string> > ptrCategory;
+        static boost::thread_specific_ptr<std::set<std::string> > ptrCategory;
         if (ptrCategory.get() == nullptr)
         {
-            const vector<string>& categories = mapMultiArgs["-debug"];
-            ptrCategory.reset(new set<string>(categories.begin(), categories.end()));
+            const std::vector<std::string>& categories = mapMultiArgs["-debug"];
+            ptrCategory.reset(new std::set<std::string>(categories.begin(), categories.end()));
             // thread_specific_ptr automatically deletes the set when the thread ends.
         }
-        const set<string>& setCategories = *ptrCategory.get();
+        const std::set<std::string>& setCategories = *ptrCategory.get();
 
         // if not debugging everything and not debugging specific category, LogPrint does nothing.
-        if (setCategories.count(string("")) == 0 &&
-            setCategories.count(string("1")) == 0 &&
-            setCategories.count(string(category)) == 0)
+        if (setCategories.count(std::string("")) == 0 &&
+            setCategories.count(std::string("1")) == 0 &&
+            setCategories.count(std::string(category)) == 0)
             return false;
     }
 
@@ -308,7 +307,7 @@ bool LogAcceptCategory(const char* category)
  */
 static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine)
 {
-    string strStamped;
+    std::string strStamped;
 
     if (!fLogTimestamps)
         return str;
@@ -330,12 +329,12 @@ static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine
     return strStamped;
 }
 
-boost::filesystem::path GetDebugLogPath()
+fs::path GetDebugLogPath()
 {
     return GetDataDir() / "debug.log";
 }
 
-boost::filesystem::path GetErrorLogPath()
+fs::path GetErrorLogPath()
 {
     return GetDataDir() / "error.log";
 }
@@ -345,7 +344,7 @@ int DebugLogPrintStr(const std::string &str)
     int ret = 0; // Returns total number of characters written
     static bool fStartedNewLine = true;
 
-    string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
+    std::string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
 
     if (fPrintToConsole)
     {
@@ -386,7 +385,7 @@ int ErrorLogPrintStr(const std::string &str)
     int ret = 0; // Returns total number of characters written
     static bool fStartedNewLine = true;
 
-    string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
+    std::string strTimestamped = LogTimestampStr(str, &fStartedNewLine);
 
     if (fPrintToConsole)
     {
@@ -550,7 +549,7 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
 }
 
-boost::filesystem::path GetDefaultDataDir()
+fs::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\NavCoin4
@@ -577,22 +576,22 @@ boost::filesystem::path GetDefaultDataDir()
 #endif
 }
 
-static boost::filesystem::path pathCached;
-static boost::filesystem::path pathCachedNetSpecific;
+static fs::path pathCached;
+static fs::path pathCachedNetSpecific;
 static CCriticalSection csPathCached;
 
 bool CheckIfWalletDatExists(bool fNetSpecific) {
 
     namespace fs = boost::filesystem;
 
-    boost::filesystem::path path(GetArg("-wallet", DEFAULT_WALLET_DAT));
+    fs::path path(GetArg("-wallet", DEFAULT_WALLET_DAT));
     if (!path.is_complete())
         path = GetDataDir(fNetSpecific) / path;
 
     return fs::exists(path);
 }
 
-const boost::filesystem::path &GetDataDir(bool fNetSpecific)
+const fs::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
 
@@ -632,13 +631,13 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 
 void ClearDatadirCache()
 {
-    pathCached = boost::filesystem::path();
-    pathCachedNetSpecific = boost::filesystem::path();
+    pathCached = fs::path();
+    pathCachedNetSpecific = fs::path();
 }
 
-boost::filesystem::path GetConfigFile()
+fs::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", NAVCOIN_CONF_FILENAME));
+    fs::path pathConfigFile(GetArg("-conf", NAVCOIN_CONF_FILENAME));
     if (!pathConfigFile.is_complete())
         pathConfigFile = GetDataDir(false) / pathConfigFile;
 
@@ -686,10 +685,10 @@ static std::vector<std::pair<std::string, std::string>> GetConfigOptions(std::is
     return options;
 }
 
-void ReadConfigFile(map<string, string>& mapSettingsRet,
-                    map<string, vector<string> >& mapMultiSettingsRet)
+void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet,
+                    std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // No navcoin.conf file is OK
 
@@ -744,12 +743,12 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 void WriteConfigFile(std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
 
     if(stream.good())
     {
 
-        set<string> setOptions;
+        std::set<std::string> setOptions;
         setOptions.insert("*");
         for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
             std::string strKey = std::string("-") + option.first;
@@ -761,8 +760,8 @@ void WriteConfigFile(std::string key, std::string value)
 
     if(!alreadyInConfigFile)
     {
-        boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);
-        outStream << std::endl << key + string("=") + value;
+        fs::ofstream outStream(GetConfigFile(), std::ios_base::app);
+        outStream << std::endl << key + std::string("=") + value;
         outStream.close();
     }
 
@@ -771,12 +770,12 @@ void WriteConfigFile(std::string key, std::string value)
 bool ExistsKeyInConfigFile(std::string key)
 {
 
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
 
     if(stream.good())
     {
 
-        set<string> setOptions;
+        std::set<std::string> setOptions;
         setOptions.insert("*");
 
         for (const std::pair<std::string, std::string>& option : GetConfigOptions(stream)) {
@@ -792,12 +791,12 @@ bool ExistsKeyInConfigFile(std::string key)
 
 void RemoveConfigFile(std::string key, std::string value)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -806,19 +805,19 @@ void RemoveConfigFile(std::string key, std::string value)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 
 void RemoveConfigFilePair(std::string key, std::string value)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -827,19 +826,19 @@ void RemoveConfigFilePair(std::string key, std::string value)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 
 void RemoveConfigFile(std::string key)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
     std::string configBuffer, line;
-    set<string> setOptions;
+    std::set<std::string> setOptions;
     setOptions.insert("*");
 
     while (std::getline(stream, line))
@@ -848,19 +847,19 @@ void RemoveConfigFile(std::string key)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 #ifndef WIN32
-boost::filesystem::path GetPidFile()
+fs::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", NAVCOIN_PID_FILENAME));
+    fs::path pathPidFile(GetArg("-pid", NAVCOIN_PID_FILENAME));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
 
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
+void CreatePidFile(const fs::path &path, pid_t pid)
 {
     FILE* file = fopen(path.string().c_str(), "w");
     if (file)
@@ -871,7 +870,7 @@ void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
 }
 #endif
 
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
+bool RenameOver(fs::path src, fs::path dest)
 {
 #ifdef WIN32
     return MoveFileExA(src.string().c_str(), dest.string().c_str(),
@@ -887,13 +886,13 @@ bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
  * Specifically handles case where path p exists, but it wasn't possible for the user to
  * write to the parent directory.
  */
-bool TryCreateDirectory(const boost::filesystem::path& p)
+bool TryCreateDirectory(const fs::path& p)
 {
     try
     {
-        return boost::filesystem::create_directory(p);
-    } catch (const boost::filesystem::filesystem_error&) {
-        if (!boost::filesystem::exists(p) || !boost::filesystem::is_directory(p))
+        return fs::create_directory(p);
+    } catch (const fs::filesystem_error&) {
+        if (!fs::exists(p) || !fs::is_directory(p))
             throw;
     }
 
@@ -1001,11 +1000,11 @@ void ShrinkDebugFile()
     ShrinkDebugFile(GetErrorLogPath(),  2); // Shrink the error log
 }
 
-void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
+void ShrinkDebugFile(fs::path pathLog, int maxSize)
 {
     // Scroll debug.log if it's getting too big
     FILE* file = fopen(pathLog.string().c_str(), "r");
-    if (file && boost::filesystem::file_size(pathLog) > maxSize * 1000000)
+    if (file && fs::file_size(pathLog) > maxSize * 1000000)
     {
         // Restart the file with some of the end
         std::vector <char> vch(200000,0);
@@ -1025,7 +1024,7 @@ void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
 }
 
 #ifdef WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
+fs::path GetSpecialFolderPath(int nFolder, bool fCreate)
 {
     namespace fs = boost::filesystem;
 
@@ -1078,9 +1077,9 @@ void SetupEnvironment()
     // The path locale is lazy initialized and to avoid deinitialization errors
     // in multithreading environments, it is set explicitly by the main thread.
     // A dummy locale is used to extract the internal default locale, used by
-    // boost::filesystem::path, which is then used to explicitly imbue the path.
-    std::locale loc = boost::filesystem::path::imbue(std::locale::classic());
-    boost::filesystem::path::imbue(loc);
+    // fs::path, which is then used to explicitly imbue the path.
+    std::locale loc = fs::path::imbue(std::locale::classic());
+    fs::path::imbue(loc);
 }
 
 bool SetupNetworking()
@@ -1132,7 +1131,7 @@ void SetThreadPriority(int nPriority)
 #endif
 }
 
-bool BdbEncrypted(boost::filesystem::path wallet)
+bool BdbEncrypted(fs::path wallet)
 {
     // Open file
     std::ifstream file(wallet.string(), std::ifstream::binary);
@@ -1151,7 +1150,7 @@ bool BdbEncrypted(boost::filesystem::path wallet)
         file.read(buffer, 5);
 
         // Check if we have it
-        if (string(buffer) == "main") {
+        if (std::string(buffer) == "main") {
             // Close the file
             file.close();
 

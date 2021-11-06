@@ -108,7 +108,7 @@ void DaoProposeAnswer::onPropose()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
-    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view));
+    std::string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view));
 
     if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) {
         QMessageBox msgBox(this);
@@ -143,7 +143,7 @@ void DaoProposeAnswer::onPropose()
 
     bool created = true;
 
-    std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+    std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
     if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {

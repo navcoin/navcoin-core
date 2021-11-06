@@ -21,8 +21,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 static const size_t MAX_GETUTXOS_OUTPOINTS = 15; //allow a max of 15 outpoints to be queried at once
 
 enum RetFormat {
@@ -66,7 +64,7 @@ extern UniValue mempoolToJSON(bool fVerbose = false);
 extern void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 extern UniValue blockheaderToJSON(const CBlockIndex* blockindex);
 
-static bool RESTERR(HTTPRequest* req, enum HTTPStatusCode status, string message)
+static bool RESTERR(HTTPRequest* req, enum HTTPStatusCode status, std::string message)
 {
     req->WriteHeader("Content-Type", "text/plain");
     req->WriteReply(status, message + "\r\n");
@@ -94,9 +92,9 @@ static enum RetFormat ParseDataFormat(std::string& param, const std::string& str
     return rf_names[0].rf;
 }
 
-static string AvailableDataFormatsString()
+static std::string AvailableDataFormatsString()
 {
-    string formats = "";
+    std::string formats = "";
     for (unsigned int i = 0; i < ARRAYLEN(rf_names); i++)
         if (strlen(rf_names[i].name) > 0) {
             formats.append(".");
@@ -110,7 +108,7 @@ static string AvailableDataFormatsString()
     return formats;
 }
 
-static bool ParseHashStr(const string& strReq, uint256& v)
+static bool ParseHashStr(const std::string& strReq, uint256& v)
 {
     if (!IsHex(strReq) || (strReq.size() != 64))
         return false;
@@ -134,7 +132,7 @@ static bool rest_headers(HTTPRequest* req,
         return false;
     std::string param;
     const RetFormat rf = ParseDataFormat(param, strURIPart);
-    vector<string> path;
+    std::vector<std::string> path;
     boost::split(path, param, boost::is_any_of("/"));
 
     if (path.size() != 2)
@@ -144,7 +142,7 @@ static bool rest_headers(HTTPRequest* req,
     if (count < 1 || count > 2000)
         return RESTERR(req, HTTP_BAD_REQUEST, "Header count out of range: " + path[0]);
 
-    string hashStr = path[1];
+    std::string hashStr = path[1];
     uint256 hash;
     if (!ParseHashStr(hashStr, hash))
         return RESTERR(req, HTTP_BAD_REQUEST, "Invalid hash: " + hashStr);
@@ -170,14 +168,14 @@ static bool rest_headers(HTTPRequest* req,
 
     switch (rf) {
     case RF_BINARY: {
-        string binaryHeader = ssHeader.str();
+        std::string binaryHeader = ssHeader.str();
         req->WriteHeader("Content-Type", "application/octet-stream");
         req->WriteReply(HTTP_OK, binaryHeader);
         return true;
     }
 
     case RF_HEX: {
-        string strHex = HexStr(ssHeader.begin(), ssHeader.end()) + "\n";
+        std::string strHex = HexStr(ssHeader.begin(), ssHeader.end()) + "\n";
         req->WriteHeader("Content-Type", "text/plain");
         req->WriteReply(HTTP_OK, strHex);
         return true;
@@ -187,7 +185,7 @@ static bool rest_headers(HTTPRequest* req,
         for(const CBlockIndex *pindex: headers) {
             jsonHeaders.push_back(blockheaderToJSON(pindex));
         }
-        string strJSON = jsonHeaders.write() + "\n";
+        std::string strJSON = jsonHeaders.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -234,14 +232,14 @@ static bool rest_block(HTTPRequest* req,
 
     switch (rf) {
     case RF_BINARY: {
-        string binaryBlock = ssBlock.str();
+        std::string binaryBlock = ssBlock.str();
         req->WriteHeader("Content-Type", "application/octet-stream");
         req->WriteReply(HTTP_OK, binaryBlock);
         return true;
     }
 
     case RF_HEX: {
-        string strHex = HexStr(ssBlock.begin(), ssBlock.end()) + "\n";
+        std::string strHex = HexStr(ssBlock.begin(), ssBlock.end()) + "\n";
         req->WriteHeader("Content-Type", "text/plain");
         req->WriteReply(HTTP_OK, strHex);
         return true;
@@ -249,7 +247,7 @@ static bool rest_block(HTTPRequest* req,
 
     case RF_JSON: {
         UniValue objBlock = blockToJSON(block, pblockindex, showTxDetails);
-        string strJSON = objBlock.write() + "\n";
+        std::string strJSON = objBlock.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -288,7 +286,7 @@ static bool rest_chaininfo(HTTPRequest* req, const std::string& strURIPart)
     case RF_JSON: {
         UniValue rpcParams(UniValue::VARR);
         UniValue chainInfoObject = getblockchaininfo(rpcParams, false);
-        string strJSON = chainInfoObject.write() + "\n";
+        std::string strJSON = chainInfoObject.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -313,7 +311,7 @@ static bool rest_mempool_info(HTTPRequest* req, const std::string& strURIPart)
     case RF_JSON: {
         UniValue mempoolInfoObject = mempoolInfoToJSON();
 
-        string strJSON = mempoolInfoObject.write() + "\n";
+        std::string strJSON = mempoolInfoObject.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -338,7 +336,7 @@ static bool rest_mempool_contents(HTTPRequest* req, const std::string& strURIPar
     case RF_JSON: {
         UniValue mempoolObject = mempoolToJSON(true);
 
-        string strJSON = mempoolObject.write() + "\n";
+        std::string strJSON = mempoolObject.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -374,14 +372,14 @@ static bool rest_tx(HTTPRequest* req, const std::string& strURIPart)
 
     switch (rf) {
     case RF_BINARY: {
-        string binaryTx = ssTx.str();
+        std::string binaryTx = ssTx.str();
         req->WriteHeader("Content-Type", "application/octet-stream");
         req->WriteReply(HTTP_OK, binaryTx);
         return true;
     }
 
     case RF_HEX: {
-        string strHex = HexStr(ssTx.begin(), ssTx.end()) + "\n";
+        std::string strHex = HexStr(ssTx.begin(), ssTx.end()) + "\n";
         req->WriteHeader("Content-Type", "text/plain");
         req->WriteReply(HTTP_OK, strHex);
         return true;
@@ -390,7 +388,7 @@ static bool rest_tx(HTTPRequest* req, const std::string& strURIPart)
     case RF_JSON: {
         UniValue objTx(UniValue::VOBJ);
         TxToJSON(tx, hashBlock, objTx);
-        string strJSON = objTx.write() + "\n";
+        std::string strJSON = objTx.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
@@ -412,7 +410,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
     std::string param;
     const RetFormat rf = ParseDataFormat(param, strURIPart);
 
-    vector<string> uriParts;
+    std::vector<std::string> uriParts;
     if (param.length() > 1)
     {
         std::string strUriParams = param.substr(1);
@@ -545,7 +543,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
         // use exact same output as mentioned in Bip64
         CDataStream ssGetUTXOResponse(SER_NETWORK, PROTOCOL_VERSION);
         ssGetUTXOResponse << chainActive.Height() << chainActive.Tip()->GetBlockHash() << bitmap << outs;
-        string ssGetUTXOResponseString = ssGetUTXOResponse.str();
+        std::string ssGetUTXOResponseString = ssGetUTXOResponse.str();
 
         req->WriteHeader("Content-Type", "application/octet-stream");
         req->WriteReply(HTTP_OK, ssGetUTXOResponseString);
@@ -555,7 +553,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
     case RF_HEX: {
         CDataStream ssGetUTXOResponse(SER_NETWORK, PROTOCOL_VERSION);
         ssGetUTXOResponse << chainActive.Height() << chainActive.Tip()->GetBlockHash() << bitmap << outs;
-        string strHex = HexStr(ssGetUTXOResponse.begin(), ssGetUTXOResponse.end()) + "\n";
+        std::string strHex = HexStr(ssGetUTXOResponse.begin(), ssGetUTXOResponse.end()) + "\n";
 
         req->WriteHeader("Content-Type", "text/plain");
         req->WriteReply(HTTP_OK, strHex);
@@ -587,7 +585,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
         objGetUTXOResponse.pushKV("utxos", utxos);
 
         // return json string
-        string strJSON = objGetUTXOResponse.write() + "\n";
+        std::string strJSON = objGetUTXOResponse.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
         return true;
