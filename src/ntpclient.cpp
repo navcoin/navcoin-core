@@ -120,8 +120,8 @@ bool NtpClockSync()
         vNtpServers = vDefaultNtpServers;
     }
 
-    string sReport = "";
-    string sPrevServer = "";
+    std::string sReport = "";
+    std::string sPrevServer = "";
     int64_t nPrevMeasure = -1;
 
     std::random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
@@ -130,7 +130,7 @@ bool NtpClockSync()
 
     for(unsigned int i = 0; i < vNtpServers.size(); i++)
     {
-        string s = vNtpServers[i];
+        std::string s = vNtpServers[i];
         CNtpClient ntpClient(s);
         uint64_t nTimestamp = 0;
 
@@ -147,22 +147,22 @@ bool NtpClockSync()
             {
                 vResults.push_back(nClockDrift);
 
-                string sign = "";
+                std::string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
 
-                sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
+                sReport += s + "[" + sign + std::to_string(nClockDrift) + "sec.] ";
             }
             // or if n.measure is odd, including prev measure too
             else if (nMeasureCount % 2 == 1)
             {
                 vResults.push_back(nClockDrift);
 
-                string sign = "";
+                std::string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
 
-                sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
+                sReport += s + "[" + sign + std::to_string(nClockDrift) + "sec.] ";
 
                 vResults.push_back(nPrevMeasure);
 
@@ -170,7 +170,7 @@ bool NtpClockSync()
                 if(nPrevMeasure > 0)
                     sign = "+";
 
-                sReport += sPrevServer + "[" + sign + to_string(nPrevMeasure) + "sec.] ";
+                sReport += sPrevServer + "[" + sign + std::to_string(nPrevMeasure) + "sec.] ";
             }
             else
             {

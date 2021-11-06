@@ -5,13 +5,13 @@
 #ifndef NAVCOIN_TEST_TEST_NAVCOIN_H
 #define NAVCOIN_TEST_TEST_NAVCOIN_H
 
+#include <fs.h>
 #include <chainparamsbase.h>
 #include <key.h>
 #include <pubkey.h>
 #include <txdb.h>
 #include <txmempool.h>
 
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
 /** Basic testing setup.
@@ -29,7 +29,7 @@ struct BasicTestingSetup {
  */
 struct TestingSetup: public BasicTestingSetup {
     CStateViewDB *pcoinsdbview;
-    boost::filesystem::path pathTemp;
+    fs::path pathTemp;
     boost::thread_group threadGroup;
 
     TestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
@@ -76,7 +76,7 @@ struct TestMemPoolEntryHelper
     TestMemPoolEntryHelper() :
         nFee(0), nTime(0), dPriority(0.0), nHeight(1),
         hadNoDependencies(false), spendsCoinbase(false), sigOpCost(4) { }
-    
+
     CTxMemPoolEntry FromTx(CMutableTransaction &tx, CTxMemPool *pool = NULL);
     CTxMemPoolEntry FromTx(CTransaction &tx, CTxMemPool *pool = NULL);
 

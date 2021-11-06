@@ -14,6 +14,7 @@
 #include <config/navcoin-config.h>
 #endif
 
+#include <fs.h>
 #include <compat.h>
 #include <tinyformat.h>
 #include <uint256.h>
@@ -26,7 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem/path.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/exceptions.hpp>
 
@@ -79,10 +79,10 @@ bool SetupNetworking();
 bool LogAcceptCategory(const char* category);
 
 /** Returns the path to the debug.log file */
-boost::filesystem::path GetDebugLogPath();
+fs::path GetDebugLogPath();
 
 /** Returns the path to the error.log file */
-boost::filesystem::path GetErrorLogPath();
+fs::path GetErrorLogPath();
 
 /** Send a string to the debug log output */
 int DebugLogPrintStr(const std::string &str);
@@ -152,16 +152,16 @@ void FileCommit(FILE *file);
 bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
-bool TryCreateDirectory(const boost::filesystem::path& p);
-boost::filesystem::path GetDefaultDataDir();
+bool RenameOver(fs::path src, fs::path dest);
+bool TryCreateDirectory(const fs::path& p);
+fs::path GetDefaultDataDir();
 bool CheckIfWalletDatExists(bool fNetSpecific = true);
-const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
+const fs::path &GetDataDir(bool fNetSpecific = true);
 void ClearDatadirCache();
-boost::filesystem::path GetConfigFile();
+fs::path GetConfigFile();
 #ifndef WIN32
-boost::filesystem::path GetPidFile();
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
+fs::path GetPidFile();
+void CreatePidFile(const fs::path &path, pid_t pid);
 #endif
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
 void WriteConfigFile(std::string key, std::string value);
@@ -170,11 +170,11 @@ void RemoveConfigFilePair(std::string key, std::string value);
 void RemoveConfigFile(std::string key);
 bool ExistsKeyInConfigFile(std::string key);
 #ifdef WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
+fs::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
 void OpenDebugLog();
 void ShrinkDebugFile();
-void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize);
+void ShrinkDebugFile(fs::path pathLog, int maxSize);
 void runCommand(const std::string& strCommand);
 
 inline bool IsSwitchChar(char c)
@@ -314,7 +314,7 @@ template <typename Callable, typename Arg1> void TraceThread(const char* name,  
 
 std::string CopyrightHolders(const std::string& strPrefix);
 
-bool BdbEncrypted(boost::filesystem::path wallet);
+bool BdbEncrypted(fs::path wallet);
 
 /*
  * These are used to get password input from user on cli
