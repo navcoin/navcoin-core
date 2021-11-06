@@ -522,10 +522,10 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        uint32_t nTimestamp = 1614080999;
-        uint256 hashGenesisBlock = uint256S("0x00004a2a5a0a6bb4d01aed3942aa570a0ae3e4690a74a0f6772775b0cf44fc0e");
-        uint256 hashMerkleRoot = uint256S("0x06eb1b3dee4b7960b21891b3a17311fc25edf144fa51b5c300744b929736f823");
-        uint32_t nNonce = 2044057430;
+        uint32_t nTimestamp = 1636218999;
+        uint256 hashGenesisBlock = uint256S("0x0000f8186df4648c46f445a25decd423fa6b62ed220849093f73f6f364116894");
+        uint256 hashMerkleRoot = uint256S("0x1cfd43bb319d060a2124fcb5ffd711df5532838032881c9058aea9680224bd1a");
+        uint32_t nNonce = 2044258121;
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
