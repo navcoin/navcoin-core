@@ -155,7 +155,7 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                std::vector<unsigned char> vbp;
+                BulletproofsRangeproof vbp;
                 READWRITE(vbp);
                 txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
             }
@@ -166,7 +166,7 @@ public:
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                std::vector<unsigned char> vbp;
+                BulletproofsRangeproof vbp;
                 READWRITE(vbp);
                 txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 READWRITE(txout.vData);
