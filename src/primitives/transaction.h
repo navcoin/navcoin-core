@@ -191,7 +191,7 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                std::vector<unsigned char> vbp;
+                BulletproofsRangeproof vbp;
                 READWRITE(vbp);
                 bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 fXNav = true;
@@ -211,7 +211,7 @@ public:
 
                 if (nFlags & 0x1<<4)
                 {
-                    std::vector<unsigned char> vbp;
+                    BulletproofsRangeproof vbp;
                     READWRITE(vbp);
                     bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
                 }
