@@ -11,6 +11,7 @@
 
 #include <limits>
 #include <random>
+#include <algorithm>
 
 #include <stdint.h>
 
