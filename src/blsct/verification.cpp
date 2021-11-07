@@ -449,7 +449,7 @@ bool CombineBLSCTTransactions(std::set<CTransaction> &vTx, CTransaction& outTx, 
                 fAnyCTOutput = true;
             }
 
-            if (out.scriptPubKey.IsFee())
+            if (out.scriptPubKey.IsFee() && out.vData.size() == 0)
             {
                 nFee += out.nValue;
                 continue;
