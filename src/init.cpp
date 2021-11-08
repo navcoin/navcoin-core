@@ -10,6 +10,7 @@
 
 #include <init.h>
 
+#include <fs.h>
 #include <addrman.h>
 #include <amount.h>
 #include <chain.h>
@@ -58,7 +59,6 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <curl/curl.h>
@@ -264,7 +264,7 @@ void PrepareShutdown()
 
     if (fFeeEstimatesInitialized)
     {
-        boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
+        fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
         CAutoFile est_fileout(fopen(est_path.string().c_str(), "wb"), SER_DISK, CLIENT_VERSION);
         if (!est_fileout.IsNull())
             mempool.WriteFeeEstimates(est_fileout);
@@ -302,8 +302,8 @@ void PrepareShutdown()
 
 #ifndef WIN32
     try {
-        boost::filesystem::remove(GetPidFile());
-    } catch (const boost::filesystem::filesystem_error& e) {
+        fs::remove(GetPidFile());
+    } catch (const fs::filesystem_error& e) {
         LogPrintf("%s: Unable to remove pidfile: %s\n", __func__, e.what());
     }
 #endif
@@ -711,7 +711,7 @@ void CleanupBlockRevFiles()
     }
 }
 
-void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
+void ThreadImport(std::vector<fs::path> vImportFiles)
 {
     const CChainParams& chainparams = Params();
     RenameThread("navcoin-loadblk");
@@ -722,7 +722,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
         int nFile = 0;
         while (true) {
             CDiskBlockPos pos(nFile, 0);
-            if (!boost::filesystem::exists(GetBlockPosFilename(pos, "blk")))
+            if (!fs::exists(GetBlockPosFilename(pos, "blk")))
                 break; // No block files left to reindex
             FILE *file = OpenBlockFile(pos, true);
             if (!file)
@@ -739,11 +739,11 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // hardcoded $DATADIR/bootstrap.dat
-    boost::filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";
-    if (boost::filesystem::exists(pathBootstrap)) {
+    fs::path pathBootstrap = GetDataDir() / "bootstrap.dat";
+    if (fs::exists(pathBootstrap)) {
         FILE *file = fopen(pathBootstrap.string().c_str(), "rb");
         if (file) {
-            boost::filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
+            fs::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
             LogPrintf("Importing bootstrap.dat...\n");
             LoadExternalBlockFile(chainparams, file);
             RenameOver(pathBootstrap, pathBootstrapOld);
@@ -753,7 +753,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // -loadblock=
-    for(const boost::filesystem::path& path: vImportFiles) {
+    for(const fs::path& path: vImportFiles) {
         FILE *file = fopen(path.string().c_str(), "rb");
         if (file) {
             LogPrintf("Importing blocks file %s...\n", path.string());
@@ -955,19 +955,19 @@ void DownloadBlockchain(std::string url)
                 if (a == nullptr)
                 {
 
-                    boost::filesystem::remove_all(sDownload);
+                    fs::remove_all(sDownload);
                     throw std::runtime_error("Unable to open downloaded file.");
 
                 }
                 else
                 {
 
-                    boost::filesystem::remove_all(GetDataDir(true) / "blocks");
-                    boost::filesystem::remove_all(GetDataDir(true) / "chainstate");
-                    boost::filesystem::remove_all(GetDataDir(true) / "cfund");
+                    fs::remove_all(GetDataDir(true) / "blocks");
+                    fs::remove_all(GetDataDir(true) / "chainstate");
+                    fs::remove_all(GetDataDir(true) / "cfund");
                     bool fOk = untar(a, sDownload.c_str());
                     fclose(a);
-                    boost::filesystem::remove_all(sDownload);
+                    fs::remove_all(sDownload);
 
                     if(!fOk)
                         throw std::runtime_error("Could not extract data.");
@@ -1266,7 +1266,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     std::string strDataDir = GetDataDir().string();
 
     // Make sure only a single Navcoin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    fs::path pathLockFile = GetDataDir() / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
 
@@ -1522,20 +1522,20 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     bool fReindexChainState = GetBoolArg("-reindex-chainstate", false);
 
     // Upgrading to 0.8; hard-link the old blknnnn.dat files into /blocks/
-    boost::filesystem::path blocksDir = GetDataDir() / "blocks";
-    if (!boost::filesystem::exists(blocksDir))
+    fs::path blocksDir = GetDataDir() / "blocks";
+    if (!fs::exists(blocksDir))
     {
-        boost::filesystem::create_directories(blocksDir);
+        fs::create_directories(blocksDir);
         bool linked = false;
         for (unsigned int i = 1; i < 10000; i++) {
-            boost::filesystem::path source = GetDataDir() / strprintf("blk%04u.dat", i);
-            if (!boost::filesystem::exists(source)) break;
-            boost::filesystem::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
+            fs::path source = GetDataDir() / strprintf("blk%04u.dat", i);
+            if (!fs::exists(source)) break;
+            fs::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
             try {
-                boost::filesystem::create_hard_link(source, dest);
+                fs::create_hard_link(source, dest);
                 LogPrintf("Hardlinked %s -> %s\n", source.string(), dest.string());
                 linked = true;
-            } catch (const boost::filesystem::filesystem_error& e) {
+            } catch (const fs::filesystem_error& e) {
                 // Note: hardlink creation failing is not a disaster, it just means
                 // blocks will get re-downloaded from peers.
                 LogPrintf("Error hardlinking blk%04u.dat: %s\n", i, e.what());
@@ -1783,7 +1783,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     }
     LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
 
-    boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
+    fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
     CAutoFile est_filein(fopen(est_path.string().c_str(), "rb"), SER_DISK, CLIENT_VERSION);
     // Allowed to fail as this file IS missing on first startup.
     if (!est_filein.IsNull())
@@ -1834,7 +1834,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     if (mapArgs.count("-blocknotify"))
         uiInterface.NotifyBlockTip.connect(BlockNotifyCallback);
 
-    std::vector<boost::filesystem::path> vImportFiles;
+    std::vector<fs::path> vImportFiles;
     if (mapArgs.count("-loadblock"))
     {
         for(const std::string& strFile: mapMultiArgs["-loadblock"])

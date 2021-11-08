@@ -8,6 +8,7 @@
 #endif
 
 #include <util.h>
+#include <fs.h>
 
 #include <chainparamsbase.h>
 #include <main.h>
@@ -88,8 +89,6 @@
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
@@ -330,12 +329,12 @@ static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine
     return strStamped;
 }
 
-boost::filesystem::path GetDebugLogPath()
+fs::path GetDebugLogPath()
 {
     return GetDataDir() / "debug.log";
 }
 
-boost::filesystem::path GetErrorLogPath()
+fs::path GetErrorLogPath()
 {
     return GetDataDir() / "error.log";
 }
@@ -550,7 +549,7 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
 }
 
-boost::filesystem::path GetDefaultDataDir()
+fs::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\NavCoin4
@@ -577,22 +576,22 @@ boost::filesystem::path GetDefaultDataDir()
 #endif
 }
 
-static boost::filesystem::path pathCached;
-static boost::filesystem::path pathCachedNetSpecific;
+static fs::path pathCached;
+static fs::path pathCachedNetSpecific;
 static CCriticalSection csPathCached;
 
 bool CheckIfWalletDatExists(bool fNetSpecific) {
 
     namespace fs = boost::filesystem;
 
-    boost::filesystem::path path(GetArg("-wallet", DEFAULT_WALLET_DAT));
+    fs::path path(GetArg("-wallet", DEFAULT_WALLET_DAT));
     if (!path.is_complete())
         path = GetDataDir(fNetSpecific) / path;
 
     return fs::exists(path);
 }
 
-const boost::filesystem::path &GetDataDir(bool fNetSpecific)
+const fs::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
 
@@ -632,13 +631,13 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 
 void ClearDatadirCache()
 {
-    pathCached = boost::filesystem::path();
-    pathCachedNetSpecific = boost::filesystem::path();
+    pathCached = fs::path();
+    pathCachedNetSpecific = fs::path();
 }
 
-boost::filesystem::path GetConfigFile()
+fs::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", NAVCOIN_CONF_FILENAME));
+    fs::path pathConfigFile(GetArg("-conf", NAVCOIN_CONF_FILENAME));
     if (!pathConfigFile.is_complete())
         pathConfigFile = GetDataDir(false) / pathConfigFile;
 
@@ -689,7 +688,7 @@ static std::vector<std::pair<std::string, std::string>> GetConfigOptions(std::is
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet,
                     std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // No navcoin.conf file is OK
 
@@ -744,7 +743,7 @@ void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet,
 void WriteConfigFile(std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
 
     if(stream.good())
     {
@@ -761,7 +760,7 @@ void WriteConfigFile(std::string key, std::string value)
 
     if(!alreadyInConfigFile)
     {
-        boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);
+        fs::ofstream outStream(GetConfigFile(), std::ios_base::app);
         outStream << std::endl << key + std::string("=") + value;
         outStream.close();
     }
@@ -771,7 +770,7 @@ void WriteConfigFile(std::string key, std::string value)
 bool ExistsKeyInConfigFile(std::string key)
 {
 
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
 
     if(stream.good())
     {
@@ -792,7 +791,7 @@ bool ExistsKeyInConfigFile(std::string key)
 
 void RemoveConfigFile(std::string key, std::string value)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
@@ -806,14 +805,14 @@ void RemoveConfigFile(std::string key, std::string value)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 
 void RemoveConfigFilePair(std::string key, std::string value)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
@@ -827,14 +826,14 @@ void RemoveConfigFilePair(std::string key, std::string value)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 
 void RemoveConfigFile(std::string key)
 {
-    boost::filesystem::ifstream stream(GetConfigFile());
+    fs::ifstream stream(GetConfigFile());
     if (!stream.good())
         return; // Nothing to remove
 
@@ -848,19 +847,19 @@ void RemoveConfigFile(std::string key)
               configBuffer += line + "\n";
     }
 
-    boost::filesystem::ofstream outStream(GetConfigFile());
+    fs::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
 #ifndef WIN32
-boost::filesystem::path GetPidFile()
+fs::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", NAVCOIN_PID_FILENAME));
+    fs::path pathPidFile(GetArg("-pid", NAVCOIN_PID_FILENAME));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
 
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
+void CreatePidFile(const fs::path &path, pid_t pid)
 {
     FILE* file = fopen(path.string().c_str(), "w");
     if (file)
@@ -871,7 +870,7 @@ void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
 }
 #endif
 
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
+bool RenameOver(fs::path src, fs::path dest)
 {
 #ifdef WIN32
     return MoveFileExA(src.string().c_str(), dest.string().c_str(),
@@ -887,13 +886,13 @@ bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
  * Specifically handles case where path p exists, but it wasn't possible for the user to
  * write to the parent directory.
  */
-bool TryCreateDirectory(const boost::filesystem::path& p)
+bool TryCreateDirectory(const fs::path& p)
 {
     try
     {
-        return boost::filesystem::create_directory(p);
-    } catch (const boost::filesystem::filesystem_error&) {
-        if (!boost::filesystem::exists(p) || !boost::filesystem::is_directory(p))
+        return fs::create_directory(p);
+    } catch (const fs::filesystem_error&) {
+        if (!fs::exists(p) || !fs::is_directory(p))
             throw;
     }
 
@@ -1001,11 +1000,11 @@ void ShrinkDebugFile()
     ShrinkDebugFile(GetErrorLogPath(),  2); // Shrink the error log
 }
 
-void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
+void ShrinkDebugFile(fs::path pathLog, int maxSize)
 {
     // Scroll debug.log if it's getting too big
     FILE* file = fopen(pathLog.string().c_str(), "r");
-    if (file && boost::filesystem::file_size(pathLog) > maxSize * 1000000)
+    if (file && fs::file_size(pathLog) > maxSize * 1000000)
     {
         // Restart the file with some of the end
         std::vector <char> vch(200000,0);
@@ -1025,7 +1024,7 @@ void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
 }
 
 #ifdef WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
+fs::path GetSpecialFolderPath(int nFolder, bool fCreate)
 {
     namespace fs = boost::filesystem;
 
@@ -1078,9 +1077,9 @@ void SetupEnvironment()
     // The path locale is lazy initialized and to avoid deinitialization errors
     // in multithreading environments, it is set explicitly by the main thread.
     // A dummy locale is used to extract the internal default locale, used by
-    // boost::filesystem::path, which is then used to explicitly imbue the path.
-    std::locale loc = boost::filesystem::path::imbue(std::locale::classic());
-    boost::filesystem::path::imbue(loc);
+    // fs::path, which is then used to explicitly imbue the path.
+    std::locale loc = fs::path::imbue(std::locale::classic());
+    fs::path::imbue(loc);
 }
 
 bool SetupNetworking()
@@ -1132,7 +1131,7 @@ void SetThreadPriority(int nPriority)
 #endif
 }
 
-bool BdbEncrypted(boost::filesystem::path wallet)
+bool BdbEncrypted(fs::path wallet)
 {
     // Open file
     std::ifstream file(wallet.string(), std::ifstream::binary);

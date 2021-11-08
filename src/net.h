@@ -6,6 +6,7 @@
 #ifndef NAVCOIN_NET_H
 #define NAVCOIN_NET_H
 
+#include <fs.h>
 #include <amount.h>
 #include <bloom.h>
 #include <blsct/aggregationsession.h>
@@ -26,7 +27,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <boost/filesystem/path.hpp>
 #include <boost/signals2/signal.hpp>
 
 class CAddrMan;
@@ -901,7 +901,7 @@ void RelayEncryptedCandidate(const uint256& ec);
 class CAddrDB
 {
 private:
-    boost::filesystem::path pathAddr;
+    fs::path pathAddr;
 public:
     CAddrDB();
     bool Write(const CAddrMan& addr);
@@ -913,7 +913,7 @@ public:
 class CBanDB
 {
 private:
-    boost::filesystem::path pathBanlist;
+    fs::path pathBanlist;
 public:
     CBanDB();
     bool Write(const banmap_t& banSet);
