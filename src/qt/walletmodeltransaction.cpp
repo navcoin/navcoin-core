@@ -91,16 +91,16 @@ CReserveKey *WalletModelTransaction::getPossibleKeyChange()
 
 void WalletModelTransaction::newPossibleBLSCTBlindingKey(CWallet *wallet)
 {
-    blsctBlindingKey = new std::vector<shared_ptr<CReserveBLSCTBlindingKey>>();
+    blsctBlindingKey = new std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>>();
 
     for (unsigned int i = 0; i < 3; i++)
     {
-        shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(wallet));
+        std::shared_ptr<CReserveBLSCTBlindingKey> rk(new CReserveBLSCTBlindingKey(wallet));
         blsctBlindingKey->insert(blsctBlindingKey->begin(), std::move(rk));
     }
 }
 
-std::vector<shared_ptr<CReserveBLSCTBlindingKey>> *WalletModelTransaction::getPossibleBLSCTBlindingKey()
+std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> *WalletModelTransaction::getPossibleBLSCTBlindingKey()
 {
     return blsctBlindingKey;
 }

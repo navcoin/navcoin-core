@@ -21,8 +21,6 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-using namespace std;
-
 CTxMemPoolEntry::CTxMemPoolEntry(const CTransaction& _tx, const CAmount& _nFee,
                                  int64_t _nTime, double _entryPriority, unsigned int _entryHeight,
                                  bool poolHasNoInputsOf, CAmount _inChainInputValue,
@@ -398,31 +396,31 @@ void CTxMemPool::AddTransactionsUpdated(unsigned int n)
 
 bool CTxMemPool::AddProposal(const CProposal& proposal)
 {
-    mapProposal.insert(make_pair(proposal.hash, proposal));
+    mapProposal.insert(std::make_pair(proposal.hash, proposal));
     return true;
 }
 
 bool CTxMemPool::AddPaymentRequest(const CPaymentRequest& prequest)
 {
-    mapPaymentRequest.insert(make_pair(prequest.hash, prequest));
+    mapPaymentRequest.insert(std::make_pair(prequest.hash, prequest));
     return true;
 }
 
 bool CTxMemPool::AddConsultation(const CConsultation& consultation)
 {
-    mapConsultation.insert(make_pair(consultation.hash, consultation));
+    mapConsultation.insert(std::make_pair(consultation.hash, consultation));
     return true;
 }
 
 bool CTxMemPool::AddToken(const Token& token)
 {
-    mapTokens.insert(make_pair(token.first, token.second));
+    mapTokens.insert(std::make_pair(token.first, token.second));
     return true;
 }
 
 bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)
 {
-    mapAnswer.insert(make_pair(answer.hash, answer));
+    mapAnswer.insert(std::make_pair(answer.hash, answer));
     return true;
 }
 
@@ -437,7 +435,7 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
 
     indexed_transaction_set::iterator newit = mapTx.insert(entry).first;
 
-    mapLinks.insert(make_pair(newit, TxLinks()));
+    mapLinks.insert(std::make_pair(newit, TxLinks()));
 
     // Update transaction for any feeDelta created by PrioritiseTransaction
     // TODO: refactor so that the fee delta is calculated before inserting
@@ -505,13 +503,13 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewC
             vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
             CMempoolAddressDeltaKey key(2, uint160(hashBytes), txhash, j, 1);
             CMempoolAddressDelta delta(entry.GetTime(), prevout.nValue * -1, input.prevout.hash, input.prevout.n);
-            mapAddress.insert(make_pair(key, delta));
+            mapAddress.insert(std::make_pair(key, delta));
             inserted.push_back(key);
         } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
             vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23);
             CMempoolAddressDeltaKey key(1, uint160(hashBytes), txhash, j, 1);
             CMempoolAddressDelta delta(entry.GetTime(), prevout.nValue * -1, input.prevout.hash, input.prevout.n);
-            mapAddress.insert(make_pair(key, delta));
+            mapAddress.insert(std::make_pair(key, delta));
             inserted.push_back(key);
         }
     }
@@ -521,18 +519,18 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewC
         if (out.scriptPubKey.IsPayToScriptHash()) {
             vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
             CMempoolAddressDeltaKey key(2, uint160(hashBytes), txhash, k, 0);
-            mapAddress.insert(make_pair(key, CMempoolAddressDelta(entry.GetTime(), out.nValue)));
+            mapAddress.insert(std::make_pair(key, CMempoolAddressDelta(entry.GetTime(), out.nValue)));
             inserted.push_back(key);
         } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
             vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
             std::pair<addressDeltaMap::iterator,bool> ret;
             CMempoolAddressDeltaKey key(1, uint160(hashBytes), txhash, k, 0);
-            mapAddress.insert(make_pair(key, CMempoolAddressDelta(entry.GetTime(), out.nValue)));
+            mapAddress.insert(std::make_pair(key, CMempoolAddressDelta(entry.GetTime(), out.nValue)));
             inserted.push_back(key);
         }
     }
 
-    mapAddressInserted.insert(make_pair(txhash, inserted));
+    mapAddressInserted.insert(std::make_pair(txhash, inserted));
 }
 
 bool CTxMemPool::getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -593,12 +591,12 @@ void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CStateViewCac
         CSpentIndexKey key = CSpentIndexKey(input.prevout.hash, input.prevout.n);
         CSpentIndexValue value = CSpentIndexValue(txhash, j, -1, prevout.nValue, addressType, addressHash);
 
-        mapSpent.insert(make_pair(key, value));
+        mapSpent.insert(std::make_pair(key, value));
         inserted.push_back(key);
 
     }
 
-    mapSpentInserted.insert(make_pair(txhash, inserted));
+    mapSpentInserted.insert(std::make_pair(txhash, inserted));
 }
 
 bool CTxMemPool::getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
@@ -723,7 +721,7 @@ void CTxMemPool::removeForReorg(const CStateViewCache *pcoins, unsigned int nMem
 {
     // Remove transactions spending a coinbase which are now immature and no-longer-final transactions
     LOCK(cs);
-    list<CTransaction> transactionsToRemove;
+    std::list<CTransaction> transactionsToRemove;
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         const CTransaction& tx = it->GetTx();
         LockPoints lp = it->GetLockPoints();
@@ -750,7 +748,7 @@ void CTxMemPool::removeForReorg(const CStateViewCache *pcoins, unsigned int nMem
         }
     }
     for(const CTransaction& tx: transactionsToRemove) {
-        list<CTransaction> removed;
+        std::list<CTransaction> removed;
         removeRecursive(tx, removed);
     }
 }
@@ -758,7 +756,7 @@ void CTxMemPool::removeForReorg(const CStateViewCache *pcoins, unsigned int nMem
 void CTxMemPool::removeConflicts(const CTransaction &tx, std::list<CTransaction>& removed)
 {
     // Remove transactions which depend on inputs of tx, recursively
-    list<CTransaction> result;
+    std::list<CTransaction> result;
     LOCK(cs);
     for(const CTxIn &txin: tx.vin) {
         auto it = mapNextTx.find(txin.prevout);
@@ -845,7 +843,7 @@ void CTxMemPool::check(const CStateViewCache *pcoins) const
     CStateViewCache mempoolDuplicate(const_cast<CStateViewCache*>(pcoins));
 
     LOCK(cs);
-    list<const CTxMemPoolEntry*> waitingOnDependants;
+    std::list<const CTxMemPoolEntry*> waitingOnDependants;
     std::vector<RangeproofEncodedData> blsctData;
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         unsigned int i = 0;
@@ -1103,7 +1101,7 @@ CTxMemPool::ReadFeeEstimates(CAutoFile& filein)
     return true;
 }
 
-void CTxMemPool::PrioritiseTransaction(const uint256 hash, const string strHash, double dPriorityDelta, const CAmount& nFeeDelta)
+void CTxMemPool::PrioritiseTransaction(const uint256 hash, const std::string strHash, double dPriorityDelta, const CAmount& nFeeDelta)
 {
     {
         LOCK(cs);
@@ -1157,7 +1155,7 @@ bool CStateViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
     // If an entry in the mempool exists, always return that one, as it's guaranteed to never
     // conflict with the underlying cache, and it cannot have pruned entries (as it contains full)
     // transactions. First checking the underlying cache risks returning a pruned entry instead.
-    shared_ptr<const CTransaction> ptx = mempool.get(txid);
+    std::shared_ptr<const CTransaction> ptx = mempool.get(txid);
     if (ptx) {
         coins = CCoins(*ptx, MEMPOOL_HEIGHT);
         return true;
@@ -1226,7 +1224,7 @@ bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequ
         return false;
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapPaymentRequests.insert(make_pair(it->first, it->second));
+        mapPaymentRequests.insert(std::make_pair(it->first, it->second));
 
     mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
 
@@ -1242,7 +1240,7 @@ bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAns
         return false;
 
     for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapAnswers.insert(make_pair(it->first, it->second));
+        mapAnswers.insert(std::make_pair(it->first, it->second));
 
     mapAnswers.insert(mempool.mapAnswer.begin(), mempool.mapAnswer.end());
 
@@ -1258,7 +1256,7 @@ bool CStateViewMemPool::GetAllConsultations(CConsultationMap& mapConsultations) 
         return false;
 
     for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapConsultations.insert(make_pair(it->first, it->second));
+        mapConsultations.insert(std::make_pair(it->first, it->second));
 
     mapConsultations.insert(mempool.mapConsultation.begin(), mempool.mapConsultation.end());
 

@@ -2,11 +2,10 @@
 
 #include <util.h>
 
+#include <fs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <boost/filesystem.hpp>
 
 /* Parse an octal number, ignoring leading and trailing nonsense. */
 static int
@@ -44,8 +43,8 @@ create_dir(const char *pathname, int mode)
 {
     std::string sFile = (GetDataDir(true) / pathname).string();
     fprintf(stdout, "[UNTAR] Creating folder %s\n", sFile.c_str());
-    boost::filesystem::path p = sFile;
-    boost::filesystem::create_directories(p);
+    fs::path p = sFile;
+    fs::create_directories(p);
 }
 
 /* Create a file, including parent directory as necessary. */

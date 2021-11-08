@@ -15,8 +15,6 @@
 
 #include <boost/thread.hpp>
 
-using namespace std;
-
 static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
@@ -48,67 +46,67 @@ CStateViewDB::CStateViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(Get
 }
 
 bool CStateViewDB::GetCoins(const uint256 &txid, CCoins &coins) const {
-    return db.Read(make_pair(DB_COINS, txid), coins);
+    return db.Read(std::make_pair(DB_COINS, txid), coins);
 }
 
 bool CStateViewDB::HaveCoins(const uint256 &txid) const {
-    return db.Exists(make_pair(DB_COINS, txid));
+    return db.Exists(std::make_pair(DB_COINS, txid));
 }
 
 bool CStateViewDB::GetProposal(const uint256 &pid, CProposal &proposal) const {
-    return db.Read(make_pair(DB_PROPINDEX, pid), proposal);
+    return db.Read(std::make_pair(DB_PROPINDEX, pid), proposal);
 }
 
 bool CStateViewDB::HaveProposal(const uint256 &pid) const {
-    return db.Exists(make_pair(DB_PROPINDEX, pid));
+    return db.Exists(std::make_pair(DB_PROPINDEX, pid));
 }
 
 bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
-    return db.Read(make_pair(DB_TOKENS, id), token);
+    return db.Read(std::make_pair(DB_TOKENS, id), token);
 }
 
 bool CStateViewDB::HaveToken(const uint256 &id) const {
-    return db.Exists(make_pair(DB_TOKENS, id));
+    return db.Exists(std::make_pair(DB_TOKENS, id));
 }
 
 bool CStateViewDB::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const {
-    return db.Read(make_pair(DB_PREQINDEX, prid), prequest);
+    return db.Read(std::make_pair(DB_PREQINDEX, prid), prequest);
 }
 
 bool CStateViewDB::HavePaymentRequest(const uint256 &prid) const {
-    return db.Exists(make_pair(DB_PREQINDEX, prid));
+    return db.Exists(std::make_pair(DB_PREQINDEX, prid));
 }
 
 bool CStateViewDB::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue &vote) const {
-    return db.Read(make_pair(DB_VOTEINDEX, voter), vote);
+    return db.Read(std::make_pair(DB_VOTEINDEX, voter), vote);
 }
 
 bool CStateViewDB::HaveCachedVoter(const CVoteMapKey &voter) const {
-    return db.Exists(make_pair(DB_VOTEINDEX, voter));
+    return db.Exists(std::make_pair(DB_VOTEINDEX, voter));
 }
 
 bool CStateViewDB::GetConsultation(const uint256 &cid, CConsultation &consultation) const {
-    return db.Read(make_pair(DB_CONSULTINDEX, cid), consultation);
+    return db.Read(std::make_pair(DB_CONSULTINDEX, cid), consultation);
 }
 
 bool CStateViewDB::HaveConsultation(const uint256 &cid) const {
-    return db.Exists(make_pair(DB_CONSULTINDEX, cid));
+    return db.Exists(std::make_pair(DB_CONSULTINDEX, cid));
 }
 
 bool CStateViewDB::GetConsultationAnswer(const uint256 &aid, CConsultationAnswer &answer) const {
-    return db.Read(make_pair(DB_ANSWERINDEX, aid), answer);
+    return db.Read(std::make_pair(DB_ANSWERINDEX, aid), answer);
 }
 
 bool CStateViewDB::HaveConsultationAnswer(const uint256 &aid) const {
-    return db.Exists(make_pair(DB_ANSWERINDEX, aid));
+    return db.Exists(std::make_pair(DB_ANSWERINDEX, aid));
 }
 
 bool CStateViewDB::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const {
-    return db.Read(make_pair(DB_CONSENSUSINDEX, pid), cparameter);
+    return db.Read(std::make_pair(DB_CONSENSUSINDEX, pid), cparameter);
 }
 
 bool CStateViewDB::HaveConsensusParameter(const int &pid) const {
-    return db.Exists(make_pair(DB_CONSENSUSINDEX, pid));
+    return db.Exists(std::make_pair(DB_CONSENSUSINDEX, pid));
 }
 
 uint256 CStateViewDB::GetBestBlock() const {
@@ -130,7 +128,7 @@ bool CStateViewDB::GetAllProposals(CProposalMap& map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_PROPINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -138,7 +136,7 @@ bool CStateViewDB::GetAllProposals(CProposalMap& map) {
         if (pcursor->GetKey(key) && key.first == DB_PROPINDEX) {
             CProposal proposal;
             if (pcursor->GetValue(proposal)) {
-                map.insert(make_pair(key.second, proposal));
+                map.insert(std::make_pair(key.second, proposal));
                 pcursor->Next();
             } else {
                 return error("GetAllProposals() : failed to read value");
@@ -156,7 +154,7 @@ bool CStateViewDB::GetAllTokens(TokenMap& map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_TOKENS, uint256()));
+    pcursor->Seek(std::make_pair(DB_TOKENS, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -164,7 +162,7 @@ bool CStateViewDB::GetAllTokens(TokenMap& map) {
         if (pcursor->GetKey(key) && key.first == DB_TOKENS) {
             TokenInfo token;
             if (pcursor->GetValue(token)) {
-                map.insert(make_pair(key.second, token));
+                map.insert(std::make_pair(key.second, token));
                 pcursor->Next();
             } else {
                 return error("GetAllTokens() : failed to read value");
@@ -182,7 +180,7 @@ bool CStateViewDB::GetAllPaymentRequests(CPaymentRequestMap &map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_PREQINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_PREQINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -190,7 +188,7 @@ bool CStateViewDB::GetAllPaymentRequests(CPaymentRequestMap &map) {
         if (pcursor->GetKey(key) && key.first == DB_PREQINDEX) {
             CPaymentRequest prequest;
             if (pcursor->GetValue(prequest)) {
-                map.insert(make_pair(key.second, prequest));
+                map.insert(std::make_pair(key.second, prequest));
                 pcursor->Next();
             } else {
                 return error("GetAllPaymentRequests() : failed to read value");
@@ -208,7 +206,7 @@ bool CStateViewDB::GetAllVotes(CVoteMap &map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_VOTEINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_VOTEINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -216,7 +214,7 @@ bool CStateViewDB::GetAllVotes(CVoteMap &map) {
         if (pcursor->GetKey(key) && key.first == DB_VOTEINDEX) {
             CVoteMapValue vote;
             if (pcursor->GetValue(vote)) {
-                map.insert(make_pair(key.second, vote));
+                map.insert(std::make_pair(key.second, vote));
                 pcursor->Next();
             } else {
                 return error("GetAllVotes() : failed to read value");
@@ -234,7 +232,7 @@ bool CStateViewDB::GetAllConsultations(CConsultationMap &map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_CONSULTINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_CONSULTINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -242,7 +240,7 @@ bool CStateViewDB::GetAllConsultations(CConsultationMap &map) {
         if (pcursor->GetKey(key) && key.first == DB_CONSULTINDEX) {
             CConsultation consultation;
             if (pcursor->GetValue(consultation)) {
-                map.insert(make_pair(key.second, consultation));
+                map.insert(std::make_pair(key.second, consultation));
                 pcursor->Next();
             } else {
                 return error("GetAllConsultations() : failed to read value");
@@ -260,7 +258,7 @@ bool CStateViewDB::GetAllConsultationAnswers(CConsultationAnswerMap &map) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(make_pair(DB_ANSWERINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_ANSWERINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -268,7 +266,7 @@ bool CStateViewDB::GetAllConsultationAnswers(CConsultationAnswerMap &map) {
         if (pcursor->GetKey(key) && key.first == DB_ANSWERINDEX) {
             CConsultationAnswer answer;
             if (pcursor->GetValue(answer)) {
-                map.insert(make_pair(key.second, answer));
+                map.insert(std::make_pair(key.second, answer));
                 pcursor->Next();
             } else {
                 return error("GetAllConsultationAnswers() : failed to read value");
@@ -294,9 +292,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
         if (it->second.flags & CCoinsCacheEntry::DIRTY) {
             if (it->second.coins.IsPruned())
-                batch.Erase(make_pair(DB_COINS, it->first));
+                batch.Erase(std::make_pair(DB_COINS, it->first));
             else
-                batch.Write(make_pair(DB_COINS, it->first), it->second.coins);
+                batch.Write(std::make_pair(DB_COINS, it->first), it->second.coins);
             changed++;
         }
         count++;
@@ -308,9 +306,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_PROPINDEX, it->first));
+                batch.Erase(std::make_pair(DB_PROPINDEX, it->first));
             else
-                batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_PROPINDEX, it->first), it->second);
         }
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
@@ -320,9 +318,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_CONSENSUSINDEX, it->first));
+                batch.Erase(std::make_pair(DB_CONSENSUSINDEX, it->first));
             else
-                batch.Write(make_pair(DB_CONSENSUSINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_CONSENSUSINDEX, it->first), it->second);
         }
         CConsensusParameterMap::iterator itOld = it++;
         mapConsensus.erase(itOld);
@@ -332,9 +330,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_PREQINDEX, it->first));
+                batch.Erase(std::make_pair(DB_PREQINDEX, it->first));
             else
-                batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_PREQINDEX, it->first), it->second);
         }
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
@@ -344,9 +342,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_CONSULTINDEX, it->first));
+                batch.Erase(std::make_pair(DB_CONSULTINDEX, it->first));
             else
-                batch.Write(make_pair(DB_CONSULTINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_CONSULTINDEX, it->first), it->second);
         }
         CConsultationMap::iterator itOld = it++;
         mapConsultations.erase(itOld);
@@ -356,9 +354,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_ANSWERINDEX, it->first));
+                batch.Erase(std::make_pair(DB_ANSWERINDEX, it->first));
             else
-                batch.Write(make_pair(DB_ANSWERINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_ANSWERINDEX, it->first), it->second);
         }
         CConsultationAnswerMap::iterator itOld = it++;
         mapAnswers.erase(itOld);
@@ -368,9 +366,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull())
-                batch.Erase(make_pair(DB_VOTEINDEX, it->first));
+                batch.Erase(std::make_pair(DB_VOTEINDEX, it->first));
             else
-                batch.Write(make_pair(DB_VOTEINDEX, it->first), it->second);
+                batch.Write(std::make_pair(DB_VOTEINDEX, it->first), it->second);
         }
         CVoteMap::iterator itOld = it++;
         mapVotes.erase(itOld);
@@ -380,9 +378,9 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         if (it->second.fDirty)
         {
             if (it->second.IsNull()) {
-                batch.Erase(make_pair(DB_TOKENS, it->first));
+                batch.Erase(std::make_pair(DB_TOKENS, it->first));
             } else {
-                batch.Write(make_pair(DB_TOKENS, it->first), it->second);
+                batch.Write(std::make_pair(DB_TOKENS, it->first), it->second);
             }
         }
         TokenMap::iterator itOld = it++;
@@ -403,7 +401,7 @@ CBlockTreeDB::CBlockTreeDB(size_t nCacheSize, bool fMemory, bool fWipe, bool com
 }
 
 bool CBlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo &info) {
-    return Read(make_pair(DB_BLOCK_FILES, nFile), info);
+    return Read(std::make_pair(DB_BLOCK_FILES, nFile), info);
 }
 
 bool CBlockTreeDB::WriteReindexing(bool fReindexing) {
@@ -469,7 +467,7 @@ void CStateViewDBCursor::Next()
 bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*> >& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<int, const CBlockFileInfo*> >::const_iterator it=fileInfo.begin(); it != fileInfo.end(); it++) {
-        batch.Write(make_pair(DB_BLOCK_FILES, it->first), *it->second);
+        batch.Write(std::make_pair(DB_BLOCK_FILES, it->first), *it->second);
     }
     batch.Write(DB_LAST_BLOCK, nLastFile);
     for (std::vector<const CBlockIndex*>::const_iterator it=blockinfo.begin(); it != blockinfo.end(); it++) {
@@ -494,30 +492,30 @@ bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockF
         {
             dbi.mapConsultationVotes = *cVotes;
         }
-        batch.Write(make_pair(DB_BLOCK_INDEX, (*it)->GetBlockHash()), dbi);
+        batch.Write(std::make_pair(DB_BLOCK_INDEX, (*it)->GetBlockHash()), dbi);
     }
     return WriteBatch(batch, true);
 }
 
 bool CBlockTreeDB::ReadTxIndex(const uint256 &txid, CDiskTxPos &pos) {
-    return Read(make_pair(DB_TXINDEX, txid), pos);
+    return Read(std::make_pair(DB_TXINDEX, txid), pos);
 }
 
 bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CDiskTxPos> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_TXINDEX, it->first), it->second);
+        batch.Write(std::make_pair(DB_TXINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
 bool CBlockTreeDB::ReadProposalIndex(const uint256 &proposalid, CProposal &proposal) {
-    return Read(make_pair(DB_PROPINDEX, proposalid), proposal);
+    return Read(std::make_pair(DB_PROPINDEX, proposalid), proposal);
 }
 
 bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
+        batch.Write(std::make_pair(DB_PROPINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
@@ -525,9 +523,9 @@ bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CPro
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_PROPINDEX, it->first));
+            batch.Erase(std::make_pair(DB_PROPINDEX, it->first));
         } else {
-            batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
+            batch.Write(std::make_pair(DB_PROPINDEX, it->first), it->second);
         }
     }
     return WriteBatch(batch, true);
@@ -536,7 +534,7 @@ bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CPro
 bool CBlockTreeDB::GetProposalIndex(std::vector<CProposal>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_PROPINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -563,7 +561,7 @@ CProposal CBlockTreeDB::GetProposal(uint256 hash)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_PROPINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -588,13 +586,13 @@ CProposal CBlockTreeDB::GetProposal(uint256 hash)
 }
 
 bool CBlockTreeDB::ReadPaymentRequestIndex(const uint256 &prequestid, CPaymentRequest &prequest) {
-    return Read(make_pair(DB_PREQINDEX, prequestid), prequest);
+    return Read(std::make_pair(DB_PREQINDEX, prequestid), prequest);
 }
 
 bool CBlockTreeDB::WritePaymentRequestIndex(const std::vector<std::pair<uint256, CPaymentRequest> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
+        batch.Write(std::make_pair(DB_PREQINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
@@ -602,9 +600,9 @@ bool CBlockTreeDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_PREQINDEX, it->first));
+            batch.Erase(std::make_pair(DB_PREQINDEX, it->first));
         } else {
-            batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
+            batch.Write(std::make_pair(DB_PREQINDEX, it->first), it->second);
         }
     }
     return WriteBatch(batch);
@@ -613,7 +611,7 @@ bool CBlockTreeDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256
 bool CBlockTreeDB::GetPaymentRequestIndex(std::vector<CPaymentRequest>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_PREQINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_PREQINDEX, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -635,16 +633,16 @@ bool CBlockTreeDB::GetPaymentRequestIndex(std::vector<CPaymentRequest>&vect) {
 }
 
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
-    return Read(make_pair(DB_SPENTINDEX, key), value);
+    return Read(std::make_pair(DB_SPENTINDEX, key), value);
 }
 
 bool CBlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CSpentIndexKey,CSpentIndexValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_SPENTINDEX, it->first));
+            batch.Erase(std::make_pair(DB_SPENTINDEX, it->first));
         } else {
-            batch.Write(make_pair(DB_SPENTINDEX, it->first), it->second);
+            batch.Write(std::make_pair(DB_SPENTINDEX, it->first), it->second);
         }
     }
     return WriteBatch(batch);
@@ -654,9 +652,9 @@ bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddres
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_ADDRESSUNSPENTINDEX, it->first));
+            batch.Erase(std::make_pair(DB_ADDRESSUNSPENTINDEX, it->first));
         } else {
-            batch.Write(make_pair(DB_ADDRESSUNSPENTINDEX, it->first), it->second);
+            batch.Write(std::make_pair(DB_ADDRESSUNSPENTINDEX, it->first), it->second);
         }
     }
     return WriteBatch(batch);
@@ -667,7 +665,7 @@ bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_ADDRESSUNSPENTINDEX, CAddressIndexIteratorKey(type, addressHash)));
+    pcursor->Seek(std::make_pair(DB_ADDRESSUNSPENTINDEX, CAddressIndexIteratorKey(type, addressHash)));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -675,7 +673,7 @@ bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,
         if (pcursor->GetKey(key) && key.first == DB_ADDRESSUNSPENTINDEX && key.second.hashBytes == addressHash) {
             CAddressUnspentValue nValue;
             if (pcursor->GetValue(nValue)) {
-                unspentOutputs.push_back(make_pair(key.second, nValue));
+                unspentOutputs.push_back(std::make_pair(key.second, nValue));
                 pcursor->Next();
             } else {
                 return error("failed to get address unspent value");
@@ -691,14 +689,14 @@ bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,
 bool CBlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_ADDRESSINDEX, it->first), it->second);
+        batch.Write(std::make_pair(DB_ADDRESSINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
 bool CBlockTreeDB::EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Erase(make_pair(DB_ADDRESSINDEX, it->first));
+        batch.Erase(std::make_pair(DB_ADDRESSINDEX, it->first));
     return WriteBatch(batch);
 }
 
@@ -709,9 +707,9 @@ bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type,
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     if (start > 0 && end > 0) {
-        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorHeightKey(type, addressHash, start)));
+        pcursor->Seek(std::make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorHeightKey(type, addressHash, start)));
     } else {
-        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
+        pcursor->Seek(std::make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
     }
 
     while (pcursor->Valid()) {
@@ -723,7 +721,7 @@ bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type,
             }
             CAmount nValue;
             if (pcursor->GetValue(nValue)) {
-                addressIndex.push_back(make_pair(key.second, nValue));
+                addressIndex.push_back(std::make_pair(key.second, nValue));
                 pcursor->Next();
             } else {
                 return error("failed to get address index value");
@@ -739,14 +737,14 @@ bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type,
 bool CBlockTreeDB::WriteAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_ADDRESSHISTORY, it->first), it->second);
+        batch.Write(std::make_pair(DB_ADDRESSHISTORY, it->first), it->second);
     return WriteBatch(batch);
 }
 
 bool CBlockTreeDB::EraseAddressHistory(const std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Erase(make_pair(DB_ADDRESSHISTORY, it->first));
+        batch.Erase(std::make_pair(DB_ADDRESSHISTORY, it->first));
     return WriteBatch(batch);
 }
 
@@ -757,9 +755,9 @@ bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     if (start > 0 && end > 0) {
-        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorHeightKey(addressHash, addressHash2, start)));
+        pcursor->Seek(std::make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorHeightKey(addressHash, addressHash2, start)));
     } else {
-        pcursor->Seek(make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorKey(addressHash, addressHash2)));
+        pcursor->Seek(std::make_pair(DB_ADDRESSHISTORY, CAddressHistoryIteratorKey(addressHash, addressHash2)));
     }
 
     while (pcursor->Valid()) {
@@ -779,7 +777,7 @@ bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
                     nValue.voting_weight = 0;
                 if (filter & AddressHistoryFilter::GENERATED_FILTER && !(nValue.flags & AddressHistoryFlag::GENERATED_FLAG))
                     continue;
-                addressIndex.push_back(make_pair(key.second, nValue));
+                addressIndex.push_back(std::make_pair(key.second, nValue));
                 pcursor->Next();
             } else {
                 return error("failed to get address history value");
@@ -794,7 +792,7 @@ bool CBlockTreeDB::ReadAddressHistory(uint160 addressHash, uint160 addressHash2,
 
 bool CBlockTreeDB::WriteTimestampIndex(const CTimestampIndexKey &timestampIndex) {
     CDBBatch batch(*this);
-    batch.Write(make_pair(DB_TIMESTAMPINDEX, timestampIndex), 0);
+    batch.Write(std::make_pair(DB_TIMESTAMPINDEX, timestampIndex), 0);
     return WriteBatch(batch);
 }
 
@@ -802,7 +800,7 @@ bool CBlockTreeDB::ReadTimestampIndex(const unsigned int &high, const unsigned i
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_TIMESTAMPINDEX, CTimestampIndexIteratorKey(low)));
+    pcursor->Seek(std::make_pair(DB_TIMESTAMPINDEX, CTimestampIndexIteratorKey(low)));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -827,7 +825,7 @@ bool CBlockTreeDB::ReadTimestampIndex(const unsigned int &high, const unsigned i
 
 bool CBlockTreeDB::WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts) {
     CDBBatch batch(*this);
-    batch.Write(make_pair(DB_BLOCKHASHINDEX, blockhashIndex), logicalts);
+    batch.Write(std::make_pair(DB_BLOCKHASHINDEX, blockhashIndex), logicalts);
     return WriteBatch(batch);
 }
 
@@ -853,15 +851,15 @@ bool CBlockTreeDB::ReadFlag(const std::string &name, bool &fValue) {
     return true;
 }
 
-bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex,
-                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
-                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
-                                      boost::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
-                                      boost::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes)
+bool CBlockTreeDB::LoadBlockIndexGuts(std::function<CBlockIndex*(const uint256&)> insertBlockIndex,
+                                      std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
+                                      std::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
+                                      std::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
+                                      std::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(make_pair(DB_BLOCK_INDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_BLOCK_INDEX, uint256()));
 
     int nCount = 0;
 

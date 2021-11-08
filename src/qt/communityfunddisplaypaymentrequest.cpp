@@ -53,7 +53,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     ui->title->setText(QString::fromStdString(prequest.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(prequest.GetState(coins)));
 
-    string nav_amount;
+    std::string nav_amount;
     nav_amount = wallet->formatDisplayAmount(prequest.nAmount);
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
@@ -75,7 +75,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Hide ability to vote is the status is expired
     std::string status = ui->labelStatus->text().toStdString();
-    if (status.find("expired") != string::npos) {
+    if (status.find("expired") != std::string::npos) {
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
@@ -109,7 +109,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If expired show when it expired
-    if (fLastState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
+    if (fLastState == DAOFlags::EXPIRED || status.find("expired") != std::string::npos)
     {
         if (fLastState == DAOFlags::EXPIRED)
         {
@@ -128,7 +128,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (fLastState == DAOFlags::NIL && prequest.GetState(coins).find("expired") == string::npos)
+    if (fLastState == DAOFlags::NIL && prequest.GetState(coins).find("expired") == std::string::npos)
     {
         // Get prequest votes list
         CPaymentRequest preq = prequest;

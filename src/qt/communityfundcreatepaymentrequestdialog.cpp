@@ -192,7 +192,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         ss << Secret;
 
         // Attempt to sign
-        vector<unsigned char> vchSig;
+        std::vector<unsigned char> vchSig;
         if (!key.SignCompact(ss.GetHash(), vchSig)) {
             QMessageBox msgBox(this);
             std::string str = "Failed to sign\n";
@@ -270,7 +270,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= 10000) {
             QMessageBox msgBox(this);
-            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, coins));
+            std::string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, coins));
             std::string str = tr("You require at least %1 NAV mature and available to create a payment request\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -304,7 +304,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 CReserveKey reservekey(pwalletMain);
                 CAmount nFeeRequired;
                 std::string strError;
-                vector<CRecipient> vecSend;
+                std::vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = 1000;
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
@@ -312,7 +312,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
                 bool created_prequest = true;
 
-                std::vector<shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
+                std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
 
                 if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {

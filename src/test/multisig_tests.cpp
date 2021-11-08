@@ -15,8 +15,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace std;
-
 typedef vector<unsigned char> valtype;
 
 BOOST_FIXTURE_TEST_SUITE(multisig_tests, BasicTestingSetup)

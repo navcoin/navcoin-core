@@ -13,7 +13,6 @@
 
 #include "dao/flags.h"
 
-using namespace std;
 using namespace DAOFlags;
 
 class CTransaction;
@@ -32,12 +31,12 @@ void SetScriptForConsultationVoteRemove(CScript &script, uint256 hash);
 
 bool Vote(uint256 hash, int64_t vote, bool &duplicate);
 bool VoteValue(uint256 hash, int64_t vote, bool &duplicate);
-bool RemoveVote(string str);
-bool RemoveVoteValue(string str);
+bool RemoveVote(std::string str);
+bool RemoveVoteValue(std::string str);
 bool RemoveVote(uint256 hash);
 
 bool Support(uint256 hash, bool &duplicate);
-bool RemoveSupport(string str);
+bool RemoveSupport(std::string str);
 
 uint256 GetDAOStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply);
 uint256 GetConsensusStateHash(CStateViewCache& view);
@@ -283,7 +282,7 @@ public:
     int nVotesNo;
     int nVotesAbs;
     int nExclude;
-    string strDZeel;
+    std::string strDZeel;
     int nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
@@ -326,8 +325,8 @@ public:
         std::string thisMapState = "";
         std::string bMapState = "";
 
-        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
+        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+std::to_string(it.second)+",";
+        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+std::to_string(it.second)+",";
 
         return nAmount == b.nAmount
                 && thisMapState == bMapState
@@ -354,8 +353,8 @@ public:
         {
             std::string sAdded = "";
             std::string sRemoved = "";
-            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+std::to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+std::to_string(it.second)+",";
             if (sRemoved.size() > 0) sRemoved.pop_back();
             if (sAdded.size() > 0) sAdded.pop_back();
             ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
@@ -539,8 +538,8 @@ public:
         std::string thisMapState = "";
         std::string bMapState = "";
 
-        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
+        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+std::to_string(it.second)+",";
+        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+std::to_string(it.second)+",";
 
         return nAmount == b.nAmount
                 && nFee == b.nFee
@@ -570,8 +569,8 @@ public:
         {
             std::string sAdded = "";
             std::string sRemoved = "";
-            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+std::to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+std::to_string(it.second)+",";
             if (sRemoved.size() > 0) sRemoved.pop_back();
             if (sAdded.size() > 0) sAdded.pop_back();
             ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
@@ -744,8 +743,8 @@ public:
         {
             std::string sAdded = "";
             std::string sRemoved = "";
-            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+std::to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+std::to_string(it.second)+",";
             if (sRemoved.size() > 0) sRemoved.pop_back();
             if (sAdded.size() > 0) sAdded.pop_back();
             ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
@@ -864,7 +863,7 @@ public:
     int nSupport;
     uint64_t nMin;
     uint64_t nMax;
-    map<uint64_t, uint64_t> mapVotes;
+    std::map<uint64_t, uint64_t> mapVotes;
     std::vector<uint256> vAnswers;
     int nExclude;
 
@@ -914,8 +913,8 @@ public:
         {
             std::string sAdded = "";
             std::string sRemoved = "";
-            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+std::to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+std::to_string(it.second)+",";
             if (sRemoved.size() > 0) sRemoved.pop_back();
             if (sAdded.size() > 0) sAdded.pop_back();
             ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);

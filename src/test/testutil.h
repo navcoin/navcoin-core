@@ -8,8 +8,8 @@
 #ifndef NAVCOIN_TEST_TESTUTIL_H
 #define NAVCOIN_TEST_TESTUTIL_H
 
-#include <boost/filesystem/path.hpp>
+#include <fs.h>
 
-boost::filesystem::path GetTempPath();
+fs::path GetTempPath();
 
 #endif // NAVCOIN_TEST_TESTUTIL_H
