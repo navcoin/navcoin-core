@@ -116,7 +116,7 @@ public:
         if (!ser_action.ForRead()) {
             if (txout.vData.size() > 0 || txout.tokenId.token != uint256())
             {
-                CAmount nMarker = MAX_MONEY-1;
+                CAmount nMarker = (170000000 * COIN)+1;
                 READWRITE(VARINT(nMarker));
                 uint64_t nVal = CompressAmount(txout.nValue);
                 READWRITE(VARINT(nVal));
@@ -130,7 +130,7 @@ public:
             }
             else if (txout.IsBLSCT())
             {
-                CAmount nMarker = MAX_MONEY;
+                CAmount nMarker = 170000000 * COIN;
                 READWRITE(VARINT(nMarker));
                 uint64_t nVal = CompressAmount(txout.nValue);
                 READWRITE(VARINT(nVal));
@@ -148,7 +148,7 @@ public:
         } else {
             uint64_t nVal = 0;
             READWRITE(VARINT(nVal));
-            if (nVal == MAX_MONEY)
+            if (nVal == 170000000 * COIN)
             {
                 READWRITE(VARINT(nVal));
                 txout.nValue = DecompressAmount(nVal);
@@ -159,7 +159,7 @@ public:
                 READWRITE(vbp);
                 txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
             }
-            else if (nVal == MAX_MONEY-1)
+            else if (nVal == (170000000 * COIN)+1)
             {
                 READWRITE(VARINT(nVal));
                 txout.nValue = DecompressAmount(nVal);
