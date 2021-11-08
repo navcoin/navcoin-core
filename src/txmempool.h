@@ -675,7 +675,7 @@ public:
             ((GetTimeMillis() - it->second.nTime) > 15*60*1000) ? mapAggSession.erase(it++) : (++it);
         }
 
-        auto ret = mapAggSession.insert(make_pair(ms.GetHash(), ms));
+        auto ret = mapAggSession.insert(std::make_pair(ms.GetHash(), ms));
 
         return ret.second;
     }
@@ -689,7 +689,7 @@ public:
             ((GetTimeMillis() - it->second.nTime) > 15*60*1000) ? mapEncCand.erase(it++) : (++it);
         }
 
-        auto ret = mapEncCand.insert(make_pair(ec.GetHash(), ec));
+        auto ret = mapEncCand.insert(std::make_pair(ec.GetHash(), ec));
 
         return ret.second;
     }
@@ -735,7 +735,7 @@ public:
 
     /** Estimate priority needed to get into the next nBlocks */
     double estimatePriority(int nBlocks) const;
-    
+
     /** Write/Read estimates to disk */
     bool WriteFeeEstimates(CAutoFile& fileout) const;
     bool ReadFeeEstimates(CAutoFile& filein);
@@ -781,7 +781,7 @@ private:
     void removeUnchecked(txiter entry);
 };
 
-/** 
+/**
  * CStateView that brings transactions from a memorypool into view.
  * It does not check for spendings by memory pool transactions.
  */

@@ -613,16 +613,16 @@ public:
     std::string vMemo;
     CAmount nAmount;
     Scalar gamma;
-    string sAddress;
+    std::string sAddress;
     TokenId tokenId;
     int mixCount;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0,  string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, std::string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
     {
         tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string vMemoIn = "", CAmount nAmountIn = 0, Scalar gammaIn = 0, std::string sAddressIn = "", int mixCountIn = 0, TokenId tokenIdIn = TokenId())
     {
         tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn; sAddress = sAddressIn; mixCount = mixCountIn; tokenId = tokenIdIn;
     }
@@ -891,7 +891,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
-    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const TokenId& tokenId=TokenId()) const;
+    void AvailablePrivateCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false, CAmount nMinAmount = 0, bool fRecursive = false, bool fTryToSpendLocked = true, const TokenId& tokenId=TokenId()) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -1016,9 +1016,9 @@ public:
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
                            std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0, uint64_t nBLSCTAccount = 0, const TokenId& tokenId=TokenId());
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
+    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
 
@@ -1091,7 +1091,7 @@ public:
 
     bool DelAddressBook(const CTxDestination& address);
 
-    bool SetPrivateAddressBook(const string& address, const std::string& strName, const std::string& purpose);
+    bool SetPrivateAddressBook(const std::string& address, const std::string& strName, const std::string& purpose);
 
     void UpdatedTransaction(const uint256 &hashTx);
 

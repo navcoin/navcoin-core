@@ -11,8 +11,6 @@
 #include <net.h>
 #include <chainparams.h>
 
-using namespace std;
-
 class CAddrManSerializationMock : public CAddrMan
 {
 public:

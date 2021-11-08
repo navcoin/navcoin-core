@@ -16,8 +16,6 @@
 
 #include <univalue.h>
 
-using namespace std;
-
 UniValue
 createArgs(int nRequired, const char* address1=NULL, const char* address2=NULL)
 {
@@ -44,7 +42,7 @@ UniValue CallRPC(string args)
         return result;
     }
     catch (const UniValue& objError) {
-        throw runtime_error(find_value(objError, "message").get_str());
+        throw std::runtime_error(find_value(objError, "message").get_str());
     }
 }
 
@@ -231,7 +229,7 @@ BOOST_AUTO_TEST_CASE(json_parse_errors)
 BOOST_AUTO_TEST_CASE(rpc_ban)
 {
     BOOST_CHECK_NO_THROW(CallRPC(string("clearbanned")));
-    
+
     UniValue r;
     BOOST_CHECK_NO_THROW(r = CallRPC(string("setban 127.0.0.0 add")));
     BOOST_CHECK_THROW(r = CallRPC(string("setban 127.0.0.0:8334")), runtime_error); //portnumber for setban not allowed

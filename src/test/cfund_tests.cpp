@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(cfund_proposals)
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(GetRandHash());
         pcoinsTip->SetBestBlock(next->GetBlockHash());
-        mapBlockIndex.insert(make_pair(*next->phashBlock, next));
+        mapBlockIndex.insert(std::make_pair(*next->phashBlock, next));
         next->pprev = prev;
         next->nHeight = prev->nHeight + 1;
         // every block is 1 second apart
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(cfund_prequests)
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(GetRandHash());
         pcoinsTip->SetBestBlock(next->GetBlockHash());
-        mapBlockIndex.insert(make_pair(*next->phashBlock, next));
+        mapBlockIndex.insert(std::make_pair(*next->phashBlock, next));
         next->pprev = prev;
         next->nHeight = prev->nHeight + 1;
         // every block is 1 second apart

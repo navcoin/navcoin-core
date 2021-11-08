@@ -194,7 +194,7 @@ bool VoteValue(uint256 hash, int64_t vote, bool &duplicate)
 
     RemoveConfigFile("vote", str);
 
-    WriteConfigFile("vote", str + "~" + to_string(vote));
+    WriteConfigFile("vote", str + "~" + std::to_string(vote));
 
     mapAddedVotes[hash] = vote;
 
@@ -203,7 +203,7 @@ bool VoteValue(uint256 hash, int64_t vote, bool &duplicate)
     return true;
 }
 
-bool RemoveSupport(string str)
+bool RemoveSupport(std::string str)
 {
     RemoveConfigFile("support", str);
     if (mapSupported.count(uint256S(str)) > 0)
@@ -216,7 +216,7 @@ bool RemoveSupport(string str)
     return true;
 }
 
-bool RemoveVote(string str)
+bool RemoveVote(std::string str)
 {
 
     RemoveConfigFile("voteyes", str);
@@ -238,7 +238,7 @@ bool RemoveVote(string str)
     return true;
 }
 
-bool RemoveVoteValue(string str)
+bool RemoveVoteValue(std::string str)
 {
 
     RemoveConfigFilePair("vote", str);
@@ -284,7 +284,7 @@ std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::str
     {
         if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
         {
-            ret = to_string(stoll(string) + 1);
+            ret = std::to_string(stoll(string) + 1);
         }
     }
 
@@ -310,7 +310,7 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
         {
             if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
             {
-                ret = to_string(stoll(string) - 1);
+                ret = std::to_string(stoll(string) - 1);
             }
         }
     }
@@ -409,7 +409,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                                      pindexblock->nHeight);
 
                             if(mapCacheProposalsToUpdate.count((*pVotes)[i].first) == 0)
-                                mapCacheProposalsToUpdate[(*pVotes)[i].first] = make_pair(make_pair(0, 0), 0);
+                                mapCacheProposalsToUpdate[(*pVotes)[i].first] = std::make_pair(std::make_pair(0, 0), 0);
 
                             if((*pVotes)[i].second == VoteFlags::VOTE_YES)
                                 mapCacheProposalsToUpdate[(*pVotes)[i].first].first.first += 1;
@@ -435,7 +435,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                                      pindexblock->nHeight);
 
                             if(mapCachePaymentRequestToUpdate.count((*prVotes)[i].first) == 0)
-                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first] = make_pair(make_pair(0, 0), 0);
+                                mapCachePaymentRequestToUpdate[(*prVotes)[i].first] = std::make_pair(std::make_pair(0, 0), 0);
 
                             if((*prVotes)[i].second == VoteFlags::VOTE_YES)
                                 mapCachePaymentRequestToUpdate[(*prVotes)[i].first].first.first += 1;
@@ -927,7 +927,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     }
 
     updateMapConsultationAnswers.clear();
-    
+
     std::vector<uint256> vClearAnswers;
 
     int64_t nTimeStart4_ = GetTimeMicros();
@@ -1260,7 +1260,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                                     updateMapProposals[proposal->hash] = *proposal;
 
                                     LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
-                                } 
+                                }
                                 else
                                 {
                                     CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
@@ -2067,7 +2067,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
 
 bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex, CStateViewCache& coins)
 {
-    if (proposal.empty() || proposal.find_first_not_of("0123456789") != string::npos)
+    if (proposal.empty() || proposal.find_first_not_of("0123456789") != std::string::npos)
         return error("%s: Proposed parameter is empty or not integer", __func__);
 
     uint64_t val = stoll(proposal);
@@ -2303,7 +2303,7 @@ std::string CConsultation::ToString(const CBlockIndex* pindex, const CStateViewC
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            sRet += ((it.first == VoteFlags::VOTE_ABSTAIN ? "abstain" : to_string(it.first)) + "=" + to_string(it.second) + ", ");
+            sRet += ((it.first == VoteFlags::VOTE_ABSTAIN ? "abstain" : std::to_string(it.first)) + "=" + std::to_string(it.second) + ", ");
         }
 
     }
@@ -2311,7 +2311,7 @@ std::string CConsultation::ToString(const CBlockIndex* pindex, const CStateViewC
     {
         if (mapVotes.count(VoteFlags::VOTE_ABSTAIN) != 0)
         {
-            sRet += "abstain=" + to_string(mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ", ";
+            sRet += "abstain=" + std::to_string(mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ", ";
         }
         CConsultationAnswerMap mapConsultationAnswers;
 
@@ -2365,7 +2365,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
                 ret.pushKV("abstain", it.second);
             }
             else
-                a.pushKV(to_string(it.first), it.second);
+                a.pushKV(std::to_string(it.first), it.second);
         }
         if (!fAbstainAdded)
             ret.pushKV("abstain", 0);

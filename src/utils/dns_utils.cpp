@@ -29,7 +29,6 @@
 #include "utils/dns_utils.h"
 #include "util.h"
 
-#include <boost/filesystem/fstream.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <boost/thread/mutex.hpp>
@@ -40,8 +39,6 @@
 #include <sstream>
 #include <string>
 #include <unbound.h>
-
-namespace bf = boost::filesystem;
 
 static boost::mutex instance_lock;
 
