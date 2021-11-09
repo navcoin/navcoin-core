@@ -1734,6 +1734,13 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
             }
 
             wtx.vAmounts.resize(wtx.vout.size());
+
+            for (auto i = 0; i < wtx.vout.size(); i++)
+            {
+                if (!wtx.vout[i].HasRangeProof())
+                    wtx.vAmounts[i] = wtx.vout[i].nValue;
+            }
+
             wtx.vMemos.resize(wtx.vout.size());
             wtx.vGammas.resize(wtx.vout.size());
 
@@ -1999,7 +2006,7 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter, const T
 
 isminetype CWallet::IsMine(const CTxOut& txout) const
 {
-    if (txout.HasRangeProof() && txout.IsBLSCT())
+    if (txout.outputKey.size() && txout.spendingKey.size())
     {
         isminetype ret = ISMINE_NO;
 

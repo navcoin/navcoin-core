@@ -2441,7 +2441,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
         const CCoins *coins = inputs.AccessCoins(prevout.hash);
         assert(coins);
 
-        if ((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof()))
+        if ((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].ephemeralKey.size()))
         {
             if (!fHasBLSInput && i > 0)
                 return state.Invalid(false,
@@ -2450,7 +2450,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
             fHasBLSInput = true;
         }
 
-        if (fHasBLSInput && !((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof())))
+        if (fHasBLSInput && !((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].ephemeralKey.size())))
             return state.Invalid(false,
                                  REJECT_INVALID, "bad-mix-bls-inputs",
                                  "transaction mixes bls and legacy inputs");
@@ -5660,6 +5660,7 @@ bool InvalidateBlock(CValidationState& state, const CChainParams& chainparams, C
         // unconditionally valid already, so force disconnect away from it.
         if (!DisconnectTip(state, chainparams)) {
             mempool.removeForReorg(pcoinsTip, chainActive.Tip()->nHeight + 1, STANDARD_LOCKTIME_VERIFY_FLAGS);
+            stempool.removeForReorg(pcoinsTip, chainActive.Tip()->nHeight + 1, STANDARD_LOCKTIME_VERIFY_FLAGS);
             return false;
         }
     }
