@@ -340,7 +340,7 @@ public:
 
     bool IsEmpty() const
     {
-        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty());
+        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty() && !HasRangeProof() && vData.empty());
     }
 
     bool IsCommunityFundContribution() const
