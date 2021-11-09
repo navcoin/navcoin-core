@@ -3051,7 +3051,7 @@ CAmount CWallet::GetPrivateBalancePending(const TokenId& tokenId) const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
-                if (pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
+                if (!pcoin->IsInMainChain())
                     nTotal += pcoin->GetPendingPrivateCredit(true, tokenId);
         }
     }
