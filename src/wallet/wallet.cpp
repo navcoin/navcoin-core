@@ -1803,7 +1803,10 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
                 while (range.first != range.second) {
                     if (range.first->second != tx.GetHash()) {
                         LogPrintf("Transaction %s (in block %s) conflicts with wallet transaction %s (both spend %s:%i)\n", tx.GetHash().ToString(), pblock->GetHash().ToString(), range.first->second.ToString(), range.first->first.hash.ToString(), range.first->first.n);
-                        MarkConflicted(pblock->GetHash(), range.first->second, tx.IsBLSInput());
+                        MarkConflicted(pblock->GetHash(), range.first->second);
+                        if (tx.IsBLSInput()) {
+                            AbandonTransaction(range.first->second);
+                        }
                     }
                     range.first++;
                 }
@@ -3050,7 +3053,7 @@ CAmount CWallet::GetPrivateBalancePending(const TokenId& tokenId) const
         for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsCTOutput())
+            if (pcoin->IsCTOutput() && (pcoin->InStempool() || pcoin->InMempool()))
                 if (!pcoin->IsInMainChain())
                     nTotal += pcoin->GetPendingPrivateCredit(true, tokenId);
         }
