@@ -1539,7 +1539,7 @@ UniValue sendnft(const UniValue& params, bool fHelp)
 
     // Supply
     CAmount nftid = params[1].get_int64();
-    if (nftid <= 0)
+    if (nftid < 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid nftid");
 
     auto tokenId = TokenId(uint256S(token), nftid);
