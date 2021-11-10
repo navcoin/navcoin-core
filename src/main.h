@@ -549,6 +549,10 @@ bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Param
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
+/** Check whether the super dao has been activated **/
+bool IsDaoSuperEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsDaoSuperLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
 /** Check whether the burn fees upgrade has been activated **/
 bool IsBurnFeesEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsBurnFeesLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);

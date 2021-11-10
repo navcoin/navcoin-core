@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>335</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -173,6 +173,13 @@
         </layout>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="superProposalCheckbox">
+       <property name="text">
+        <string>Super proposal (request to print coins)</string>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayoutCreateProposalButton">

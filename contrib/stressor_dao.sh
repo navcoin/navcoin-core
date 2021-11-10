@@ -715,14 +715,13 @@ function dice_consultation {
 	dice=$(bc <<< "$RANDOM % 100")
 	if [ $dice -lt $chances_create_combined_consensus_consultation ];
 	then
-		number_of_changing_consensus=$( bc <<< "$RANDOM % 24" )
-		array_changing_consensus=()
-		for i in $(seq 0 1 $number_of_changing_consensus); 
+		number_of_changing_consensus=$( bc <<< "$RANDOM % 10" )
+		array_changing_consensus_value=()
+		array_changing_consensus=($(seq 0 23 | shuf | head -n $number_of_changing_consensus | tr "\n" " "))
+		changing_consensus=$(join_by ',' ${array_changing_consensus[@]})
+		for consensus in $(seq 0 1 $( bc <<< "${#array_changing_consensus[@]} - 1"));
 		do
-			array_changing_consensus[$i]="$( bc <<< "$RANDOM % 24")"
-			changing_consensus=$(join_by ',' ${array_changing_consensus[@]})
-  			consensus=$( bc <<< "$RANDOM % 24" )
-			case $consensus in
+			case ${array_changing_consensus[$consensus]} in
 				"0")
 					value=$( shuf -i 5-20 -n 1)
 					;;
@@ -739,9 +738,9 @@ function dice_consultation {
 					value=$(echo "$( shuf -i 1-100 -n 1)00")
 					;;
 				*)
-					;;
+				;;
 			esac
-			array_changing_consensus_value[$i]=$value
+			array_changing_consensus_value[$consensus]=$value
 			changing_consensus_value=$(join_by ',' ${array_changing_consensus_value[@]})
 		done
 #		echo "changing consensus $changing_consensus with values $changing_consensus_value"
@@ -1052,8 +1051,8 @@ function random_verifychain_check {
 }
 
 function start_node {
-	$(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 -daemon
-#	gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 &
+	$(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=daoextra -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 -daemon
+#	gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=daoextra -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 &
 }
 
 function stop_node {
