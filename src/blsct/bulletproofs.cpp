@@ -45,7 +45,19 @@ static bls::G1Element GetBaseG1Element(const bls::G1Element &base, size_t idx, s
     uint8_t dest[1];
     dest[0] = 0x0;
 
-    bls::G1Element e = bls::G1Element::FromMessage(std::vector<unsigned char>(hash.begin(), hash.end()), dest, 1);
+    std::vector<unsigned char> vMcl(48);
+
+    if (tokId != "")
+    {
+        Fp p;
+        auto vHash = std::vector<unsigned char>(hash.begin(), hash.end());
+        p.setLittleEndianMod(&vHash[0], 32);
+        G1 g;
+        mapToG1(g, p);
+        g.serialize(&vMcl[0], 48);
+    }
+
+    bls::G1Element e = tokId == "" ? bls::G1Element::FromMessage(std::vector<unsigned char>(hash.begin(), hash.end()), dest, 1) : bls::G1Element::FromByteVector(vMcl);
 
     CHECK_AND_ASSERT_THROW_MES(e != bls::G1Element::Infinity(), "Exponent is point at infinity");
 
