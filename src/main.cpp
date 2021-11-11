@@ -2441,7 +2441,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
         const CCoins *coins = inputs.AccessCoins(prevout.hash);
         assert(coins);
 
-        if ((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof()))
+        if ((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].spendingKey.size()))
         {
             if (!fHasBLSInput && i > 0)
                 return state.Invalid(false,
@@ -2450,7 +2450,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CState
             fHasBLSInput = true;
         }
 
-        if (fHasBLSInput && !((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].HasRangeProof())))
+        if (fHasBLSInput && !((!fXNavSer && coins->vout[prevout.n].IsBLSCT()) || (fXNavSer && coins->vout[prevout.n].spendingKey.size())))
             return state.Invalid(false,
                                  REJECT_INVALID, "bad-mix-bls-inputs",
                                  "transaction mixes bls and legacy inputs");

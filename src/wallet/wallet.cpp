@@ -3238,7 +3238,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
             if (nDepth < 0)
                 continue;
 
-            if (!pcoin->HasRangeProof())
+            if (!pcoin->IsCTOutput())
                 continue;
 
             // We should not consider coins which aren't at least in our mempool
