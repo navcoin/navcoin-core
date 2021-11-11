@@ -5268,7 +5268,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
             bool ret = AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, stateDummy, tx, false, nullptr, true);
             CValidationState dandelionStateDummy;
             ret &= AcceptToMemoryPool(stempool, &mempool.cs, &stempool.cs, dandelionStateDummy, tx, false, nullptr, true, 0);
-            if (!(tx.IsCoinBase() || tx.IsCoinStake()) && !ret) {
+            if (!(tx.IsCoinBase() || tx.IsCoinStake()) || !ret) {
                 mempool.removeRecursive(tx, removed);
                 stempool.removeRecursive(tx, removed);
             } else if (mempool.exists(tx.GetHash())) {

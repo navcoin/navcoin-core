@@ -1804,9 +1804,6 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
                     if (range.first->second != tx.GetHash()) {
                         LogPrintf("Transaction %s (in block %s) conflicts with wallet transaction %s (both spend %s:%i)\n", tx.GetHash().ToString(), pblock->GetHash().ToString(), range.first->second.ToString(), range.first->first.hash.ToString(), range.first->first.n);
                         MarkConflicted(pblock->GetHash(), range.first->second);
-                        if (tx.IsBLSInput()) {
-                            AbandonTransaction(range.first->second);
-                        }
                     }
                     range.first++;
                 }
@@ -3035,7 +3032,7 @@ CAmount CWallet::GetPrivateBalance(const TokenId& tokenId) const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
-                if (pcoin->IsInMainChain())
+                if (pcoin->IsTrusted())
                 {
                     nTotal += pcoin->GetAvailablePrivateCredit(true, tokenId);
                 }
@@ -3241,7 +3238,7 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
             if (nDepth < 0)
                 continue;
 
-            if (!pcoin->IsCTOutput())
+            if (!pcoin->HasRangeProof())
                 continue;
 
             // We should not consider coins which aren't at least in our mempool
