@@ -655,6 +655,29 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
         }
     }
 
+    for (auto &it: mempool.mapTx)
+    {
+        CTransaction tx = it.GetTx();
+
+        if (!tx.IsBLSInput() || setToCombine.count(tx))
+            continue;
+
+        try
+        {
+            if (inputs.HaveInputs(tx))
+            {
+                nMovedToPublic += inputs.GetValueIn(tx) - tx.GetValueOut();
+                setToCombine.insert(tx);
+            }
+            else
+                LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+        }
+        catch(...)
+        {
+            continue;
+        }
+    }
+
     CBlockIndex* pindexPrev = chainActive.Tip();
 
     if (pindexPrev->nPrivateMoneySupply + nMovedToPublic < 0)
