@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
@@ -1011,6 +1012,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "6. dump_raw               (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
             "7. \"owneraddress\"         (string, optional) The owner of the proposal who will sign the payment requests. Default: the payment address\n"
+            "8. super_proposal         (bool, optional) Creates a super proposal which would print new coins instead of taking from the fund. Default: false\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -1030,6 +1032,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 6 ? params[5].getBool() : false;
+    bool fSuper = params.size() == 8 ? params[7].getBool() : false;
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
@@ -1064,6 +1067,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CProposal::EXCLUDE_VERSION;
+
+    if (IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()) && fSuper)
+        nVersion |= CProposal::SUPER_VERSION;
 
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("a",ownerAddress);
@@ -1702,6 +1708,120 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     }
 }
 
+UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (!IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Combined voting is not enabled yet.");
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+                "proposecombinedconsensuschange parameters values ( fee dump_raw )\n"
+            "\nCreates a proposal to the DAO for changing various consensus paremeters.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. parameter        (array, required) The parameter ids as specified in the output of the getconsensusparameters rpc command.\n"
+            "2. value            (array, optional) The proposed values.\n"
+            "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("proposecombinedconsensuschange", "[1] [10]")
+                );
+
+    if (!params[0].isArray() || !params[1].isArray())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Parameter and values should be arrays.");
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    UniValue parameters = params[0].get_array();
+    UniValue values = params[1].get_array();
+    UniValue sValues(UniValue::VARR);
+
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view) + (GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view) * values.size());
+
+    // Amount
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : nMinFee;
+    if (nAmount <= 0 || nAmount < nMinFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee.");
+
+    if (parameters.size() != values.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "You should specify the same amount of parameters and values.");
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    std::string sQuestion = "Consensus change for: ";
+    std::vector<std::string> topics;
+
+    for (size_t i = 0; i < parameters.size(); i++) {
+        if (!parameters[i].isNum())
+            throw JSONRPCError(RPC_TYPE_ERROR, "Parameters should be numbers");
+
+        int64_t par = parameters[i].get_int64();
+
+        if (par < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || par >= Consensus::MAX_CONSENSUS_PARAMS)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Wrong parameter id");
+
+        topics.push_back(Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)par]);
+
+        uint64_t decrement = (par == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || par == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) ? 1 : 0;
+
+        if (!values[i].isNum())
+            throw JSONRPCError(RPC_TYPE_ERROR, "Values must be numbers");
+        sValues.push_back(std::to_string(values[i].get_int64()-decrement));
+    }
+
+    int64_t nMax = 1;
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION | CConsultation::SUPER_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultation::EXCLUDE_VERSION;
+
+    strDZeel.pushKV("q",sQuestion + boost::algorithm::join(topics, " + "));
+    strDZeel.pushKV("a",sValues);
+    strDZeel.pushKV("m",parameters);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, false, true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
 UniValue createconsultation(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -2007,6 +2127,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::EXCLUDE_VERSION;
 
+    if (proposal.IsSuper() && IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CPaymentRequest::SUPER_VERSION;;
+
     strDZeel.pushKV("h",params[0].get_str());
     strDZeel.pushKV("n",nReqAmount);
     strDZeel.pushKV("s",Signature);
@@ -2083,17 +2206,36 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
+    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
+        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
+
     std::string sAnswer = "";
+    UniValue vAnswer(UniValue::VARR);
     if (consultation.IsAboutConsensusParameter())
     {
-        int64_t nValue = params[1].get_int64();
-
-        if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        if (consultation.IsSuper())
         {
-            nValue--;
-        }
+            nVersion |= CConsultationAnswer::SUPER_VERSION;
+            auto nValue = params[1].get_array();
+            auto parameters = consultation.GetParameters();
 
-        sAnswer = std::to_string(nValue);
+            for (size_t i = 0; i < nValue.size(); i++)
+            {
+                auto sub = (parameters[i] == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || parameters[i] == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) ? 1 : 0;
+                vAnswer.push_back(std::to_string(nValue[i].get_int64()));
+            }
+        } else {
+            int64_t nValue = params[1].get_int64();
+
+            if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+            {
+                nValue--;
+            }
+
+            sAnswer = std::to_string(nValue);
+        }
     }
     else
     {
@@ -2106,13 +2248,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     bool fSubtractFeeFromAmount = false;
 
     UniValue strDZeel(UniValue::VOBJ);
-    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
-
-    if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
-        nVersion |= CConsultationAnswer::EXCLUDE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());
-    strDZeel.pushKV("a",sAnswer);
+    strDZeel.pushKV("a",consultation.IsAboutConsensusParameter()&&consultation.IsSuper()?vAnswer:sAnswer);
     strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
@@ -5599,6 +5737,7 @@ static const CRPCCommand commands[] =
   { "dao",                "getstakervote",            &getstakervote,            false },
   { "dao",                "proposeanswer",            &proposeanswer,            false },
   { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
+  { "dao",                "proposecombinedconsensuschange",   &proposecombinedconsensuschange,   false },
   { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
   { "dao",                "setexclude",               &setexclude,               false },
   { "wallet",             "stakervote",               &stakervote,               false },

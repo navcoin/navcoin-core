@@ -36,6 +36,7 @@ enum DeploymentPos
     DEPLOYMENT_POOL_FEE,
     DEPLOYMENT_BLSCT,
     DEPLOYMENT_EXCLUDE,
+    DEPLOYMENT_DAO_SUPER,
     DEPLOYMENT_BURN_FEES,
     DEPLOYMENT_XNAV_SER,
     MAX_VERSION_BITS_DEPLOYMENTS,
@@ -62,6 +63,7 @@ static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     "Allows staking pools to charge a fee",
     "Activates the privacy protocol blsCT and the private token xNAV",
     "Excludes inactive voters from the DAO quorums",
+    "Enables Super proposals and allows combined vote of consensus parameters",
     "Burns the transaction fees"
 };
 
