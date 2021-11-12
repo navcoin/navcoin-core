@@ -526,7 +526,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
                 continue;
         }
 
-        if (prevtx.vout[txin.prevout.n].IsBLSCT())
+        if (prevtx.vout[txin.prevout.n].outputKey.size() && prevtx.vout[txin.prevout.n].spendingKey.size() && HexStr(prevtx.vout[txin.prevout.n].scriptPubKey.begin(), prevtx.vout[txin.prevout.n].scriptPubKey.end()) == "51")
         {
             in.pushKV("outputKey", HexStr(prevtx.vout[txin.prevout.n].outputKey));
             in.pushKV("spendingKey", HexStr(prevtx.vout[txin.prevout.n].spendingKey));
@@ -547,7 +547,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
         UniValue out(UniValue::VOBJ);
 
 
-        if (txout.IsBLSCT())
+        if (txout.outputKey.size() && txout.spendingKey.size() && HexStr(txout.scriptPubKey.begin(), txout.scriptPubKey.end()) == "51")
         {
             out.pushKV("outputKey", HexStr(txout.outputKey));
             out.pushKV("spendingKey", HexStr(txout.spendingKey));
