@@ -669,7 +669,7 @@ function dice_send_nft {
 	                do
 		                shuffle_array "${array_stressing_nodes[@]}"
 		                node_receive=${shuffled_array[0]}	
-				nftid=$(nav_cli $node listtokens | jq ".[] | select(.id==\"$t\") | .nfts | .[].index" | head -n 1)
+				nftid=$(nav_cli $node listtokens | jq ".[] | select(.id==\"$t\") | .nfts | .[] | select(.balance==\"1\") | .index" | shuf -n 1)
 #				echo 'nftid= ' $nftid
 				out=$(nav_cli $n sendnft $t $nftid ${array_private_address[$node_receive]})
 				if [ ! -z $out ]
