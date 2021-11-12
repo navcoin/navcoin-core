@@ -1802,8 +1802,12 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
                 std::pair<TxSpends::const_iterator, TxSpends::const_iterator> range = mapTxSpends.equal_range(txin.prevout);
                 while (range.first != range.second) {
                     if (range.first->second != tx.GetHash()) {
-                        LogPrintf("Transaction %s (in block %s) conflicts with wallet transaction %s (both spend %s:%i)\n", tx.GetHash().ToString(), pblock->GetHash().ToString(), range.first->second.ToString(), range.first->first.hash.ToString(), range.first->first.n);
-                        MarkConflicted(pblock->GetHash(), range.first->second);
+                        if (!tx.IsBLSInput()) {
+                            LogPrintf("Transaction %s (in block %s) conflicts with wallet transaction %s (both spend %s:%i)\n", tx.GetHash().ToString(), pblock->GetHash().ToString(), range.first->second.ToString(), range.first->first.hash.ToString(), range.first->first.n);
+                            MarkConflicted(pblock->GetHash(), range.first->second);
+                        } else {
+                            AbandonTransaction(range.first->second);
+                        }
                     }
                     range.first++;
                 }
@@ -3032,7 +3036,7 @@ CAmount CWallet::GetPrivateBalance(const TokenId& tokenId) const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput())
-                if (pcoin->IsTrusted())
+                if (pcoin->IsInMainChain())
                 {
                     nTotal += pcoin->GetAvailablePrivateCredit(true, tokenId);
                 }
