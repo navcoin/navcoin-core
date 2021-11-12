@@ -1866,8 +1866,10 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
         // if (currentconfirm < 0) {Tx and spends are already conflicted, no need to abandon}
         if (currentconfirm == 0 && !wtx.isAbandoned()) {
             // If the orig tx was not in block/mempool, none of its spends can be in mempool
-            assert(!wtx.InMempool());
-            assert(!wtx.InStempool());
+            if (!wtx.IsBLSInput()) {
+                assert(!wtx.InMempool());
+                assert(!wtx.InStempool());
+            }
             wtx.nIndex = -1;
             wtx.setAbandoned();
             wtx.MarkDirty();
@@ -3055,7 +3057,7 @@ CAmount CWallet::GetPrivateBalancePending(const TokenId& tokenId) const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput() && (pcoin->InStempool() || pcoin->InMempool()))
-                if (!pcoin->IsInMainChain())
+                if (!pcoin->IsInMainChain() && !pcoin->isAbandoned())
                     nTotal += pcoin->GetPendingPrivateCredit(true, tokenId);
         }
     }
