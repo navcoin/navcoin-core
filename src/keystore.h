@@ -31,6 +31,8 @@ public:
     virtual bool AddKey(const CKey &key);
     virtual bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey) =0;
     virtual bool AddBLSCTBlindingKey(const blsctKey &key) = 0;
+    virtual bool AddBLSCTTokenKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey) =0;
+    virtual bool AddBLSCTTokenKey(const blsctKey &key) = 0;
     virtual bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index) =0;
 
     //! Check whether a key corresponding to a given address is present in the store.
@@ -40,10 +42,12 @@ public:
     virtual bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const =0;
 
     virtual bool HaveBLSCTBlindingKey(const blsctPublicKey &pk) const =0;
+    virtual bool HaveBLSCTTokenKey(const blsctPublicKey &pk) const =0;
     virtual bool GetBLSCTHashId(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, CKeyID& hashId) const =0;
     virtual bool HaveBLSCTSubAddress(const CKeyID &hashId) const =0;
     virtual bool HaveBLSCTSubAddress(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey) const =0;
     virtual bool GetBLSCTBlindingKey(const blsctPublicKey &pk, blsctKey &k) const =0;
+    virtual bool GetBLSCTTokenKey(const blsctPublicKey &pk, blsctKey &k) const =0;
     virtual bool GetBLSCTSubAddressIndex(const CKeyID &hashId, std::pair<uint64_t, uint64_t>& index) const =0;
     virtual bool GetBLSCTSubAddressIndex(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, std::pair<uint64_t, uint64_t>& index) const =0;
     virtual bool GetBLSCTSubAddressPublicKeys(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, blsctDoublePublicKey& pk) const =0;
@@ -69,14 +73,17 @@ public:
     virtual bool GetBLSCTSpendKey(blsctKey& k) const =0;
     virtual bool GetBLSCTDoublePublicKey(blsctDoublePublicKey& k) const =0;
     virtual bool GetBLSCTBlindingMasterKey(blsctKey& k) const =0;
+    virtual bool GetBLSCTTokenMasterKey(blsctKey& k) const =0;
     virtual bool SetBLSCTViewKey(const blsctKey& v) =0;
     virtual bool SetBLSCTSpendKey(const blsctKey& v) =0;
     virtual bool SetBLSCTDoublePublicKey(const blsctDoublePublicKey& k) =0;
     virtual bool SetBLSCTBlindingMasterKey(const blsctKey& k) =0;
+    virtual bool SetBLSCTTokenMasterKey(const blsctKey& k) =0;
 };
 
 typedef std::map<CKeyID, CKey> KeyMap;
 typedef std::map<CKeyID, blsctKey> BLSCTBlindingKeyMap;
+typedef std::map<CKeyID, blsctKey> BLSCTTokenKeyMap;
 typedef std::map<CKeyID, std::pair<uint64_t, uint64_t>> BLSCTSubAddressMap;
 typedef std::map<CKeyID, CPubKey> WatchKeyMap;
 typedef std::map<CScriptID, CScript > ScriptMap;
@@ -88,6 +95,7 @@ class CBasicKeyStore : public CKeyStore
 protected:
     KeyMap mapKeys;
     BLSCTBlindingKeyMap mapBLSCTBlindingKeys;
+    BLSCTTokenKeyMap mapBLSCTTokenKeys;
     BLSCTSubAddressMap mapBLSCTSubAddresses;
     WatchKeyMap mapWatchKeys;
     ScriptMap mapScripts;
@@ -96,12 +104,15 @@ protected:
     blsctKey privateBlsSpendKey;
     blsctDoublePublicKey publicBlsKey;
     blsctKey privateBlsBlindingKey;
+    blsctKey privateBlsTokenKey;
 
 
 public:
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
     bool AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
     bool AddBLSCTBlindingKey(const blsctKey &key);
+    bool AddBLSCTTokenKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
+    bool AddBLSCTTokenKey(const blsctKey &key);
     bool AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index);
     bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
     bool HaveKey(const CKeyID &address) const
@@ -115,6 +126,7 @@ public:
     }
 
     bool HaveBLSCTBlindingKey(const blsctPublicKey &address) const;
+    bool HaveBLSCTTokenKey(const blsctPublicKey &address) const;
 
     bool HaveBLSCTSubAddress(const CKeyID &hashId) const
     {
@@ -173,6 +185,20 @@ public:
             LOCK(cs_KeyStore);
             BLSCTBlindingKeyMap::const_iterator mi = mapBLSCTBlindingKeys.find(address.GetID());
             if (mi != mapBLSCTBlindingKeys.end())
+            {
+                keyOut = mi->second;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool GetBLSCTTokenKey(const blsctPublicKey &address, blsctKey &keyOut) const
+    {
+        {
+            LOCK(cs_KeyStore);
+            BLSCTTokenKeyMap::const_iterator mi = mapBLSCTTokenKeys.find(address.GetID());
+            if (mi != mapBLSCTTokenKeys.end())
             {
                 keyOut = mi->second;
                 return true;
@@ -265,6 +291,14 @@ public:
         return true;
     }
 
+    bool GetBLSCTTokenMasterKey(blsctKey& zk) const {
+        if(!privateBlsTokenKey.IsValid())
+            return false;
+
+        zk = privateBlsTokenKey;
+        return true;
+    }
+
     bool GetBLSCTSpendKey(blsctKey& zk) const {
         if(!privateBlsSpendKey.IsValid())
             return false;
@@ -292,6 +326,13 @@ public:
         if(!v.IsValid())
             return false;
         privateBlsBlindingKey = v;
+        return true;
+    }
+
+    bool SetBLSCTTokenMasterKey(const blsctKey& v) {
+        if(!v.IsValid())
+            return false;
+        privateBlsTokenKey = v;
         return true;
     }
 

@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "consensus/program_actions.h"
 #include "consensus/daoconsensusparams.h"
 
 #include "prevector.h"
@@ -538,8 +539,23 @@ inline void Unserialize(Stream& s, Consensus::ConsensusParamsPos& a, int nType, 
     a = static_cast<Consensus::ConsensusParamsPos>(f);
 }
 
+inline unsigned int GetSerializeSize(ProgramActions a, int, int = 0) { return sizeof(ProgramActions); }
+template <typename Stream>
+inline void Serialize(Stream& s, ProgramActions a, int nType, int nVersion = 0)
+{
+    int f = a;
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, ProgramActions& a, int nType, int nVersion= 0)
+{
+    int f=0;
+    Unserialize(s, f, nType, nVersion);
+    a = static_cast<ProgramActions>(f);
+}
+
 // Serialization for bls::G1Element
-inline unsigned int GetSerializedSize(bls::G1Element a, int, int = 0) { return bls::G1Element::SIZE; }
 template <typename Stream>
 inline void Serialize(Stream& s, bls::G1Element a, int nType, int nVersion = 0)
 {
@@ -553,6 +569,23 @@ inline void Unserialize(Stream& s, bls::G1Element & a, int nType, int nVersion =
     std::vector<uint8_t> f(bls::G1Element::SIZE);
     Unserialize(s, f, nType, nVersion);
     a = bls::G1Element::FromByteVector(f);
+}
+
+
+// Serialization for bls::G2Element
+template <typename Stream>
+inline void Serialize(Stream& s, bls::G2Element a, int nType, int nVersion = 0)
+{
+    std::vector<uint8_t> f = a.Serialize();
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, bls::G2Element & a, int nType, int nVersion = 0)
+{
+    std::vector<uint8_t> f(bls::G2Element::SIZE);
+    Unserialize(s, f, nType, nVersion);
+    a = bls::G2Element::FromByteVector(f);
 }
 
 /**

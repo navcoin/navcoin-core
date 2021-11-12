@@ -7,12 +7,14 @@
 
 bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
-    auto nStart = GetTimeMicros();
-    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
-    std::vector<bls::G1Element> nonces;
+    //auto nStart = GetTimeMicros();
+    std::map<TokenId, std::vector<std::pair<int, BulletproofsRangeproof>>> proofs;
+    std::map<TokenId, std::vector<bls::G1Element>> nonces;
 
-    bls::G1Element balKey;
+
+    bls::G1Element balKey, balKeyOut;
     bool fElementZero = true;
+    bool fElementZeroOut = true;
 
     bool fCheckRange = tx.IsCTOutput();
     bool fCheckBLSSignature = tx.IsBLSInput();
@@ -33,6 +35,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
     std::vector<bls::G1Element> txSigningKeys;
     std::vector<std::vector<uint8_t>> vMessages;
 
+    Generators gens = BulletproofsRangeproof::GetGenerators();
+
     CAmount valIn = 0;
     CAmount valOut = 0;
 
@@ -44,7 +48,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             sMixFee = sMixFee.Negate();
 
         Scalar s = Scalar(sMixFee).bn;
-        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        bls::G1Element t = gens.H*s.bn;
         balKey = fElementZero ? t : balKey + t;
         valIn += nMixFee;
         fElementZero = false;
@@ -56,6 +60,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         {
             const CTxOut &prevOut = view.GetOutputFor(tx.vin[j]);
 
+            gens = BulletproofsRangeproof::GetGenerators(prevOut.tokenId);
+
             if (fCheckBalance)
             {
                 if (prevOut.HasRangeProof())
@@ -66,7 +72,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                 else
                 {
                     Scalar s = Scalar(prevOut.nValue).bn;
-                    bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+                    bls::G1Element t = gens.H*s.bn;
                     balKey = fElementZero ? t : balKey + t;
                     valIn += prevOut.nValue;
                     fElementZero = false;
@@ -94,65 +100,147 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
 
     for (size_t j = 0; j < tx.vout.size(); j++)
     {
+        gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+        uint256 hash;
+
+        if (tx.vout[j].vData.size() > 0)
+        {
+            try {
+                Predicate program(tx.vout[j].vData);
+
+                if (program.action == ERR) {
+                    return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                } else if (program.action == CREATE_TOKEN) {
+                    txSigningKeys.push_back(program.kParameters[0]);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                } else if (program.action == MINT) {
+                    txSigningKeys.push_back(program.kParameters[0]);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+
+                    auto tokenId = SerializeHash(program.kParameters[0]);
+
+                    Scalar s;
+                    TokenInfo token;
+
+                    if (!view.GetToken(tokenId, token))
+                        return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+
+                    uint64_t tokenNftId = -1;
+
+                    if (token.nVersion == 0)
+                    {
+                        s = Scalar(program.nParameters[0]);
+                    }
+                    else if (token.nVersion == 1)
+                    {
+                        tokenNftId = program.nParameters[0];
+                        s = Scalar(1);
+                    }
+                    else
+                        return state.DoS(100, false, REJECT_INVALID, "wrong-token-version");
+
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(TokenId(tokenId, tokenNftId));
+
+                    if (fElementZero)
+                    {
+                        balKey = gensToken.H*s.bn;
+                    }
+                    else
+                    {
+                        bls::G1Element t = gensToken.H*s.bn;
+                        balKey = balKey + t;
+                    }
+                    fElementZero = false;
+                } else if (program.action == BURN) {
+                    auto gensToken = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
+                    Scalar s = Scalar(program.nParameters[0]);
+
+                    auto amountH = gensToken.H*s.bn;
+
+                    if (fElementZeroOut)
+                    {
+                        balKeyOut = amountH;
+                    }
+                    else
+                    {
+                        balKeyOut = balKeyOut + amountH;
+                    }
+
+                    fElementZeroOut = false;
+
+                    if (tx.vout[j].scriptPubKey != CScript(OP_RETURN))
+                        return state.DoS(100, false, REJECT_INVALID, "burn-wrong-script");
+                } else if (program.action == STOP_MINT) {
+                    txSigningKeys.push_back(program.kParameters[0]);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                }
+            } catch(...) {
+                return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+            }
+        }
+
         if (tx.vout[j].HasRangeProof())
         {
             if (tx.vout[j].ephemeralKey.size() == 0)
             {
                 return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
             }
+
             if (fCheckRange)
             {
-                proofs.push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
+                proofs[tx.vout[j].tokenId].push_back(std::make_pair(j, tx.vout[j].GetBulletproof()));
                 // Shared key v*R - Used as nonce for bulletproof
                 try
                 {
                     bls::G1Element t = bls::G1Element::FromBytes(tx.vout[j].outputKey.data());
                     t = t * viewKey;
-                    nonces.push_back(t);
+                    nonces[tx.vout[j].tokenId].push_back(t);
                 }
                 catch(std::exception& e)
                 {
                     return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
                 }
             }
+
             if (fCheckBalance)
             {
-                if (fElementZero)
+                if (fElementZeroOut)
                 {
-                    balKey = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
+                    balKeyOut = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
                 }
                 else
                 {
-                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0].Inverse();
-                    balKey = balKey + t;
+                    bls::G1Element t = tx.vout[j].GetBulletproof().GetValueCommitments()[0];
+                    balKeyOut = balKeyOut + t;
                 }
-                fElementZero = false;
+                fElementZeroOut = false;
             }
         }
-        else if (fCheckBalance)
+        else if (fCheckBalance && tx.vout[j].nValue > 0)
         {
-            if (fElementZero)
+            gens = BulletproofsRangeproof::GetGenerators(tx.vout[j].tokenId);
+
+            if (fElementZeroOut)
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
-                balKey = BulletproofsRangeproof::H*s.bn;
+                balKeyOut = gens.H*s.bn;
             }
             else
             {
                 Scalar s = Scalar(tx.vout[j].nValue);
-                bls::G1Element t = BulletproofsRangeproof::H*s.bn;
-                t = t.Inverse();
-                balKey = balKey + t;
+                bls::G1Element t = gens.H*s.bn;
+                balKeyOut = balKeyOut + t;
             }
             valOut += tx.vout[j].nValue;
-            fElementZero = false;
+            fElementZeroOut = false;
         }
 
-        if (fCheckBLSSignature && !tx.vout[j].scriptPubKey.IsFee())
+        if (fCheckBLSSignature && tx.vout[j].ephemeralKey.size() > 0)
         {
-            if (tx.vout[j].ephemeralKey.size() == 0)
-            {
-                return state.DoS(100, false, REJECT_INVALID, "empty-ephemeral-key");
-            }
             try
             {
                 txSigningKeys.push_back(bls::G1Element::FromBytes(tx.vout[j].ephemeralKey.data()));
@@ -161,16 +249,24 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
             {
                 return state.DoS(100, false, REJECT_INVALID, strprintf("caught-ephemeralkey-exception"));
             }
-            uint256 hash = tx.vout[j].GetHash();
+
+            if (hash == uint256())
+                hash = tx.vout[j].GetHash();
+
             vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
         }
     }
 
-    if (fCheckRange && proofs.size() > 0)
+    if (fCheckRange)
     {
-        if (!VerifyBulletproof(proofs, vData, nonces, fOnlyRecover))
-        {
-            return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+        for (auto& it: proofs){
+            if (it.second.size() > 0)
+            {
+                if (!VerifyBulletproof(it.second, vData, nonces[it.first], fOnlyRecover, it.first))
+                {
+                    return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+                }
+            }
         }
     }
 
@@ -183,7 +279,7 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         {
             bls::G2Element sig = bls::G2Element::FromBytes(tx.vchBalanceSig.data());
 
-            if (!bls::BasicSchemeMPL::Verify(balKey, balanceMsg, sig))
+            if (!bls::BasicSchemeMPL::Verify(balKey + balKeyOut.Inverse(), balanceMsg, sig))
                 return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
         }
         catch(std::exception& e)
@@ -210,7 +306,8 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
         }
     }
 
-    //std::cout << strprintf("%s: took %.2f ms\n", __func__, (GetTimeMicros()-nStart)/1000);
+    //std::cout << strprintf("%s: took %.2fms\n", __func__, (GetTimeMicros()-nStart)/1000);
+
     return true;
 }
 
@@ -219,6 +316,8 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
 {
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<bls::G1Element> nonces;
+
+    Generators gens = BulletproofsRangeproof::GetGenerators();
 
     bls::G1Element balKey;
     bool fElementZero = true;
@@ -237,7 +336,7 @@ bool VerifyBLSCTBalanceOutputs(const CTransaction &tx, bls::PrivateKey viewKey, 
             sMixFee = sMixFee.Negate();
 
         Scalar s = Scalar(sMixFee).bn;
-        bls::G1Element t = BulletproofsRangeproof::H*s.bn;
+        bls::G1Element t = gens.H*s.bn;
         balKey = fElementZero ? t : balKey + t;
         valIn += nMixFee;
         fElementZero = false;
@@ -350,7 +449,7 @@ bool CombineBLSCTTransactions(std::set<CTransaction> &vTx, CTransaction& outTx, 
                 fAnyCTOutput = true;
             }
 
-            if (out.scriptPubKey.IsFee())
+            if (out.scriptPubKey.IsFee() && out.vData.size() == 0)
             {
                 nFee += out.nValue;
                 continue;
@@ -410,8 +509,8 @@ bool CombineBLSCTTransactions(std::set<CTransaction> &vTx, CTransaction& outTx, 
         mutOutTx.vout.push_back(out);
     }
 
-    std::random_shuffle(mutOutTx.vin.begin(), mutOutTx.vin.end(), GetRandInt);
-    std::random_shuffle(mutOutTx.vout.begin(), mutOutTx.vout.end(), GetRandInt);
+    RandomShuffle(mutOutTx.vin);
+    RandomShuffle(mutOutTx.vout);
 
     mutOutTx.vout.push_back(CTxOut(nFee, CScript(OP_RETURN)));
     mutOutTx.SetBalanceSignature(bls::AugSchemeMPL::Aggregate(balanceSigs));

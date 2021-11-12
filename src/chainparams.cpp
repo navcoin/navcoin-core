@@ -148,6 +148,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 0;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -259,6 +260,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1637712000; // Nov 24th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -420,6 +426,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -519,6 +526,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -664,6 +676,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
@@ -762,6 +775,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -917,6 +935,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -1015,6 +1034,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

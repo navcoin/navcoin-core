@@ -52,7 +52,7 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("time", (int64_t)blockindex->nTime);
     result.pushKV("mediantime", (int64_t)blockindex->GetMedianTimePast());
     result.pushKV("mint", ValueFromAmount(blockindex->nMint));
-    result.pushKV("nonce", (uint64_t)blockindex->nNonce);
+    result.pushKV("nonce", strprintf("%16x", (uint64_t)blockindex->nNonce));
     result.pushKV("bits", strprintf("%08x", blockindex->nBits));
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
@@ -1568,6 +1568,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_v2", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING_V2);
     BIP9SoftForkDescPushBack(bip9_softforks, "dao_super", consensusParams, Consensus::DEPLOYMENT_DAO_SUPER);
     BIP9SoftForkDescPushBack(bip9_softforks, "exclude", consensusParams, Consensus::DEPLOYMENT_EXCLUDE);
+    BIP9SoftForkDescPushBack(bip9_softforks, "xnav_ser", consensusParams, Consensus::DEPLOYMENT_XNAV_SER);
     obj.pushKV("softforks",      softforks);
     obj.pushKV("bip9_softforks", bip9_softforks);
 

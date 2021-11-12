@@ -29,10 +29,10 @@ class AggregationSession
 {
 public:
     AggregationSession(const CStateViewCache* inputs);
+    AggregationSession(const UniValue& msg);
 
     int64_t nTime;
     std::vector<CandidateTransaction> vTransactionCandidates;
-    std::vector<std::pair<uint256, bls::PrivateKey>> vKeys;
     const CStateViewCache* inputs;
 
     bool Start();
@@ -53,7 +53,7 @@ public:
 
     void SetCandidateTransactions(std::vector<CandidateTransaction> candidates);
 
-    bool UpdateCandidateTransactions(const CTransaction &tx);
+    bool UpdateCandidateTransactions(const CTransaction& tx);
 
     bool CleanCandidateTransactions();
 
@@ -68,7 +68,7 @@ public:
     {
         if (nVersion == 1)
             return sHiddenService;
-        else if (nVersion == 2)
+        else if (nVersion == 2 || nVersion == 3)
             return HexStr(vPublicKey);
         return "";
     }
@@ -79,35 +79,54 @@ public:
     }
 
     bool Join();
-    static bool JoinSingle(int index, const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
-    static bool JoinThread(const std::string &hiddenService, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
-    static bool JoinSingleV2(int index, std::vector<unsigned char> &vPublicKey, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
-    static bool JoinThreadV2(const std::vector<unsigned char> &vPublicKey, const std::vector<COutput> &vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinSingle(int index, const std::string& hiddenService, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinThread(const std::string& hiddenService, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinSingleV2(int index, std::vector<unsigned char>& vPublicKey, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinThreadV2(const std::vector<unsigned char>& vPublicKey, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinSingleV3(int index, std::vector<unsigned char>& vPublicKey, std::vector<unsigned char>& vData, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
+    static bool JoinThreadV3(const std::vector<unsigned char>& vPublicKey, const std::vector<unsigned char>& vData, const std::vector<COutput>& vAvailableCoins, const CStateViewCache* inputs);
 
-    static bool BuildCandidateTransaction(const CWalletTx *prevcoin, const int &prevout, const CStateViewCache* inputs, CandidateTransaction& tx);
+    static bool BuildCandidateTransaction(const CWalletTx* prevcoin, const int& prevout, const CStateViewCache* inputs, CandidateTransaction& tx);
 
-    friend inline  bool operator==(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() == b.GetHiddenService(); }
-    friend inline  bool operator<(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() < b.GetHiddenService(); }
+    friend inline bool operator==(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() == b.GetHiddenService(); }
+    friend inline bool operator<(const AggregationSession& a, const AggregationSession& b) { return a.GetHiddenService() < b.GetHiddenService(); }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    {
         READWRITE(this->nVersion);
-        if (this->nVersion == 1)
-        {
+        if (this->nVersion == 1) {
             READWRITE(sHiddenService);
-        }
-        else if (this->nVersion == 2)
-        {
+        } else if (this->nVersion == 2) {
             READWRITE(vPublicKey);
+        } else if (this->nVersion == 3) {
+            READWRITE(vPublicKey);
+            READWRITE(vData);
         }
     }
 
+    UniValue GetData() const
+    {
+        UniValue ret;
+
+        if (nVersion != 3)
+            return ret;
+
+        try {
+            ret.read(std::string(vData.begin(), vData.end()));
+        } catch (...) {
+        }
+
+        return ret;
+    }
+
 private:
-    EphemeralServer *es;
+    EphemeralServer* es;
     std::string sHiddenService;
     std::vector<unsigned char> vPublicKey;
+    std::vector<unsigned char> vData;
     int fState;
     bool lock;
     static bool fJoining;
@@ -123,12 +142,13 @@ class SafeQueue
 {
 public:
     SafeQueue(void)
-        : q()
-        , m()
-    {}
+        : q(), m()
+    {
+    }
 
     ~SafeQueue(void)
-    {}
+    {
+    }
 
     void push(T t)
     {
@@ -138,8 +158,7 @@ public:
 
     bool pop(T& val)
     {
-        while (q.empty())
-        {
+        while (q.empty()) {
             MilliSleep(50);
         }
 

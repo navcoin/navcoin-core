@@ -124,7 +124,7 @@ bool NtpClockSync()
     std::string sPrevServer = "";
     int64_t nPrevMeasure = -1;
 
-    std::random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
+    RandomShuffle(vNtpServers);
 
     unsigned int nMeasureCount = 0;
 

@@ -472,6 +472,7 @@ public:
     CProposalMap mapProposal;
     CPaymentRequestMap mapPaymentRequest;
     CConsultationMap mapConsultation;
+    TokenMap mapTokens;
     CConsultationAnswerMap mapAnswer;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
@@ -545,6 +546,7 @@ public:
     bool AddProposal(const CProposal& proposal);
     bool AddPaymentRequest(const CPaymentRequest& prequest);
     bool AddConsultation(const CConsultation& consultation);
+    bool AddToken(const Token& token);
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
 
     void addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
@@ -806,6 +808,7 @@ public:
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddConsultation(const CConsultation& consultation) const;
+    bool AddToken(const Token& token) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
 };
 

@@ -46,6 +46,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
+    tokenId = TokenId();
 }
 
 CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Element& ephemeralKeyIn, const bls::G1Element& outputKeyIn, const bls::G1Element& spendingKeyIn, const BulletproofsRangeproof& bpIn)
@@ -55,11 +56,14 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::G1Ele
     ephemeralKey = ephemeralKeyIn.Serialize();
     outputKey = outputKeyIn.Serialize();
     spendingKey = spendingKeyIn.Serialize();
-    bp = bpIn.GetVch();
+    bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(bpIn.GetVch()));
+    tokenId = TokenId();
 }
 
 uint256 CTxOut::GetHash() const
 {
+    if (cacheHash != uint256())
+        return cacheHash;
     return SerializeHash(*this);
 }
 
@@ -70,12 +74,13 @@ std::string CTxOut::ToString() const
         return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
     else
     {
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s%s vData=%d)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
                          scriptPubKey.ToString(),
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
-                         GetBulletproof().V.size()>0 ? " rangeProof=1":"");
+                         GetBulletproof().V.size()>0 ? " rangeProof=1":"",
+                         tokenId.token==uint256() ? "": strprintf(" tokenId=%s%s", tokenId.token.ToString(), tokenId.subid!=-1?strprintf(",%d",tokenId.subid):""), vData.size());
     }
 }
 

@@ -13,12 +13,12 @@
 #endif
 
 #include <bls.hpp>
-#include <wallet/crypter.h>
-#include <schemes.hpp>
 #include <blsct/bulletproofs.h>
 #include <blsct/key.h>
 #include <blsct/verification.h>
 #include <primitives/transaction.h>
+#include <schemes.hpp>
+#include <wallet/crypter.h>
 #include <wallet/walletdb.h>
 
 #define DEFAULT_MIX_FEE 10000000
@@ -35,8 +35,7 @@
 
 class CWalletDB;
 
-bool CreateBLSCTOutput(bls::PrivateKey ephemeralKey, bls::G1Element &nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
-                  Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify = true);
+bool CreateBLSCTOutput(bls::PrivateKey ephemeralKey, bls::G1Element& nonce, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo, Scalar& gammaAcc, std::string& strFailReason, const bool& fBLSSign, std::vector<bls::G2Element>& vBLSSignatures, bool fVerify = true, const std::vector<unsigned char>& vData = std::vector<unsigned char>(), const TokenId& tokenId = TokenId(), const bool& fIsBurn = false, const bool& fConfidentialAmount = true);
 bool GenTxOutputKeys(bls::PrivateKey blindingKey, const blsctDoublePublicKey& destKey, std::vector<unsigned char>& spendingKey, std::vector<unsigned char>& outputKey, std::vector<unsigned char>& ephemeralKey);
 bool SignBLSOutput(const bls::PrivateKey& ephemeralKey, CTxOut& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);
 bool SignBLSInput(const bls::PrivateKey& ephemeralKey, CTxIn& newTxOut, std::vector<bls::G2Element>& vBLSSignatures);
@@ -45,18 +44,18 @@ class CandidateTransaction
 {
 public:
     CandidateTransaction();
-    CandidateTransaction(CTransaction txIn, CAmount feeIn, CAmount minAmountIn, BulletproofsRangeproof minAmountProofsIn) :
-        tx(txIn), fee(feeIn), minAmount(minAmountIn), minAmountProofs(minAmountProofsIn) {}
+    CandidateTransaction(CTransaction txIn, CAmount feeIn, CAmount minAmountIn, BulletproofsRangeproof minAmountProofsIn) : tx(txIn), fee(feeIn), minAmount(minAmountIn), minAmountProofs(minAmountProofsIn) {}
 
     bool Validate(const CStateViewCache* inputs);
 
-    friend inline  bool operator==(const CandidateTransaction& a, const CandidateTransaction& b) { return a.tx == b.tx; }
-    friend inline  bool operator<(const CandidateTransaction& a, const CandidateTransaction& b) { return a.fee < b.fee; }
+    friend inline bool operator==(const CandidateTransaction& a, const CandidateTransaction& b) { return a.tx == b.tx; }
+    friend inline bool operator<(const CandidateTransaction& a, const CandidateTransaction& b) { return a.fee < b.fee; }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    {
         READWRITE(tx);
         READWRITE(fee);
         READWRITE(minAmount);
@@ -72,23 +71,40 @@ public:
 class EncryptedCandidateTransaction
 {
 public:
-    EncryptedCandidateTransaction() {};
-    EncryptedCandidateTransaction(const bls::G1Element &pubKey, const CandidateTransaction &tx);
+    EncryptedCandidateTransaction(){};
+    EncryptedCandidateTransaction(const bls::G1Element& pubKey, const CandidateTransaction& tx, const bool& upgraded);
+    EncryptedCandidateTransaction(const bls::G1Element& pubKey, const UniValue& vData, const bool& upgraded);
 
-    bool Decrypt(const bls::PrivateKey &key, const CStateViewCache* inputs, CandidateTransaction& tx) const;
+    bool Decrypt(const bls::PrivateKey& key, const CStateViewCache* inputs, CandidateTransaction& tx) const;
+    bool DecryptMessage(const bls::PrivateKey& key, UniValue& msg) const;
 
-    friend inline  bool operator==(const EncryptedCandidateTransaction& a, const EncryptedCandidateTransaction& b) { return a.vData == b.vData && a.vPublicKey == b.vPublicKey; }
-    friend inline  bool operator<(const EncryptedCandidateTransaction& a, const EncryptedCandidateTransaction& b) { return a.vData < b.vData; }
+    friend inline bool operator==(const EncryptedCandidateTransaction& a, const EncryptedCandidateTransaction& b) { return a.vData == b.vData && a.vPublicKey == b.vPublicKey; }
+    friend inline bool operator<(const EncryptedCandidateTransaction& a, const EncryptedCandidateTransaction& b) { return a.vData < b.vData; }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(vPublicKey);
-        READWRITE(vData);
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    {
+        if (ser_action.ForRead()) {
+            READWRITE(vPublicKey);
+            READWRITE(sessionId);
+            if (sessionId.size() > 48) {
+                vData = sessionId;
+                sessionId.clear();
+            } else {
+                READWRITE(vData);
+            }
+        } else {
+            READWRITE(vPublicKey);
+            if (sessionId.size() > 0)
+                READWRITE(sessionId);
+            READWRITE(vData);
+        }
     }
 
-    uint256 GetHash() {
+    uint256 GetHash()
+    {
         if (cachedHash == uint256())
             cachedHash = SerializeHash(*this);
         return cachedHash;
@@ -96,6 +112,7 @@ public:
 
     std::vector<unsigned char> vPublicKey;
     std::vector<unsigned char> vData;
+    std::vector<unsigned char> sessionId;
     uint256 cachedHash;
     int64_t nTime;
 };
@@ -103,13 +120,14 @@ public:
 class DecryptedCandidateTransaction
 {
 public:
-    DecryptedCandidateTransaction() { }
-    DecryptedCandidateTransaction(const CandidateTransaction &tx_, const bls::G2Element &sig_) : tx(tx_), vSig(sig_.Serialize()) { }
+    DecryptedCandidateTransaction() {}
+    DecryptedCandidateTransaction(const CandidateTransaction& tx_, const bls::G2Element& sig_) : tx(tx_), vSig(sig_.Serialize()) {}
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    {
         READWRITE(vSig);
         READWRITE(tx);
     }

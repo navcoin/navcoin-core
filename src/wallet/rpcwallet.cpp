@@ -17,6 +17,7 @@
 #include <rpc/server.h>
 #include <txdb.h>
 #include <timedata.h>
+#include <uint256.h>
 #include <util.h>
 #include <utils/dns_utils.h>
 #include <utilmoneystr.h>
@@ -255,7 +256,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw std::runtime_error(
-            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
+                "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
             "Returns a coldstaking address based on the address inputs\n"
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
@@ -273,7 +274,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && params.size() == 3)
         throw std::runtime_error(
-            "Cold Staking v2 is not active yet.");
+                "Cold Staking v2 is not active yet.");
 
     if (params[0].get_str() == params[1].get_str())
         throw std::runtime_error(
@@ -534,16 +535,36 @@ UniValue listprivateaddresses(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool fPrivate = false, bool donate = false, bool fDoNotSend = false, const CandidateTransaction* coinsToMix = 0, const std::vector<unsigned char>& vData=std::vector<unsigned char>(), const TokenId &tokenId=TokenId(), const TokenId &tokenIdMint=TokenId())
 {
-    CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance() : pwalletMain->GetBalance();
+    CAmount curBalance = fPrivate ? pwalletMain->GetPrivateBalance(tokenId) : pwalletMain->GetBalance();
 
     // Check amount
-    if (nValue <= 0)
+    if (nValue < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
 
+    CAmount toMint = 0;
+
+    TokenId tokenId_;
+
+    if (vData.size() > 0)
+    {
+        Predicate program(vData);
+
+        if (program.action == MINT)
+        {
+            if (SerializeHash(program.kParameters[0]) == tokenIdMint.token)
+                toMint += program.nParameters[0];
+            tokenId_ = tokenIdMint;
+        }
+    }
+
+    if (tokenId.token != uint256() || tokenId_.token != uint256()) {
+        fSubtractFeeFromAmount = false;
+    }
+
     if (nValue > curBalance)
-        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strprintf("Insufficient funds (available %d, trying to send %d)", curBalance, nValue-toMint));
 
     CScript CFContributionScript;
 
@@ -574,6 +595,8 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         recipient.vk = vk.Serialize();
         recipient.sMemo = wtxNew.mapValue["comment"];
     }
+    recipient.vData = vData;
+    recipient.tokenId = tokenId_.token == uint256() ? tokenId : tokenId_;
     vecSend.push_back(recipient);
 
     std::vector<std::shared_ptr<CReserveBLSCTBlindingKey>> reserveBLSCTKey;
@@ -587,7 +610,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         }
     }
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, fPrivate, nullptr, true, coinsToMix, 0, tokenId)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -978,7 +1001,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw std::runtime_error(
-            "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
+                "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
             "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -1083,6 +1106,472 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     }
 }
 
+UniValue createtoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw std::runtime_error(
+            "createtoken \"name\" \"token_code\" max_supply\n"
+            "\nCreates a confidential token.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name of the token\n"
+            "2. max_supply     (numeric, optional) The max supply of the token.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createtoken", "\"BabyNAV\" \"BNAV\" 1000")
+                + HelpExampleCli("createtoken", "\"Wrapped Bitcoin\" \"wBTC\" 21000000")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name and token_code must be strings");
+
+    std::string sName = params[0].get_str();
+    std::string sDesc = params[1].get_str();
+
+    // Supply
+    CAmount nSupply = AmountFromValue(params[2]);
+    if (nSupply <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
+
+    blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
+    bls::G1Element pkg1;
+    pk.GetG1Element(pkg1);
+
+    while(view.HaveToken(SerializeHash(pkg1))) {
+        pk = pwalletMain->GenerateNewTokenKey();
+        pk.GetG1Element(pkg1);
+    }
+
+    TokenInfo token(pkg1, sName, sDesc, nSupply);
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, token.GetCreateProgram());
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue createnft(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw std::runtime_error(
+            "createnft \"name\" \"scheme\" max_supply\n"
+            "\nCreates a nft.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name of the NFT\n"
+            "1. \"scheme\"     (string, required) The scheme for the NFT metadata\n"
+            "2. max_supply     (numeric, optional) The max supply of the NFT.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createnft", "\"NAV Artwork\" \"{'resource': 'url'}\" 1000")
+            + HelpExampleCli("createnft", "\"Game Item\" \"{'type': 'string', 'power': 'int'}\" 100")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name and token_code must be strings");
+
+    std::string sName = params[0].get_str();
+    std::string sDesc = params[1].get_str();
+
+    // Supply
+    CAmount nSupply = params[2].get_int64();
+    if (nSupply <= 0 || !MoneyRange(nSupply))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
+
+    blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
+    bls::G1Element pkg1;
+    pk.GetG1Element(pkg1);
+
+    while(view.HaveToken(SerializeHash(pkg1))) {
+        pk = pwalletMain->GenerateNewTokenKey();
+        pk.GetG1Element(pkg1);
+    }
+
+    TokenInfo token(pkg1, sName, sDesc, nSupply, 1);
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, token.GetCreateProgram());
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue minttoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw std::runtime_error(
+            "minttoken \"tokenid\" \"destination\" amount\n"
+            "\nMints confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "2. \"destination\" (string, required) The xNAV destination addressn"
+            "3. amount        (string, required) The amount to mint\n"
+            "\nExamples:\n"
+            + HelpExampleCli("minttoken", "\"a7be93b41e708d21d6c94920401ca5fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    std::string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    uint256 tokenId = uint256S(token);
+
+    if (!view.HaveToken(tokenId))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+
+    std::string address = params[1].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Supply
+    CAmount amount = AmountFromValue(params[2]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    if (!tokenInfo.IncreaseSupply(amount))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Not enough supply available");
+
+    tokenInfo.DecreaseSupply(amount);
+
+    EnsureWalletIsUnlocked();
+
+    auto vData = tokenInfo.GetMintProgram(amount, tokenInfo.key);
+
+    if (!vData.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
+
+    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, TokenId(), TokenId(tokenId, -1));
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue mintnft(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 4)
+        throw std::runtime_error(
+            "mintnft \"tokenid\" \"nftid\" \"destination\" \"metadata\"\n"
+            "\nMints nft.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "1. \"nftid\"       (int, required) The ntf id\n"
+            "2. \"destination\" (string, required) The xNAV destination addressn"
+            "3. \"metadata\"    (string, required) The nft metadata\n"
+            "\nExamples:\n"
+            + HelpExampleCli("mintnft", "\"a7be93b41e708d21d6c94920401ca5fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" 1 \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\" \"{'resource':'https://navcoin.org/logo.png'}\"")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isNum())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and nftid must be string and number");
+
+    std::string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    uint64_t nftid = params[1].get_int64();
+
+    TokenId tokenId(uint256S(token), nftid);
+
+    if (!view.HaveToken(tokenId.token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId.token, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+
+    std::string address = params[2].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Supply
+    std::string metadata = params[3].get_str();
+
+    if (metadata == "")
+        throw JSONRPCError(RPC_TYPE_ERROR, "Metadata can't be empty");
+
+
+    if (tokenInfo.mapMetadata.count(nftid))
+        throw JSONRPCError(RPC_TYPE_ERROR, "This NFT has already been minted");
+
+    if (tokenInfo.totalSupply < nftid)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong id");
+
+    EnsureWalletIsUnlocked();
+
+    auto vData = tokenInfo.GetMintProgram(nftid, tokenInfo.key, std::vector<unsigned char>(metadata.begin(), metadata.end()));
+
+    if (!vData.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
+
+    SendMoney(dest.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, TokenId(), tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue burntoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+            "burntoken \"tokenid\" amount\n"
+            "\nBurns confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "3. amount        (string, required) The amount to burn\n"
+            "\nExamples:\n"
+            + HelpExampleCli("burntoken", "\"a7be93b41e708d21d6c94920401ca5fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    std::string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    auto tokenId = TokenId(uint256S(token), -1);
+
+    if (!view.HaveToken(tokenId.token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId.token, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+
+    std::string address = "xNVLBgqgCpracwFFqCNibevSZ4fTBcgW2wuWdrnhH5iYmTeZ5RRtCYj4wVPatP7R4g7LQ2Mk9m2pgKXckZJDdhcqE1Kv47tqCdX9g8m2oqECqtGWYfgLvnr6MYJ5a3Sz7apgvssuwrV"; //dummy
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Burn amount
+    CAmount amount = AmountFromValue(params[1]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    if (!tokenInfo.DecreaseSupply(amount))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Not enough supply available");
+
+    tokenInfo.IncreaseSupply(amount);
+
+    EnsureWalletIsUnlocked();
+
+    auto vData = tokenInfo.GetBurnProgram(amount);
+
+    if (!vData.size())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not create program");
+
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, vData, tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue sendtoken(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+            "sendtoken \"tokenid\" \"destination\" amount\n"
+            "\nSends confidential tokens.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "2. \"destination\" (string, required) The xNAV destination addressn"
+            "3. amount        (string, required) The amount to mint\n"
+            "\nExamples:\n"
+            + HelpExampleCli("sendtoken", "\"a7be93fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\" 1000")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and destination must be strings");
+
+    std::string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    auto tokenId = TokenId(uint256S(token), -1);
+
+    if (!view.HaveToken(tokenId.token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId.token, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    std::string address = params[1].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    // Supply
+    CAmount amount = AmountFromValue(params[2]);
+    if (amount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(dest.Get(), amount, fSubtractFeeFromAmount, wtx, true, true, false, 0, std::vector<unsigned char>(), tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue sendnft(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+            "sendnft \"tokenid\" \"nftid\" \"destination\"\n"
+            "\nSends nft.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"tokenid\"     (string, required) The token id\n"
+            "2. \"nftid\"       (int, required) The nft id\n"
+            "3. \"destination\" (string, required) The xNAV destination addressn"
+            "\nExamples:\n"
+            + HelpExampleCli("sendnft", "\"a7be93fd93dffe33d2bc197077e3b4fafcc8fe45eebb359b4c8f6bc15a303cc2971a0c48\" 1 \"xNUNs2vtjr6QDL1NiL8TDHgmbuEo5WcY2K2jQ8ATj9pko8wkJ9RutkFQKBCtn6SsBjy6nK5ftofFyLFnAHAynreQCZjuE7dCWVxCX5DCFB2bjx87KvbqVVRCs3KBzdDre7c5FUy7QLo\"")
+                );
+
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isNum())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token and nft id must be string and number");
+
+    std::string token = params[0].get_str();
+
+    if (!IsHex(token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Token id is not a hex string");
+
+    // Supply
+    CAmount nftid = params[1].get_int64();
+    if (nftid < 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid nftid");
+
+    auto tokenId = TokenId(uint256S(token), nftid);
+
+    if (!view.HaveToken(tokenId.token))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Unknown token");
+
+    TokenInfo tokenInfo;
+
+    if (!view.GetToken(tokenId.token, tokenInfo))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
+
+    std::string address = params[2].get_str();
+
+    CNavcoinAddress dest(address);
+    if (!dest.IsValid() || !dest.IsPrivateAddress(Params()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Destination must be an xNAV address");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(dest.Get(), 1, fSubtractFeeFromAmount, wtx, true, true, false, 0, std::vector<unsigned char>(), tokenId);
+
+    return wtx.GetHash().GetHex();
+}
+
+
 UniValue getconsensusparameters(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -1132,7 +1621,7 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
         throw std::runtime_error(
-            "proposeconsensuschange parameter value ( fee dump_raw )\n"
+                "proposeconsensuschange parameter value ( fee dump_raw )\n"
             "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(nMinFee) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -1343,7 +1832,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 1)
         throw std::runtime_error(
-            "createconsultation \"question\" ( min max range fee dump_raw )\n"
+                "createconsultation \"question\" ( min max range fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -1439,7 +1928,7 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw std::runtime_error(
-            "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
+                "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -1548,7 +2037,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 3)
         throw std::runtime_error(
-            "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
+                "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -1684,7 +2173,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw std::runtime_error(
-            "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
+                "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
             "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
@@ -3638,7 +4127,7 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1)
         throw std::runtime_error(
-            "encrypttxdata \"passphrase\"\n"
+                "encrypttxdata \"passphrase\"\n"
             "\nEncrypts the wallet database using \"passphrase\", effectively encrypting your\n"
             "transaction data and addressbook, you can also use this rpc command to change the\n"
             "encryption \"passphrase\" of an already encrypted wallet database.\n"
@@ -3665,7 +4154,7 @@ UniValue encrypttxdata(const UniValue& params, bool fHelp)
 
     if (strWalletPass.length() < 1)
         throw std::runtime_error(
-            "encrypttxdata <passphrase>\n"
+                "encrypttxdata <passphrase>\n"
             "Encrypts the txdata with <passphrase>.");
 
     if (!pwalletMain->EncryptTx(strWalletPass))
@@ -4530,7 +5019,7 @@ UniValue support(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1)
         throw std::runtime_error(
-            "support \"hash\" ( add )\n"
+                "support \"hash\" ( add )\n"
             "\nShows support for the consultation or consultation answer identified by \"hash\".\n"
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The hash\n"
@@ -4591,9 +5080,9 @@ UniValue consultationvote(const UniValue& params, bool fHelp)
         strCommand = params[1].get_str();
 
     if (fHelp || params.size() < 2 ||
-        (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
         throw std::runtime_error(
-            "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
+                "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The consultation/answer hash\n"
             "2. \"command\"       (string, required) 'yes' to vote yes, 'value' to vote for a range,\n"
@@ -4782,9 +5271,9 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no"  && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "no"  && strCommand != "abs" && strCommand != "remove"))
         throw std::runtime_error(
-            "proposalvote \"proposal_hash\" \"yes|no|abs|remove\"\n"
+                "proposalvote \"proposal_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"proposal_hash\" (string, required) The proposal hash\n"
@@ -4964,9 +5453,9 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "yes" && strCommand != "no" && strCommand != "abs" && strCommand != "remove"))
+            (strCommand != "yes" && strCommand != "no" && strCommand != "abs" && strCommand != "remove"))
         throw std::runtime_error(
-            "paymentrequestvote \"request_hash\" \"yes|no|abs|remove\"\n"
+                "paymentrequestvote \"request_hash\" \"yes|no|abs|remove\"\n"
             "\nAdds/removes a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"request_hash\" (string, required) The payment request hash\n"
@@ -5006,12 +5495,12 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     }
     else if(strCommand == "remove")
     {
-      bool ret = RemoveVote(strHash);
-      if (ret) {
-        return NullUniValue;
-      } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("The payment request is not in the list: ")+strHash);
-      }
+        bool ret = RemoveVote(strHash);
+        if (ret) {
+            return NullUniValue;
+        } else {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("The payment request is not in the list: ")+strHash);
+        }
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Could not find payment request: ")+strHash);
@@ -5112,6 +5601,60 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listtokens(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "listtokens\n"
+                "\nList the confidential tokens.\n"
+
+                + HelpExampleCli("listtokens", "")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VARR);
+    TokenMap mapTokens;
+    CStateViewCache view(pcoinsTip);
+
+    if(view.GetAllTokens(mapTokens))
+    {
+        for (TokenMap::iterator it = mapTokens.begin(); it != mapTokens.end(); it++)
+        {
+            TokenInfo token;
+            if (!view.GetToken(it->first, token))
+                continue;
+
+            UniValue o(UniValue::VOBJ);
+            o.pushKV("version", it->second.nVersion);
+            o.pushKV("id", it->first.ToString());
+            o.pushKV("pubkey", HexStr(it->second.key.Serialize()));
+            o.pushKV("name", it->second.sName);
+            o.pushKV(it->second.nVersion == 0 ? "token_code" : "scheme", it->second.sDesc);
+            o.pushKV("current_supply", it->second.nVersion == 0 ? FormatMoney(it->second.currentSupply) : std::to_string(it->second.mapMetadata.size()));
+            o.pushKV("max_supply", it->second.nVersion == 0 ? FormatMoney(it->second.totalSupply) : std::to_string(it->second.totalSupply));
+            if (it->second.nVersion == 0)
+            {
+                o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(TokenId(it->first, -1))));
+            }
+            else if (it->second.nVersion == 1)
+            {
+                UniValue a(UniValue::VARR);
+                for (auto& it_: it->second.mapMetadata) {
+                    UniValue n(UniValue::VOBJ);
+                    n.pushKV("index", it_.first);
+                    n.pushKV("metadata", it_.second);
+                    n.pushKV("balance", std::to_string(pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first))));
+                    a.push_back(n);
+                }
+                o.pushKV("nfts", a);
+            }
+            ret.push_back(o);
+        }
+    }
+    return ret;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue dumpmnemonic(const UniValue& params, bool fHelp);
@@ -5141,12 +5684,20 @@ static const CRPCCommand commands[] =
   { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
   { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
   { "wallet",             "dumpwallet",               &dumpwallet,               true  },
+  { "wallet",             "burntoken",                &burntoken,                true  },
+  { "wallet",             "minttoken",                &minttoken,                true  },
+  { "wallet",             "mintnft",                  &mintnft,                  true  },
+  { "wallet",             "sendtoken",                &sendtoken,                true  },
+  { "wallet",             "sendnft",                  &sendnft,                  true  },
+  { "wallet",             "createtoken",              &createtoken,              true  },
+  { "wallet",             "createnft",                &createnft,                true  },
   { "wallet",             "encryptwallet",            &encryptwallet,            true  },
   { "wallet",             "encrypttxdata",            &encrypttxdata,            true  },
   { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
   { "wallet",             "getaccount",               &getaccount,               true  },
   { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
   { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
+  { "wallet",             "listtokens",               &listtokens,               true  },
   { "wallet",             "getbalance",               &getbalance,               false },
   { "wallet",             "getnewaddress",            &getnewaddress,            true  },
   { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
