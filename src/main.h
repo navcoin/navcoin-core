@@ -351,7 +351,7 @@ void FlushStateToDiskIfNeeded();
 /** Prune block files and flush state to disk. */
 void PruneAndFlush();
 
-bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin, CCriticalSection* mpcs, CCriticalSection* spcs);
+bool RemoveBLSCTConflicting(CTxMemPool& pool, const COutPoint& outpoint, CCriticalSection* mpcs, CCriticalSection* spcs);
 
 /** (try to) add transaction to memory pool **/
 bool AcceptToMemoryPool(CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection *spcs, CValidationState &state, const CTransaction &tx, bool fLimitFree,

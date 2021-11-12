@@ -1320,7 +1320,7 @@ bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
         std::map<uint256, CWalletTx>::const_iterator mit = mapWallet.find(wtxid);
         if (mit != mapWallet.end()) {
             int depth = mit->second.GetDepthInMainChain();
-            if (depth > 0  || (depth == 0 && !mit->second.isAbandoned() && !mit->second.IsCoinStake()))
+            if (depth > 0 || (depth == 0 && !mit->second.isAbandoned() && !mit->second.IsCoinStake() && (mit->second.InStempool() || mit->second.InMempool())))
                 return true; // Spent
         }
     }
@@ -2726,7 +2726,9 @@ CAmount CWalletTx::GetAvailablePrivateCredit(const bool& fUseCache, const TokenI
         return 0;
 
     if (fUseCache && fAvailablePrivateCreditCached && tokenId.token == uint256())
+    {
         return nAvailablePrivateCreditCached;
+    }
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
@@ -2761,7 +2763,7 @@ CAmount CWalletTx::GetPendingPrivateCredit(const bool& fUseCache, const TokenId&
     uint256 hashTx = GetHash();
     for (unsigned int i = 0; i < vout.size(); i++)
     {
-        if (!pwallet->IsSpent(hashTx, i) && vout[i].tokenId == tokenId)
+        if (vout[i].tokenId == tokenId)
         {
             const CTxOut &txout = vout[i];
             nCredit += (pwallet->IsMine(txout) & ISMINE_SPENDABLE_PRIVATE) ? vAmounts[i] : 0;
@@ -3037,11 +3039,12 @@ CAmount CWallet::GetPrivateBalance(const TokenId& tokenId) const
         for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsCTOutput())
+            if (pcoin->IsCTOutput()) {
                 if (pcoin->IsInMainChain())
                 {
-                    nTotal += pcoin->GetAvailablePrivateCredit(true, tokenId);
+                    nTotal += pcoin->GetAvailablePrivateCredit(false, tokenId);
                 }
+            }
         }
     }
 
@@ -3057,8 +3060,7 @@ CAmount CWallet::GetPrivateBalancePending(const TokenId& tokenId) const
         {
             const CWalletTx* pcoin = &(*it).second;
             if (pcoin->IsCTOutput() && (pcoin->InStempool() || pcoin->InMempool()))
-                if (!pcoin->IsInMainChain() && !pcoin->isAbandoned())
-                    nTotal += pcoin->GetPendingPrivateCredit(true, tokenId);
+                nTotal += pcoin->GetPendingPrivateCredit(false, tokenId);
         }
     }
 

@@ -1246,12 +1246,12 @@ std::string FormatStateMessage(const CValidationState &state)
                      state.GetRejectCode());
 }
 
-bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin)
+bool RemoveBLSCTConflicting(CTxMemPool& pool, const COutPoint& outpoint)
 {
     LOCK(pool.cs);
 
     CTxMemPool::setEntries allConflicting;
-    auto itConflicting = pool.mapNextTx.find(txin.prevout);
+    auto itConflicting = pool.mapNextTx.find(outpoint);
 
     if (itConflicting != pool.mapNextTx.end())
     {
@@ -5018,8 +5018,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (vBLSConflicted.size()) {
         for (auto& it: vBLSConflicted)
         {
-            RemoveBLSCTConflicting(stempool, it);
-            RemoveBLSCTConflicting(mempool, it);
+            RemoveBLSCTConflicting(stempool, it.prevout);
+            RemoveBLSCTConflicting(mempool, it.prevout);
         }
     }
 
@@ -5263,6 +5263,13 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         std::vector<uint256> vHashUpdate;
         for(const CTransaction &tx: block.vtx) {
             // ignore validation errors in resurrected transactions
+            for (size_t j = 0; j < tx.vout.size(); j++) {
+                if (tx.vout[j].spendingKey.size()) {
+                    RemoveBLSCTConflicting(stempool, COutPoint(tx.GetHash(),j));
+                    RemoveBLSCTConflicting(mempool, COutPoint(tx.GetHash(),j));
+                }
+            }
+
             std::list<CTransaction> removed;
             CValidationState stateDummy;
             bool ret = AcceptToMemoryPool(mempool, &mempool.cs, &stempool.cs, stateDummy, tx, false, nullptr, true);
