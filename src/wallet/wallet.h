@@ -9,6 +9,7 @@
 #include <amount.h>
 #include <blsct/aggregationsession.h>
 #include <blsct/transaction.h>
+#include <dotnav/names.h>
 #include <mnemonic/mnemonic.h>
 #include <streams.h>
 #include <tinyformat.h>

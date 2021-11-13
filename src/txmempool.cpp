@@ -418,6 +418,12 @@ bool CTxMemPool::AddToken(const Token& token)
     return true;
 }
 
+bool CTxMemPool::AddNameRecord(const NameRecord& nr)
+{
+    mapNameRecords.insert(std::make_pair(nr.first, nr.second));
+    return true;
+}
+
 bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)
 {
     mapAnswer.insert(std::make_pair(answer.hash, answer));
@@ -1271,6 +1277,10 @@ bool CStateViewMemPool::HaveProposal(const uint256 &txid) const {
     return mempool.mapProposal.count(txid) || base->HaveProposal(txid);
 }
 
+bool CStateViewMemPool::HaveNameRecord(const uint256 &id) const {
+    return mempool.mapNameRecords.count(id) || base->HaveNameRecord(id);
+}
+
 bool CStateViewMemPool::HavePaymentRequest(const uint256 &txid) const {
     return mempool.mapPaymentRequest.count(txid) || base->HavePaymentRequest(txid);
 }
@@ -1301,6 +1311,11 @@ bool CStateViewMemPool::AddConsultation(const CConsultation& consultation) const
 bool CStateViewMemPool::AddToken(const Token& token) const
 {
     return const_cast<CTxMemPool&>(mempool).AddToken(token);
+}
+
+bool CStateViewMemPool::AddNameRecord(const NameRecord& nr) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddNameRecord(nr);
 }
 
 bool CStateViewMemPool::AddConsultationAnswer(const CConsultationAnswer& answer) const

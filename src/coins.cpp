@@ -53,6 +53,8 @@ bool CStateView::GetConsultation(const uint256 &cid, CConsultation& consultation
 bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const { return false; }
 bool CStateView::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return false; }
 bool CStateView::GetToken(const uint256 &id, TokenInfo& token) const { return false; }
+bool CStateView::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return false; }
+bool CStateView::GetNameData(const uint256 &id, NameDataValues& data) const { return false; }
 bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
 bool CStateView::HaveProposal(const uint256 &pid) const { return false; }
 bool CStateView::HavePaymentRequest(const uint256 &prid) const { return false; }
@@ -61,6 +63,8 @@ bool CStateView::HaveConsultation(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsultationAnswer(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsensusParameter(const int &pid) const { return false; }
 bool CStateView::HaveToken(const uint256 &id) const { return false; }
+bool CStateView::HaveNameRecord(const uint256 &id) const { return false; }
+bool CStateView::HaveNameData(const uint256 &id) const { return false; }
 bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
 int CStateView::GetExcludeVotes() const { return 0; }
 bool CStateView::SetExcludeVotes(int count) { return 0; }
@@ -69,11 +73,13 @@ bool CStateView::GetAllVotes(CVoteMap& map) { return false; }
 bool CStateView::GetAllConsultations(CConsultationMap& map) { return false; }
 bool CStateView::GetAllConsultationAnswers(CConsultationAnswerMap& map) { return false; }
 bool CStateView::GetAllTokens(TokenMap& map) { return false; }
+bool CStateView::GetAllNameRecords(NameRecordMap& map) { return false; }
 uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
                             CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                            NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                             const uint256 &hashBlock, const int& nCacheExcludeVotes) { return false; }
 CStateViewCursor *CStateView::Cursor() const { return 0; }
 
@@ -86,6 +92,8 @@ bool CStateViewBacked::GetConsultation(const uint256 &cid, CConsultation &consul
 bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const { return base->GetConsultationAnswer(cid, answer); }
 bool CStateViewBacked::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return base->GetConsensusParameter(pid, cparameter); }
 bool CStateViewBacked::GetToken(const uint256 &id, TokenInfo& token) const { return base->GetToken(id, token); }
+bool CStateViewBacked::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return base->GetNameRecord(id, height); }
+bool CStateViewBacked::GetNameData(const uint256 &id, NameDataValues& data) const { return base->GetNameData(id, data); }
 bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
 bool CStateViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
 bool CStateViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
@@ -94,6 +102,8 @@ bool CStateViewBacked::HaveConsultation(const uint256 &cid) const { return base-
 bool CStateViewBacked::HaveConsultationAnswer(const uint256 &cid) const { return base->HaveConsultationAnswer(cid); }
 bool CStateViewBacked::HaveConsensusParameter(const int &pid) const { return base->HaveConsensusParameter(pid); }
 bool CStateViewBacked::HaveToken(const uint256 &id) const { return base->HaveToken(id); }
+bool CStateViewBacked::HaveNameRecord(const uint256 &id) const { return base->HaveNameRecord(id); }
+bool CStateViewBacked::HaveNameData(const uint256 &id) const { return base->HaveNameData(id); }
 int CStateViewBacked::GetExcludeVotes() const { return base->GetExcludeVotes(); }
 bool CStateViewBacked::SetExcludeVotes(int count) { return base->SetExcludeVotes(count); }
 bool CStateViewBacked::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return base->GetCachedVoter(voter, vote); }
@@ -103,14 +113,16 @@ bool CStateViewBacked::GetAllVotes(CVoteMap& map) { return base->GetAllVotes(map
 bool CStateViewBacked::GetAllConsultations(CConsultationMap& map) { return base->GetAllConsultations(map); }
 bool CStateViewBacked::GetAllConsultationAnswers(CConsultationAnswerMap& map) { return base->GetAllConsultationAnswers(map); }
 bool CStateViewBacked::GetAllTokens(TokenMap& map) { return base->GetAllTokens(map); }
+bool CStateViewBacked::GetAllNameRecords(NameRecordMap& map) { return base->GetAllNameRecords(map); }
 uint256 CStateViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                                   CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                                   CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                                   CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                                  NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                                   const uint256 &hashBlock, const int &nCacheExcludeVotes) {
-    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, mapTokens, hashBlock, nCacheExcludeVotes);
+    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, mapTokens, mapNameRecords, mapNameData, hashBlock, nCacheExcludeVotes);
 }
 CStateViewCursor *CStateViewBacked::Cursor() const { return base->Cursor(); }
 
@@ -266,6 +278,44 @@ TokenMap::const_iterator CStateViewCache::FetchToken(const uint256 &id) const {
     return ret;
 }
 
+NameRecordMap::const_iterator CStateViewCache::FetchNameRecord(const uint256 &id) const {
+    NameRecordMap::iterator it = cacheNameRecords.find(id);
+
+    if (it != cacheNameRecords.end())
+    {
+        return it;
+    }
+
+    NameRecordValue tmp;
+
+    if (!base->GetNameRecord(id, tmp) || tmp.IsNull())
+    {
+        return cacheNameRecords.end();
+    }
+
+    NameRecordMap::iterator ret = cacheNameRecords.insert(std::make_pair(id, NameRecordValue())).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
+NameDataMap::const_iterator CStateViewCache::FetchNameData(const uint256 &id) const {
+    NameDataMap::iterator it = cacheNameData.find(id);
+
+    if (it != cacheNameData.end())
+        return it;
+
+    NameDataValues tmp;
+
+    if (!base->GetNameData(id, tmp) || tmp.size() == 0)
+        return cacheNameData.end();
+
+    NameDataMap::iterator ret = cacheNameData.insert(std::make_pair(id, NameDataValues())).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
 
 bool CStateViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
@@ -339,6 +389,25 @@ bool CStateViewCache::GetToken(const uint256 &id, TokenInfo &token) const {
     return false;
 }
 
+bool CStateViewCache::GetNameRecord(const uint256 &id, NameRecordValue &height) const {
+    NameRecordMap::const_iterator it = FetchNameRecord(id);
+    if (it != cacheNameRecords.end() && !it->second.IsNull()) {
+        height = it->second;
+        return true;
+    }
+
+    return false;
+}
+
+bool CStateViewCache::GetNameData(const uint256 &id, NameDataValues &data) const {
+    NameDataMap::const_iterator it = FetchNameData(id);
+    if (it != cacheNameData.end() && it->second.size() > 0) {
+        data = it->second;
+        return true;
+    }
+    return false;
+}
+
 bool CStateViewCache::GetAllProposals(CProposalMap& mapProposal) {
     mapProposal.clear();
     mapProposal.insert(cacheProposals.begin(), cacheProposals.end());
@@ -402,6 +471,25 @@ bool CStateViewCache::GetAllTokens(TokenMap& mapTokens) {
 
     for (auto it = mapTokens.begin(); it != mapTokens.end();)
         it->second.IsNull() ? mapTokens.erase(it++) : ++it;
+
+    return true;
+}
+
+bool CStateViewCache::GetAllNameRecords(NameRecordMap& mapNameRecords) {
+    mapNameRecords.clear();
+    mapNameRecords.insert(cacheNameRecords.begin(), cacheNameRecords.end());
+
+    NameRecordMap baseMap;
+
+    if (!base->GetAllNameRecords(baseMap))
+        return false;
+
+    for (NameRecordMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        if (!it->second.IsNull())
+            mapNameRecords.insert(std::make_pair(it->first, it->second));
+
+    for (auto it = mapNameRecords.begin(); it != mapNameRecords.end();)
+        it->second == 0 ? mapNameRecords.erase(it++) : ++it;
 
     return true;
 }
@@ -526,6 +614,28 @@ TokenModifier CStateViewCache::ModifyToken(const uint256 &id, int nHeight) {
         }
     }
     return TokenModifier(*this, ret.first, nHeight);
+}
+
+NameRecordModifier CStateViewCache::ModifyNameRecord(const uint256 &id, int nHeight) {
+    assert(!hasModifier);
+    std::pair<NameRecordMap::iterator, bool> ret = cacheNameRecords.insert(std::make_pair(id, 0));
+    if (ret.second) {
+        if (!base->GetNameRecord(id, ret.first->second)) {
+            ret.first->second = 0;
+        }
+    }
+    return NameRecordModifier(*this, ret.first, nHeight);
+}
+
+NameDataModifier CStateViewCache::ModifyNameData(const uint256 &id, int nHeight) {
+    assert(!hasModifier);
+    std::pair<NameDataMap::iterator, bool> ret = cacheNameData.insert(std::make_pair(id, NameDataValues()));
+    if (ret.second) {
+        if (!base->GetNameData(id, ret.first->second)) {
+            ret.first->second.clear();
+        }
+    }
+    return NameDataModifier(*this, ret.first, nHeight);
 }
 
 CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid, int nHeight) {
@@ -663,6 +773,30 @@ bool CStateViewCache::AddToken(const Token& token) const {
     return true;
 }
 
+bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
+    if (HaveNameRecord(namerecord.first))
+        return false;
+
+    if (cacheNameRecords.count(namerecord.first))
+        cacheNameRecords[namerecord.first]=namerecord.second;
+    else
+        cacheNameRecords.insert(std::make_pair(namerecord.first, namerecord.second));
+
+    return true;
+}
+
+bool CStateViewCache::AddNameData(const uint256& id, const NameDataEntry& namerecord) const {
+    if (cacheNameData.count(id))
+        cacheNameData[id].push_back(namerecord);
+    else
+    {
+        cacheNameData.insert(std::make_pair(id, NameDataValues()));
+        cacheNameData[id].push_back(namerecord);
+    }
+
+    return true;
+}
+
 bool CStateViewCache::RemoveProposal(const uint256 &pid) const {
     if (!HaveProposal(pid))
         return false;
@@ -683,6 +817,40 @@ bool CStateViewCache::RemoveToken(const uint256 &id) const {
     cacheTokens[id].SetNull();
 
     assert(cacheTokens[id].IsNull());
+
+    return true;
+}
+
+bool CStateViewCache::RemoveNameRecord(const uint256 &id) const {
+    if (!HaveNameRecord(id))
+        return false;
+
+    cacheNameRecords[id] = NameRecordValue();
+
+    assert(cacheNameRecords[id].IsNull());
+
+    return true;
+}
+
+bool CStateViewCache::RemoveNameData(const NameDataKey &id) const {
+    if (!HaveNameData(id.id))
+        return false;
+
+    if (cacheNameData.count(id.id))
+    {
+        NameDataValues temp;
+
+        for (auto& it: cacheNameData[id.id]) {
+            if (it.first == id.height) {
+                temp.push_back(NameDataEntry(id.height, NameDataValue()));
+            }
+            else {
+                temp.push_back(it);
+            }
+        }
+
+        cacheNameData[id.id] = temp;
+    }
 
     return true;
 }
@@ -787,6 +955,16 @@ bool CStateViewCache::HaveToken(const uint256 &id) const {
     return (it != cacheTokens.end() && !it->second.IsNull());
 }
 
+bool CStateViewCache::HaveNameRecord(const uint256 &id) const {
+    NameRecordMap::const_iterator it = FetchNameRecord(id);
+    return (it != cacheNameRecords.end() && !it->second.IsNull());
+}
+
+bool CStateViewCache::HaveNameData(const uint256 &id) const {
+    NameDataMap::const_iterator it = FetchNameData(id);
+    return (it != cacheNameData.end() && it->second.size());
+}
+
 bool CStateViewCache::HaveCachedVoter(const CVoteMapKey &voter) const {
     CVoteMap::const_iterator it = FetchVote(voter);
     // We're using vtx.empty() instead of IsPruned here for performance reasons,
@@ -833,7 +1011,8 @@ void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
 
 bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
                                  CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, const uint256 &hashBlockIn, const int &nCacheExcludeVotesIn) {
+                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, NameRecordMap& mapNameRecords,
+                                 NameDataMap& mapNameData, const uint256 &hashBlockIn, const int &nCacheExcludeVotesIn) {
     assert(!hasModifier);
     assert(!hasModifierConsensus);
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
@@ -937,13 +1116,27 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         mapTokens.erase(itOld);
     }
 
+    for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {
+        NameRecordValue& entry = cacheNameRecords[it->first];
+        entry.swap(it->second);
+        NameRecordMap::iterator itOld = it++;
+        mapNameRecords.erase(itOld);
+    }
+
+    for (NameDataMap::iterator it = mapNameData.begin(); it != mapNameData.end();) {
+        NameDataValues& entry = cacheNameData[it->first];
+        entry.swap(it->second);
+        NameDataMap::iterator itOld = it++;
+        mapNameData.erase(itOld);
+    }
+
     hashBlock = hashBlockIn;
     nCacheExcludeVotes = nCacheExcludeVotesIn;
     return true;
 }
 
 bool CStateViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, cacheTokens, hashBlock, nCacheExcludeVotes);
+    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, cacheTokens, cacheNameRecords, cacheNameData, hashBlock, nCacheExcludeVotes);
     cacheCoins.clear();
     cacheProposals.clear();
     cachePaymentRequests.clear();
@@ -952,6 +1145,8 @@ bool CStateViewCache::Flush() {
     cacheAnswers.clear();
     cacheConsensus.clear();
     cacheTokens.clear();
+    cacheNameRecords.clear();
+    cacheNameData.clear();
     cachedCoinsUsage = 0;
     nCacheExcludeVotes = -1;
     return fOk;
@@ -1194,6 +1389,48 @@ TokenModifier::~TokenModifier()
     {
         it->second.fDirty = true;
         LogPrint("daoextra", "%s: Modified %stoken %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString());
+    }
+}
+
+NameRecordModifier::NameRecordModifier(CStateViewCache& cache_, NameRecordMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+    prev = it->second;
+}
+
+NameRecordModifier::~NameRecordModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.IsNull()) {
+        cache.cacheNameRecords[it->first].SetNull();
+    }
+
+    if (!(prev == it->second))
+    {
+        LogPrint("daoextra", "%s: Modified %sname record %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString());
+    }
+}
+
+NameDataModifier::NameDataModifier(CStateViewCache& cache_, NameDataMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+    prev = it->second;
+}
+
+NameDataModifier::~NameDataModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.size() == 0) {
+        cache.cacheNameData[it->first].clear();
+    }
+
+    if (!(prev == it->second))
+    {
+        LogPrint("daoextra", "%s: Modified %sname data %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString());
     }
 }
 

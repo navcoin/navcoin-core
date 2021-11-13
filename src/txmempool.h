@@ -473,6 +473,7 @@ public:
     CPaymentRequestMap mapPaymentRequest;
     CConsultationMap mapConsultation;
     TokenMap mapTokens;
+    NameRecordMap mapNameRecords;
     CConsultationAnswerMap mapAnswer;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
@@ -548,6 +549,7 @@ public:
     bool AddConsultation(const CConsultation& consultation);
     bool AddToken(const Token& token);
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
+    bool AddNameRecord(const NameRecord& namerecord);
 
     void addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -795,6 +797,7 @@ public:
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool HaveProposal(const uint256 &pid) const;
+    bool HaveNameRecord(const uint256 &pid) const;
     bool HavePaymentRequest(const uint256 &prid) const;
     bool HaveConsultation(const uint256 &prid) const;
     bool HaveConsultationAnswer(const uint256 &prid) const;
@@ -809,6 +812,7 @@ public:
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddConsultation(const CConsultation& consultation) const;
     bool AddToken(const Token& token) const;
+    bool AddNameRecord(const NameRecord& nr) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
 };
 

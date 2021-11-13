@@ -10,6 +10,8 @@
 #include <bls.hpp>
 #include <streams.h>
 #include <consensus/program_actions.h>
+#include <utilstrencodings.h>
+#include <uint256.h>
 
 class Predicate
 {
@@ -20,6 +22,7 @@ public:
     std::vector<std::string> sParameters;
     std::vector<bls::G1Element> kParameters;
     std::vector<bls::G2Element> sigParameters;
+    std::vector<uint256> hParameters;
 
     Predicate(const ProgramActions& action_) : action(action_) {
         vParameters.clear();
@@ -27,6 +30,7 @@ public:
         sParameters.clear();
         kParameters.clear();
         sigParameters.clear();
+        hParameters.clear();
     }
 
     void Push(const std::vector<unsigned char>& parameter) {
@@ -35,6 +39,10 @@ public:
 
     void Push(const std::string& parameter) {
         sParameters.push_back(parameter);
+    }
+
+    void Push(const uint256& parameter) {
+        hParameters.push_back(parameter);
     }
 
     void Push(const uint64_t& parameter) {
@@ -117,6 +125,48 @@ public:
                 READWRITE(data);
                 Push(data);
             }
+            else if (action == REGISTER_NAME)
+            {
+                uint256 hash;
+                READWRITE(hash);
+                Push(hash);
+            }
+            else if (action == UPDATE_NAME_FIRST)
+            {
+                std::string name;
+                READWRITE(name);
+                Push(name);
+                bls::G1Element pk;
+                READWRITE(pk);
+                Push(pk);
+                std::string key;
+                READWRITE(key);
+                Push(key);
+                std::string value;
+                READWRITE(value);
+                Push(value);
+            }
+            else if (action == UPDATE_NAME)
+            {
+                std::string name;
+                READWRITE(name);
+                Push(name);
+                bls::G1Element pk;
+                READWRITE(pk);
+                Push(pk);
+                std::string key;
+                READWRITE(key);
+                Push(key);
+                std::string value;
+                READWRITE(value);
+                Push(value);
+            }
+            else if (action == RENEW_NAME)
+            {
+                std::string name;
+                READWRITE(name);
+                Push(name);
+            }
         } else {
             if (action == CREATE_TOKEN && kParameters.size() == 1 && sParameters.size() == 2 && nParameters.size() == 2)
             {
@@ -141,8 +191,32 @@ public:
                 READWRITE(nParameters[0]);
                 READWRITE(vParameters[0]);
             }
+            else if (action == REGISTER_NAME && hParameters.size() == 1)
+            {
+                READWRITE(hParameters[0]);
+            }
+            else if (action == UPDATE_NAME_FIRST && sParameters.size() == 3 && kParameters.size() == 1)
+            {
+                READWRITE(sParameters[0]);
+                READWRITE(kParameters[0]);
+                READWRITE(sParameters[1]);
+                READWRITE(sParameters[2]);
+            }
+            else if (action == UPDATE_NAME && sParameters.size() == 3 && kParameters.size() == 1)
+            {
+                READWRITE(sParameters[0]);
+                READWRITE(kParameters[0]);
+                READWRITE(sParameters[1]);
+                READWRITE(sParameters[2]);
+            }
+            else if (action == RENEW_NAME && sParameters.size() == 1)
+            {
+                READWRITE(sParameters[0]);
+            }
         }
     }
 };
+
+std::string PredicateToStr(const std::vector<unsigned char>& program);
 
 #endif // NAVCOIN_PROGRAMS_H
