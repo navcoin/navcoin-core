@@ -1224,6 +1224,50 @@ UniValue registername(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+UniValue renewname(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "renewname \"name\"\n"
+            "\nRenews a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name to renew\n"
+            "\nExamples:\n"
+            + HelpExampleCli("renewname", "satoshi.nav")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sName = params[0].get_str();
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    if (!view.HaveNameData(DotNav::GetHashName(sName)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "That name is not registered");
+
+    CAmount fee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view);
+
+    SendMoney(address.Get(), fee, fSubtractFeeFromAmount, wtx, true, true, false, 0, DotNav::GetRenewProgram(sName));
+
+    return wtx.GetHash().GetHex();
+}
+
 UniValue resolvename(const UniValue& params, bool fHelp)
 {
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -5994,6 +6038,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
   { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
   { "dotnat",             "registername",             &registername,             true  },
+  { "dotnat",             "renewname",                &renewname,                true  },
   { "dotnav",             "updatename",               &updatename,               true  },
   { "dotnav",             "resolvename",              &resolvename,              true  },
 };

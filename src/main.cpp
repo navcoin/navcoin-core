@@ -2916,7 +2916,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             if (!view.HaveNameRecord(program.hParameters[0]))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-hash-unknown");
                             view.RemoveNameRecord(program.hParameters[0]);
-                        } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME) {
+                        } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
                             view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
                         }
                     }
@@ -4810,6 +4810,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[1], program.sParameters[2]))))
+                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                        } else if (program.action == RENEW_NAME) {
+                            if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                            if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
+                                return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
                         } else if (program.action == UPDATE_NAME) {
                             NameDataValues data;
