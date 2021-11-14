@@ -17,14 +17,16 @@ std::string PredicateToStr(const std::vector<unsigned char>& program) {
             ret += (p.sParameters[0]) +" ";
             ret += HexStr(p.kParameters[0].Serialize()) +" ";
             ret += (p.sParameters[1]) +" ";
-            ret += (p.sParameters[2]);
+            ret += (p.sParameters[2]) +" ";
+            ret += (p.sParameters[3]);
             break;
         case UPDATE_NAME_FIRST:
             ret += "UPDATE_NAME_FIRST: ";
             ret += (p.sParameters[0]) +" ";
             ret += HexStr(p.kParameters[0].Serialize()) +" ";
             ret += (p.sParameters[1]) +" ";
-            ret += (p.sParameters[2]);
+            ret += (p.sParameters[2]) +" ";
+            ret += (p.sParameters[3]);
             break;
         case STOP_MINT:
             ret += "STOP_MINT:";

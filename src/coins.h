@@ -391,7 +391,7 @@ public:
     virtual bool GetAllNameRecords(NameRecordMap& map);
     virtual bool HaveNameRecord(const uint256 &id) const;
 
-    virtual bool GetNameData(const uint256& id, NameDataValues& data) const;
+    virtual bool GetNameData(const uint256& id, NameDataValues& data);
     virtual bool HaveNameData(const uint256& id) const;
 
     virtual int GetExcludeVotes() const;
@@ -452,7 +452,7 @@ public:
     bool GetAllNameRecords(NameRecordMap& map);
     bool HaveNameRecord(const uint256 &id) const;
 
-    bool GetNameData(const uint256 &id, NameDataValues& data) const;
+    bool GetNameData(const uint256 &id, NameDataValues& data);
     bool HaveNameData(const uint256 &id) const;
 
     int GetExcludeVotes() const;
@@ -689,7 +689,7 @@ public:
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
-    bool GetNameData(const uint256& pid, NameDataValues& data) const;
+    bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap& map);

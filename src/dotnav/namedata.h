@@ -77,6 +77,7 @@ public:
 
 class NameDataValue {
 public:
+    std::string subdomain;
     std::string key;
     std::string value;
 
@@ -84,24 +85,26 @@ public:
         SetNull();
     }
 
-    NameDataValue(const std::string& key_, const std::string& value_) :  key(key_), value(value_) {
+    NameDataValue(const std::string& key_, const std::string& value_, const std::string& subdomain_="") :  key(key_), value(value_), subdomain(subdomain_) {
     };
 
     void SetNull() {
         key = "";
         value = "";
+        subdomain = "";
     }
 
     bool IsNull() const {
-        return key == "" && value == "";
+        return key == "" && value == "" && subdomain == "";
     }
 
     bool operator==(const NameDataValue& other) const {
-        return (key == other.key && value == other.value);
+        return (key == other.key && value == other.value && subdomain == other.subdomain);
     }
 
     void swap(NameDataValue &to) {
         std::swap(to.key, key);
+        std::swap(to.subdomain, subdomain);
         std::swap(to.value, value);
     }
 
@@ -109,6 +112,7 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(subdomain);
         READWRITE(key);
         READWRITE(value);
     }

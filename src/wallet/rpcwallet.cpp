@@ -1224,6 +1224,49 @@ UniValue registername(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+
+UniValue genkeyname(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "genkeyname \"name\"\n"
+            "\nGenerates a public key for receiving a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name \n"
+            "\nExamples:\n"
+            + HelpExampleCli("genkeyname", "satoshi.nav")
+                );
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sName = params[0].get_str();
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    blsctKey sk;
+
+    EnsureWalletIsUnlocked();
+
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(sName).ToString()));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    pwalletMain->AddBLSCTTokenKey(pk);
+
+    return HexStr(pkg1.Serialize());
+}
+
 UniValue renewname(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -1287,7 +1330,21 @@ UniValue resolvename(const UniValue& params, bool fHelp)
     if (!params[0].isStr() )
         throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
 
-    std::string sName = params[0].get_str();
+    std::string sFullName = params[0].get_str();
+
+    std::string delimiter = ".";
+    std::string subdomain = "";
+    std::string sName = "";
+
+    if (std::count(sFullName.begin(), sFullName.end(), '.') == 2) {
+        subdomain = sFullName.substr(0, sFullName.find(delimiter));
+        sName = sFullName.substr(sFullName.find(delimiter)+1, sFullName.size());
+    } else {
+        sName = sFullName;
+    }
+
+    if (subdomain != "" && !DotNav::IsValidKey(subdomain))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid sub domain");
 
     if (!DotNav::IsValid(sName))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
@@ -1301,7 +1358,7 @@ UniValue resolvename(const UniValue& params, bool fHelp)
     {
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find the name");
     }
-    auto mapData = DotNav::Consolidate(data);
+    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight, subdomain);
 
     UniValue ret(UniValue::VOBJ);
 
@@ -1343,7 +1400,21 @@ UniValue updatename(const UniValue& params, bool fHelp)
     if (!params[0].isStr() || !params[1].isStr() || !params[2].isStr())
         throw JSONRPCError(RPC_TYPE_ERROR, "Name and key and value must be strings");
 
-    std::string sName = params[0].get_str();
+    std::string sFullName = params[0].get_str();
+
+    std::string delimiter = ".";
+    std::string subdomain = "";
+    std::string sName = "";
+
+    if (std::count(sFullName.begin(), sFullName.end(), '.') == 2) {
+        subdomain = sFullName.substr(0, sFullName.find(delimiter));
+        sName = sFullName.substr(sFullName.find(delimiter)+1, sFullName.size());
+    } else {
+        sName = sFullName;
+    }
+
+    if (subdomain != "" && !DotNav::IsValidKey(subdomain))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid sub domain");
 
     if (!DotNav::IsValid(sName))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
@@ -1387,7 +1458,7 @@ UniValue updatename(const UniValue& params, bool fHelp)
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Could not find the name");
         }
-        auto mapData = DotNav::Consolidate(data);
+        auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
         if (!mapData.count("_key"))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Name has not an associated key");
@@ -1403,7 +1474,7 @@ UniValue updatename(const UniValue& params, bool fHelp)
         }
     }
 
-    auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue);
+    auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue, subdomain) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue, subdomain);
 
     SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, program);
 
@@ -6037,10 +6108,11 @@ static const CRPCCommand commands[] =
   { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
   { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
   { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
-  { "dotnat",             "registername",             &registername,             true  },
-  { "dotnat",             "renewname",                &renewname,                true  },
+  { "dotnav",             "registername",             &registername,             true  },
+  { "dotnav",             "renewname",                &renewname,                true  },
   { "dotnav",             "updatename",               &updatename,               true  },
   { "dotnav",             "resolvename",              &resolvename,              true  },
+  { "dotnav",             "genkeyname",               &genkeyname,               true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

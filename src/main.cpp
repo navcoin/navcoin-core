@@ -1492,7 +1492,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             Predicate program(txout.vData);
 
                             if (program.action == ERR) {
-                                return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                                return state.DoS(100, false, REJECT_INVALID, "err-program-vdata");
                             } else if (program.action == REGISTER_NAME) {
                                 if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
                                     return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
@@ -1500,29 +1500,65 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
                                 if (!viewMemPool.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(1))))
                                     return state.DoS(100, false, REJECT_INVALID, "register-name-could-not-add");
-                            } else if (program.action == UPDATE_NAME_FIRST) {
-                                if (!view.HaveNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0])))
+                            }
+                            else if (program.action == UPDATE_NAME_FIRST)
+                            {
+                                NameRecordValue recordvalue;
+
+                                if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
                                     return state.DoS(100, false, REJECT_INVALID, "wrong-salt-name");
-                                if (view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
-                                    return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+
+                                if (chainActive.Tip()->nHeight-recordvalue.height < 6)
+                                    return state.DoS(100, false, REJECT_INVALID, "6-block-maturity-not-reached");
+
+                                NameDataValues data;
+
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (mapData.count("_key"))
+                                        return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                                }
+
                                 if (!(DotNav::IsValid(program.sParameters[0])))
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-name");
-                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == "_key"))
-                                    return state.DoS(100, false, REJECT_INVALID, "invalid-name");
-                                if (program.sParameters[1] == "_key")
+
+                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+
+                                if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-key");
+
+
+                                if (program.sParameters[2] == "_key")
                                 {
                                     try {
-                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[2]));
+                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                     }
                                     catch(...) {
                                         return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
                                     }
                                 }
+
+                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_expiry", std::to_string(chainActive.Tip()->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                        return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                }
                             } else if (program.action == UPDATE_NAME) {
                                 NameDataValues data;
                                 if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                     return state.DoS(100, false, REJECT_INVALID, "error-name");
-                                auto mapData = DotNav::Consolidate(data);
+                                auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                 if (!mapData.count("_key"))
                                     return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
                                 try {
@@ -1532,20 +1568,35 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 {
                                     return state.DoS(100, false, REJECT_INVALID, "error-parsing-key");
                                 }
-                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == "_key"))
+                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                                if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-key");
-                                if (program.sParameters[1] == "_key")
+                                if (program.sParameters[2] == "_key")
                                 {
                                     try {
-                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[2]));
+                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                     }
                                     catch(...) {
                                         return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
                                     }
                                 }
+
+                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+
+                                    if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                        return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                }
                             }
-                        } catch(...) {
-                            return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                        } catch(std::exception& e) {
+                            return state.DoS(100, false, REJECT_INVALID, strprintf("error-program-vdata(%s)", e.what()));
                         }
                     }
                 }
@@ -1558,7 +1609,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             Predicate program(txout.vData);
 
                             if (program.action == ERR) {
-                                return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                                return state.DoS(100, false, REJECT_INVALID, "err-program-vdata");
                             } else if (program.action == MINT) {
                                 auto tokenId = SerializeHash(program.kParameters[0]);
 
@@ -4785,44 +4836,75 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (view.HaveNameRecord(program.hParameters[0]))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
+
                             if (!view.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(pindex->nHeight))))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-could-not-add");
                         } else if (program.action == UPDATE_NAME_FIRST) {
-                            if (!view.HaveNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0])))
+                            NameRecordValue recordvalue;
+
+                            if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
                                 return state.DoS(100, false, REJECT_INVALID, "wrong-salt-name");
-                            if (view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
-                                return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+
+                            if (pindex->nHeight-recordvalue.height < 6)
+                                return state.DoS(100, false, REJECT_INVALID, "6-block-maturity-not-reached");                            NameDataValues data;
+
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (mapData.count("_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                            }
                             if (!(DotNav::IsValid(program.sParameters[0])))
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-name");
-                            if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == "_key"))
+                            if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                            if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-name");
-                            if (program.sParameters[1] == "_key")
+                            if (program.sParameters[2] == "_key")
                             {
                                 try {
-                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[2]));
+                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                 }
                                 catch(...) {
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
                                 }
                             }
-                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
-                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[1], program.sParameters[2]))))
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                    return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                            }
                         } else if (program.action == RENEW_NAME) {
                             if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
-                            if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
-                                return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                            NameDataValues data;
+
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (!mapData.count("_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                            }
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
                         } else if (program.action == UPDATE_NAME) {
                             NameDataValues data;
                             if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 return state.DoS(100, false, REJECT_INVALID, "error-name");
-                            auto mapData = DotNav::Consolidate(data);
+                            if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                            if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+                            auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                             if (!mapData.count("_key"))
                                 return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
                             try {
@@ -4833,17 +4915,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             {
                                 return state.DoS(100, false, REJECT_INVALID, "error-parsing-key");
                             }
-                            if (program.sParameters[1] == "_key")
+                            if (program.sParameters[2] == "_key")
                             {
                                 try {
-                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[2]));
+                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                 }
                                 catch(...) {
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
                                 }
                             }
-                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[1], program.sParameters[2]))))
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                    return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                            }
                         }
                     }
                 } catch(...) {

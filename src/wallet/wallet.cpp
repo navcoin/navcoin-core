@@ -2318,7 +2318,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            if(!txout.scriptPubKey.IsCommunityFundContribution() && !txout.IsBLSCT())
+            if(!txout.scriptPubKey.IsCommunityFundContribution() && !txout.IsBLSCT() && !txout.scriptPubKey.IsFee())
                 LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d %s\n",
                          this->GetHash().ToString(), i, txout.ToString());
             address = CNoDestination();
@@ -3896,7 +3896,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                                 strFailReason = strprintf("Could not find the name");
                                 return false;
                             }
-                            auto mapData = DotNav::Consolidate(data);
+                            auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                             if (!mapData.count("_key"))
                             {
                                 strFailReason = strprintf("Name has not an associated key");

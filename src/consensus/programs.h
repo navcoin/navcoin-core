@@ -139,6 +139,9 @@ public:
                 bls::G1Element pk;
                 READWRITE(pk);
                 Push(pk);
+                std::string subdomain;
+                READWRITE(subdomain);
+                Push(subdomain);
                 std::string key;
                 READWRITE(key);
                 Push(key);
@@ -154,6 +157,9 @@ public:
                 bls::G1Element pk;
                 READWRITE(pk);
                 Push(pk);
+                std::string subdomain;
+                READWRITE(subdomain);
+                Push(subdomain);
                 std::string key;
                 READWRITE(key);
                 Push(key);
@@ -195,19 +201,21 @@ public:
             {
                 READWRITE(hParameters[0]);
             }
-            else if (action == UPDATE_NAME_FIRST && sParameters.size() == 3 && kParameters.size() == 1)
+            else if (action == UPDATE_NAME_FIRST && sParameters.size() == 4 && kParameters.size() == 1)
             {
                 READWRITE(sParameters[0]);
                 READWRITE(kParameters[0]);
                 READWRITE(sParameters[1]);
                 READWRITE(sParameters[2]);
+                READWRITE(sParameters[3]);
             }
-            else if (action == UPDATE_NAME && sParameters.size() == 3 && kParameters.size() == 1)
+            else if (action == UPDATE_NAME && sParameters.size() == 4 && kParameters.size() == 1)
             {
                 READWRITE(sParameters[0]);
                 READWRITE(kParameters[0]);
                 READWRITE(sParameters[1]);
                 READWRITE(sParameters[2]);
+                READWRITE(sParameters[3]);
             }
             else if (action == RENEW_NAME && sParameters.size() == 1)
             {

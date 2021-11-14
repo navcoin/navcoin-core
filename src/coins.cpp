@@ -54,7 +54,7 @@ bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& 
 bool CStateView::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return false; }
 bool CStateView::GetToken(const uint256 &id, TokenInfo& token) const { return false; }
 bool CStateView::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return false; }
-bool CStateView::GetNameData(const uint256 &id, NameDataValues& data) const { return false; }
+bool CStateView::GetNameData(const uint256 &id, NameDataValues& data) { return false; }
 bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
 bool CStateView::HaveProposal(const uint256 &pid) const { return false; }
 bool CStateView::HavePaymentRequest(const uint256 &prid) const { return false; }
@@ -93,7 +93,7 @@ bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAn
 bool CStateViewBacked::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return base->GetConsensusParameter(pid, cparameter); }
 bool CStateViewBacked::GetToken(const uint256 &id, TokenInfo& token) const { return base->GetToken(id, token); }
 bool CStateViewBacked::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return base->GetNameRecord(id, height); }
-bool CStateViewBacked::GetNameData(const uint256 &id, NameDataValues& data) const { return base->GetNameData(id, data); }
+bool CStateViewBacked::GetNameData(const uint256 &id, NameDataValues& data) { return base->GetNameData(id, data); }
 bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
 bool CStateViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
 bool CStateViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
@@ -399,7 +399,7 @@ bool CStateViewCache::GetNameRecord(const uint256 &id, NameRecordValue &height) 
     return false;
 }
 
-bool CStateViewCache::GetNameData(const uint256 &id, NameDataValues &data) const {
+bool CStateViewCache::GetNameData(const uint256 &id, NameDataValues &data) {
     NameDataMap::const_iterator it = FetchNameData(id);
     if (it != cacheNameData.end() && it->second.size() > 0) {
         data = it->second;
