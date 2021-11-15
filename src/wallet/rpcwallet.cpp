@@ -1449,11 +1449,12 @@ UniValue updatename(const UniValue& params, bool fHelp)
 
     bool first = false;
 
+    NameDataValues data;
+    uint64_t dataSize = 0;
+
     if (!view.HaveNameData(DotNav::GetHashName(sName)))
         first = true;
     else {
-        NameDataValues data;
-
         if (!view.GetNameData(DotNav::GetHashName(sName), data))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Could not find the name");
@@ -1463,7 +1464,7 @@ UniValue updatename(const UniValue& params, bool fHelp)
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Name has not an associated key");
         }
-
+        dataSize = DotNav::CalculateSize(mapData);
         try {
             if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != pkg1)
             {
@@ -1474,9 +1475,11 @@ UniValue updatename(const UniValue& params, bool fHelp)
         }
     }
 
+    uint64_t fee = std::floor((dataSize+sKey.size()+sValue.size())/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
+
     auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue, subdomain) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue, subdomain);
 
-    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, program);
+    SendMoney(address.Get(), fee, fSubtractFeeFromAmount, wtx, true, true, false, 0, program);
 
     return wtx.GetHash().GetHex();
 }

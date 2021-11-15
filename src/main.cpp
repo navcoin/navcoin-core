@@ -1549,8 +1549,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
-                                    if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
-                                        return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                                    if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                        return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                                 }
@@ -1589,8 +1589,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
 
-                                    if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
-                                        return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                                    if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                        return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                                 }
@@ -4878,8 +4878,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
-                                if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
-                                    return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+
+                                if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                             } else {
                                 return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                             }
@@ -4930,8 +4931,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
-                                if (DotNav::CalculateSize(mapData) > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
-                                    return state.DoS(100, false, REJECT_INVALID, "no-space-left");
+                                if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                             } else {
                                 return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                             }

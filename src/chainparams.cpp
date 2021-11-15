@@ -151,6 +151,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 0;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 1 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -436,6 +437,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 1 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -693,6 +695,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 400; // 400 blocks
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 1 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
@@ -959,6 +962,7 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 1 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
