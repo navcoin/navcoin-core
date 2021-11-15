@@ -125,7 +125,7 @@ public:
 
     uint32_t GetUint32(int pos) const
     {
-        const uint8_t* ptr = data + pos * 8;
+        const uint8_t* ptr = data + pos * 4;
         return ((uint32_t)ptr[0]) | \
                ((uint32_t)ptr[1]) << 8 | \
                ((uint32_t)ptr[2]) << 16 | \

@@ -267,7 +267,14 @@ public:
     bls::PrivateKey PrivateChildHash(uint256 h) const {
         bls::PrivateKey ret = bls::PrivateKey::FromBytes(&k.front());
         for (auto i = 0; i < 8; i++)
-            ret = bls::HDKeys::DeriveChildSk(ret, h.GetUint32(i*4));
+        {
+            const uint8_t* pos = h.begin() + i*4;
+            uint32_t index = (uint8_t)(pos[0]) << 24 |
+                    (uint8_t)(pos[1]) << 16 |
+                    (uint8_t)(pos[2]) << 8 |
+                    (uint8_t)(pos[3]);
+            ret = bls::HDKeys::DeriveChildSk(ret, index);
+        }
         return ret;
     }
 
