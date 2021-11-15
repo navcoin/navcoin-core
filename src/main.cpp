@@ -1572,6 +1572,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
                                 if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
                                     return state.DoS(100, false, REJECT_INVALID, "invalid-key");
+                                if (program.sParameters[3].size() > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                    return state.DoS(100, false, REJECT_INVALID, "too-long-value");
                                 if (program.sParameters[2] == "_key")
                                 {
                                     try {
@@ -4905,6 +4907,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
                             if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+                            if (program.sParameters[3].size() > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                return state.DoS(100, false, REJECT_INVALID, "too-long-value");
                             auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                             if (!mapData.count("_key"))
                                 return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
