@@ -17,6 +17,11 @@ bool CBasicKeyStore::AddBLSCTBlindingKey(const blsctKey &key) {
     return AddBLSCTBlindingKeyPubKey(key, blsctPublicKey(key.GetG1Element()));
 }
 
+
+bool CBasicKeyStore::AddBLSCTTokenKey(const blsctKey &key) {
+    return AddBLSCTTokenKeyPubKey(key, blsctPublicKey(key.GetG1Element()));
+}
+
 bool CBasicKeyStore::GetPubKey(const CKeyID &address, CPubKey &vchPubKeyOut) const
 {
     CKey key;
@@ -47,6 +52,13 @@ bool CBasicKeyStore::AddBLSCTBlindingKeyPubKey(const blsctKey& key, const blsctP
     return true;
 }
 
+bool CBasicKeyStore::AddBLSCTTokenKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey)
+{
+    LOCK(cs_KeyStore);
+    mapBLSCTTokenKeys[pubkey.GetID()] = key;
+    return true;
+}
+
 bool CBasicKeyStore::AddBLSCTSubAddress(const CKeyID &hashId, const std::pair<uint64_t, uint64_t>& index)
 {
     LOCK(cs_KeyStore);
@@ -59,6 +71,12 @@ bool CBasicKeyStore::HaveBLSCTBlindingKey(const blsctPublicKey &address) const
 {
     LOCK(cs_KeyStore);
     return mapBLSCTBlindingKeys.count(address.GetID()) > 0;
+}
+
+bool CBasicKeyStore::HaveBLSCTTokenKey(const blsctPublicKey &address) const
+{
+    LOCK(cs_KeyStore);
+    return mapBLSCTTokenKeys.count(address.GetID()) > 0;
 }
 
 bool CBasicKeyStore::GetBLSCTHashId(const std::vector<unsigned char>& outputKey, const std::vector<unsigned char>& spendingKey, CKeyID& hashId) const

@@ -118,7 +118,7 @@ static int xferinfo(void *p,
                                       dlnow/(1024*1024), dltotal/(1024*1024), (float)dlnow/(float)dltotal*100.0f));
     fprintf(stdout, "[BOOTSTRAP] Downloaded %" CURL_FORMAT_CURL_OFF_T "MB of %" CURL_FORMAT_CURL_OFF_T
             "MB  (%.2f%%)    \r",
-            dlnow/(1024*1024), dltotal/(1024*1024), fProgress);
+            dlnow/(1024*1024), dltotal/(1024*1024), (float)dlnow/(float)dltotal*100.0f);
 
     fBootstrapProgress = fProgress;
 

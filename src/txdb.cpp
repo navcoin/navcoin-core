@@ -39,6 +39,8 @@ static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
 static const char DB_EXCLUDE_VOTES = 'X';
 
+static const char DB_TOKENS = 'T';
+
 CStateViewDB::CStateViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
 }
@@ -57,6 +59,14 @@ bool CStateViewDB::GetProposal(const uint256 &pid, CProposal &proposal) const {
 
 bool CStateViewDB::HaveProposal(const uint256 &pid) const {
     return db.Exists(std::make_pair(DB_PROPINDEX, pid));
+}
+
+bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
+    return db.Read(std::make_pair(DB_TOKENS, id), token);
+}
+
+bool CStateViewDB::HaveToken(const uint256 &id) const {
+    return db.Exists(std::make_pair(DB_TOKENS, id));
 }
 
 bool CStateViewDB::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const {
@@ -130,6 +140,32 @@ bool CStateViewDB::GetAllProposals(CProposalMap& map) {
                 pcursor->Next();
             } else {
                 return error("GetAllProposals() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CStateViewDB::GetAllTokens(TokenMap& map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_TOKENS, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_TOKENS) {
+            TokenInfo token;
+            if (pcursor->GetValue(token)) {
+                map.insert(std::make_pair(key.second, token));
+                pcursor->Next();
+            } else {
+                return error("GetAllTokens() : failed to read value");
             }
         } else {
             break;
@@ -247,6 +283,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
+                              TokenMap &mapTokens,
                               const uint256 &hashBlock, const int &nExcludeVotes) {
 
     CDBBatch batch(db);
@@ -335,6 +372,19 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         CVoteMap::iterator itOld = it++;
         mapVotes.erase(itOld);
+    }
+
+    for (TokenMap::iterator it = mapTokens.begin(); it != mapTokens.end();) {
+        if (it->second.fDirty)
+        {
+            if (it->second.IsNull()) {
+                batch.Erase(std::make_pair(DB_TOKENS, it->first));
+            } else {
+                batch.Write(std::make_pair(DB_TOKENS, it->first), it->second);
+            }
+        }
+        TokenMap::iterator itOld = it++;
+        mapTokens.erase(itOld);
     }
 
     if (!hashBlock.IsNull())

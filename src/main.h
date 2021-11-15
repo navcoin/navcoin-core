@@ -351,7 +351,7 @@ void FlushStateToDiskIfNeeded();
 /** Prune block files and flush state to disk. */
 void PruneAndFlush();
 
-bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin, CCriticalSection* mpcs, CCriticalSection* spcs);
+bool RemoveBLSCTConflicting(CTxMemPool& pool, const COutPoint& outpoint, CCriticalSection* mpcs, CCriticalSection* spcs);
 
 /** (try to) add transaction to memory pool **/
 bool AcceptToMemoryPool(CTxMemPool& pool, CCriticalSection *mpcs, CCriticalSection *spcs, CValidationState &state, const CTransaction &tx, bool fLimitFree,
@@ -401,7 +401,7 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CStateViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks = NULL, CAmount allowedInPrivate = 0);
+                 unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, const bool& fXNavSer, std::vector<CScriptCheck> *pvChecks = NULL, CAmount allowedInPrivate = 0);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CStateViewCache& inputs, int nHeight);
@@ -544,10 +544,15 @@ bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consens
 bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsDAOEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsXNavSerEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the static reward has been activated **/
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+/** Check whether the super dao has been activated **/
+bool IsDaoSuperEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsDaoSuperLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the burn fees upgrade has been activated **/
 bool IsBurnFeesEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
@@ -621,7 +626,7 @@ extern VersionBitsCache versionbitscache;
 /**
  * Determine what nVersion a new block should use.
  */
-int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+std::pair<int32_t, int32_t> ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Reject codes greater or equal to this can be returned by AcceptToMemPool
  * for transactions, to signal internal conditions. They cannot and should not

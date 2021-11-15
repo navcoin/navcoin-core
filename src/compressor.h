@@ -114,17 +114,31 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (!ser_action.ForRead()) {
-            if (txout.IsBLSCT())
+            if (txout.vData.size() > 0 || txout.tokenId.token != uint256())
             {
-                CAmount nMarker = MAX_MONEY;
+                CAmount nMarker = (170000000 * COIN)+1;
                 READWRITE(VARINT(nMarker));
                 uint64_t nVal = CompressAmount(txout.nValue);
                 READWRITE(VARINT(nVal));
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                BulletproofsRangeproof bp = txout.GetBulletproof();
-                READWRITE(bp);
+                auto txbp = txout.GetBulletproof();
+                READWRITE(txbp);
+                READWRITE(txout.vData);
+                READWRITE(txout.tokenId);
+            }
+            else if (txout.IsBLSCT())
+            {
+                CAmount nMarker = 170000000 * COIN;
+                READWRITE(VARINT(nMarker));
+                uint64_t nVal = CompressAmount(txout.nValue);
+                READWRITE(VARINT(nVal));
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                auto txbp = txout.GetBulletproof();
+                READWRITE(txbp);
             }
             else
             {
@@ -134,16 +148,29 @@ public:
         } else {
             uint64_t nVal = 0;
             READWRITE(VARINT(nVal));
-            if (nVal == MAX_MONEY)
+            if (nVal == 170000000 * COIN)
             {
                 READWRITE(VARINT(nVal));
                 txout.nValue = DecompressAmount(nVal);
                 READWRITE(txout.ephemeralKey);
                 READWRITE(txout.outputKey);
                 READWRITE(txout.spendingKey);
-                BulletproofsRangeproof bp_;
-                READWRITE(bp_);
-                txout.bp = bp_.GetVch();
+                BulletproofsRangeproof vbp;
+                READWRITE(vbp);
+                txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
+            }
+            else if (nVal == (170000000 * COIN)+1)
+            {
+                READWRITE(VARINT(nVal));
+                txout.nValue = DecompressAmount(nVal);
+                READWRITE(txout.ephemeralKey);
+                READWRITE(txout.outputKey);
+                READWRITE(txout.spendingKey);
+                BulletproofsRangeproof vbp;
+                READWRITE(vbp);
+                txout.bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
+                READWRITE(txout.vData);
+                READWRITE(txout.tokenId);
             }
             else
             {

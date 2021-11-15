@@ -42,7 +42,7 @@ UniValue CallRPC(string args)
         return result;
     }
     catch (const UniValue& objError) {
-        throw runtime_error(find_value(objError, "message").get_str());
+        throw std::runtime_error(find_value(objError, "message").get_str());
     }
 }
 

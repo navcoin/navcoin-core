@@ -165,7 +165,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
-    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    auto versionBits = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+
+    pblock->nVersion = versionBits.first;
 
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
@@ -425,6 +427,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = GetBoolArg("-excludevote", false) ? 1 : 0;
+    pblock->nNonce        |= versionBits.second;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
     if (pFees)
@@ -634,6 +637,29 @@ void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
         CTransaction tx = it.GetTx();
 
         if (!tx.IsBLSInput())
+            continue;
+
+        try
+        {
+            if (inputs.HaveInputs(tx))
+            {
+                nMovedToPublic += inputs.GetValueIn(tx) - tx.GetValueOut();
+                setToCombine.insert(tx);
+            }
+            else
+                LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+        }
+        catch(...)
+        {
+            continue;
+        }
+    }
+
+    for (auto &it: mempool.mapTx)
+    {
+        CTransaction tx = it.GetTx();
+
+        if (!tx.IsBLSInput() || setToCombine.count(tx))
             continue;
 
         try

@@ -112,18 +112,21 @@ public:
     bool HaveConsultationAnswer(const uint256 &aid) const;
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
+    bool GetToken(const uint256 &id, TokenInfo &token) const;
+    bool HaveToken(const uint256 &id) const;
 
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, const uint256 &hashBlock,
                     const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);
     bool GetAllConsultations(CConsultationMap &map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
+    bool GetAllTokens(TokenMap &map);
     int GetExcludeVotes() const;
     CStateViewCursor *Cursor() const;
 };
