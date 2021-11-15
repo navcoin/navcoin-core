@@ -1464,6 +1464,7 @@ UniValue updatename(const UniValue& params, bool fHelp)
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Name has not an associated key");
         }
+        mapData[sKey] = sValue;
         dataSize = DotNav::CalculateSize(mapData);
         try {
             if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != pkg1)
@@ -1475,7 +1476,7 @@ UniValue updatename(const UniValue& params, bool fHelp)
         }
     }
 
-    uint64_t fee = std::floor((dataSize+sKey.size()+sValue.size())/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
+    uint64_t fee = std::floor(dataSize/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
 
     auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue, subdomain) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue, subdomain);
 
