@@ -264,10 +264,10 @@ public:
         return bls::HDKeys::DeriveChildSk(buf, i);
     }
 
-    bls::PrivateKey PrivateChildHash(uint256 i) const {
+    bls::PrivateKey PrivateChildHash(uint256 h) const {
         bls::PrivateKey ret = bls::PrivateKey::FromBytes(&k.front());
         for (auto i = 0; i < 8; i++)
-            ret = bls::HDKeys::DeriveChildSk(ret, i*4);
+            ret = bls::HDKeys::DeriveChildSk(ret, h.GetUint32(i*4));
         return ret;
     }
 
