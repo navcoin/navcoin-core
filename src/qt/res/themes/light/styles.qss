@@ -138,3 +138,7 @@ QTreeView::branch:open:has-children:has-siblings {
     border-image: none;
     image: url(:/light/icon_branch_open);
 }
+
+#SplashBackground {
+    background: white;
+}
