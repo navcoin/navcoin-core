@@ -81,7 +81,8 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     connect(proposeBtn, SIGNAL(clicked()), this, SLOT(onPropose()));
 
     bottomBoxLayout->addStretch(1);
-    if (consultation.CanHaveNewAnswers())
+    // Check if we can have answers and if it's not a super/combined consensus proposal
+    if (consultation.CanHaveNewAnswers() && !consultation.IsSuper())
         bottomBoxLayout->addWidget(proposeBtn);
     bottomBoxLayout->addWidget(closeBtn);
 
