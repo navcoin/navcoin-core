@@ -1314,6 +1314,8 @@ UniValue resolvename(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CStateViewCache view(pcoinsTip);
 
+    UniValue ret(UniValue::VOBJ);
+
     if (fHelp || params.size() < 1)
         throw std::runtime_error(
             "resolvename \"name\"\n"
@@ -1348,17 +1350,15 @@ UniValue resolvename(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
 
     if (!view.HaveNameData(DotNav::GetHashName(sName)))
-        throw JSONRPCError(RPC_TYPE_ERROR, "That name is not registered");
+        return ret;
 
     NameDataValues data;
 
     if (!view.GetNameData(DotNav::GetHashName(sName), data))
     {
-        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find the name");
+        return ret;
     }
     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight, subdomain);
-
-    UniValue ret(UniValue::VOBJ);
 
     for (auto &it: mapData) {
         ret.pushKV(it.first, it.second);
