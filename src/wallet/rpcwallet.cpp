@@ -1211,15 +1211,13 @@ UniValue registername(const UniValue& params, bool fHelp)
     bls::G1Element pkg1 = pk.GetG1Element();
 
     if (view.HaveNameRecord(DotNav::GetHashIdName(sName, pkg1)))
-        throw JSONRPCError(RPC_TYPE_ERROR, "You already registered that name");
+        throw JSONRPCError(RPC_TYPE_ERROR, "You already reserved that name, use updatename instead");
     if (view.HaveNameData(DotNav::GetHashName(sName)))
         throw JSONRPCError(RPC_TYPE_ERROR, "That name is already registered");
 
     pwalletMain->AddBLSCTTokenKey(pk);
 
-    CAmount fee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view);
-
-    SendMoney(address.Get(), fee, fSubtractFeeFromAmount, wtx, true, true, false, 0, DotNav::GetRegisterProgram(sName, pkg1));
+    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, DotNav::GetRegisterProgram(sName, pkg1));
 
     return wtx.GetHash().GetHex();
 }
@@ -1462,21 +1460,22 @@ UniValue updatename(const UniValue& params, bool fHelp)
         auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
         if (!mapData.count("_key"))
         {
-            throw JSONRPCError(RPC_TYPE_ERROR, "Name has not an associated key");
-        }
-        mapData[sKey] = sValue;
-        dataSize = DotNav::CalculateSize(mapData);
-        try {
-            if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != pkg1)
-            {
-                throw JSONRPCError(RPC_TYPE_ERROR, "You don't own the name");
+            first = true;
+        } else {
+            mapData[sKey] = sValue;
+            dataSize = DotNav::CalculateSize(mapData);
+            try {
+                if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != pkg1)
+                {
+                    throw JSONRPCError(RPC_TYPE_ERROR, "You don't own the name");
+                }
+            } catch(...) {
+                throw JSONRPCError(RPC_TYPE_ERROR, "Wrong format key of name");
             }
-        } catch(...) {
-            throw JSONRPCError(RPC_TYPE_ERROR, "Wrong format key of name");
         }
     }
 
-    uint64_t fee = std::floor(dataSize/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
+    uint64_t fee = first ? GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view) : std::floor(dataSize/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
 
     auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue, subdomain) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue, subdomain);
 

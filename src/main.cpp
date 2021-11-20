@@ -1494,8 +1494,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             if (program.action == ERR) {
                                 return state.DoS(100, false, REJECT_INVALID, "err-program-vdata");
                             } else if (program.action == REGISTER_NAME) {
-                                if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
-                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                                 if (viewMemPool.HaveNameRecord(program.hParameters[0]))
                                     return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
                                 if (!viewMemPool.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(1))))
@@ -1503,6 +1501,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             }
                             else if (program.action == UPDATE_NAME_FIRST)
                             {
+                                if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+
                                 NameRecordValue recordvalue;
 
                                 if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
@@ -1595,6 +1596,19 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                         return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                }
+                            } else if (program.action == RENEW_NAME) {
+                                if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "renew-name-missing-contribution");
+                                NameDataValues data;
+
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (!mapData.count("_key"))
+                                        return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "name-not-active");
                                 }
                             }
                         } catch(std::exception& e) {
@@ -4833,15 +4847,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if (fDotNav) {
                         if (program.action == REGISTER_NAME) {
-                            if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
-                                return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
-
                             if (view.HaveNameRecord(program.hParameters[0]))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
 
                             if (!view.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(pindex->nHeight))))
                                 return state.DoS(100, false, REJECT_INVALID, "register-name-could-not-add");
                         } else if (program.action == UPDATE_NAME_FIRST) {
+                            if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+
                             NameRecordValue recordvalue;
 
                             if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
@@ -4896,6 +4910,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                                 if (!mapData.count("_key"))
                                     return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, "name-not-active");
                             }
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                 return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
