@@ -276,50 +276,61 @@ bool IsEndCycle(const CBlockIndex* pindex, const CStateViewCache& view)
     return (pindex->nHeight+1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) == 0;
 }
 
-std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string)
+std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string str)
 {
-    std::string ret = string;
+    std::string ret = str;
 
     if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
-        ret = FormatMoney(stoll(string)) + " NAV";
+        ret = FormatMoney(stoll(str)) + " NAV";
     else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
     {
         std::ostringstream out;
         out.precision(2);
-        out << std::fixed << (float)stoll(string) / 100.0;
+        out << std::fixed << (float)stoll(str) / 100.0;
         ret =  out.str() + "%";
     }
-    else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+    else if (
+            Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER ||
+            Consensus::vConsensusParamsType[pos] == Consensus::TYPE_BLOCK ||
+            Consensus::vConsensusParamsType[pos] == Consensus::TYPE_CYCLE)
     {
         if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
         {
-            ret = std::to_string(stoll(string) + 1);
+            ret = std::to_string(stoll(str) + 1);
         }
+
+        if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_BLOCK)
+            ret = ret + " Blocks";
+        else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_CYCLE)
+            ret = ret + " Cycles";
     }
 
     return ret;
 }
 
-std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string)
+std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string str)
 {
-    string.erase(std::remove_if(string.begin(), string.end(),
-                                [](const char& c ) -> bool { return !std::isdigit(c) && c != '.' && c != ',' && c != '-'; } ), string.end());
+    str.erase(std::remove_if(str.begin(), str.end(),
+                                [](const char& c ) -> bool { return !std::isdigit(c) && c != '.' && c != ',' && c != '-'; } ), str.end());
 
-    std::string ret = string;
+    std::string ret = str;
 
     try
     {
         if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
-            ret = std::to_string((uint64_t)(stof(string) * COIN));
+            ret = std::to_string((uint64_t)(stof(str) * COIN));
         else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
         {
-            ret = std::to_string((uint64_t)(stof(string) * 100));
+            ret = std::to_string((uint64_t)(stof(str) * 100));
         }
-        else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+        else if (
+                Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER ||
+                Consensus::vConsensusParamsType[pos] == Consensus::TYPE_BLOCK ||
+                Consensus::vConsensusParamsType[pos] == Consensus::TYPE_CYCLE)
         {
             if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
             {
-                ret = std::to_string(stoll(string) - 1);
+                ret = std::to_string(stoll(str) - 1);
             }
         }
     }
@@ -1408,8 +1419,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                             auto answers = answer->GetAnswers();
                             auto parameters = parent.GetParameters();
-                            
-                            if (answers.size() == parameters.size()) 
+
+                            if (answers.size() == parameters.size())
                             {
                                 for (size_t i = 0; i < answers.size(); i++) {
                                     mapConsensusToChange.insert(std::make_pair(parameters[i], stoll(answers[i])));

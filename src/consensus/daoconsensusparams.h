@@ -12,7 +12,9 @@ enum ConsensusParamType
     TYPE_NUMBER,
     TYPE_PERCENT,
     TYPE_NAV,
-    TYPE_BOOL
+    TYPE_BOOL,
+    TYPE_BLOCK,
+    TYPE_CYCLE
 };
 
 enum ConsensusParamsPos
@@ -89,15 +91,15 @@ static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
 
 static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
 {
-    TYPE_NUMBER,
+    TYPE_BLOCK,
 
     TYPE_PERCENT,
     TYPE_PERCENT,
 
-    TYPE_NUMBER,
-    TYPE_NUMBER,
-    TYPE_NUMBER,
-    TYPE_NUMBER,
+    TYPE_CYCLE,
+    TYPE_CYCLE,
+    TYPE_CYCLE,
+    TYPE_CYCLE,
     TYPE_NAV,
 
     TYPE_NAV,
@@ -106,13 +108,13 @@ static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
     TYPE_PERCENT,
     TYPE_PERCENT,
     TYPE_NAV,
-    TYPE_NUMBER,
+    TYPE_CYCLE,
 
     TYPE_PERCENT,
     TYPE_PERCENT,
     TYPE_PERCENT,
     TYPE_NAV,
-    TYPE_NUMBER,
+    TYPE_CYCLE,
 
     TYPE_NUMBER,
     TYPE_PERCENT,
