@@ -302,7 +302,7 @@ NameRecordMap::const_iterator CStateViewCache::FetchNameRecord(const uint256 &id
 NameDataMap::const_iterator CStateViewCache::FetchNameData(const uint256 &id) const {
     NameDataMap::iterator it = cacheNameData.find(id);
 
-    if (it != cacheNameData.end())
+    if (it != cacheNameData.end() && it->second.size() > 0)
         return it;
 
     NameDataValues tmp;
