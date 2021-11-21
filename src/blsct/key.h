@@ -255,7 +255,7 @@ public:
         try {
             return bls::PrivateKey::FromBytes(&k.front()).GetG1Element();
         } catch(...) {
-            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
+            return bls::G1Element();
         }
     }
 
