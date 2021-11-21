@@ -255,7 +255,7 @@ public:
         try {
             return bls::PrivateKey::FromBytes(&k.front()).GetG1Element();
         } catch(...) {
-            return bls::G1Element();
+            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
         }
     }
 
@@ -263,7 +263,7 @@ public:
         try {
             return bls::PrivateKey::FromBytes(&k.front());
         } catch(...) {
-            return bls::G1Element();
+            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
         }
     }
 
@@ -276,7 +276,7 @@ public:
             bls::PrivateKey buf = bls::PrivateKey::FromBytes(&k.front());
             return bls::HDKeys::DeriveChildSk(buf, i);
         } catch(...) {
-            return bls::PrivateKey();
+            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
         }
     }
 
@@ -294,7 +294,7 @@ public:
             }
             return ret;
         } catch(...) {
-            return bls::PrivateKey();
+            return  bls::PrivateKey::FromBN(Scalar::Rand().bn);
         }
     }
 
