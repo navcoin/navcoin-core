@@ -1606,7 +1606,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "renew-name-missing-contribution");
                                 NameDataValues data;
 
-                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                     if (!mapData.count("_key"))
