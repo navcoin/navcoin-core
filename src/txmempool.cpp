@@ -432,6 +432,7 @@ bool CTxMemPool::AddNameData(const uint256 &tx, const uint256 &prid, const NameD
         mapNameData.insert(std::make_pair(prid, NameDataValues()));
 
     mapNameData[prid].push_back(record);
+    return true;
 }
 
 bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)

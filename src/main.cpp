@@ -1559,7 +1559,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                             } else if (program.action == UPDATE_NAME) {
                                 NameDataValues data;
-                                if (!viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                     return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
                                 auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                 if (!mapData.count("_key"))
