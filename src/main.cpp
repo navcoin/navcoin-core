@@ -4971,7 +4971,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
                     }
                 } catch(...) {
-                    return state.DoS(100, false, REJECT_INVALID, strprintf("error-program-vdata:%s", program.sParameters[0]));
+                    return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                 }
             }
         }
