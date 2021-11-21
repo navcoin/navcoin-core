@@ -5686,7 +5686,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
-            return error("ConnectTip(): ConnectBlock %s failed: ", pindexNew->GetBlockHash().ToString());
+            return error("ConnectTip(): ConnectBlock %s failed: %s", pindexNew->GetBlockHash().ToString(), state.GetRejectReason());
         }
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
