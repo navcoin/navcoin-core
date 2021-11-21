@@ -112,7 +112,12 @@ std::map<std::string, std::string> Consolidate(const NameDataValues& data, const
 
     for (auto &it: data) {
         if (it.second.key == "_expiry")
+        {
             nExpiry = stoll(it.second.value);
+        }
+    }
+
+    for (auto &it: data) {
         if (nExpiry > height && it.first <= height && (it.second.subdomain == subdomain || it.second.key.substr(0,1) == "_")) {
             if (it.second.value != "")
                 ret[it.second.key] = it.second.value;
