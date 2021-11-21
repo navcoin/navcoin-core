@@ -786,8 +786,13 @@ bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
 }
 
 bool CStateViewCache::AddNameData(const uint256& id, const NameDataEntry& namerecord) const {
-    if (cacheNameData.count(id))
+    if (cacheNameData.count(id)) {
+        cacheNameData[id].erase(
+            std::remove_if(cacheNameData[id].begin(), cacheNameData[id].end(),
+                [&namerecord](const NameDataEntry & o) { return o.first == namerecord.first && o.second.IsNull(); }),
+            cacheNameData[id].end());
         cacheNameData[id].push_back(namerecord);
+    }
     else
     {
         cacheNameData.insert(std::make_pair(id, NameDataValues()));
