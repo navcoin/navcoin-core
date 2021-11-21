@@ -2990,6 +2990,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             view.RemoveNameRecord(program.hParameters[0]);
                         } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
                             view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
+                            LogPrint("dotnav", "%s: removing name data for %s %d\n", __func__, program.sParameters[0], pindex->nHeight);
                         }
                     }
                 } catch(...) {
