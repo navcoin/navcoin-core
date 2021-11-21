@@ -1518,7 +1518,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                     if (mapData.count("_key"))
-                                        return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                                        return state.DoS(100, false, REJECT_INVALID, strprintf("already-revealed:%s", program.sParameters[0]));
                                 }
 
                                 if (!(DotNav::IsValid(program.sParameters[0])))
@@ -4868,7 +4868,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                                 if (mapData.count("_key"))
-                                    return state.DoS(100, false, REJECT_INVALID, "already-revealed");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("already-revealed:%s", program.sParameters[0]));
                             }
                             if (!(DotNav::IsValid(program.sParameters[0])))
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-name");
