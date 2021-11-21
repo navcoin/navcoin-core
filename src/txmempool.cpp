@@ -424,6 +424,16 @@ bool CTxMemPool::AddNameRecord(const NameRecord& nr)
     return true;
 }
 
+bool CTxMemPool::AddNameData(const uint256 &tx, const uint256 &prid, const NameDataEntry &record)
+{
+    mapNameDataTx[tx].push_back(std::make_pair(prid, record));
+
+    if (!mapNameData.count(prid))
+        mapNameData.insert(std::make_pair(prid, NameDataValues()));
+
+    mapNameData[prid].push_back(record);
+}
+
 bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)
 {
     mapAnswer.insert(std::make_pair(answer.hash, answer));
@@ -639,6 +649,15 @@ void CTxMemPool::removeUnchecked(txiter it)
     const uint256 hash = it->GetTx().GetHash();
     for(const CTxIn& txin: it->GetTx().vin)
         mapNextTx.erase(txin.prevout);
+
+    if (mapNameDataTx.count(hash)) {
+        for (auto& it: mapNameDataTx[hash]) {
+            if (mapNameData.count(it.first)) {
+                mapNameData.erase(it.first);
+            }
+        }
+        mapNameDataTx.erase(hash);
+    }
 
     if (vTxHashes.size() > 1) {
         vTxHashes[it->vTxHashesIdx] = std::move(vTxHashes.back());
@@ -1194,6 +1213,19 @@ bool CStateViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &
     return false;
 }
 
+bool CStateViewMemPool::GetNameRecord(const uint256 &id, NameRecordValue &answer) const
+{
+    if (base->GetNameRecord(id, answer) && !answer.IsNull())
+        return true;
+
+    if (mempool.mapNameRecords.count(id))
+    {
+        answer = mempool.mapNameRecords.at(id);
+        return true;
+    }
+    return false;
+}
+
 
 bool CStateViewMemPool::GetConsultation(const uint256 &txid, CConsultation &consultation) const
 {
@@ -1216,6 +1248,23 @@ bool CStateViewMemPool::GetConsultationAnswer(const uint256 &txid, CConsultation
     if (mempool.mapAnswer.count(txid))
     {
         answer = mempool.mapAnswer.at(txid);
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewMemPool::GetNameData(const uint256 &prid, NameDataValues &data)
+{
+    NameDataValues temp;
+
+    base->GetNameData(prid, temp);
+
+    if (mempool.mapNameData.count(prid))
+    {
+        for (auto&it: mempool.mapNameData.at(prid)) {
+            temp.push_back(it);
+        }
+        data = temp;
         return true;
     }
     return false;
@@ -1285,6 +1334,10 @@ bool CStateViewMemPool::HavePaymentRequest(const uint256 &txid) const {
     return mempool.mapPaymentRequest.count(txid) || base->HavePaymentRequest(txid);
 }
 
+bool CStateViewMemPool::HaveNameData(const uint256 &id) const {
+    return mempool.mapNameData.count(id) || base->HaveNameData(id);
+}
+
 bool CStateViewMemPool::HaveConsultation(const uint256 &txid) const {
     return mempool.mapConsultation.count(txid) || base->HaveConsultation(txid);
 }
@@ -1306,6 +1359,11 @@ bool CStateViewMemPool::AddPaymentRequest(const CPaymentRequest& prequest) const
 bool CStateViewMemPool::AddConsultation(const CConsultation& consultation) const
 {
     return const_cast<CTxMemPool&>(mempool).AddConsultation(consultation);
+}
+
+bool CStateViewMemPool::AddNameData(const uint256 &tx, const uint256 &id, const NameDataEntry &record)
+{
+    return const_cast<CTxMemPool&>(mempool).AddNameData(tx, id, record);
 }
 
 bool CStateViewMemPool::AddToken(const Token& token) const

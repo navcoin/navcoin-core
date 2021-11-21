@@ -474,6 +474,8 @@ public:
     CConsultationMap mapConsultation;
     TokenMap mapTokens;
     NameRecordMap mapNameRecords;
+    NameDataMap mapNameData;
+    std::map<uint256, std::vector<std::pair<uint256, NameDataEntry>>> mapNameDataTx;
     CConsultationAnswerMap mapAnswer;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
@@ -550,6 +552,10 @@ public:
     bool AddToken(const Token& token);
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
     bool AddNameRecord(const NameRecord& namerecord);
+
+    bool HaveNameData(const uint256 &prid) const;
+    bool GetNameData(const uint256 &prid, NameDataValues& data);
+    bool AddNameData(const uint256 &txid, const uint256 &prid, const NameDataEntry& record);
 
     void addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -805,6 +811,7 @@ public:
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
     bool GetConsultation(const uint256 &txid, CConsultation &consultation) const;
     bool GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const;
+    bool GetNameRecord(const uint256 &id, NameRecordValue &answer) const;
     bool GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests);
     bool GetAllConsultationAnswers(CConsultationAnswerMap& mapConsultationAnswers);
     bool GetAllConsultations(CConsultationMap& mapConsultations);
@@ -814,6 +821,9 @@ public:
     bool AddToken(const Token& token) const;
     bool AddNameRecord(const NameRecord& nr) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
+    bool HaveNameData(const uint256 &prid) const;
+    bool GetNameData(const uint256 &prid, NameDataValues& data);
+    bool AddNameData(const uint256 &txid, const uint256 &prid, const NameDataEntry& record);
 };
 
 // We want to sort transactions by coin age priority

@@ -1506,7 +1506,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
 
                                 NameRecordValue recordvalue;
 
-                                if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
+                                if (!viewMemPool.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
                                     return state.DoS(100, false, REJECT_INVALID, "wrong-salt-name");
 
                                 if (chainActive.Tip()->nHeight-recordvalue.height < 6)
@@ -1514,7 +1514,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
 
                                 NameDataValues data;
 
-                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                     if (mapData.count("_key"))
@@ -1541,13 +1541,13 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     }
                                 }
 
-                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_expiry", std::to_string(chainActive.Tip()->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_expiry", std::to_string(chainActive.Tip()->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
                                     return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
-                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
                                     return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
-                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
                                     return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
-                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                     if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
@@ -1559,7 +1559,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                             } else if (program.action == UPDATE_NAME) {
                                 NameDataValues data;
-                                if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (!viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                     return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
                                 auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                 if (!mapData.count("_key"))
@@ -1587,10 +1587,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     }
                                 }
 
-                                if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
                                     return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
 
-                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
 
@@ -1606,7 +1606,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                     return state.DoS(100, false, REJECT_INVALID, "renew-name-missing-contribution");
                                 NameDataValues data;
 
-                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 {
                                     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                     if (!mapData.count("_key"))
