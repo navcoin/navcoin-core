@@ -1555,6 +1555,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                                 }
+
+                                LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                             } else if (program.action == UPDATE_NAME) {
                                 NameDataValues data;
                                 if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
@@ -1597,6 +1599,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
                                 }
+
+                                LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                             } else if (program.action == RENEW_NAME) {
                                 if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
                                     return state.DoS(100, false, REJECT_INVALID, "renew-name-missing-contribution");
@@ -1610,6 +1614,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                                 } else {
                                     return state.DoS(100, false, REJECT_INVALID, "name-not-active");
                                 }
+                                LogPrint("dotnav", "%s: renewed name %s %s %s %s\n", __func__, program.sParameters[0]);
                             }
                         } catch(std::exception& e) {
                             return state.DoS(100, false, REJECT_INVALID, strprintf("error-program-vdata(%s)", e.what()));
@@ -4848,21 +4853,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (fDotNav) {
                         if (program.action == REGISTER_NAME) {
                             if (view.HaveNameRecord(program.hParameters[0]))
-                                return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-hash-already-known:%s", program.sParameters[0]));
 
                             if (!view.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(pindex->nHeight))))
-                                return state.DoS(100, false, REJECT_INVALID, "register-name-could-not-add");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-could-not-add:%s", program.sParameters[0]));
                         } else if (program.action == UPDATE_NAME_FIRST) {
                             if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
-                                return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
 
                             NameRecordValue recordvalue;
 
                             if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
-                                return state.DoS(100, false, REJECT_INVALID, "wrong-salt-name");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("wrong-salt-name:%s", program.sParameters[0]));
 
                             if (pindex->nHeight-recordvalue.height < 6)
-                                return state.DoS(100, false, REJECT_INVALID, "6-block-maturity-not-reached");                            NameDataValues data;
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));                            NameDataValues data;
 
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
@@ -4871,70 +4876,74 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     return state.DoS(100, false, REJECT_INVALID, strprintf("already-revealed:%s", program.sParameters[0]));
                             }
                             if (!(DotNav::IsValid(program.sParameters[0])))
-                                return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
                             if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
-                                return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-subdomain:%s", program.sParameters[0]));
                             if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
-                                return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
                             if (program.sParameters[2] == "_key")
                             {
                                 try {
                                     bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                 }
                                 catch(...) {
-                                    return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-key-to-update:%s", program.sParameters[0]));
                                 }
                             }
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
 
                                 if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
-                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
                             } else {
-                                return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
                             }
+
+                            LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         } else if (program.action == RENEW_NAME) {
                             if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
-                                return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
                             NameDataValues data;
 
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                                 if (!mapData.count("_key"))
-                                    return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("name-not-active:%s", program.sParameters[0]));
                             } else {
-                                return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-not-active:%s", program.sParameters[0]));
                             }
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+
+                            LogPrint("dotnav", "%s: renewed name %s\n", __func__, program.sParameters[0]);
                         } else if (program.action == UPDATE_NAME) {
                             NameDataValues data;
                             if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                                 return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
                             if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
-                                return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-subdomain:%s", program.sParameters[0]));
                             if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
-                                return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
                             if (program.sParameters[3].size() > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
-                                return state.DoS(100, false, REJECT_INVALID, "too-long-value");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("too-long-value:%s", program.sParameters[0]));
                             auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                             if (!mapData.count("_key"))
-                                return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-has-no-key:%s", program.sParameters[0]));
                             try {
                                 if (program.kParameters[0] != bls::G1Element::FromByteVector(ParseHex(mapData["_key"])))
                                     return state.DoS(100, false, REJECT_INVALID, "wrong-key-specified");
                             }
                             catch(...)
                             {
-                                return state.DoS(100, false, REJECT_INVALID, "error-parsing-key");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("error-parsing-key:%s", program.sParameters[0]));
                             }
                             if (program.sParameters[2] == "_key")
                             {
@@ -4942,24 +4951,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
                                 }
                                 catch(...) {
-                                    return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-key-to-update:%s", program.sParameters[0]));
                                 }
                             }
                             if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
-                                return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
 
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
                                 auto mapData = DotNav::Consolidate(data, pindex->nHeight);
                                 if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
-                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
                             } else {
-                                return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
                             }
+
+                            LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         }
                     }
                 } catch(...) {
-                    return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                    return state.DoS(100, false, REJECT_INVALID, strprintf("error-program-vdata:%s", program.sParameters[0]));
                 }
             }
         }
