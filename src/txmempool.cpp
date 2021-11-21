@@ -1268,7 +1268,8 @@ bool CStateViewMemPool::GetNameData(const uint256 &prid, NameDataValues &data)
         data = temp;
         return true;
     }
-    return false;
+    data = temp;
+    return temp.size() > 0;
 }
 
 bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
