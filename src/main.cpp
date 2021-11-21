@@ -1558,7 +1558,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             } else if (program.action == UPDATE_NAME) {
                                 NameDataValues data;
                                 if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
-                                    return state.DoS(100, false, REJECT_INVALID, "error-name");
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
                                 auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
                                 if (!mapData.count("_key"))
                                     return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
@@ -4918,7 +4918,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         } else if (program.action == UPDATE_NAME) {
                             NameDataValues data;
                             if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
-                                return state.DoS(100, false, REJECT_INVALID, "error-name");
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
                             if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
                                 return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
                             if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
