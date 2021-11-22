@@ -59,7 +59,6 @@ CDBEnv::CDBEnv() : dbenv(NULL)
 
 CDBEnv::~CDBEnv()
 {
-    info("CDBEnv::~CDBEnv destroy");
     EnvShutdown();
     delete dbenv;
     dbenv = nullptr;
@@ -101,8 +100,6 @@ bool CDBEnv::Open(const fs::path& pathIn, std::string pin)
     // Check if we got a pin
     if (fCrypted)
     {
-        info("CDBEnv::Open: Encryption Enabled");
-
         // Enable encryption for the envirnment
         int cryptRet = dbenv->set_encrypt(pin.c_str(), DB_ENCRYPT_AES);
 
@@ -110,11 +107,8 @@ bool CDBEnv::Open(const fs::path& pathIn, std::string pin)
         if (cryptRet != 0)
             return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
     } else {
-        info("CDBEnv::Open: Encryption Disabled");
     }
 
-    info("CDBEnv::Open: CALL DBEnv->open");
-    info("CDBEnv::Open: DIR %s", strPath);
     int ret = dbenv->open(strPath.c_str(),
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -150,7 +144,6 @@ void CDBEnv::MakeMock()
     dbenv->set_flags(DB_AUTO_COMMIT, 1);
     dbenv->log_set_config(DB_LOG_IN_MEMORY, 1);
 
-    info("CDBEnv::MakeMock: CALL DB->open");
     int ret = dbenv->open(NULL,
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -174,8 +167,6 @@ CDBEnv::VerifyResult CDBEnv::Verify(const std::string& strFile, bool (*recoverFu
 
     Db db(dbenv, 0);
     int result = db.verify(strFile.c_str(), nullptr, nullptr, 0);
-
-    info("CDBEnv::Verify: CODE: %d MESSAGE: %s", result, DbEnv::strerror(result));
 
     if (result == 0)
         return VERIFY_OK;
@@ -265,7 +256,6 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
 
 CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(nullptr), activeTxn(nullptr)
 {
-    info("CDB::CDB: START");
     int ret;
     fReadOnly = (!strchr(pszMode, '+') && !strchr(pszMode, 'w'));
     fFlushOnClose = fFlushOnCloseIn;
@@ -299,7 +289,6 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
             // Check if bitdb is encrypted
             if (bitdb.IsCrypted())
             {
-                info("CDB::CDB: DB_ENCRYPT enabled");
                 // Enable encryption for the database
                 int cryptRet = pdb->set_flags(DB_ENCRYPT);
 
@@ -308,7 +297,6 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                     throw std::runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
             }
 
-            info("CDB::CDB: CALL DB->open");
             ret = pdb->open(NULL,                               // Txn pointer
                             fMockDb ? NULL : strFile.c_str(),   // Filename
                             fMockDb ? strFile.c_str() : "main", // Logical db name
@@ -437,7 +425,6 @@ bool CDB::Rewrite(const std::string& strFile, const char* pszSkip, std::string n
                     // Check if _bitdb is encrypted
                     if (_bitdb->IsCrypted())
                     {
-                        info("CDB::Rewrite: DB_ENCRYPT enabled");
                         // Enable encryption for the database
                         int cryptRet = pdbCopy->set_flags(DB_ENCRYPT);
 
@@ -446,7 +433,6 @@ bool CDB::Rewrite(const std::string& strFile, const char* pszSkip, std::string n
                             throw std::runtime_error(strprintf("CDB::Rewrite: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
                     }
 
-                    info("CDB::Rewrite: CALL DB->open");
                     int ret = pdbCopy->open(NULL,               // Txn pointer
                                             strFileRes.c_str(), // Filename
                                             "main",             // Logical db name
