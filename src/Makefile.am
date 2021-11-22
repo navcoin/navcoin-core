@@ -332,6 +332,7 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/programs.h \
   consensus/program_actions.h \
   ctokens/ctokens.h \
+  ctokens/tokenid.h \
   aes_helper.c \
   blake.c \
   bmw.c \
