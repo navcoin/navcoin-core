@@ -106,7 +106,6 @@ bool CDBEnv::Open(const fs::path& pathIn, std::string pin)
         // Check if it worked
         if (cryptRet != 0)
             return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
-    } else {
     }
 
     int ret = dbenv->open(strPath.c_str(),
