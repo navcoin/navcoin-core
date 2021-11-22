@@ -199,13 +199,17 @@ bool CStateViewDB::GetNameData(const uint256& id, NameDataValues& map) {
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char, NameDataKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_NAME_DATA && key.second.id == id) {
-            NameDataValue data;
-            if (pcursor->GetValue(data)) {
-                map.push_back(std::make_pair(key.second.height, data));
-                pcursor->Next();
+        if (pcursor->GetKey(key) && key.first == DB_NAME_DATA) {
+            if (key.second.id == id) {
+                NameDataValue data;
+                if (pcursor->GetValue(data)) {
+                    map.push_back(std::make_pair(key.second.height, data));
+                    pcursor->Next();
+                } else {
+                    return error("GetNameData() : failed to read value");
+                }
             } else {
-                return error("GetNameData() : failed to read value");
+                pcursor->Next();
             }
         } else {
             break;
