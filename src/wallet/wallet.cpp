@@ -2318,7 +2318,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            if(!txout.scriptPubKey.IsCommunityFundContribution() && !txout.IsBLSCT())
+            if(!txout.scriptPubKey.IsCommunityFundContribution() && !txout.IsBLSCT() && !txout.scriptPubKey.IsFee())
                 LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d %s\n",
                          this->GetHash().ToString(), i, txout.ToString());
             address = CNoDestination();
@@ -3767,6 +3767,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     bls::G1Element nonce;
 
                     txout.vData = recipient.vData;
+                    if (txout.vData.size() > 0)
+                        txNew.nVersion |= TX_BLS_CT_FLAG;
+
                     Predicate program(txout.vData);
 
                     if (!recipient.fBLSCT)
@@ -3852,6 +3855,66 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         }
 
                         bls::G2Element sig = bls::AugSchemeMPL::Sign(tk.GetKey(), std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
+                        vBLSSignatures.push_back(sig);
+                    }
+
+                    if (program.kParameters.size() > 0 && program.action == UPDATE_NAME_FIRST) {
+                        uint256 txOutHash = txout.GetHash();
+                        blsctKey s;
+                        if (!GetBLSCTSpendKey(s))
+                        {
+                            strFailReason = strprintf("Missing master spend private key");
+                            return false;
+                        }
+
+                        blsctKey ns = s.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(program.sParameters[0]).ToString()));
+
+                        if (ns.GetG1Element() != program.kParameters[0])
+                            strFailReason = strprintf("Can't get name private key");
+
+                        bls::G2Element sig = bls::AugSchemeMPL::Sign(ns.GetKey(), std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
+                        vBLSSignatures.push_back(sig);
+                    }
+
+                    if (program.sParameters.size() > 0 && program.action == UPDATE_NAME) {
+                        uint256 txOutHash = txout.GetHash();
+                        blsctKey s;
+                        if (!GetBLSCTSpendKey(s))
+                        {
+                            strFailReason = strprintf("Missing master spend private key");
+                            return false;
+                        }
+
+                        blsctKey ns = s.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(program.sParameters[0]).ToString()));
+
+                        {
+                            CStateViewCache inputs(pcoinsTip);
+
+                            NameDataValues data;
+                            if (!inputs.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                strFailReason = strprintf("Could not find the name");
+                                return false;
+                            }
+                            auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                            if (!mapData.count("_key"))
+                            {
+                                strFailReason = strprintf("Name has not an associated key");
+                                return false;
+                            }
+                            try {
+                                if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != ns.GetG1Element())
+                                {
+                                    strFailReason = strprintf("You don't own the name");
+                                    return false;
+                                }
+                            } catch(...) {
+                                strFailReason = strprintf("Wrong format key of name");
+                                return false;
+                            }
+                        }
+
+                        bls::G2Element sig = bls::AugSchemeMPL::Sign(ns.GetKey(), std::vector<unsigned char>(txOutHash.begin(), txOutHash.end()));
                         vBLSSignatures.push_back(sig);
                     }
 

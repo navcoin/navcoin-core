@@ -114,6 +114,14 @@ bool VerifyBLSCT(const CTransaction &tx, bls::PrivateKey viewKey, std::vector<Ra
                     txSigningKeys.push_back(program.kParameters[0]);
                     hash = tx.vout[j].GetHash();
                     vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                } else if (program.action == UPDATE_NAME_FIRST) {
+                    txSigningKeys.push_back(program.kParameters[0]);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
+                } else if (program.action == UPDATE_NAME) {
+                    txSigningKeys.push_back(program.kParameters[0]);
+                    hash = tx.vout[j].GetHash();
+                    vMessages.push_back(std::vector<unsigned char>(hash.begin(), hash.end()));
                 } else if (program.action == MINT) {
                     txSigningKeys.push_back(program.kParameters[0]);
                     hash = tx.vout[j].GetHash();

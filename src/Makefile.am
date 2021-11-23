@@ -329,9 +329,15 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
+  consensus/programs.cpp \
   consensus/programs.h \
   consensus/program_actions.h \
   ctokens/ctokens.h \
+  ctokens/tokenid.h \
+  dotnav/namedata.h \
+  dotnav/namerecord.h \
+  dotnav/names.h \
+  dotnav/names.cpp \
   aes_helper.c \
   blake.c \
   bmw.c \
