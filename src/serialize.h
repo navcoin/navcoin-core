@@ -568,7 +568,11 @@ inline void Unserialize(Stream& s, bls::G1Element & a, int nType, int nVersion =
 {
     std::vector<uint8_t> f(bls::G1Element::SIZE);
     Unserialize(s, f, nType, nVersion);
-    a = bls::G1Element::FromByteVector(f);
+    try {
+        a = bls::G1Element::FromByteVector(f);
+    } catch(...) {
+
+    }
 }
 
 
@@ -585,7 +589,11 @@ inline void Unserialize(Stream& s, bls::G2Element & a, int nType, int nVersion =
 {
     std::vector<uint8_t> f(bls::G2Element::SIZE);
     Unserialize(s, f, nType, nVersion);
-    a = bls::G2Element::FromByteVector(f);
+    try {
+        a = bls::G2Element::FromByteVector(f);
+    } catch(...) {
+
+    }
 }
 
 /**

@@ -16,6 +16,7 @@
 #include <blsct/bulletproofs.h>
 #include <coins.h>
 #include <consensus/validation.h>
+#include <dotnav/names.h>
 #include <primitives/transaction.h>
 #include <random.h>
 #include <schemes.hpp>

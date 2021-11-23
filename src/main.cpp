@@ -1190,6 +1190,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        if (txout.vData.size() > 0 && !tx.IsCTOutput())
+            return state.DoS(100, false, REJECT_INVALID, "tx-wrong-version-blsct-out");
     }
 
     // Check for duplicate inputs
@@ -1480,9 +1482,147 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                 }
             }
 
-            if (IsXNavSerEnabled(chainActive.Tip(), Params().GetConsensus()))
+
+            for (const CTxOut& txout: tx.vout)
             {
-                for (const CTxOut& txout: tx.vout)
+                if (IsDotNavEnabled(chainActive.Tip(), Params().GetConsensus()))
+                {
+                    if (txout.vData.size() > 0) {
+                        try {
+                            Predicate program(txout.vData);
+
+                            if (program.action == ERR) {
+                                return state.DoS(100, false, REJECT_INVALID, "err-program-vdata");
+                            } else if (program.action == REGISTER_NAME) {
+                                if (viewMemPool.HaveNameRecord(program.hParameters[0]))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-hash-already-known");
+                                if (!viewMemPool.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(1))))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-could-not-add");
+                            }
+                            else if (program.action == UPDATE_NAME_FIRST)
+                            {
+                                if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+
+                                NameRecordValue recordvalue;
+
+                                if (!viewMemPool.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
+                                    return state.DoS(100, false, REJECT_INVALID, "wrong-salt-name");
+
+                                if (chainActive.Tip()->nHeight-recordvalue.height < 6)
+                                    return state.DoS(100, false, REJECT_INVALID, "6-block-maturity-not-reached");
+
+                                NameDataValues data;
+
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (mapData.count("_key"))
+                                        return state.DoS(100, false, REJECT_INVALID, strprintf("already-revealed:%s", program.sParameters[0]));
+                                }
+
+                                if (!(DotNav::IsValid(program.sParameters[0])))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-name");
+
+                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+
+                                if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-key");
+
+
+                                if (program.sParameters[2] == "_key")
+                                {
+                                    try {
+                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
+                                    }
+                                    catch(...) {
+                                        return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
+                                    }
+                                }
+
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_expiry", std::to_string(chainActive.Tip()->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                        return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                }
+
+                                LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
+                            } else if (program.action == UPDATE_NAME) {
+                                NameDataValues data;
+                                if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
+                                auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                if (!mapData.count("_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-has-no-key");
+                                try {
+                                    if (program.kParameters[0] != bls::G1Element::FromByteVector(ParseHex(mapData["_key"])))
+                                        return state.DoS(100, false, REJECT_INVALID, "wrong-key-specified");
+                                } catch(...)
+                                {
+                                    return state.DoS(100, false, REJECT_INVALID, "error-parsing-key");
+                                }
+                                if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-subdomain");
+                                if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, "invalid-key");
+                                if (program.sParameters[3].size() > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                    return state.DoS(100, false, REJECT_INVALID, "too-long-value");
+                                if (program.sParameters[2] == "_key")
+                                {
+                                    try {
+                                        bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
+                                    }
+                                    catch(...) {
+                                        return state.DoS(100, false, REJECT_INVALID, "invalid-key-to-update");
+                                    }
+                                }
+
+                                if (!viewMemPool.AddNameData(hash, DotNav::GetHashName(program.sParameters[0]), std::make_pair(chainActive.Tip()->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                    return state.DoS(100, false, REJECT_INVALID, "name-could-not-update");
+
+                                if (viewMemPool.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+
+                                    if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                        return state.DoS(100, false, REJECT_INVALID, "register-name-missing-contribution");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "could-not-verify-written-data");
+                                }
+
+                                LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
+                            } else if (program.action == RENEW_NAME) {
+                                if (!(txout.scriptPubKey.IsCommunityFundContribution() && txout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, "renew-name-missing-contribution");
+                                NameDataValues data;
+
+                                if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                {
+                                    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+                                    if (!mapData.count("_key"))
+                                        return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                                } else {
+                                    return state.DoS(100, false, REJECT_INVALID, "name-not-active");
+                                }
+                                LogPrint("dotnav", "%s: renewed name %s %s %s %s\n", __func__, program.sParameters[0]);
+                            }
+                        } catch(std::exception& e) {
+                            return state.DoS(100, false, REJECT_INVALID, strprintf("error-program-vdata(%s)", e.what()));
+                        }
+                    }
+                }
+
+                if (IsXNavSerEnabled(chainActive.Tip(), Params().GetConsensus()))
                 {
                     if (txout.vData.size() > 0 && GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
                     {
@@ -1490,7 +1630,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
                             Predicate program(txout.vData);
 
                             if (program.action == ERR) {
-                                return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                                return state.DoS(100, false, REJECT_INVALID, "err-program-vdata");
                             } else if (program.action == MINT) {
                                 auto tokenId = SerializeHash(program.kParameters[0]);
 
@@ -1920,6 +2060,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CCriticalSection *mpcs, CCritica
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
+
         if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, blsctData, txdata, fXNavSer)) {
             // SCRIPT_VERIFY_CLEANSTACK requires SCRIPT_VERIFY_WITNESS, so we
             // need to turn both off, and compare against just turning off CLEANSTACK
@@ -2734,6 +2875,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsDAOEnabled(pindex->pprev, Params().GetConsensus());
+    bool fDotNav = IsDotNavEnabled(pindex->pprev, Params().GetConsensus());
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
@@ -2773,7 +2915,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
 
         for (auto& txout: tx.vout) {
-            if (txout.vData.size() > 0 && GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
+            if (txout.vData.size() > 0)
             {
                 try {
                     Predicate program(txout.vData);
@@ -2782,60 +2924,74 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     {
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
-                    else if (program.action == MINT)
+                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
                     {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
-
-                        if (!view.HaveToken(tokenId))
+                        if (program.action == MINT)
                         {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                        }
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
-                        TokenModifier token = view.ModifyToken(tokenId);
-
-                        if (token->nVersion == 0) {
-                            token->DecreaseSupply(program.nParameters[0]);
-                        } else if (token->nVersion == 1) {
-                            if (!token->mapMetadata.count(program.nParameters[0])) {
-                                return state.DoS(100, false, REJECT_INVALID, "unknown-nft");
+                            if (!view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
                             }
-                            token->mapMetadata.erase(program.nParameters[0]);
-                        } else {
-                            return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            if (token->nVersion == 0) {
+                                token->DecreaseSupply(program.nParameters[0]);
+                            } else if (token->nVersion == 1) {
+                                if (!token->mapMetadata.count(program.nParameters[0])) {
+                                    return state.DoS(100, false, REJECT_INVALID, "unknown-nft");
+                                }
+                                token->mapMetadata.erase(program.nParameters[0]);
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
+                            }
+                        }
+                        else if (program.action == BURN)
+                        {
+                            auto tokenId = txout.tokenId.token;
+
+                            if (!view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            if (token->nVersion == 0)
+                            {
+                                token->IncreaseSupply(program.nParameters[0]);
+                            }
+                        }
+                        else if (program.action == CREATE_TOKEN)
+                        {
+                            auto tokenId = SerializeHash(program.kParameters[0]);
+
+                            view.RemoveToken(tokenId);
+                        } else if (program.action == STOP_MINT) {
+                            auto tokenId = SerializeHash(program.kParameters[0]);
+
+                            if (!view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            token->canMint = true;
                         }
                     }
-                    else if (program.action == BURN)
+                    if (fDotNav)
                     {
-                        auto tokenId = txout.tokenId.token;
-
-                        if (!view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                        if (program.action == REGISTER_NAME) {
+                            if (!view.HaveNameRecord(program.hParameters[0]))
+                                return state.DoS(100, false, REJECT_INVALID, "register-name-hash-unknown");
+                            view.RemoveNameRecord(program.hParameters[0]);
+                        } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
+                            view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
+                            LogPrint("dotnav", "%s: removing name data for %s %d\n", __func__, program.sParameters[0], pindex->nHeight);
                         }
-
-                        TokenModifier token = view.ModifyToken(tokenId);
-
-                        if (token->nVersion == 0)
-                        {
-                            token->IncreaseSupply(program.nParameters[0]);
-                        }
-                    }
-                    else if (program.action == CREATE_TOKEN)
-                    {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
-
-                        view.RemoveToken(tokenId);
-                    } else if (program.action == STOP_MINT) {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
-
-                        if (!view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                        }
-
-                        TokenModifier token = view.ModifyToken(tokenId);
-
-                        token->canMint = true;
                     }
                 } catch(...) {
                     return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
@@ -4589,6 +4745,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             nMovedToBLS += view.GetValueIn(tx) - tx.GetValueOut();
         }
 
+        bool fDotNav = IsDotNavEnabled(pindex->pprev, Params().GetConsensus());
+
         for(const CTxOut& vout: tx.vout)
         {
             if(vout.IsCommunityFundContribution())
@@ -4600,93 +4758,216 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 LogPrint("daoextra", "%s: Updated DAO Fund supply to %d\n", __func__, pindex->nCFSupply);
             }
 
-            if (vout.vData.size() > 0 && GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
+            if (vout.vData.size() > 0)
             {
                 try {
                     Predicate program(vout.vData);
 
                     if (program.action == ERR) {
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
-                    } else if (program.action == MINT) {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
+                    }
+                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
+                        if (program.action == MINT) {
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
-                        if (!view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                        }
-
-                        TokenModifier token = view.ModifyToken(tokenId);
-
-                        if (token->nVersion == 0) {
-                            LogPrint("token", "%s: Minting %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
-
-                            if (!token->IncreaseSupply(program.nParameters[0])) {
-                                return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
-                            }
-                        } else if (token->nVersion == 1) {
-                            if (program.nParameters[0] < 0 || program.nParameters[0] > token->totalSupply)
+                            if (!view.HaveToken(tokenId))
                             {
-                                return state.DoS(100, false, REJECT_INVALID, "wrong-nft-id");
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
                             }
-                            if (token->mapMetadata.count(program.nParameters[0])) {
-                                return state.DoS(100, false, REJECT_INVALID, "already-minted");
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            if (token->nVersion == 0) {
+                                LogPrint("token", "%s: Minting %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+
+                                if (!token->IncreaseSupply(program.nParameters[0])) {
+                                    return state.DoS(100, false, REJECT_INVALID, "cant-increase-supply");
+                                }
+                            } else if (token->nVersion == 1) {
+                                if (program.nParameters[0] < 0 || program.nParameters[0] > token->totalSupply)
+                                {
+                                    return state.DoS(100, false, REJECT_INVALID, "wrong-nft-id");
+                                }
+                                if (token->mapMetadata.count(program.nParameters[0])) {
+                                    return state.DoS(100, false, REJECT_INVALID, "already-minted");
+                                }
+                                std::string md{program.vParameters[0].begin(), program.vParameters[0].end()};
+                                token->mapMetadata[program.nParameters[0]] = md;
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                             }
-                            std::string md{program.vParameters[0].begin(), program.vParameters[0].end()};
-                            token->mapMetadata[program.nParameters[0]] = md;
-                        } else {
-                            return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
-                        }
-                    } else if (program.action == BURN) {
-                        auto tokenId = vout.tokenId.token;
+                        } else if (program.action == BURN) {
+                            auto tokenId = vout.tokenId.token;
 
-                        if (!view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                        }
+                            if (!view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
 
-                        TokenModifier token = view.ModifyToken(tokenId);
+                            TokenModifier token = view.ModifyToken(tokenId);
 
-                        if (token->nVersion == 0)
-                        {
-                            LogPrint("token", "%s: Burning %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
+                            if (token->nVersion == 0)
+                            {
+                                LogPrint("token", "%s: Burning %s for token %s (max supply %s)\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString(), FormatMoney(token->totalSupply));
 
-                            if (!token->DecreaseSupply(program.nParameters[0])) {
-                                return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                                if (!token->DecreaseSupply(program.nParameters[0])) {
+                                    return state.DoS(100, false, REJECT_INVALID, "cant-decrease-supply");
+                                }
+                            }
+                            else
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "cant-burn");
+                            }
+                        } else if (program.action == CREATE_TOKEN) {
+                            auto tokenId = SerializeHash(program.kParameters[0]);
+
+                            if (view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
+                            }
+
+                            TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[1], program.nParameters[0]);
+
+                            token.fDirty = true;
+
+                            LogPrint("token", "%s: Creating token %s\n", __func__, tokenId.ToString());
+
+                            view.AddToken(std::make_pair(tokenId, token));
+                        } else if (program.action == STOP_MINT) {
+                            auto tokenId = SerializeHash(program.kParameters[0]);
+
+                            if (!view.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            LogPrint("token", "%s: Stopping minting for token %s\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString());
+
+                            if (!token->StopMinting()) {
+                                return state.DoS(100, false, REJECT_INVALID, "cant-stop-minting");
                             }
                         }
-                        else
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "cant-burn");
-                        }
-                    } else if (program.action == CREATE_TOKEN) {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
+                    }
 
-                        if (view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "already-known-token-id");
-                        }
+                    if (fDotNav) {
+                        if (program.action == REGISTER_NAME) {
+                            if (view.HaveNameRecord(program.hParameters[0]))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-hash-already-known:%s", program.sParameters[0]));
 
-                        TokenInfo token(program.kParameters[0], program.sParameters[0], program.sParameters[1], program.nParameters[1], program.nParameters[0]);
+                            if (!view.AddNameRecord(std::make_pair(program.hParameters[0], NameRecordValue(pindex->nHeight))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-could-not-add:%s", program.sParameters[0]));
+                        } else if (program.action == UPDATE_NAME_FIRST) {
+                            if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
 
-                        token.fDirty = true;
+                            NameRecordValue recordvalue;
 
-                        LogPrint("token", "%s: Creating token %s\n", __func__, tokenId.ToString());
+                            if (!view.GetNameRecord(DotNav::GetHashIdName(program.sParameters[0], program.kParameters[0]), recordvalue))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("wrong-salt-name:%s", program.sParameters[0]));
 
-                        view.AddToken(std::make_pair(tokenId, token));
-                    } else if (program.action == STOP_MINT) {
-                        auto tokenId = SerializeHash(program.kParameters[0]);
+                            if (pindex->nHeight-recordvalue.height < 6)
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));                            NameDataValues data;
 
-                        if (!view.HaveToken(tokenId))
-                        {
-                            return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                        }
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (mapData.count("_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("already-revealed:%s", program.sParameters[0]));
+                            }
+                            if (!(DotNav::IsValid(program.sParameters[0])))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
+                            if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-subdomain:%s", program.sParameters[0]));
+                            if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
+                            if (program.sParameters[2] == "_key")
+                            {
+                                try {
+                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
+                                }
+                                catch(...) {
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-key-to-update:%s", program.sParameters[0]));
+                                }
+                            }
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_key", HexStr(program.kParameters[0].Serialize())))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
 
-                        TokenModifier token = view.ModifyToken(tokenId);
+                                if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
+                            }
 
-                        LogPrint("token", "%s: Stopping minting for token %s\n", __func__, FormatMoney(program.nParameters[0]), tokenId.ToString());
+                            LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
+                        } else if (program.action == RENEW_NAME) {
+                            if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
+                            NameDataValues data;
 
-                        if (!token->StopMinting()) {
-                            return state.DoS(100, false, REJECT_INVALID, "cant-stop-minting");
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (!mapData.count("_key"))
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("name-not-active:%s", program.sParameters[0]));
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-not-active:%s", program.sParameters[0]));
+                            }
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue("_expiry", std::to_string(pindex->nHeight+GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH, view))))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+
+                            LogPrint("dotnav", "%s: renewed name %s\n", __func__, program.sParameters[0]);
+                        } else if (program.action == UPDATE_NAME) {
+                            NameDataValues data;
+                            if (!view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("error-name:%s", program.sParameters[0]));
+                            if (!(DotNav::IsValidKey(program.sParameters[1]) || program.sParameters[1] == ""))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-subdomain:%s", program.sParameters[0]));
+                            if (!(DotNav::IsValidKey(program.sParameters[2]) || program.sParameters[2] == "_key"))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-name:%s", program.sParameters[0]));
+                            if (program.sParameters[3].size() > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("too-long-value:%s", program.sParameters[0]));
+                            auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                            if (!mapData.count("_key"))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-has-no-key:%s", program.sParameters[0]));
+                            try {
+                                if (program.kParameters[0] != bls::G1Element::FromByteVector(ParseHex(mapData["_key"])))
+                                    return state.DoS(100, false, REJECT_INVALID, "wrong-key-specified");
+                            }
+                            catch(...)
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("error-parsing-key:%s", program.sParameters[0]));
+                            }
+                            if (program.sParameters[2] == "_key")
+                            {
+                                try {
+                                    bls::G1Element::FromByteVector(ParseHex(program.sParameters[3]));
+                                }
+                                catch(...) {
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-key-to-update:%s", program.sParameters[0]));
+                                }
+                            }
+                            if (!view.AddNameData(DotNav::GetHashName(program.sParameters[0]), std::make_pair(pindex->nHeight, NameDataValue(program.sParameters[2], program.sParameters[3], program.sParameters[1]))))
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("name-could-not-update:%s", program.sParameters[0]));
+
+                            if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
+                            {
+                                auto mapData = DotNav::Consolidate(data, pindex->nHeight);
+                                if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= std::floor(DotNav::CalculateSize(mapData)/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view)))
+                                    return state.DoS(100, false, REJECT_INVALID, strprintf("register-name-missing-contribution:%s", program.sParameters[0]));
+                            } else {
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
+                            }
+
+                            LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         }
                     }
                 } catch(...) {
@@ -5417,7 +5698,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
-            return error("ConnectTip(): ConnectBlock %s failed: ", pindexNew->GetBlockHash().ToString());
+            return error("ConnectTip(): ConnectBlock %s failed: %s", pindexNew->GetBlockHash().ToString(), state.GetRejectReason());
         }
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
@@ -6275,6 +6556,12 @@ bool IsXNavSerEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& pa
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_XNAV_SER, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsDotNavEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_DOT_NAV, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 // Compute at which vout of the block's coinbase transaction the witness
@@ -7157,7 +7444,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
         if (nCheckLevel >= 3 && pindex == pindexState && (coins.DynamicMemoryUsage() + pcoinsTip->DynamicMemoryUsage()) <= nCoinCacheUsage) {
             bool fClean = true;
             if (!DisconnectBlock(block, state, pindex, coins, &fClean))
-                return error("VerifyDB(): *** irrecoverable inconsistency in block data at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+                return error("VerifyDB(): *** irrecoverable inconsistency in block data at %d, hash=%s (%s)", pindex->nHeight, pindex->GetBlockHash().ToString(), state.GetRejectReason());
             if (!VoteStep(state, pindex, true, coins))
                 return error("VerifyDB(): *** VoteStep failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             pindexState = pindex->pprev;

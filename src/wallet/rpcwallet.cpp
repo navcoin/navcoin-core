@@ -1145,19 +1145,341 @@ UniValue createtoken(const UniValue& params, bool fHelp)
     if (nSupply <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
 
-    blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
-    bls::G1Element pkg1;
-    pk.GetG1Element(pkg1);
+    blsctKey sk;
 
-    while(view.HaveToken(SerializeHash(pkg1))) {
-        pk = pwalletMain->GenerateNewTokenKey();
-        pk.GetG1Element(pkg1);
-    }
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("token/"+sName+sDesc));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    if (view.HaveToken(SerializeHash(pkg1)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "You already registered one token with that name and symbol");
+
+    pwalletMain->AddBLSCTTokenKey(pk);
 
     TokenInfo token(pkg1, sName, sDesc, nSupply);
 
     EnsureWalletIsUnlocked();
     SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, token.GetCreateProgram());
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue registername(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "registername \"name\"\n"
+            "\nRegister a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name to register\n"
+            "\nExamples:\n"
+            + HelpExampleCli("registername", "satoshi.nav")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sName = params[0].get_str();
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    blsctKey sk;
+
+    EnsureWalletIsUnlocked();
+
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(sName).ToString()));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    if (view.HaveNameRecord(DotNav::GetHashIdName(sName, pkg1)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "You already reserved that name, use updatename instead");
+    if (view.HaveNameData(DotNav::GetHashName(sName)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "That name is already registered");
+
+    pwalletMain->AddBLSCTTokenKey(pk);
+
+    SendMoney(address.Get(), 0, fSubtractFeeFromAmount, wtx, true, true, false, 0, DotNav::GetRegisterProgram(sName, pkg1));
+
+    return wtx.GetHash().GetHex();
+}
+
+
+UniValue genkeyname(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "genkeyname \"name\"\n"
+            "\nGenerates a public key for receiving a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name \n"
+            "\nExamples:\n"
+            + HelpExampleCli("genkeyname", "satoshi.nav")
+                );
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sName = params[0].get_str();
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    blsctKey sk;
+
+    EnsureWalletIsUnlocked();
+
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(sName).ToString()));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    pwalletMain->AddBLSCTTokenKey(pk);
+
+    return HexStr(pkg1.Serialize());
+}
+
+UniValue renewname(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "renewname \"name\"\n"
+            "\nRenews a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name to renew\n"
+            "\nExamples:\n"
+            + HelpExampleCli("renewname", "satoshi.nav")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sName = params[0].get_str();
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    if (!view.HaveNameData(DotNav::GetHashName(sName)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "That name is not registered");
+
+    CAmount fee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view);
+
+    SendMoney(address.Get(), fee, fSubtractFeeFromAmount, wtx, true, true, false, 0, DotNav::GetRenewProgram(sName));
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue resolvename(const UniValue& params, bool fHelp)
+{
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    UniValue ret(UniValue::VOBJ);
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+            "resolvename \"name\"\n"
+            "\nResolves a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name to resolve\n"
+            "\nExamples:\n"
+            + HelpExampleCli("resolvename", "satoshi.nav")
+                );
+
+    if (!params[0].isStr() )
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    std::string sFullName = params[0].get_str();
+
+    std::string delimiter = ".";
+    std::string subdomain = "";
+    std::string sName = "";
+
+    if (std::count(sFullName.begin(), sFullName.end(), '.') == 2) {
+        subdomain = sFullName.substr(0, sFullName.find(delimiter));
+        sName = sFullName.substr(sFullName.find(delimiter)+1, sFullName.size());
+    } else {
+        sName = sFullName;
+    }
+
+    if (subdomain != "" && !DotNav::IsValidKey(subdomain))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid sub domain");
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    if (!view.HaveNameData(DotNav::GetHashName(sName)))
+        return ret;
+
+    NameDataValues data;
+
+    if (!view.GetNameData(DotNav::GetHashName(sName), data))
+    {
+        return ret;
+    }
+    auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight, subdomain);
+
+    for (auto &it: mapData) {
+        ret.pushKV(it.first, it.second);
+    }
+
+    return ret;
+}
+
+UniValue updatename(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    if (fHelp || params.size() < 3)
+        throw std::runtime_error(
+            "updatename \"name\" \"key\" \"value\"\n"
+            "\nUpdates a dotNav name.\n"
+            + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+            "1. \"name\"       (string, required) The name to update\n"
+            "1. \"key\"        (string, required) The parameter to update\n"
+            "1. \"value\"      (string, required) The value to set\n"
+            "\nExamples:\n"
+            + HelpExampleCli("updatename", "satoshi.nav nav NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ")
+                );
+
+
+    CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    if (!params[0].isStr() || !params[1].isStr() || !params[2].isStr())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Name and key and value must be strings");
+
+    std::string sFullName = params[0].get_str();
+
+    std::string delimiter = ".";
+    std::string subdomain = "";
+    std::string sName = "";
+
+    if (std::count(sFullName.begin(), sFullName.end(), '.') == 2) {
+        subdomain = sFullName.substr(0, sFullName.find(delimiter));
+        sName = sFullName.substr(sFullName.find(delimiter)+1, sFullName.size());
+    } else {
+        sName = sFullName;
+    }
+
+    if (subdomain != "" && !DotNav::IsValidKey(subdomain))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid sub domain");
+
+    if (!DotNav::IsValid(sName))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid name");
+
+    std::string sKey = params[1].get_str();
+
+    if (!DotNav::IsValidKey(sKey))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid key");
+
+    std::string sValue = params[2].get_str();
+
+    blsctKey sk;
+
+    EnsureWalletIsUnlocked();
+
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(sName).ToString()));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    if (!view.HaveNameRecord(DotNav::GetHashIdName(sName, pkg1)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "That name is not registered");
+
+    NameRecordValue recordvalue;
+
+    if (!view.GetNameRecord(DotNav::GetHashIdName(sName, pkg1), recordvalue))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Can't get that name");
+
+    if (chainActive.Tip()->nHeight-recordvalue.height < 6)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wait 6 blocks until the name is registered");
+
+    bool first = false;
+
+    NameDataValues data;
+    uint64_t dataSize = 0;
+
+    if (!view.HaveNameData(DotNav::GetHashName(sName)))
+        first = true;
+    else {
+        if (!view.GetNameData(DotNav::GetHashName(sName), data))
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Could not find the name");
+        }
+        auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight);
+        if (!mapData.count("_key"))
+        {
+            first = true;
+        } else {
+            mapData[sKey] = sValue;
+            dataSize = DotNav::CalculateSize(mapData);
+            try {
+                if (bls::G1Element::FromByteVector(ParseHex(mapData["_key"])) != pkg1)
+                {
+                    throw JSONRPCError(RPC_TYPE_ERROR, "You don't own the name");
+                }
+            } catch(...) {
+                throw JSONRPCError(RPC_TYPE_ERROR, "Wrong format key of name");
+            }
+        }
+    }
+
+    uint64_t fee = first ? GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view) : std::floor(dataSize/GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA, view))*GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA, view);
+
+    auto program = first ? DotNav::GetUpdateFirstProgram(sName, pkg1, sKey, sValue, subdomain) : DotNav::GetUpdateProgram(sName, pkg1, sKey, sValue, subdomain);
+
+    SendMoney(address.Get(), fee, fSubtractFeeFromAmount, wtx, true, true, false, 0, program);
 
     return wtx.GetHash().GetHex();
 }
@@ -1202,14 +1524,18 @@ UniValue createnft(const UniValue& params, bool fHelp)
     if (nSupply <= 0 || !MoneyRange(nSupply))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid supply");
 
-    blsctPublicKey pk = pwalletMain->GenerateNewTokenKey();
-    bls::G1Element pkg1;
-    pk.GetG1Element(pkg1);
+    blsctKey sk;
 
-    while(view.HaveToken(SerializeHash(pkg1))) {
-        pk = pwalletMain->GenerateNewTokenKey();
-        pk.GetG1Element(pkg1);
-    }
+    if (!pwalletMain->GetBLSCTSpendKey(sk))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+    blsctKey pk = sk.PrivateChildHash(SerializeHash("nft/"+sName+sDesc));
+    bls::G1Element pkg1 = pk.GetG1Element();
+
+    if (view.HaveToken(SerializeHash(pkg1)))
+        throw JSONRPCError(RPC_TYPE_ERROR, "You already registered one token with that name and symbol");
+
+    pwalletMain->AddBLSCTTokenKey(pk);
 
     TokenInfo token(pkg1, sName, sDesc, nSupply, 1);
 
@@ -1264,7 +1590,19 @@ UniValue minttoken(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
     if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+    {
+        blsctKey sk;
+
+        if (!pwalletMain->GetBLSCTSpendKey(sk))
+            throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+        blsctKey pk = sk.PrivateChildHash(SerializeHash("token/"+tokenInfo.sName+tokenInfo.sDesc));
+
+        if (pk.GetG1Element() != tokenInfo.key)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+
+        pwalletMain->AddBLSCTTokenKey(pk);
+    }
 
     std::string address = params[1].get_str();
 
@@ -1342,7 +1680,19 @@ UniValue mintnft(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Could not find token");
 
     if (!pwalletMain->HaveBLSCTTokenKey(tokenInfo.key))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+    {
+        blsctKey sk;
+
+        if (!pwalletMain->GetBLSCTSpendKey(sk))
+            throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+        blsctKey pk = sk.PrivateChildHash(SerializeHash("nft/"+tokenInfo.sName+tokenInfo.sDesc));
+
+        if (pk.GetG1Element() != tokenInfo.key)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Could not find private key for token");
+
+        pwalletMain->AddBLSCTTokenKey(pk);
+    }
 
     std::string address = params[2].get_str();
 
@@ -5761,6 +6111,11 @@ static const CRPCCommand commands[] =
   { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
   { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
   { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+  { "dotnav",             "registername",             &registername,             true  },
+  { "dotnav",             "renewname",                &renewname,                true  },
+  { "dotnav",             "updatename",               &updatename,               true  },
+  { "dotnav",             "resolvename",              &resolvename,              true  },
+  { "dotnav",             "genkeyname",               &genkeyname,               true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)
