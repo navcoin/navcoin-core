@@ -48,6 +48,14 @@ xNAV is used to pay the creation fees.
 
 The token will be managed by a BLS private key from the wallet which runs the RPC command. Token Keys are derived from the master BLS key using the `m/130'/2'/index` path.
 
+- `createnft <name> <scheme> <max_supply>`
+
+Creates a NFT Token with name `name`, scheme `scheme` and max supply `max_supply`. If `max_supply` is not indicated, its value will be 100,000,000,000 with divisions down to 8 decimal precision. Names can be duplicated and therefor the token id should be used to differentiate them.
+
+xNAV is used to pay the creation fees.
+
+The NFT will be managed by a BLS private key from the wallet which runs the RPC command. Token Keys are derived from the master BLS key using the `m/130'/2'/index` path.
+
 - `listtokens`
 
 Shows a list of network-wide available tokens together with their properties and wallet balance of that token, if any.
@@ -58,9 +66,21 @@ Mints `amount` of tokens to `xnav_address`. Minting tokens add to the token's cu
 
 xNAV is used to pay the minting fees.
 
+- `mintnft <token_id> <nft_id> <xnav_address> <metadata>`
+
+Mints 1 NFT to `xnav_address`. 
+
+xNAV is used to pay the minting fees.
+
 - `sendtoken <token_id> <xnav_address> <amount>`
 
 Sends `amount` of tokens to `xnav_address` from current wallet.
+
+xNAV is used to paid the transaction fees.
+
+- `sendnft <token_id> <nft_id> <xnav_address>`
+
+Sends `nft_id` of tokens to `xnav_address` from current wallet.
 
 xNAV is used to paid the transaction fees.
 
