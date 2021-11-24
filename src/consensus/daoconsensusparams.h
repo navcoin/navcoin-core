@@ -51,6 +51,9 @@ enum ConsensusParamsPos
     CONSENSUS_PARAM_NAVNS_FEE,
     CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE,
     CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED,
+    CONSENSUS_PARAMS_DOTNAV_LENGTH,
+    CONSENSUS_PARAMS_DOTNAV_MAXDATA,
+    CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA,
     MAX_CONSENSUS_PARAMS
 };
 
@@ -84,9 +87,12 @@ static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
     "Percentage of generated NAV going to the Fund",
 
     "Amount of NAV generated per block",
-    "Yearly fee for registering a name in NavNS",
+    "Fee for registering a name in DotNAV",
     "Minimum fee as a fund contribution to submit a DAO vote using a light wallet",
-    "Confidential tokens enabled"
+    "Confidential tokens enabled",
+    "Length in blocks of a dotNAV registration",
+    "Max data in bytes attached to a dotNAV name without cost",
+    "Fee for attaching extra data to a name"
 };
 
 static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
@@ -122,7 +128,10 @@ static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
     TYPE_NAV,
     TYPE_NAV,
     TYPE_NAV,
-    TYPE_BOOL
+    TYPE_BOOL,
+    TYPE_NUMBER,
+    TYPE_NUMBER,
+    TYPE_NAV
 };
 }
 

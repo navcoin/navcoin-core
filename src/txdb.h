@@ -115,18 +115,26 @@ public:
     bool GetToken(const uint256 &id, TokenInfo &token) const;
     bool HaveToken(const uint256 &id) const;
 
+    bool GetNameRecord(const uint256 &id, NameRecordValue &height) const;
+    bool HaveNameRecord(const uint256 &id) const;
+
+    bool GetNameData(const uint256& id, NameDataValues &data);
+    bool HaveNameData(const uint256& id) const;
+
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, const uint256 &hashBlock,
-                    const int &nExcludeVotes);
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
+                    const uint256 &hashBlock, const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);
     bool GetAllConsultations(CConsultationMap &map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
     bool GetAllTokens(TokenMap &map);
+    bool GetAllNameRecords(NameRecordMap &map);
     int GetExcludeVotes() const;
     CStateViewCursor *Cursor() const;
 };

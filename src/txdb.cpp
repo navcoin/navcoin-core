@@ -40,6 +40,8 @@ static const char DB_LAST_BLOCK = 'l';
 static const char DB_EXCLUDE_VOTES = 'X';
 
 static const char DB_TOKENS = 'T';
+static const char DB_NAME_RECORDS = 'n';
+static const char DB_NAME_DATA = 'N';
 
 CStateViewDB::CStateViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
@@ -67,6 +69,18 @@ bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
 
 bool CStateViewDB::HaveToken(const uint256 &id) const {
     return db.Exists(std::make_pair(DB_TOKENS, id));
+}
+
+bool CStateViewDB::GetNameRecord(const uint256 &id, NameRecordValue &height) const {
+    return db.Read(std::make_pair(DB_NAME_RECORDS, id), height);
+}
+
+bool CStateViewDB::HaveNameRecord(const uint256 &id) const {
+    return db.Exists(std::make_pair(DB_NAME_RECORDS, id));
+}
+
+bool CStateViewDB::HaveNameData(const uint256 &id) const {
+    return db.Exists(std::make_pair(DB_NAME_DATA, id));
 }
 
 bool CStateViewDB::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const {
@@ -166,6 +180,62 @@ bool CStateViewDB::GetAllTokens(TokenMap& map) {
                 pcursor->Next();
             } else {
                 return error("GetAllTokens() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CStateViewDB::GetNameData(const uint256& id, NameDataValues& map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_NAME_DATA, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, NameDataKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_NAME_DATA) {
+            if (key.second.id == id) {
+                NameDataValue data;
+                if (pcursor->GetValue(data)) {
+                    map.push_back(std::make_pair(key.second.height, data));
+                    pcursor->Next();
+                } else {
+                    return error("GetNameData() : failed to read value");
+                }
+            } else {
+                pcursor->Next();
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CStateViewDB::GetAllNameRecords(NameRecordMap &map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_NAME_RECORDS, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_NAME_RECORDS) {
+            uint64_t height;
+            if (pcursor->GetValue(height)) {
+                map.insert(std::make_pair(key.second, height));
+                pcursor->Next();
+            } else {
+                return error("GetAllNameRecords() : failed to read value");
             }
         } else {
             break;
@@ -283,7 +353,8 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
-                              TokenMap &mapTokens,
+                              TokenMap &mapTokens, NameRecordMap &mapNameRecords,
+                              NameDataMap& mapNameData,
                               const uint256 &hashBlock, const int &nExcludeVotes) {
 
     CDBBatch batch(db);
@@ -385,6 +456,33 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         TokenMap::iterator itOld = it++;
         mapTokens.erase(itOld);
+    }
+
+    for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {
+        if (it->second.IsNull()) {
+            batch.Erase(std::make_pair(DB_NAME_RECORDS, it->first));
+        } else {
+            batch.Write(std::make_pair(DB_NAME_RECORDS, it->first), it->second);
+        }
+        NameRecordMap::iterator itOld = it++;
+        mapNameRecords.erase(itOld);
+    }
+
+    for (NameDataMap::iterator it = mapNameData.begin(); it != mapNameData.end();) {
+        if (it->second.size() == 0) {
+            batch.Erase(std::make_pair(DB_NAME_DATA, it->first));
+        } else {
+            for (auto &it2: it->second) {
+                if (it2.second.IsNull())
+                {
+                    batch.Erase(std::make_pair(DB_NAME_DATA, NameDataKey(it->first, it2.first)));
+                } else {
+                    batch.Write(std::make_pair(DB_NAME_DATA, NameDataKey(it->first, it2.first, it2.second.key)), it2.second);
+                }
+            }
+        }
+        NameDataMap::iterator itOld = it++;
+        mapNameData.erase(itOld);
     }
 
     if (!hashBlock.IsNull())

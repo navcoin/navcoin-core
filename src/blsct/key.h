@@ -237,10 +237,14 @@ public:
     }
 
     bool operator<(const blsctKey& rhs) const {
-        Scalar l, r;
-        l = bls::PrivateKey::FromBytes(&k.front());
-        r = bls::PrivateKey::FromBytes(&(rhs.k).front());
-        return bn_cmp(l.bn, r.bn);
+        try {
+            Scalar l, r;
+            l = bls::PrivateKey::FromBytes(&k.front());
+            r = bls::PrivateKey::FromBytes(&(rhs.k).front());
+            return bn_cmp(l.bn, r.bn);
+        } catch (...) {
+            return false;
+        }
     }
 
     bool operator==(const blsctKey& rhs) const {
@@ -248,11 +252,19 @@ public:
     }
 
     bls::G1Element GetG1Element() const {
-        return bls::PrivateKey::FromBytes(&k.front()).GetG1Element();
+        try {
+            return bls::PrivateKey::FromBytes(&k.front()).GetG1Element();
+        } catch(...) {
+            return bls::G1Element();
+        }
     }
 
     bls::PrivateKey GetKey() const {
-        return bls::PrivateKey::FromBytes(&k.front());
+        try {
+            return bls::PrivateKey::FromBytes(&k.front());
+        } catch(...) {
+            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
+        }
     }
 
     Scalar GetScalar() const {
@@ -260,8 +272,30 @@ public:
     }
 
     bls::PrivateKey PrivateChild(uint32_t i) const {
-        bls::PrivateKey buf = bls::PrivateKey::FromBytes(&k.front());
-        return bls::HDKeys::DeriveChildSk(buf, i);
+        try {
+            bls::PrivateKey buf = bls::PrivateKey::FromBytes(&k.front());
+            return bls::HDKeys::DeriveChildSk(buf, i);
+        } catch(...) {
+            return bls::PrivateKey::FromBN(Scalar::Rand().bn);
+        }
+    }
+
+    bls::PrivateKey PrivateChildHash(uint256 h) const {
+        try {
+            bls::PrivateKey ret = bls::PrivateKey::FromBytes(&k.front());
+            for (auto i = 0; i < 8; i++)
+            {
+                const uint8_t* pos = h.begin() + i*4;
+                uint32_t index = (uint8_t)(pos[0]) << 24 |
+                                 (uint8_t)(pos[1]) << 16 |
+                                 (uint8_t)(pos[2]) << 8  |
+                                 (uint8_t)(pos[3]);
+                ret = bls::HDKeys::DeriveChildSk(ret, index);
+            }
+            return ret;
+        } catch(...) {
+            return  bls::PrivateKey::FromBN(Scalar::Rand().bn);
+        }
     }
 
     bls::G1Element PublicChild(uint32_t i) const {

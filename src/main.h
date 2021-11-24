@@ -545,6 +545,7 @@ bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Par
 bool IsDAOEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsXNavSerEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsDotNavEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the static reward has been activated **/
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);

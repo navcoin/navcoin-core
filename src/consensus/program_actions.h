@@ -12,7 +12,11 @@ enum ProgramActions
     CREATE_TOKEN,
     MINT,
     STOP_MINT,
-    BURN
+    BURN,
+    REGISTER_NAME,
+    UPDATE_NAME_FIRST,
+    UPDATE_NAME,
+    RENEW_NAME
 };
 
 #endif // PROGRAM_ACTIONS_H
