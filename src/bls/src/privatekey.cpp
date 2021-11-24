@@ -147,7 +147,7 @@ PrivateKey::PrivateKey(const PrivateKey &privateKey)
 }
 
 PrivateKey::PrivateKey(PrivateKey &&k)
-    : keydata(exchange(k.keydata, nullptr))
+    : keydata(std::exchange(k.keydata, nullptr))
 {}
 
 PrivateKey::~PrivateKey() { if(keydata !=NULL) Util::SecFree(keydata); }

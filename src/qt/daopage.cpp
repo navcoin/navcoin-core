@@ -564,7 +564,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         ProposalEntry p = {
             it.first,
             "#6666ff",
-            QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
+            (proposal.nVersion & CProposal::SUPER_VERSION ? "SUPER PROPOSAL: ": "" ) + QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
             NavcoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavcoinUnits::separatorAlways),
             NavcoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavcoinUnits::separatorAlways),
             QString::fromStdString(s_deadline),
@@ -671,7 +671,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         PaymentRequestEntry p = {
             it.first,
             QString::fromStdString(prequest.strDZeel).left(150) + (prequest.strDZeel.size() > 150 ? "..." : ""),
-            QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
+            (proposal.nVersion & CProposal::SUPER_VERSION ? "SUPER PROPOSAL: ": "" ) + QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
             "#6666ff",
             NavcoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavcoinUnits::separatorAlways),
             prequest.nVotesYes ? prequest.nVotesYes : 0,
@@ -2236,7 +2236,7 @@ void DaoChart::updateView() {
         {
             nCurrentCycle = proposal.nVotingCycle;
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view);
-            title = QString::fromStdString(proposal.strDZeel);
+            title = QString::fromStdString((proposal.nVersion & CProposal::SUPER_VERSION ? "SUPER PROPOSAL: ": "" ) + proposal.strDZeel);
             state = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime(), view));
 
             auto fState = proposal.GetLastState();

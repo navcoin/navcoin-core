@@ -9,10 +9,12 @@
 #include <amount.h>
 #include <blsct/bulletproofs.h>
 #include <consensus/dao.h>
+#include <consensus/programs.h>
 #include <sph_keccak.h>
 #include <script/script.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <arith_uint256.h>
 #include <univalue/include/univalue.h>
 
 #define TX_BLS_INPUT_FLAG 0x10
@@ -159,10 +161,13 @@ class CTxOut
 public:
     CAmount nValue;
     CScript scriptPubKey;
-    std::vector<uint8_t> bp;
     std::vector<uint8_t> ephemeralKey;
     std::vector<uint8_t> outputKey;
     std::vector<uint8_t> spendingKey;
+    std::vector<uint8_t> vData;
+    TokenId tokenId;
+    std::shared_ptr<BulletproofsRangeproof> bp;
+    uint256 cacheHash;
 
     CTxOut()
     {
@@ -178,22 +183,111 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (ser_action.ForRead())
         {
-            READWRITE(nValue);
-            if (nValue == ~(uint64_t)0)
+            bool fXNav = false;
+            uint64_t nFlags;
+            READWRITE(nFlags);
+            if (nFlags == ~(uint64_t)0)
             {
                 READWRITE(nValue);
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                BulletproofsRangeproof bp_;
-                READWRITE(bp_);
-                bp = bp_.GetVch();
+                BulletproofsRangeproof vbp;
+                READWRITE(vbp);
+                bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
+                fXNav = true;
+            }
+            else if (nFlags & (uint64_t)0x2<<62)
+            {
+                if (nFlags & 0x1<<0)
+                    READWRITE(nValue);
+                else
+                    nValue=0;
+                if (nFlags & 0x1<<1)
+                    READWRITE(ephemeralKey);
+                if (nFlags & 0x1<<2)
+                    READWRITE(outputKey);
+                if (nFlags & 0x1<<3)
+                    READWRITE(spendingKey);
+
+                if (nFlags & 0x1<<4)
+                {
+                    BulletproofsRangeproof vbp;
+                    READWRITE(vbp);
+                    bp = std::shared_ptr<BulletproofsRangeproof>(new BulletproofsRangeproof(vbp));
+                }
+                if (nFlags & 0x1<<5)
+                    READWRITE(tokenId.token);
+                if (nFlags & 0x1<<6)
+                    READWRITE(tokenId.subid);
+                if (nFlags & 0x1<<7)
+                {
+                    READWRITE(vData);
+                }
+
+                fXNav = true;
+            }
+            else
+            {
+                nValue = nFlags;
             }
             READWRITE(*(CScriptBase*)(&scriptPubKey));
+
+            if (fXNav)
+                cacheHash = SerializeHash(*this);
         }
         else
         {
-            if (IsBLSCT())
+            if (vData.size() > 0 || tokenId.token != uint256() || tokenId.subid != -1)
+            {
+                CAmount nMarker = (uint64_t)0x2 << 62;
+
+                if (nValue > 0)
+                    nMarker  |= 0x1<<0;
+                if (ephemeralKey.size() > 0)
+                    nMarker  |= 0x1<<1;
+                if (outputKey.size() > 0)
+                    nMarker  |= 0x1<<2;
+                if (spendingKey.size() > 0)
+                    nMarker  |= 0x1<<3;
+                if (HasRangeProof()) {
+                    nMarker  |= 0x1<<4;
+                }
+                if (tokenId.token != uint256()) {
+                    nMarker  |= 0x1<<5;
+                }
+                if (tokenId.subid != -1) {
+                    nMarker  |= 0x1<<6;
+                }
+                if (vData.size() > 0)
+                {
+                    nMarker  |= 0x1<<7;
+                }
+
+                READWRITE(nMarker);
+
+                if (nMarker & 0x1<<0)
+                    READWRITE(nValue);
+                if (nMarker & 0x1<<1)
+                    READWRITE(ephemeralKey);
+                if (nMarker & 0x1<<2)
+                    READWRITE(outputKey);
+                if (nMarker & 0x1<<3)
+                    READWRITE(spendingKey);
+                if (nMarker & 0x1<<4) {
+                    auto txbp = GetBulletproof();
+                    READWRITE(txbp);
+                }
+                if (nMarker & 0x1<<5)
+                    READWRITE(tokenId.token);
+                if (nMarker & 0x1<<6)
+                    READWRITE(tokenId.subid);
+                if (nMarker & 0x1<<7)
+                {
+                    READWRITE(vData);
+                }
+            }
+            else if (IsBLSCT())
             {
                 CAmount nMarker = ~(uint64_t)0;
                 READWRITE(nMarker);
@@ -201,8 +295,8 @@ public:
                 READWRITE(ephemeralKey);
                 READWRITE(outputKey);
                 READWRITE(spendingKey);
-                BulletproofsRangeproof bp_(bp);
-                READWRITE(bp_);
+                auto txbp = GetBulletproof();
+                READWRITE(txbp);
             }
             else
             {
@@ -219,13 +313,14 @@ public:
         ephemeralKey.clear();
         outputKey.clear();
         spendingKey.clear();
+        vData.clear();
+        tokenId = TokenId();
+        bp = nullptr;
     }
 
     BulletproofsRangeproof GetBulletproof() const
     {
-        if (bp.size() == 0)
-            return BulletproofsRangeproof();
-        return BulletproofsRangeproof(bp);
+        return bp ? *bp : BulletproofsRangeproof();
     }
 
     bool IsBLSCT() const
@@ -235,6 +330,7 @@ public:
 
     bool HasRangeProof() const
     {
+        if (!bp) return false;
         return GetBulletproof().V.size() > 0;
     }
 
@@ -245,7 +341,7 @@ public:
 
     bool IsEmpty() const
     {
-        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty());
+        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && ephemeralKey.empty() && outputKey.empty() && !HasRangeProof() && vData.empty());
     }
 
     bool IsCommunityFundContribution() const
@@ -324,7 +420,10 @@ public:
                 a.ephemeralKey == b.ephemeralKey &&
                 a.outputKey    == b.outputKey &&
                 a.spendingKey  == b.spendingKey &&
-                a.bp           == b.bp);
+                a.GetBulletproof()
+                               == b.GetBulletproof() &&
+                a.tokenId      == b.tokenId &&
+                a.vData        == b.vData);
     }
 
     friend bool operator!=(const CTxOut& a, const CTxOut& b)
@@ -471,7 +570,7 @@ inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, in
     }
     READWRITE(*const_cast<uint32_t*>(&tx.nLockTime));
     if(tx.nVersion >= 2) {
-      READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
+        READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
     if (tx.nVersion & TX_BLS_CT_FLAG || tx.nVersion & TX_BLS_INPUT_FLAG)
         READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchBalanceSig));
     if (tx.nVersion & TX_BLS_INPUT_FLAG)

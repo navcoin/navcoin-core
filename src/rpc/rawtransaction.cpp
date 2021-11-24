@@ -153,6 +153,10 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("outputKey", HexStr(txout.outputKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
+        out.pushKV("vData", HexStr(txout.vData));
+        out.pushKV("tokenId", txout.tokenId.token.ToString());
+        if (txout.tokenId.subid != -1)
+            out.pushKV("tokenNftId", txout.tokenId.subid);
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
 
         // Add spent information if spentindex is enabled
@@ -239,6 +243,10 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         out.pushKV("scriptPubKey", o);
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
+        out.pushKV("outputKey", HexStr(txout.outputKey));
+        out.pushKV("tokenId", txout.tokenId.token.ToString());
+        if (txout.tokenId.subid != -1)
+            out.pushKV("tokenNftId", txout.tokenId.subid);
         out.pushKV("rangeProof", txout.GetBulletproof().V.size() > 0);
         vout.push_back(out);
     }
@@ -518,11 +526,10 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
                 continue;
         }
 
-        if (prevtx.vout[txin.prevout.n].IsBLSCT())
+        if (prevtx.vout[txin.prevout.n].outputKey.size() && prevtx.vout[txin.prevout.n].spendingKey.size() && HexStr(prevtx.vout[txin.prevout.n].scriptPubKey.begin(), prevtx.vout[txin.prevout.n].scriptPubKey.end()) == "51")
         {
             in.pushKV("outputKey", HexStr(prevtx.vout[txin.prevout.n].outputKey));
             in.pushKV("spendingKey", HexStr(prevtx.vout[txin.prevout.n].spendingKey));
-
         }
         else
         {
@@ -540,7 +547,7 @@ UniValue gettransactionkeys(const UniValue& params, bool fHelp)
         UniValue out(UniValue::VOBJ);
 
 
-        if (txout.IsBLSCT())
+        if (txout.outputKey.size() && txout.spendingKey.size() && HexStr(txout.scriptPubKey.begin(), txout.scriptPubKey.end()) == "51")
         {
             out.pushKV("outputKey", HexStr(txout.outputKey));
             out.pushKV("spendingKey", HexStr(txout.spendingKey));

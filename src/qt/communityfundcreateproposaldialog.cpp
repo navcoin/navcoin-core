@@ -137,6 +137,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         // Description
         std::string sDesc = ui->plainTextEditDescription->text().toStdString();
 
+        bool fSuper = ui->superProposalCheckbox->isChecked();
+
         UniValue strDZeel(UniValue::VOBJ);
         uint64_t nVersion = CProposal::BASE_VERSION;
 
@@ -148,6 +150,9 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         if (IsExcludeEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CProposal::EXCLUDE_VERSION;
+
+        if (fSuper && IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::SUPER_VERSION;
 
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("a",Address);

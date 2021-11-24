@@ -146,8 +146,12 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES].value = 4;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
-        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 10 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 0;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 3 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -250,10 +254,25 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1612137600; // Feb 1st, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
+        // Deployment of DAO upgrade
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].bit = 11;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nTimeout = 1700784000; // Nov 24th, 2023
+
         // Deployment of Burn Fees
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1637712000; // Nov 24th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of dotNAV update
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].bit = 34;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nStartTime = 1637712000; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -333,9 +352,13 @@ public:
             (4000000,uint256S("0xc453ad4a2793fa4b718998b85c732526c0dfbcb0819dc5b1cff484c9bd7f6385"))
             (4250000,uint256S("0x5c058132de3a5ea6174168d61d46ca152e0c814a1fd11fbc12942e62d3d65be3"))
             (4500000,uint256S("0x5960e3d937b96185c8d49f2e73f34a7da51b4f464c0eec3df44d73064b59f573"))
-            (4750000,uint256S("0x593fe9e6bb00f00f804a10f98fa81711ff2607a55ba27a43e0e42768af8d12ef")),
-            1535607904, // * UNIX timestamp of last checkpoint block
-            5067164,    // * total number of transactions between genesis and last checkpoint
+            (4750000,uint256S("0x593fe9e6bb00f00f804a10f98fa81711ff2607a55ba27a43e0e42768af8d12ef"))
+            (5000000,uint256S("0x104a7aa91291524d893c77f2810af1cab9a78bc8e060b1057adaa3b265ae5aa0"))
+            (5250000,uint256S("0x9e1d8706900a36ced4d2bf683d787b8cc40c721cbe7402474ccb6262eb5b22e8"))
+            (5500000,uint256S("0xed846460fdc818d456a536df1e03fc47627e0ae46f28430592053e6508639a1d"))
+            (5700000,uint256S("0x24b4965b4bfed8cac6f86e21489ba399bd965a59c4bb7a2f62b32c6411033cc8")),
+            1636436688, // * UNIX timestamp of last checkpoint block
+            11830669,    // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             7000        // * estimated number of transactions per day after checkpoint
         };
@@ -413,8 +436,12 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES].value = 4;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
-        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 10 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 3 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -504,10 +531,26 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1700784000; // Nov 24th, 2023
 
+
+        // Deployment of DAO upgrade
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].bit = 11;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nTimeout = 1700784000; // Nov 24th, 2023
+
         // Deployment of Burn Fees
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of dotNAV update
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].bit = 34;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nStartTime = 1633704250; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -651,8 +694,12 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES].value = 4;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
-        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 10 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 400; // 400 blocks
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 3 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
@@ -742,10 +789,25 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1700784000; // Nov 24th, 2023
 
+        // Deployment of DAO upgrade
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].bit = 11;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nTimeout = 1700784000; // Nov 24th, 2023
+
         // Deployment of Burn Fees
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of dotNAV update
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].bit = 34;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nStartTime = 1633704250; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -899,8 +961,12 @@ public:
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES].value = 4;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH].value = 1;
         consensus.vParameters[Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK].value = 2.5 * COIN;
-        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 100 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAM_NAVNS_FEE].value = 10 * COIN;
         consensus.vParameters[Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE].value = 0.1 * COIN;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED].value = 1;
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_LENGTH].value = 2880 * 400; // 400 days
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_MAXDATA].value = 1024; // 1KB
+        consensus.vParameters[Consensus::CONSENSUS_PARAMS_DOTNAV_FEE_EXTRADATA].value = 3 * COIN;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -990,10 +1056,25 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nStartTime =1602343915; // oct 10th, 2020
         consensus.vDeployments[Consensus::DEPLOYMENT_EXCLUDE].nTimeout = 1633879915; // oct 10th, 2021
 
+        // Deployment of DAO upgrade
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].bit = 11;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_SUPER].nTimeout = 1700784000; // Nov 24th, 2023
+
         // Deployment of Burn Fees
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].bit = 9;
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nStartTime = 1633704250; // Oct 8th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_BURN_FEES].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of xNAV serialization update
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].bit = 33;
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nStartTime = 1633704250; // Oct 8th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_XNAV_SER].nTimeout = 1700784000; // Nov 24th, 2023
+
+        // Deployment of dotNAV update
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].bit = 34;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nStartTime = 1633704250; // Nov 24th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_DOT_NAV].nTimeout = 1700784000; // Nov 24th, 2023
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

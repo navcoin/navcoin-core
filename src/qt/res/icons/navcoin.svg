@@ -1,55 +1,283 @@
-<svg id="SVGRoot" width="256px" height="256px" version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
- <defs>
-  <linearGradient id="linear-gradient" x1="387.23" x2="387.23" y1="398.09" y2="398.47" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#4da3db" offset="0"/>
-   <stop stop-color="#8361a9" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navk" x1="306.68" x2="306.85" y1="398.57" y2="398.16" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#7897ce" offset="0"/>
-   <stop stop-color="#8555a2" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navj" x1="427.82" x2="157.84" y1="297.5" y2="297.5" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#34c3ee" offset="0"/>
-   <stop stop-color="#6a82d7" offset=".53"/>
-   <stop stop-color="#cc26b2" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navc" x1="176.92" x2="246.24" y1="396.03" y2="202.93" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#ce25b2" offset="0"/>
-   <stop stop-color="#8e50c5" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navb" x1="429.75" x2="415.15" y1="364.93" y2="210.95" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#3765b0" offset="0"/>
-   <stop stop-color="#4ab5e7" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navi" x1="338.67" x2="387.97" y1="377.81" y2="288.95" xlink:href="#navb"/>
-  <linearGradient id="nava" x1="261.38" x2="311.82" y1="234.4" y2="321.85" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#5a75d5" offset="0"/>
-   <stop stop-color="#9e75b4" stop-opacity=".9" offset="1"/>
-  </linearGradient>
-  <linearGradient id="navh" x1="299.2" x2="340.27" y1="261.4" y2="396.98" xlink:href="#nava"/>
-  <linearGradient id="navg" x1="334.49" x2="264.46" y1="294.11" y2="218.07" xlink:href="#nava"/>
-  <linearGradient id="navo" x1="99.51" x2="231.35" y1="365.95" y2="242.66" xlink:href="#navc"/>
-  <linearGradient id="navn" x1="344.24" x2="260.81" y1="404.57" y2="260.75" xlink:href="#nava"/>
-  <linearGradient id="navm" x1="295.15" x2="451.22" y1="345.13" y2="188.54" xlink:href="#navb"/>
-  <linearGradient id="navl" x1="349.64" x2="410.08" y1="379.17" y2="258.87" xlink:href="#navb"/>
-  <linearGradient id="navf" x1="176.92" x2="246.24" y1="396.03" y2="202.93" gradientUnits="userSpaceOnUse" xlink:href="#navc"/>
-  <linearGradient id="nave" x1="429.75" x2="415.15" y1="364.93" y2="210.95" gradientUnits="userSpaceOnUse" xlink:href="#navb"/>
-  <linearGradient id="navd" x1="261.38" x2="311.82" y1="234.4" y2="321.85" gradientUnits="userSpaceOnUse" xlink:href="#nava"/>
- </defs>
- <g class="cls-1" transform="matrix(.50516 0 0 .50516 -22.355 -22.355)" style="isolation:isolate">
-  <circle class="cls-2" cx="297.64" cy="297.64" r="233.59" fill="#4e3873"/>
-  <polygon class="cls-3" points="387.23 398.06 387.43 398.52 387.04 398.52" fill="url(#linear-gradient)"/>
-  <polygon class="cls-4" points="306.7 398.06 306.9 398.52 306.51 398.52" fill="url(#navk)"/>
-  <polygon class="cls-5" points="385.62 196.75 466.15 196.75 380.82 397.77 380.63 398.24 300.5 398.24 300.3 397.77 255.19 291.5 209.9 398.24 129.37 398.24 214.9 196.75 295.5 196.75 340.57 302.92" fill="url(#navj)"/>
-  <polygon class="cls-6" points="129.13 398.52 209.66 398.52 295.26 197.03" fill="url(#navf)"/>
-  <polygon class="cls-7" points="465.88 197.03 380.85 398.1 385.52 197.03" fill="url(#nave)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-8" points="300.5 398.1 385.52 197.03 380.85 398.1" fill="url(#navi)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-9" points="215.47 197.25 300.5 398.32 295.26 197.03" fill="url(#navd)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-10" points="380.85 398.32 295.26 197.03 300.5 398.32" fill="url(#navh)" style="mix-blend-mode:soft-light"/>
-  <polygon class="cls-11" points="295.26 197.14 214.68 197.14 380.29 398.21" fill="url(#navg)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-12" points="129.13 398.52 215.47 197.25 295.26 197.03" fill="url(#navo)"/>
-  <polygon class="cls-13" points="214.66 197.14 380.85 398.42 300.5 398.42" fill="url(#navn)" style="mix-blend-mode:overlay"/>
-  <polygon class="cls-14" points="465.68 196.94 385.33 196.94 299.98 398.01" fill="url(#navm)" opacity=".89" style="mix-blend-mode:hard-light"/>
-  <polygon class="cls-15" points="380.33 398.06 299.98 398.06 465.68 196.98" fill="url(#navl)" opacity=".89" style="mix-blend-mode:hard-light"/>
- </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="SVGRoot"
+   width="256px"
+   height="256px"
+   version="1.1"
+   viewBox="0 0 256 256"
+   sodipodi:docname="navcoin.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata79">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1259"
+     id="namedview77"
+     showgrid="false"
+     inkscape:zoom="0.921875"
+     inkscape:cx="126.91525"
+     inkscape:cy="128"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRoot" />
+  <defs
+     id="defs44">
+    <linearGradient
+       id="linear-gradient"
+       x1="387.23"
+       x2="387.23"
+       y1="398.09"
+       y2="398.47"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#4da3db"
+         offset="0"
+         id="stop2" />
+      <stop
+         stop-color="#8361a9"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="navk"
+       x1="306.68"
+       x2="306.85"
+       y1="398.57"
+       y2="398.16"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#7897ce"
+         offset="0"
+         id="stop7" />
+      <stop
+         stop-color="#8555a2"
+         offset="1"
+         id="stop9" />
+    </linearGradient>
+    <linearGradient
+       id="navj"
+       x1="427.82"
+       x2="157.84"
+       y1="297.5"
+       y2="297.5"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#34c3ee"
+         offset="0"
+         id="stop12" />
+      <stop
+         stop-color="#6a82d7"
+         offset=".53"
+         id="stop14" />
+      <stop
+         stop-color="#cc26b2"
+         offset="1"
+         id="stop16" />
+    </linearGradient>
+    <linearGradient
+       id="navc"
+       x1="176.92"
+       x2="246.24"
+       y1="396.03"
+       y2="202.93"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#ce25b2"
+         offset="0"
+         id="stop19" />
+      <stop
+         stop-color="#8e50c5"
+         offset="1"
+         id="stop21" />
+    </linearGradient>
+    <linearGradient
+       id="navb"
+       x1="429.75"
+       x2="415.15"
+       y1="364.93"
+       y2="210.95"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#3765b0"
+         offset="0"
+         id="stop24" />
+      <stop
+         stop-color="#4ab5e7"
+         offset="1"
+         id="stop26" />
+    </linearGradient>
+    <linearGradient
+       id="navi"
+       x1="338.67"
+       x2="387.97"
+       y1="377.81"
+       y2="288.95"
+       xlink:href="#navb" />
+    <linearGradient
+       id="nava"
+       x1="261.38"
+       x2="311.82"
+       y1="234.4"
+       y2="321.85"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#5a75d5"
+         offset="0"
+         id="stop30" />
+      <stop
+         stop-color="#9e75b4"
+         stop-opacity=".9"
+         offset="1"
+         id="stop32" />
+    </linearGradient>
+    <linearGradient
+       id="navh"
+       x1="299.2"
+       x2="340.27"
+       y1="261.4"
+       y2="396.98"
+       xlink:href="#nava" />
+    <linearGradient
+       id="navg"
+       x1="334.49"
+       x2="264.46"
+       y1="294.11"
+       y2="218.07"
+       xlink:href="#nava" />
+    <linearGradient
+       id="navo"
+       x1="99.51"
+       x2="231.35"
+       y1="365.95"
+       y2="242.66"
+       xlink:href="#navc" />
+    <linearGradient
+       id="navn"
+       x1="344.24"
+       x2="260.81"
+       y1="404.57"
+       y2="260.75"
+       xlink:href="#nava" />
+    <linearGradient
+       id="navm"
+       x1="295.15"
+       x2="451.22"
+       y1="345.13"
+       y2="188.54"
+       xlink:href="#navb" />
+    <linearGradient
+       id="navl"
+       x1="349.64"
+       x2="410.08"
+       y1="379.17"
+       y2="258.87"
+       xlink:href="#navb" />
+    <linearGradient
+       id="navf"
+       x1="176.92"
+       x2="246.24"
+       y1="396.03"
+       y2="202.93"
+       gradientUnits="userSpaceOnUse"
+       xlink:href="#navc" />
+    <linearGradient
+       id="nave"
+       x1="429.75"
+       x2="415.15"
+       y1="364.93"
+       y2="210.95"
+       gradientUnits="userSpaceOnUse"
+       xlink:href="#navb" />
+    <linearGradient
+       id="navd"
+       x1="261.38"
+       x2="311.82"
+       y1="234.4"
+       y2="321.85"
+       gradientUnits="userSpaceOnUse"
+       xlink:href="#nava" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.27822217,0,0,0.25093718,-5.2846185,-2.8771422)"
+       x1="650.24995"
+       y1="416.38031"
+       x2="325.10087"
+       y2="660.51944"
+       id="linearGradient-1">
+      <stop
+         stop-color="#0A87F5"
+         offset="0%"
+         id="stop6" />
+      <stop
+         stop-color="#DC1EB9"
+         offset="100%"
+         id="stop8" />
+    </linearGradient>
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="scale(1.0529636,0.94970042)"
+       x1="650.24995"
+       y1="416.38031"
+       x2="325.10087"
+       y2="660.51944"
+       id="linearGradient-1-5">
+      <stop
+         stop-color="#0A87F5"
+         offset="0%"
+         id="stop6-6" />
+      <stop
+         stop-color="#DC1EB9"
+         offset="100%"
+         id="stop8-2" />
+    </linearGradient>
+  </defs>
+  <g
+     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1"
+     id="Page-1"
+     transform="matrix(0.21880819,0,0,0.21880819,10,11.000004)">
+    <g
+       style="fill-rule:nonzero"
+       id="nav-logo-border"
+       transform="translate(25,25)">
+      <rect
+         style="fill:#ffffff;stroke:#e6e6e6;stroke-width:50"
+         id="Background"
+         x="0"
+         y="0"
+         width="1024"
+         height="1024"
+         rx="512" />
+      <path
+         style="fill:url(#linearGradient-1-5)"
+         inkscape:connector-curvature="0"
+         d="m 673.125,290 c 12.99375,0 23.53725,11.02612 23.74682,23.98182 l 0.003,0.39318 v 173.75 c 0,0.27614 0.22386,0.5 0.5,0.5 H 734 v 0 c 13.25483,0 24,10.74517 24,24 0,13.25483 -10.74517,24 -24,24 h -36.625 c -0.27614,0 -0.5,0.22386 -0.5,0.5 v 172.25 0 c 0,12.99375 -9.18844,22.92469 -22.10738,23.12201 L 674.375,732.5 h -2.5 c -10.45898,0 -17.88986,-6.05621 -25.27343,-14.59169 L 646.25,717.5 504.95914,536.817 c -0.0948,-0.12118 -0.24004,-0.192 -0.39387,-0.192 H 375.5 c -0.27614,0 -0.5,0.22386 -0.5,0.5 v 172.25 0 c 0,12.99375 -10.41356,24.14981 -23.96344,24.375 H 350.625 c -12.99375,0 -23.53725,-11.02612 -23.74682,-23.98182 l -0.003,-0.39318 v -172.25 c 0,-0.27614 -0.22386,-0.5 -0.5,-0.5 H 290 v 0 c -13.25483,0 -24,-10.74517 -24,-24 0,-13.25483 10.74517,-24 24,-24 h 36.375 c 0.27614,0 0.5,-0.22386 0.5,-0.5 v -172.5 0 c 0,-12.99375 11.02612,-24.14981 23.98182,-24.37163 L 351.25,291.25 h 6.875 c 10.90385,0 17.69778,5.28417 24.36526,13.57626 l 0.63474,0.79874 143.34586,182.80852 c 0.0948,0.12088 0.23986,0.19148 0.39346,0.19148 H 648.25 c 0.27614,0 0.5,-0.22386 0.5,-0.5 v -173.75 0 c 0,-12.99375 10.41356,-24.14981 23.96344,-24.375 z M 648.25,536.625 h -82.96255 c -0.27614,0 -0.5,0.22386 -0.5,0.5 0,0.11186 0.0375,0.2205 0.10654,0.30853 l 82.96255,105.80204 c 0.17039,0.2173 0.48468,0.25533 0.70199,0.0849 0.12087,-0.0948 0.19147,-0.23986 0.19147,-0.39347 V 537.125 c 0,-0.27614 -0.22386,-0.5 -0.5,-0.5 z M 375,372.07608 V 488.125 c 0,0.27614 0.22386,0.5 0.5,0.5 h 90.74828 c 0.27615,0 0.5,-0.22386 0.5,-0.5 0,-0.11164 -0.0374,-0.22006 -0.10612,-0.308 L 375.89387,371.76808 c -0.1701,-0.21753 -0.48434,-0.25597 -0.70187,-0.0859 -0.12119,0.0948 -0.192,0.24004 -0.192,0.39387 z"
+         id="Shape" />
+    </g>
+  </g>
 </svg>

@@ -14,6 +14,9 @@
 #include <uint256.h>
 
 #include "consensus/dao.h"
+#include "ctokens/ctokens.h"
+#include "dotnav/namerecord.h"
+#include "dotnav/namedata.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -130,7 +133,7 @@ public:
 
     void ClearUnspendable() {
         for(CTxOut &txout: vout) {
-            if (!txout.IsBLSCT() && txout.scriptPubKey.IsUnspendable())
+            if (!txout.HasRangeProof() && txout.scriptPubKey.IsUnspendable())
                 txout.SetNull();
         }
         Cleanup();
@@ -149,6 +152,7 @@ public:
          // Empty CCoins objects are always equal.
          if (a.IsPruned() && b.IsPruned())
              return true;
+
          return a.fCoinBase == b.fCoinBase &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
@@ -379,6 +383,17 @@ public:
     virtual bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     virtual bool HaveConsensusParameter(const int &pid) const;
 
+    virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
+    virtual bool GetAllTokens(TokenMap& map);
+    virtual bool HaveToken(const uint256 &id) const;
+
+    virtual bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
+    virtual bool GetAllNameRecords(NameRecordMap& map);
+    virtual bool HaveNameRecord(const uint256 &id) const;
+
+    virtual bool GetNameData(const uint256& id, NameDataValues& data);
+    virtual bool HaveNameData(const uint256& id) const;
+
     virtual int GetExcludeVotes() const;
     virtual bool SetExcludeVotes(int count);
 
@@ -390,8 +405,9 @@ public:
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
-                            const int &nCacheExcludeVotes);
+                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                            NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
+                            const uint256 &hashBlock, const int &nCacheExcludeVotes);
 
     //! Get a cursor to iterate over the whole state
     virtual CStateViewCursor *Cursor() const;
@@ -428,6 +444,16 @@ public:
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
+    bool GetToken(const uint256 &id, TokenInfo& token) const;
+    bool GetAllTokens(TokenMap& map);
+    bool HaveToken(const uint256 &id) const;
+
+    bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
+    bool GetAllNameRecords(NameRecordMap& map);
+    bool HaveNameRecord(const uint256 &id) const;
+
+    bool GetNameData(const uint256 &id, NameDataValues& data);
+    bool HaveNameData(const uint256 &id) const;
 
     int GetExcludeVotes() const;
     bool SetExcludeVotes(int count);
@@ -437,8 +463,9 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock,
-                    const int &nCacheExcludeVotes);
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
+                    const uint256 &hashBlock, const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
 };
 
@@ -546,6 +573,54 @@ public:
     friend class CStateViewCache;
 };
 
+class TokenModifier
+{
+private:
+    CStateViewCache& cache;
+    TokenMap::iterator it;
+    TokenModifier(CStateViewCache& cache_, TokenMap::iterator it_, int height=0);
+    TokenInfo prev;
+    int height;
+
+public:
+    TokenInfo* operator->() { return &it->second; }
+    TokenInfo& operator*() { return it->second; }
+    ~TokenModifier();
+    friend class CStateViewCache;
+};
+
+class NameRecordModifier
+{
+private:
+    CStateViewCache& cache;
+    NameRecordMap::iterator it;
+    NameRecordModifier(CStateViewCache& cache_, NameRecordMap::iterator it_, int height=0);
+    NameRecordValue prev;
+    int height;
+
+public:
+    NameRecordValue* operator->() { return &it->second; }
+    NameRecordValue& operator*() { return it->second; }
+    ~NameRecordModifier();
+    friend class CStateViewCache;
+};
+
+class NameDataModifier
+{
+private:
+    CStateViewCache& cache;
+    NameDataMap::iterator it;
+    NameDataModifier(CStateViewCache& cache_, NameDataMap::iterator it_, int height=0);
+    NameDataValues prev;
+    int height;
+
+public:
+    NameDataValues* operator->() { return &it->second; }
+    NameDataValues& operator*() { return it->second; }
+    ~NameDataModifier();
+    friend class CStateViewCache;
+};
+
 class CConsultationAnswerModifier
 {
 private:
@@ -582,6 +657,9 @@ protected:
     mutable CConsultationMap cacheConsultations;
     mutable CConsultationAnswerMap cacheAnswers;
     mutable CConsensusParameterMap cacheConsensus;
+    mutable TokenMap cacheTokens;
+    mutable NameRecordMap cacheNameRecords;
+    mutable NameDataMap cacheNameData;
     mutable int nCacheExcludeVotes;
 
     /* Cached dynamic memory usage for the inner CCoins objects. */
@@ -600,33 +678,48 @@ public:
     bool HaveConsultation(const uint256 &cid) const;
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool HaveConsensusParameter(const int& pid) const;
+    bool HaveToken(const uint256& id) const;
+    bool HaveNameRecord(const uint256& id) const;
+    bool HaveNameData(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
     bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool GetConsultation(const uint256 &cid, CConsultation& consultation) const;
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
+    bool GetToken(const uint256& pid, TokenInfo& token) const;
+    bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
+    bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap& map);
     bool GetAllConsultations(CConsultationMap& map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
+    bool GetAllTokens(TokenMap& map);
+    bool GetAllNameRecords(NameRecordMap& map);
     bool GetAnswersForConsultation(CConsultationAnswerMap& map, const uint256& parent);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn,
-                    const int &nCacheExcludeVotes);
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
+                    const uint256 &hashBlockIn, const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
+    bool AddToken(const Token& token) const;
+    bool AddNameRecord(const NameRecord& record) const;
+    bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
+    bool RemoveToken(const uint256 &pid) const;
+    bool RemoveNameRecord(const uint256 &pid) const;
+    bool RemoveNameData(const NameDataKey &id) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);
 
@@ -662,6 +755,9 @@ public:
     CConsultationModifier ModifyConsultation(const uint256 &cid, int nHeight = 0);
     CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
     CConsensusParameterModifier ModifyConsensusParameter(const int &pid, int nHeight = 0);
+    TokenModifier ModifyToken(const uint256 &id, int nHeight = 0);
+    NameRecordModifier ModifyNameRecord(const uint256 &id, int nHeight = 0);
+    NameDataModifier ModifyNameData(const uint256& id, int nHeight = 0);
 
     /**
      * Return a modifiable reference to a CCoins. Assumes that no entry with the given
@@ -722,6 +818,9 @@ public:
     friend class CConsultationModifier;
     friend class CConsultationAnswerModifier;
     friend class CConsensusParameterModifier;
+    friend class TokenModifier;
+    friend class NameRecordModifier;
+    friend class NameDataModifier;
 
 private:
     CCoinsMap::iterator FetchCoins(const uint256 &txid);
@@ -732,6 +831,9 @@ private:
     CConsultationMap::const_iterator FetchConsultation(const uint256 &cid) const;
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
     CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
+    TokenMap::const_iterator FetchToken(const uint256 &id) const;
+    NameRecordMap::const_iterator FetchNameRecord(const uint256 &id) const;
+    NameDataMap::const_iterator FetchNameData(const uint256 &id) const;
 
     /**
      * By making the copy constructor private, we prevent accidentally using it when one intends to create a cache on top of a base cache.
