@@ -646,10 +646,12 @@ if test x$use_glibc_compat != xno; then
   AX_CHECK_LINK_FLAG([[-Wl,--wrap=pow]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=pow"])
   AX_CHECK_LINK_FLAG([[-Wl,--wrap=exp]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=exp"])
   AX_CHECK_LINK_FLAG([[-Wl,--wrap=explicit_bzero]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=explicit_bzero"])
+  AX_CHECK_LINK_FLAG([[-Wl,--wrap=fcntl]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=fcntl"])
   case $host in
     # Need to add glob64 for 32bit builds
     i?86-* | arm*)
       AX_CHECK_LINK_FLAG([[-Wl,--wrap=glob64]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=glob64"])
+      AX_CHECK_LINK_FLAG([[-Wl,--wrap=fcntl64]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=fcntl64"])
     ;;
   esac
 else
