@@ -41,7 +41,21 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
             if (c.parent != consultation.hash)
                 continue;
 
-            QString s = QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin,  c.sAnswer) : c.sAnswer);
+            QString s = "";
+
+            if (consultation.IsSuper())
+            {
+                for (int i = 0; i < c.vAnswer.size(); ++i) {
+                    if (i != 0)
+                        s = s + "\n";
+                    s = s + QString::fromStdString(Consensus::sConsensusParamsDesc[consultation.vParameters[i]] + ": ");
+                    s = s + QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos) consultation.vParameters[i], c.vAnswer[i]) : c.vAnswer[i]);
+                }
+            }
+            else
+            {
+                s = QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos) consultation.nMin, c.sAnswer) : c.sAnswer);
+            }
 
             QCheckBox* answer = new QCheckBox(s);
 
@@ -67,7 +81,8 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     connect(proposeBtn, SIGNAL(clicked()), this, SLOT(onPropose()));
 
     bottomBoxLayout->addStretch(1);
-    if (consultation.CanHaveNewAnswers())
+    // Check if we can have answers and if it's not a super/combined consensus proposal
+    if (consultation.CanHaveNewAnswers() && !consultation.IsSuper())
         bottomBoxLayout->addWidget(proposeBtn);
     bottomBoxLayout->addWidget(closeBtn);
 
