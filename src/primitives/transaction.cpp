@@ -71,16 +71,16 @@ std::string CTxOut::ToString() const
 {
     if (IsEmpty()) return "CTxOut(empty)";
     if (IsCommunityFundContribution())
-        return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
+        return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution vData=%s)", nValue / COIN, nValue % COIN, vData.size()>0?PredicateToStr(vData):"0");
     else
     {
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s%s vData=%d)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s%s%s vData=%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
                          scriptPubKey.ToString(),
                          spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
                          outputKey.size()>0 ? strprintf(" outputKey=%s",HexStr(outputKey)):"",
                          ephemeralKey.size()>0 ? strprintf(" ephemeralKey=%s",HexStr(ephemeralKey)):"",
                          GetBulletproof().V.size()>0 ? " rangeProof=1":"",
-                         tokenId.token==uint256() ? "": strprintf(" tokenId=%s%s", tokenId.token.ToString(), tokenId.subid!=-1?strprintf(",%d",tokenId.subid):""), vData.size());
+                         tokenId.token==uint256() ? "": strprintf(" tokenId=%s%s", tokenId.token.ToString(), tokenId.subid!=-1?strprintf(",%d",tokenId.subid):""), vData.size()>0?PredicateToStr(vData):"0");
     }
 }
 
