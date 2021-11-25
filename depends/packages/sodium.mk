@@ -8,18 +8,17 @@ $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
 define $(package)_set_vars
 $(package)_config_opts=--enable-static --disable-shared --with-pic="yes"
 $(package)_config_opts+=--prefix=$(host_prefix)
-$(package)_config_opts_darwin=RANLIB="$(host_prefix)/native/bin/$(host)-ranlib" AR="$(host_prefix)/native/bin/$(host)-ar" CC="$(host_prefix)/native/bin/$($(package)_cc)"
 endef
 
 define $(package)_config_cmds
   patch -p1 < $($(package)_patch_dir)/disable-glibc-getrandom-getentropy.patch &&\
-  ./autogen.sh &&\
   patch -p1 < $($(package)_patch_dir)/fix-whitespace.patch &&\
+  ./autogen.sh &&\
   $($(package)_autoconf) $($(package)_config_opts)
 endef
 
 define $(package)_build_cmds
-  $(MAKE)
+  $(MAKE) -j$(JOBS)
 endef
 
 define $(package)_stage_cmds
