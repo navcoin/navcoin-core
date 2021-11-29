@@ -2063,9 +2063,6 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (!IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Combined voting is not enabled yet.");
-
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CStateViewCache view(pcoinsTip);
 
@@ -2088,6 +2085,9 @@ UniValue proposecombinedconsensuschange(const UniValue& params, bool fHelp)
 
     if (!params[0].isArray() || !params[1].isArray())
         throw JSONRPCError(RPC_TYPE_ERROR, "Parameter and values should be arrays.");
+
+    if (!IsDaoSuperEnabled(chainActive.Tip(), Params().GetConsensus()))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Combined voting is not enabled yet.");
 
     CNavcoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
