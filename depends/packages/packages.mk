@@ -9,7 +9,7 @@ qt_linux_packages:=qt libxcb xcb_proto libXau xproto freetype fontconfig
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
 
-wallet_packages=bdb
+bdb_packages=bdb
 
 upnp_packages=miniupnpc
 
