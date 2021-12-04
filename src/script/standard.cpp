@@ -87,20 +87,37 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
     if (scriptPubKey.IsColdStaking() && scriptPubKey.size() >= 1+1+25+1+25+1)
     {
         typeRet = TX_COLDSTAKING;
-        std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
-        vSolutionsRet.push_back(stakingPubKey);
-        std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
-        vSolutionsRet.push_back(spendingPubKey);
+        if (scriptPubKey.HasColdStakingP2PKHStaking()) {
+            std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
+            vSolutionsRet.push_back(stakingPubKey);
+        } else {
+            vSolutionsRet.push_back(std::vector<unsigned char>(20,0));
+        }
+
+        if (scriptPubKey.HasColdStakingP2PKHSpending()) {
+            std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
+            vSolutionsRet.push_back(spendingPubKey);
+        } else {
+            vSolutionsRet.push_back(std::vector<unsigned char>(20, 0));
+        }
         return true;
     }
 
     if (scriptPubKey.IsColdStakingv2() && scriptPubKey.size() == 1+1+25+1+25+1+22)
     {
         typeRet = TX_COLDSTAKING_V2;
-        std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
-        vSolutionsRet.push_back(stakingPubKey);
-        std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
-        vSolutionsRet.push_back(spendingPubKey);
+        if (scriptPubKey.HasColdStakingv2P2PKHStaking()) {
+            std::vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
+            vSolutionsRet.push_back(stakingPubKey);
+        } else {
+            vSolutionsRet.push_back(std::vector<unsigned char>(20, 0));
+        }
+        if (scriptPubKey.HasColdStakingv2P2PKHSpending()) {
+            std::vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
+            vSolutionsRet.push_back(spendingPubKey);
+        } else {
+            vSolutionsRet.push_back(std::vector<unsigned char>(20, 0));
+        }
         std::vector<unsigned char> votingPubKey(scriptPubKey.begin()+1, scriptPubKey.begin()+21);
         vSolutionsRet.push_back(votingPubKey);
         return true;
@@ -260,7 +277,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
             else if (opcode2 == OP_SMALLINTEGER)
             {   // Single-byte small integer pushed onto vSolutions
                 if (opcode1 == OP_0 ||
-                    (opcode1 >= OP_1 && opcode1 <= OP_16))
+                        (opcode1 >= OP_1 && opcode1 <= OP_16))
                 {
                     char n = (char)CScript::DecodeOP_N(opcode1);
                     vSolutionsRet.push_back(valtype(1, n));
@@ -378,7 +395,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::
         nRequiredRet = 1;
         CTxDestination address;
         if (!ExtractDestination(scriptPubKey, address))
-           return false;
+            return false;
         addressRet.push_back(address);
     }
 
@@ -474,8 +491,8 @@ CScript GetScriptForWitness(const CScript& redeemscript)
             ret << OP_0 << std::vector<unsigned char>(&h160[0], &h160[20]);
             return ret;
         } else if (typ == TX_PUBKEYHASH) {
-           ret << OP_0 << vSolutions[0];
-           return ret;
+            ret << OP_0 << vSolutions[0];
+            return ret;
         }
     }
     uint256 hash;
