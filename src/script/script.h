@@ -685,6 +685,11 @@ public:
     bool IsColdStaking() const;
     bool IsColdStakingv2() const;
 
+    bool HasColdStakingP2PKHStaking() const;
+    bool HasColdStakingP2PKHSpending() const;
+    bool HasColdStakingv2P2PKHStaking() const;
+    bool HasColdStakingv2P2PKHSpending() const;
+
     bool IsPayToScriptHash() const;
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
