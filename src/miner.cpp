@@ -1174,7 +1174,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                                       nCycles++;
                                   if (nCycles >= 10)
                                   {
-                                      pblock->nNonce = 1;
+                                      pblock->nNonce |= 1;
                                       break;
                                   }
                                   fFound = false;
