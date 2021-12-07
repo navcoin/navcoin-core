@@ -11140,6 +11140,8 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
 
     if (fColdStaking)
     {
+        if (!view.HaveInputs(tx)) return error("%s: Coin stake %s is stale\n", __func__, tx.GetHash().ToString());
+
         CAmount valueIn = view.GetValueIn(tx);
         CAmount valueOut = 0;
 
