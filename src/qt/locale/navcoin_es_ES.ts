@@ -103,7 +103,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Firmar &amp;mensaje...</translation>
@@ -181,13 +181,16 @@
         <translation>Reindexando bloques en el disco...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Envia monedas a una dirección Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Envia monedas a una dirección NavCoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation>Crea una copia de seguridad de tu cartera en otra ubicación</translation>
     </message>
+    </context>
+<context>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -197,6 +200,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -281,5 +287,11 @@
     </context>
 <context>
     <name>navcoin-core</name>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

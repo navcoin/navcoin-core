@@ -215,7 +215,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Firmar &amp;mensaje...</translation>
@@ -261,8 +261,8 @@
         <translation>Reindexando bloques en el disco...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Enviar monedas a una dirección Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Enviar monedas a una dirección NavCoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -277,8 +277,8 @@
         <translation>Abre la consola de depuración y diágnostico</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -305,12 +305,12 @@
         <translation>Encriptar las llaves privadas que pertenecen a tu billetera</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Firma mensajes con tus direcciones Navcoin para probar que eres dueño de ellas</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Firma mensajes con tus direcciones NavCoin para probar que eres dueño de ellas</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Verificar mensajes para asegurar que estaban firmados con direcciones Navcoin especificas</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verificar mensajes para asegurar que estaban firmados con direcciones NavCoin especificas</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -378,6 +378,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -434,6 +437,9 @@
         <translation>Pendiente:</translation>
     </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     </context>
@@ -634,8 +640,8 @@
         <translation>Correr en segundo plano como daemon y aceptar comandos</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Core</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Core</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
@@ -682,4 +688,10 @@
         <translation>Error</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

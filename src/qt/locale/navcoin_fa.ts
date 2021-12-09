@@ -223,7 +223,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>&amp;امضای پیام...</translation>
@@ -309,7 +309,7 @@
         <translation>بازنشانی بلوک‌ها روی دیسک...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
+        <source>Send coins to a NavCoin address</source>
         <translation>ارسال وجه به نشانی بیت‌کوین</translation>
     </message>
     <message>
@@ -333,7 +333,7 @@
         <translation>با&amp;زبینی پیام...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
+        <source>NavCoin</source>
         <translation>بیت‌کوین</translation>
     </message>
     <message>
@@ -361,11 +361,11 @@
         <translation>رمزنگاری کلیدهای خصوصی متعلق به کیف پول شما</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
         <translation>برای اثبات اینکه پیام‌ها به شما تعلق دارند، آن‌ها را با نشانی بیت‌کوین خود امضا کنید</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
         <translation>برای حصول اطمینان از اینکه پیام با نشانی بیت‌کوین مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
     </message>
     <message>
@@ -393,7 +393,7 @@
         <translation>گزینه‌های خط‌فرمان</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
+        <source>%n active connection(s) to NavCoin network</source>
         <translation><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform></translation>
     </message>
     <message>
@@ -508,6 +508,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -553,7 +556,7 @@
         <translation>استخراج</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>باز کردن خودکار درگاه شبکهٔ بیت‌کوین روی روترها. تنها زمانی کار می‌کند که روتر از پروتکل UPnP پشتیبانی کند و این پروتکل فعال باشد.</translation>
     </message>
     <message>
@@ -655,6 +658,9 @@
         <source>Available:</source>
         <translation>در دسترس:</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -995,7 +1001,7 @@
         <translation>این یک پرداخت عادی است</translation>
     </message>
     <message>
-        <source>The Navcoin address to send the payment to</source>
+        <source>The NavCoin address to send the payment to</source>
         <translation>نشانی بیت‌کوین برای ارسال پرداخت به آن</translation>
     </message>
     <message>
@@ -1044,7 +1050,7 @@
         <translation>ا&amp;مضای پیام</translation>
     </message>
     <message>
-        <source>The Navcoin address to sign the message with</source>
+        <source>The NavCoin address to sign the message with</source>
         <translation>نشانی بیت‌کوین برای امضاء پیغام با آن</translation>
     </message>
     <message>
@@ -1076,7 +1082,7 @@
         <translation>امضای فعلی را به حافظهٔ سیستم کپی کن</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
+        <source>Sign the message to prove you own this NavCoin address</source>
         <translation>برای اثبات تعلق این نشانی به شما، پیام را امضا کنید</translation>
     </message>
     <message>
@@ -1096,11 +1102,11 @@
         <translation>&amp;شناسایی پیام</translation>
     </message>
     <message>
-        <source>The Navcoin address the message was signed with</source>
+        <source>The NavCoin address the message was signed with</source>
         <translation>نشانی بیت‌کوین که پیغام با آن امضاء شده</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
         <translation>برای حصول اطمینان از اینکه پیام با نشانی بیت‌کوین مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
     </message>
     <message>
@@ -1228,8 +1234,8 @@
         <translation>پذیرش اتصالات از بیرون (پیش فرض:1 بدون پراکسی یا اتصال)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation> هسته Navcoin </translation>
+        <source>NavCoin Core</source>
+        <translation> هسته NavCoin </translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
@@ -1416,4 +1422,18 @@
         <translation>خطا</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>فرم</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>حذف کردن</translation>
+    </message>
+    </context>
 </TS>

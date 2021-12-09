@@ -263,7 +263,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>เซ็นต์ชื่อด้วย &amp;ข้อความ...</translation>
@@ -353,8 +353,8 @@
         <translation>กำลังทำดัชนี ที่เก็บบล็อก ใหม่ ในดิสก์...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>ส่ง coins ไปยัง ที่เก็บ Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>ส่ง coins ไปยัง ที่เก็บ NavCoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -377,8 +377,8 @@
         <translation>&amp;ยืนยันข้อความ...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -405,12 +405,12 @@
         <translation>เข้ารหัส private keys/ รหัสส่วนตัว สำหรับกระเป๋าเงินของท่าน</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>เซ็นชื่อด้วยข้อความ ที่เก็บ Navcoin เพื่อแสดงว่าท่านเป็นเจ้าของ navcoin นี้จริง</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>เซ็นชื่อด้วยข้อความ ที่เก็บ NavCoin เพื่อแสดงว่าท่านเป็นเจ้าของ navcoin นี้จริง</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ Navcoin แล้ว</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ NavCoin แล้ว</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -445,8 +445,8 @@
         <translation>&amp;ตัวเลือก Command-line</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n ช่องการเชื่อมต่อที่ใช้งานได้ เพื่อเชื่อมกับเครือข่าย Navcoin</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n ช่องการเชื่อมต่อที่ใช้งานได้ เพื่อเชื่อมกับเครือข่าย NavCoin</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -513,8 +513,8 @@
         <translation>ทันสมัย</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
-        <translation>แสดง %1 ข้อความช่วยเหลือ เพื่อแสดงรายการ ตัวเลือกที่เป็นไปได้สำหรับ Navcoin command-line</translation>
+        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
+        <translation>แสดง %1 ข้อความช่วยเหลือ เพื่อแสดงรายการ ตัวเลือกที่เป็นไปได้สำหรับ NavCoin command-line</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -571,6 +571,9 @@
         <translation>กระเป๋าเงินถูก &lt;b&gt;เข้ารหัส&lt;/b&gt; และในปัจจุบัน &lt;b&gt;ล็อค &lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -685,16 +688,16 @@
         <translation>&amp;ใช้เงินทอนที่ยังไม่ยืนยัน</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>เปิด Navcoin ไคล์เอ็นท์พอร์ต/client port บน router โดยอัตโนมัติ วิธีนี้ใช้ได้เมื่อ router สนับสนุน UPnP และสถานะเปิดใช้งาน</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>เปิด NavCoin ไคล์เอ็นท์พอร์ต/client port บน router โดยอัตโนมัติ วิธีนี้ใช้ได้เมื่อ router สนับสนุน UPnP และสถานะเปิดใช้งาน</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>จองพอร์ต โดยใช้ &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
-        <translation>เชื่อมต่อกับ Navcoin เน็ตเวิร์ก ผ่านพร็อกซี่แบบ SOCKS5</translation>
+        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <translation>เชื่อมต่อกับ NavCoin เน็ตเวิร์ก ผ่านพร็อกซี่แบบ SOCKS5</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -733,8 +736,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>เชื่อมต่อกับ เครือข่าย Navcoin ผ่านทาง พร้อกซี่ SOCKS5 แยกต่างหาก สำหรับ Tor เซอร์วิส</translation>
+        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>เชื่อมต่อกับ เครือข่าย NavCoin ผ่านทาง พร้อกซี่ SOCKS5 แยกต่างหาก สำหรับ Tor เซอร์วิส</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -763,6 +766,9 @@
         <source>Form</source>
         <translation>รูป</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -948,4 +954,14 @@
         <translation>ข้อผิดพลาด</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>รูป</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

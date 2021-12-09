@@ -255,7 +255,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>التوقيع و الرسائل</translation>
@@ -337,7 +337,7 @@
         <translation>إعادة الفهرسة الكتل على القرص ...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
+        <source>Send coins to a NavCoin address</source>
         <translation>ارسل عملات الى عنوان بيتكوين</translation>
     </message>
     <message>
@@ -361,7 +361,7 @@
         <translation>&amp;التحقق من الرسالة...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
+        <source>NavCoin</source>
         <translation>بت كوين</translation>
     </message>
     <message>
@@ -389,12 +389,12 @@
         <translation>تشفير المفتاح الخاص بمحفظتك</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>وقَع الرسائل بواسطة ال: Navcoin الخاص بك لإثبات امتلاكك لهم</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>وقَع الرسائل بواسطة ال: NavCoin الخاص بك لإثبات امتلاكك لهم</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>تحقق من الرسائل للتأكد من أنَها وُقعت برسائل Navcoin محدَدة</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>تحقق من الرسائل للتأكد من أنَها وُقعت برسائل NavCoin محدَدة</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -422,7 +422,7 @@
     </message>
     <message>
         <source>Open a navcoin: URI or payment request</source>
-        <translation>فتح URI : Navcoin أو طلب دفع</translation>
+        <translation>فتح URI : NavCoin أو طلب دفع</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -519,6 +519,9 @@
         <translation>المحفظة &lt;b&gt;مشفرة&lt;/b&gt; و &lt;b&gt;مقفلة&lt;/b&gt; حاليا</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -644,6 +647,9 @@
         <translation>معلق:</translation>
     </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     </context>
@@ -975,7 +981,7 @@
         <translation>هذا دفع اعتيادي</translation>
     </message>
     <message>
-        <source>The Navcoin address to send the payment to</source>
+        <source>The NavCoin address to send the payment to</source>
         <translation>عنوان البت كوين المرسل اليه الدفع</translation>
     </message>
     <message>
@@ -1040,7 +1046,7 @@
         <translation>التوقيع</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
+        <source>Sign the message to prove you own this NavCoin address</source>
         <translation>وقع الرسالة لتثبت انك تمتلك عنوان البت كوين هذا</translation>
     </message>
     <message>
@@ -1156,7 +1162,7 @@
         <translation>قبول الاتصالات من خارج</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
+        <source>NavCoin Core</source>
         <translation>جوهر البيت كوين</translation>
     </message>
     <message>
@@ -1248,4 +1254,18 @@
         <translation>خطأ</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>نمودج</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>ازل</translation>
+    </message>
+    </context>
 </TS>

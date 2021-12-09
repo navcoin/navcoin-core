@@ -111,7 +111,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Cysoni â'r rhwydwaith...</translation>
@@ -173,8 +173,8 @@
         <translation>Newid y cyfrinymadrodd a ddefnyddiwyd ar gyfer amgryptio'r waled</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -286,6 +286,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -337,6 +340,9 @@
         <source>Form</source>
         <translation>Ffurflen</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -510,8 +516,8 @@
         <translation>Opsiynau:</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Craidd Navcoin</translation>
+        <source>NavCoin Core</source>
+        <translation>Craidd NavCoin</translation>
     </message>
     <message>
         <source>Information</source>
@@ -526,4 +532,14 @@
         <translation>Gwall</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Ffurflen</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

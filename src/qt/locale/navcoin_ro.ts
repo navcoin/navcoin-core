@@ -99,7 +99,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Se sincronizează cu rețeaua</translation>
@@ -110,6 +110,9 @@
     </message>
     </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -117,6 +120,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -197,5 +203,11 @@
     </context>
 <context>
     <name>navcoin-core</name>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

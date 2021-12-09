@@ -139,7 +139,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>I-sign ing &amp;mensayi</translation>
@@ -201,8 +201,8 @@
         <translation>Address king pamag-Tanggap</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Magpadalang barya king Navcoin address</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Magpadalang barya king NavCoin address</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -225,8 +225,8 @@
         <translation>&amp;Beripikan ing message...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -302,6 +302,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -319,8 +322,8 @@
         <translation>&amp;Network</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Ibuklat yang antimanu ing Navcoin client port king router. Gagana yamu ini istung ing router mu susuporta yang UPnP at magsilbi ya.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Ibuklat yang antimanu ing NavCoin client port king router. Gagana yamu ini istung ing router mu susuporta yang UPnP at magsilbi ya.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -393,6 +396,9 @@
         <source>Form</source>
         <translation>Form</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -602,8 +608,8 @@
         <translation>Kopyan ing kasalungsungan pirma king system clipboard</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
-        <translation>Pirman ing mensayi ban patune na keka ya ining Navcoin address</translation>
+        <source>Sign the message to prove you own this NavCoin address</source>
+        <translation>Pirman ing mensayi ban patune na keka ya ining NavCoin address</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -622,8 +628,8 @@
         <translation>&amp;Beripikan ing Mensayi</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
-        <translation>Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Navcoin address</translation>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <translation>Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling NavCoin address</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -734,8 +740,8 @@
         <translation>Tumanggap koneksion menibat king kilwal (default: 1 if no -proxy or -connect)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Kapilubluban ning Navcoin</translation>
+        <source>NavCoin Core</source>
+        <translation>Kapilubluban ning NavCoin</translation>
     </message>
     <message>
         <source>Block creation options:</source>
@@ -850,4 +856,14 @@
         <translation>Mali</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

@@ -95,7 +95,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Netwerk-sinkronisasie...</translation>
@@ -153,8 +153,8 @@
         <translation>Besig met herindeksering van blokke op hardeskyf...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Stuur munte na 'n Navcoin adres</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Stuur munte na 'n NavCoin adres</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -165,8 +165,8 @@
         <translation>Verander die wagwoord wat ek vir kodifikasie van my beursie gebruik</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -189,12 +189,12 @@
         <translation>Kodifiseer die private sleutes wat aan jou beursie gekoppel is.</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Onderteken boodskappe met u Navcoin adresse om u eienaarskap te bewys</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Onderteken boodskappe met u NavCoin adresse om u eienaarskap te bewys</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Verifieër boodskappe om seker te maak dat dit met die gespesifiseerde Navcoin adresse</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verifieër boodskappe om seker te maak dat dit met die gespesifiseerde NavCoin adresse</translation>
     </message>
     <message>
         <source>&amp;Help</source>
@@ -218,6 +218,9 @@
     </message>
     </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -225,6 +228,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -306,12 +312,18 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Kern</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Kern</translation>
     </message>
     <message>
         <source>Do not keep transactions in the mempool longer than &lt;n&gt; hours (default: %u)</source>
         <translation>Moenie transaksies vir langer as &lt;n&gt; ure in die geheuepoel hou nie (verstek: %u)</translation>
     </message>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

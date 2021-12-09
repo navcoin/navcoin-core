@@ -62,12 +62,12 @@
         <translation>Menerima address</translation>
     </message>
     <message>
-        <source>These are your Navcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Ini adalah alamat Navcoin Anda untuk mengirim pembayaran. Selalu periksa jumlah dan address penerima sebelum mengirim koin.</translation>
+        <source>These are your NavCoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ini adalah alamat NavCoin Anda untuk mengirim pembayaran. Selalu periksa jumlah dan address penerima sebelum mengirim koin.</translation>
     </message>
     <message>
-        <source>These are your Navcoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>Ini adalah alamat Navcoin Anda untuk menerima pembayaran. Disarankan untuk menggunakan alamat penerima baru untuk setiap transaksi.</translation>
+        <source>These are your NavCoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Ini adalah alamat NavCoin Anda untuk menerima pembayaran. Disarankan untuk menggunakan alamat penerima baru untuk setiap transaksi.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -148,10 +148,30 @@
         <translation>Enkripsi wallet gagal disebabkan internal error. Wallet anda belum terenkripsi.</translation>
     </message>
     <message>
+        <source>The supplied passphrases do not match.</source>
+        <translation>kata sandi tidak sesuai </translation>
+    </message>
+    <message>
         <source>Wallet unlock failed</source>
         <translation>Buka kunci wallet gagal</translation>
     </message>
-    </context>
+    <message>
+        <source>The passphrase entered for the wallet decryption was incorrect.</source>
+        <translation>Kata sandi tidak sesuai untuk enkripsi wallet</translation>
+    </message>
+    <message>
+        <source>Wallet decryption failed</source>
+        <translation>Enkripsi wallet gagal</translation>
+    </message>
+    <message>
+        <source>Wallet passphrase was successfully changed.</source>
+        <translation>Frasa sandi wallet sukses diubah </translation>
+    </message>
+    <message>
+        <source>Warning: The Caps Lock key is on!</source>
+        <translation>Peringatan: Tombol Caps Lock aktif!</translation>
+    </message>
+</context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -240,6 +260,22 @@
     <message>
         <source>Priority</source>
         <translation>Prioritas</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Salin Alamat</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Salin bukti transaksi </translation>
     </message>
     <message>
         <source>none</source>
@@ -347,7 +383,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Pesan &amp;penanda...</translation>
@@ -429,8 +465,8 @@
         <translation>Mengindex ulang blok di dalam disk...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Kirim koin ke alamat Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Kirim koin ke alamat NavCoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -453,8 +489,8 @@
         <translation>&amp;Verifikasi pesan...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -481,12 +517,12 @@
         <translation>Enkripsi private key yang dimiliki dompet Anda</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Tanda tangani sebuah pesan menggunakan alamat Navcoin Anda untuk membuktikan bahwa Anda adalah pemilik alamat tersebut</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Tanda tangani sebuah pesan menggunakan alamat NavCoin Anda untuk membuktikan bahwa Anda adalah pemilik alamat tersebut</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Verifikasi pesan untuk memastikan bahwa pesan tersebut ditanda tangani oleh suatu alamat Navcoin tertentu</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verifikasi pesan untuk memastikan bahwa pesan tersebut ditanda tangani oleh suatu alamat NavCoin tertentu</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -521,8 +557,8 @@
         <translation>&amp;pilihan Command-line</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n koneksi aktif ke jaringan Navcoin</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n koneksi aktif ke jaringan NavCoin</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -640,6 +676,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -745,16 +784,16 @@
         <translation>&amp;Perubahan saldo untuk transaksi yang belum dikonfirmasi</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Otomatis membuka port client Navcoin di router. Hanya berjalan apabila router anda mendukung UPnP dan di-enable.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Otomatis membuka port client NavCoin di router. Hanya berjalan apabila router anda mendukung UPnP dan di-enable.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Petakan port dengan &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
-        <translation>Hubungkan ke jaringan Navcoin melalui SOCKS5 proxy.</translation>
+        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <translation>Hubungkan ke jaringan NavCoin melalui SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -869,6 +908,9 @@
     </message>
 </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>
@@ -882,8 +924,8 @@
         <translation>Nilai</translation>
     </message>
     <message>
-        <source>Enter a Navcoin address (e.g. %1)</source>
-        <translation>Masukkan alamat Navcoin (contoh %1)</translation>
+        <source>Enter a NavCoin address (e.g. %1)</source>
+        <translation>Masukkan alamat NavCoin (contoh %1)</translation>
     </message>
     <message>
         <source>%1 h</source>
@@ -1124,7 +1166,15 @@
         <source>Remove</source>
         <translation>Menghapus</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+</context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1258,6 +1308,10 @@
         <translation>K&amp;irim</translation>
     </message>
     <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation>(tanpa label)</translation>
     </message>
@@ -1358,8 +1412,8 @@
         <translation>Salin tanda tangan terpilih ke sistem klipboard</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
-        <translation>Tandai pesan untuk menyetujui kamu pemiliki alamat Navcoin ini</translation>
+        <source>Sign the message to prove you own this NavCoin address</source>
+        <translation>Tandai pesan untuk menyetujui kamu pemiliki alamat NavCoin ini</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1438,6 +1492,22 @@
     <message>
         <source>Today</source>
         <translation>Hari ini</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Salin Alamat</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Salin bukti transaksi </translation>
     </message>
     <message>
         <source>Confirmed</source>
@@ -1526,8 +1596,8 @@
         <translation>Terima hubungan dari luar (standar: 1 kalau -proxy atau -connect tidak dipilih)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Core</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Core</translation>
     </message>
     <message>
         <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
@@ -1734,4 +1804,18 @@
         <translation>Gagal</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulir</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Menghapus</translation>
+    </message>
+    </context>
 </TS>

@@ -155,7 +155,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Signeeri &amp;sõnum</translation>
@@ -221,8 +221,8 @@
         <translation>Kettal olevate blokkide re-indekseerimine...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Saada münte Navcoini aadressile</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Saada münte NavCoini aadressile</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -245,8 +245,8 @@
         <translation>&amp;Kontrolli sõnumit...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -273,12 +273,12 @@
         <translation>Krüpteeri oma rahakoti privaatvõtmed</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Omandi tõestamiseks allkirjasta sõnumid oma Navcoini aadressiga</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Omandi tõestamiseks allkirjasta sõnumid oma NavCoini aadressiga</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Kinnita sõnumid kindlustamaks et need allkirjastati määratud Navcoini aadressiga</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Kinnita sõnumid kindlustamaks et need allkirjastati määratud NavCoini aadressiga</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -396,6 +396,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -441,8 +444,8 @@
         <translation>Ekspert</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Navcoini kliendi pordi automaatne avamine ruuteris. Toimib, kui sinu ruuter aktsepteerib UPnP ühendust.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>NavCoini kliendi pordi automaatne avamine ruuteris. Toimib, kui sinu ruuter aktsepteerib UPnP ühendust.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -519,6 +522,9 @@
         <source>Form</source>
         <translation>Vorm</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -804,8 +810,8 @@
         <translation>Kopeeri praegune signatuur vahemällu</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
-        <translation>Allkirjasta sõnum Navcoini aadressi sulle kuulumise tõestamiseks</translation>
+        <source>Sign the message to prove you own this NavCoin address</source>
+        <translation>Allkirjasta sõnum NavCoini aadressi sulle kuulumise tõestamiseks</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -824,8 +830,8 @@
         <translation>&amp;Kinnita Sõnum</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
-        <translation>Kinnita sõnum tõestamaks selle allkirjastatust määratud Navcoini aadressiga.</translation>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <translation>Kinnita sõnum tõestamaks selle allkirjastatust määratud NavCoini aadressiga.</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -948,8 +954,8 @@
         <translation>Luba välisühendusi (vaikeväärtus: 1 kui puudub -proxy või -connect)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoini tuumik</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoini tuumik</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
@@ -1124,4 +1130,18 @@
         <translation>Tõrge</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Vorm</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Eemalda</translation>
+    </message>
+    </context>
 </TS>

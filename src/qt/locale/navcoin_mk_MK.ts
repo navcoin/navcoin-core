@@ -159,7 +159,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Потпиши &amp;порака...</translation>
@@ -233,7 +233,7 @@
         <translation>Повторно индексирање на блокови од дискот...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
+        <source>Send coins to a NavCoin address</source>
         <translation>Испрати биткоини на Биткоин адреса</translation>
     </message>
     <message>
@@ -241,7 +241,7 @@
         <translation>&amp;Потврди порака...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
+        <source>NavCoin</source>
         <translation>Биткоин</translation>
     </message>
     <message>
@@ -344,6 +344,9 @@
     </message>
     </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -391,6 +394,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -648,7 +654,7 @@
         <translation>Опции:</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
+        <source>NavCoin Core</source>
         <translation>Биткоин Core</translation>
     </message>
     <message>
@@ -660,4 +666,10 @@
         <translation>Грешка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

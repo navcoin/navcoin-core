@@ -99,7 +99,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Sincronizando con la red...</translation>
@@ -161,8 +161,8 @@
         <translation>Abrir &amp;URL...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Enviando monedas a una dirección de Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Enviando monedas a una dirección de NavCoin</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
@@ -181,8 +181,8 @@
         <translation>&amp;Verificar Mensaje...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -222,6 +222,9 @@
     </message>
     </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -229,6 +232,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -306,8 +312,8 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Core</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Core</translation>
     </message>
     <message>
         <source>Insufficient funds</source>
@@ -334,4 +340,10 @@
         <translation>Error</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

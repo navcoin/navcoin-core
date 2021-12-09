@@ -267,7 +267,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Podpísať &amp;správu...</translation>
@@ -361,7 +361,7 @@
         <translation>Preindexúvam bloky na disku...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
+        <source>Send coins to a NavCoin address</source>
         <translation>Poslať navcoins na adresu</translation>
     </message>
     <message>
@@ -385,8 +385,8 @@
         <translation>O&amp;veriť správu...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -413,12 +413,12 @@
         <translation>Zašifruj súkromné kľúče ktoré patria do vašej peňaženky</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Podpísať správu s vašou adresou Navcoin aby ste preukázali že ju vlastníte</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Podpísať správu s vašou adresou NavCoin aby ste preukázali že ju vlastníte</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Overiť či správa bola podpísaná uvedenou Navcoin adresou</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Overiť či správa bola podpísaná uvedenou NavCoin adresou</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -453,8 +453,8 @@
         <translation>Možnosti príkazového riadku</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n aktívne pripojenie do siete Navcoin</numerusform><numerusform>%n aktívne pripojenia do siete Navcoin</numerusform><numerusform>%n aktívnych pripojení do siete Navcoin</numerusform><numerusform>%n aktívnych pripojení do siete Navcoin</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n aktívne pripojenie do siete NavCoin</numerusform><numerusform>%n aktívne pripojenia do siete NavCoin</numerusform><numerusform>%n aktívnych pripojení do siete NavCoin</numerusform><numerusform>%n aktívnych pripojení do siete NavCoin</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -529,8 +529,8 @@
         <translation>Aktualizovaný</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
-        <translation>Ukáž %1 zoznam možných nastavení Navcoinu pomocou príkazového riadku</translation>
+        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
+        <translation>Ukáž %1 zoznam možných nastavení NavCoinu pomocou príkazového riadku</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -587,6 +587,9 @@
         <translation>Peňaženka je &lt;b&gt;zašifrovaná&lt;/b&gt; a momentálne &lt;b&gt;zamknutá&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -701,16 +704,16 @@
         <translation>Minúť nepotvrdený výdavok</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automaticky otvorit port pre Navcoin na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automaticky otvorit port pre NavCoin na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Mapovať port pomocou &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
-        <translation>Pripojiť do siete Navcoin cez proxy server SOCKS5.</translation>
+        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <translation>Pripojiť do siete NavCoin cez proxy server SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -749,8 +752,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Pripojiť k Navcoinovej sieti cez separované SOCKS5 proxy pre skrytú službu Tor.</translation>
+        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Pripojiť k NavCoinovej sieti cez separované SOCKS5 proxy pre skrytú službu Tor.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -857,6 +860,9 @@
     </message>
 </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>
@@ -878,7 +884,7 @@
         <translation>Suma</translation>
     </message>
     <message>
-        <source>Enter a Navcoin address (e.g. %1)</source>
+        <source>Enter a NavCoin address (e.g. %1)</source>
         <translation>Zadajte navcoin adresu (napr. %1)</translation>
     </message>
     <message>
@@ -1220,8 +1226,8 @@
         <translation>Znovu použiť jestvujúcu prijímaciu adresu (neodporúča sa)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
-        <translation>Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť Navcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <translation>Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť NavCoin.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1302,7 +1308,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Poslať Navcoins</translation>
+        <translation>Poslať NavCoins</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1432,7 +1438,7 @@
         <translation>Toto je normálna platba.</translation>
     </message>
     <message>
-        <source>The Navcoin address to send the payment to</source>
+        <source>The NavCoin address to send the payment to</source>
         <translation>Zvoľte adresu kam poslať platbu</translation>
     </message>
     <message>
@@ -1468,8 +1474,8 @@
         <translation>Vložte popis pre túto adresu aby sa uložila do zoznamu použitých adries</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
-        <translation>Správa ktorá bola pripojená k navcoin: URI a ktorá bude uložená s transakcou pre Vaše potreby. Poznámka: Táto správa nebude poslaná cez sieť Navcoin.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
+        <translation>Správa ktorá bola pripojená k navcoin: URI a ktorá bude uložená s transakcou pre Vaše potreby. Poznámka: Táto správa nebude poslaná cez sieť NavCoin.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1509,8 +1515,8 @@
         <translation>&amp;Podpísať Správu</translation>
     </message>
     <message>
-        <source>The Navcoin address to sign the message with</source>
-        <translation>Navcoin adresa pre podpísanie správy s</translation>
+        <source>The NavCoin address to sign the message with</source>
+        <translation>NavCoin adresa pre podpísanie správy s</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1541,7 +1547,7 @@
         <translation>Kopírovať práve zvolenú adresu do systémového klipbordu</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
+        <source>Sign the message to prove you own this NavCoin address</source>
         <translation>Podpíšte správu aby ste dokázali že vlastníte túto adresu</translation>
     </message>
     <message>
@@ -1561,12 +1567,12 @@
         <translation>O&amp;veriť správu...</translation>
     </message>
     <message>
-        <source>The Navcoin address the message was signed with</source>
-        <translation>Adresa Navcoin, ktorou bola podpísaná správa</translation>
+        <source>The NavCoin address the message was signed with</source>
+        <translation>Adresa NavCoin, ktorou bola podpísaná správa</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
-        <translation>Overím správy sa uistiť že bola podpísaná označenou Navcoin adresou</translation>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <translation>Overím správy sa uistiť že bola podpísaná označenou NavCoin adresou</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1641,7 +1647,7 @@
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation>Poslať Navcoins</translation>
+        <translation>Poslať NavCoins</translation>
     </message>
 </context>
 <context>
@@ -1721,8 +1727,8 @@
         <translation>Prijať spojenia zvonku (predvolené: 1 ak žiadne -proxy alebo -connect)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Jadro Navcoin</translation>
+        <source>NavCoin Core</source>
+        <translation>Jadro NavCoin</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
@@ -2331,4 +2337,18 @@ The network does not appear to fully agree! Some miners appear to be experiencin
         <translation>Chyba</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Forma</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Odstrániť</translation>
+    </message>
+    </context>
 </TS>

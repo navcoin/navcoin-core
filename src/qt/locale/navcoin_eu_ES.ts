@@ -119,7 +119,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Sarearekin sinkronizatzen...</translation>
@@ -154,7 +154,7 @@
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Erakutsi Navcoin-i buruzko informazioa</translation>
+        <translation>Erakutsi NavCoin-i buruzko informazioa</translation>
     </message>
     <message>
         <source>&amp;Options...</source>
@@ -206,6 +206,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -221,6 +224,9 @@
         <source>Form</source>
         <translation>Inprimakia</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -425,5 +431,15 @@
         <source>Done loading</source>
         <translation>Zamaketa amaitua</translation>
     </message>
+    </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Inprimakia</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

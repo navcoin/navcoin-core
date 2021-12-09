@@ -80,11 +80,14 @@ Alihkan fail data ke dalam tab semasa</translation>
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>&amp;Options...</source>
         <translation>Pilihan</translation>
     </message>
+    </context>
+<context>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -94,6 +97,9 @@ Alihkan fail data ke dalam tab semasa</translation>
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -183,5 +189,11 @@ Alihkan fail data ke dalam tab semasa</translation>
     </context>
 <context>
     <name>navcoin-core</name>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

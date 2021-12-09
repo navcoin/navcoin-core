@@ -267,7 +267,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Underskriv &amp;besked…</translation>
@@ -361,8 +361,8 @@
         <translation>Genindekserer blokke på disken…</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Send navcoins til en Navcoin-adresse</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Send navcoins til en NavCoin-adresse</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -385,8 +385,8 @@
         <translation>&amp;Verificér besked…</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -413,12 +413,12 @@
         <translation>Kryptér de private nøgler, der hører til din tegnebog</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Underskriv beskeder med dine Navcoin-adresser for at bevise, at de tilhører dig</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Underskriv beskeder med dine NavCoin-adresser for at bevise, at de tilhører dig</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Verificér beskeder for at sikre, at de er underskrevet med de angivne Navcoin-adresser</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verificér beskeder for at sikre, at de er underskrevet med de angivne NavCoin-adresser</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -453,8 +453,8 @@
         <translation>Tilvalg for &amp;kommandolinje</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n aktiv forbindelse til Navcoin-netværket</numerusform><numerusform>%n aktive forbindelser til Navcoin-netværket</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n aktiv forbindelse til NavCoin-netværket</numerusform><numerusform>%n aktive forbindelser til NavCoin-netværket</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -529,8 +529,8 @@
         <translation>Opdateret</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
-        <translation>Vis %1 hjælpebesked for at få en liste over mulige tilvalg for Navcoin kommandolinje</translation>
+        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
+        <translation>Vis %1 hjælpebesked for at få en liste over mulige tilvalg for NavCoin kommandolinje</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -587,6 +587,9 @@
         <translation>Tegnebog er &lt;b&gt;krypteret&lt;/b&gt; og i øjeblikket &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -701,16 +704,16 @@
         <translation>&amp;Brug ubekræftede byttepenge</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Åbn automatisk Navcoin-klientens port på routeren. Dette virker kun, når din router understøtter UPnP, og UPnP er aktiveret.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Åbn automatisk NavCoin-klientens port på routeren. Dette virker kun, når din router understøtter UPnP, og UPnP er aktiveret.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Konfigurér port vha. &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
-        <translation>Forbind til Navcoin-netværket gennem en SOCKS5-proxy.</translation>
+        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <translation>Forbind til NavCoin-netværket gennem en SOCKS5-proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -749,8 +752,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Forbind til Navcoin-netværket gennem en separat SOCKS5-proxy for skjulte Tor-tjenester.</translation>
+        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Forbind til NavCoin-netværket gennem en separat SOCKS5-proxy for skjulte Tor-tjenester.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -857,6 +860,9 @@
     </message>
 </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>
@@ -878,8 +884,8 @@
         <translation>Beløb</translation>
     </message>
     <message>
-        <source>Enter a Navcoin address (e.g. %1)</source>
-        <translation>Indtast en Navcoin-adresse (fx %1)</translation>
+        <source>Enter a NavCoin address (e.g. %1)</source>
+        <translation>Indtast en NavCoin-adresse (fx %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1231,8 +1237,8 @@
         <translation>&amp;Genbrug en eksisterende modtagelsesadresse (anbefales ikke)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
-        <translation>En valgfri besked, der føjes til betalingsanmodningen, og som vil vises, når anmodningen åbnes. Bemærk: Beskeden vil ikke sendes sammen med betalingen over Navcoin-netværket.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <translation>En valgfri besked, der føjes til betalingsanmodningen, og som vil vises, når anmodningen åbnes. Bemærk: Beskeden vil ikke sendes sammen med betalingen over NavCoin-netværket.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1443,8 +1449,8 @@
         <translation>Dette er en normal betaling.</translation>
     </message>
     <message>
-        <source>The Navcoin address to send the payment to</source>
-        <translation>Navcoin-adresse, som betalingen skal sendes til</translation>
+        <source>The NavCoin address to send the payment to</source>
+        <translation>NavCoin-adresse, som betalingen skal sendes til</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1479,8 +1485,8 @@
         <translation>Indtast et mærkat for denne adresse for at føje den til listen over brugte adresser</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
-        <translation>En besked, som blev føjet til "navcoin:"-URI'en, som vil gemmes med transaktionen til din reference. Bemærk: Denne besked vil ikke blive sendt over Navcoin-netværket.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
+        <translation>En besked, som blev føjet til "navcoin:"-URI'en, som vil gemmes med transaktionen til din reference. Bemærk: Denne besked vil ikke blive sendt over NavCoin-netværket.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1524,8 +1530,8 @@
         <translation>Du kan signere beskeder/aftaler med dine adresser for at bevise, at du kan modtage navcoin, der bliver sendt til adresserne. Vær forsigtig med ikke at signere noget vagt eller tilfældigt, da eventuelle phishing-angreb kan snyde dig til at overlade din identitet til dem. Signér kun fuldt ud detaljerede udsagn, som du er enig i.</translation>
     </message>
     <message>
-        <source>The Navcoin address to sign the message with</source>
-        <translation>Navcoin-adresse, som beskeden skal signeres med</translation>
+        <source>The NavCoin address to sign the message with</source>
+        <translation>NavCoin-adresse, som beskeden skal signeres med</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1556,8 +1562,8 @@
         <translation>Kopiér den nuværende underskrift til systemets udklipsholder</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
-        <translation>Underskriv denne besked for at bevise, at Navcoin-adressen tilhører dig</translation>
+        <source>Sign the message to prove you own this NavCoin address</source>
+        <translation>Underskriv denne besked for at bevise, at NavCoin-adressen tilhører dig</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1580,12 +1586,12 @@
         <translation>Indtast modtagerens adresse, besked (vær sikker på at kopiere linjeskift, mellemrum, tabuleringer, etc. præcist) og signatur herunder for at verificere beskeden. Vær forsigtig med ikke at læse noget ud fra signaturen, som ikke står i selve beskeden, for at undgå at blive snydt af et eventuelt man-in-the-middle-angreb. Bemærk, at dette kun beviser, at den signerende person kan modtage med adressen; det kan ikke bevise hvem der har sendt en given transaktion!</translation>
     </message>
     <message>
-        <source>The Navcoin address the message was signed with</source>
-        <translation>Navcoin-adressen, som beskeden blev signeret med</translation>
+        <source>The NavCoin address the message was signed with</source>
+        <translation>NavCoin-adressen, som beskeden blev signeret med</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
-        <translation>Verificér beskeden for at sikre, at den er underskrevet med den angivne Navcoin-adresse</translation>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <translation>Verificér beskeden for at sikre, at den er underskrevet med den angivne NavCoin-adresse</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1752,8 +1758,8 @@
         <translation>Acceptér forbindelser udefra (standard: 1 hvis hverken -proxy eller -connect)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Core</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Core</translation>
     </message>
     <message>
         <source>The %s developers</source>
@@ -2525,4 +2531,18 @@
         <translation>Fejl</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Fjern</translation>
+    </message>
+    </context>
 </TS>

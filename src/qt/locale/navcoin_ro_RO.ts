@@ -259,7 +259,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Semnează &amp;mesaj...</translation>
@@ -341,8 +341,8 @@
         <translation>Se reindexează blocurile pe disc...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
-        <translation>Trimite monede către o adresă Navcoin</translation>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Trimite monede către o adresă NavCoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -365,8 +365,8 @@
         <translation>&amp;Verifică mesaj...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
-        <translation>Navcoin</translation>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -393,12 +393,12 @@
         <translation>Criptează cheile private ale portofelului dvs.</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
-        <translation>Semnaţi mesaje cu adresa dvs. Navcoin pentru a dovedi că vă aparţin</translation>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Semnaţi mesaje cu adresa dvs. NavCoin pentru a dovedi că vă aparţin</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
-        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa Navcoin specificată</translation>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa NavCoin specificată</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -433,8 +433,8 @@
         <translation>Opţiuni linie de &amp;comandă</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n conexiune activă către reţeaua Navcoin</numerusform><numerusform>%n conexiuni active către reţeaua Navcoin</numerusform><numerusform>%n de conexiuni active către reţeaua Navcoin</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n conexiune activă către reţeaua NavCoin</numerusform><numerusform>%n conexiuni active către reţeaua NavCoin</numerusform><numerusform>%n de conexiuni active către reţeaua NavCoin</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -552,6 +552,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -657,16 +660,16 @@
         <translation>Cheltuire rest neconfirmat</translation>
     </message>
     <message>
-        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Deschide automat în router portul aferent clientului Navcoin. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
+        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Deschide automat în router portul aferent clientului NavCoin. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Mapare port folosind &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
-        <translation>Conectare la reţeaua Navcoin printr-un proxy SOCKS.</translation>
+        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
+        <translation>Conectare la reţeaua NavCoin printr-un proxy SOCKS.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -785,6 +788,9 @@
     </message>
 </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>
@@ -806,8 +812,8 @@
         <translation>Cantitate</translation>
     </message>
     <message>
-        <source>Enter a Navcoin address (e.g. %1)</source>
-        <translation>Introduceţi o adresă Navcoin (de exemplu %1)</translation>
+        <source>Enter a NavCoin address (e.g. %1)</source>
+        <translation>Introduceţi o adresă NavCoin (de exemplu %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1103,8 +1109,8 @@
         <translation>R&amp;efoloseşte o adresă de primire (nu este recomandat)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
-        <translation>Un mesaj opţional de ataşat la cererea de plată, care va fi afişat cînd cererea este deschisă. Notă: Acest mesaj nu va fi trimis cu plata către reţeaua Navcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
+        <translation>Un mesaj opţional de ataşat la cererea de plată, care va fi afişat cînd cererea este deschisă. Notă: Acest mesaj nu va fi trimis cu plata către reţeaua NavCoin.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1299,7 +1305,7 @@
         <translation>Aceasta este o tranzacţie normală.</translation>
     </message>
     <message>
-        <source>The Navcoin address to send the payment to</source>
+        <source>The NavCoin address to send the payment to</source>
         <translation>Adresa navcoin către care se face plata</translation>
     </message>
     <message>
@@ -1319,7 +1325,7 @@
         <translation>Introduceţi eticheta pentru ca această adresa să fie introdusă în lista de adrese folosite</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
         <translation>un mesaj a fost ataşat la navcoin: URI care va fi stocat cu tranzacţia pentru referinţa dvs. Notă: Acest mesaj nu va fi trimis către reţeaua navcoin.</translation>
     </message>
     <message>
@@ -1360,7 +1366,7 @@
         <translation>&amp;Semnează mesaj</translation>
     </message>
     <message>
-        <source>The Navcoin address to sign the message with</source>
+        <source>The NavCoin address to sign the message with</source>
         <translation>Adresa cu care semnaţi mesajul</translation>
     </message>
     <message>
@@ -1392,8 +1398,8 @@
         <translation>Copiază semnatura curentă în clipboard-ul sistemului</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Navcoin address</source>
-        <translation>Semnează mesajul pentru a dovedi ca deţineţi acestă adresă Navcoin</translation>
+        <source>Sign the message to prove you own this NavCoin address</source>
+        <translation>Semnează mesajul pentru a dovedi ca deţineţi acestă adresă NavCoin</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1412,12 +1418,12 @@
         <translation>&amp;Verifică mesaj</translation>
     </message>
     <message>
-        <source>The Navcoin address the message was signed with</source>
-        <translation>Introduceţi o adresă Navcoin</translation>
+        <source>The NavCoin address the message was signed with</source>
+        <translation>Introduceţi o adresă NavCoin</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
-        <translation>Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Navcoin specificată</translation>
+        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
+        <translation>Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa NavCoin specificată</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1548,8 +1554,8 @@
         <translation>Acceptă conexiuni din afară (implicit: 1 dacă nu se foloseşte -proxy sau -connect)</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Nucleul Navcoin</translation>
+        <source>NavCoin Core</source>
+        <translation>Nucleul NavCoin</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
@@ -1880,4 +1886,18 @@
         <translation>Eroare</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Înlătură</translation>
+    </message>
+    </context>
 </TS>

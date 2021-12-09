@@ -199,7 +199,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavcoinGUI</name>
+    <name>NavCoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Падпісаць паведамленне...</translation>
@@ -277,7 +277,7 @@
         <translation>Пераіндэксацыя блокаў на дыску...</translation>
     </message>
     <message>
-        <source>Send coins to a Navcoin address</source>
+        <source>Send coins to a NavCoin address</source>
         <translation>Даслаць манеты на Біткойн-адрас</translation>
     </message>
     <message>
@@ -301,7 +301,7 @@
         <translation>Праверыць паведамленне...</translation>
     </message>
     <message>
-        <source>Navcoin</source>
+        <source>NavCoin</source>
         <translation>Біткойн</translation>
     </message>
     <message>
@@ -329,11 +329,11 @@
         <translation>Зашыфраваць прыватныя ключы, якия належаць вашаму гаманцу</translation>
     </message>
     <message>
-        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
         <translation>Падпісаць паведамленне з дапамогай Біткойн-адраса каб даказаць, што яно належыць вам</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
         <translation>Спраўдзіць паведамленне з дапамогай Біткойн-адраса каб даказаць, што яно належыць вам</translation>
     </message>
     <message>
@@ -369,8 +369,8 @@
         <translation>Опцыі каманднага радка</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Navcoin network</source>
-        <translation><numerusform>%n актыўнае злучэнне з сецівам Navcoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам Navcoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам Navcoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам Navcoin</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n актыўнае злучэнне з сецівам NavCoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам NavCoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам NavCoin</numerusform><numerusform>%n актыўных злучэнняў з сецівам NavCoin</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -480,6 +480,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -507,6 +510,9 @@
         <source>Form</source>
         <translation>Форма</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -760,8 +766,8 @@
         <translation>Запусціць у фоне як дэман і прымаць каманды</translation>
     </message>
     <message>
-        <source>Navcoin Core</source>
-        <translation>Navcoin Core</translation>
+        <source>NavCoin Core</source>
+        <translation>NavCoin Core</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -888,4 +894,14 @@
         <translation>Памылка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>
