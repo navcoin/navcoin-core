@@ -99,7 +99,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Se sincronizează cu rețeaua</translation>

@@ -127,7 +127,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;கண்ணோட்டம்</translation>
@@ -165,8 +165,8 @@
         <translation>&amp;செய்தியை சரிசெய்...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -748,8 +748,8 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin மையம்</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin மையம்</translation>
     </message>
     <message>
         <source>(default: %u)</source>

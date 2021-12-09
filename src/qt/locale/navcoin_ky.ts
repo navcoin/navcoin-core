@@ -67,7 +67,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>&amp;Transactions</source>
         <translation>&amp;Транзакциялар</translation>
@@ -77,8 +77,8 @@
         <translation>Билдирүүнү &amp;текшерүү...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>

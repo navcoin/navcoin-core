@@ -215,7 +215,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Chứ ký &amp; Tin nhắn...</translation>
@@ -305,8 +305,8 @@
         <translation>Đánh chỉ số (indexing) lại các khối (blocks) trên ổ đĩa ...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Gửi coins đến tài khoản NavCoin</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Gửi coins đến tài khoản Navcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -325,8 +325,8 @@
         <translation>&amp;Tin nhắn xác thực</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -353,12 +353,12 @@
         <translation>Mã hoá các khoá bí mật trong Ví của bạn.</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Dùng địa chỉ NavCoin của bạn ký các tin nhắn để xác minh những nội dung tin nhắn đó là của bạn.</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Dùng địa chỉ Navcoin của bạn ký các tin nhắn để xác minh những nội dung tin nhắn đó là của bạn.</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Kiểm tra các tin nhắn để chắc chắn rằng chúng được ký bằng các địa chỉ NavCoin xác định.</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Kiểm tra các tin nhắn để chắc chắn rằng chúng được ký bằng các địa chỉ Navcoin xác định.</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -374,7 +374,7 @@
     </message>
     <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ NavCoin: URLs)</translation>
+        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ Navcoin: URLs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -540,8 +540,8 @@
         <translation>Ví</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Kết nối đến máy chủ NavCoin thông qua SOCKS5 proxy.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Kết nối đến máy chủ Navcoin thông qua SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -798,8 +798,8 @@
         <translation>Lựa chọn:</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>(default: %u)</source>

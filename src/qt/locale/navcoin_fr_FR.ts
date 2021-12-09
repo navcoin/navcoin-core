@@ -239,7 +239,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Signer &amp;message...</translation>
@@ -329,8 +329,8 @@
         <translation>Réindexer les blocs sur le disque...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Envoyer des pièces à une adresse NavCoin</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Envoyer des pièces à une adresse Navcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -353,8 +353,8 @@
         <translation>&amp;Vérification du message</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -381,8 +381,8 @@
         <translation>Crypter les clé privées qui appartiennent votre portefeuille</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Signer vos messages avec vos adresses NavCoin pour prouver que vous les détenez</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Signer vos messages avec vos adresses Navcoin pour prouver que vous les détenez</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -413,8 +413,8 @@
         <translation>&amp;Options de ligne de commande</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n connexion active au réseau NavCoin</numerusform><numerusform>%n connexions actives au réseau NavCoin</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n connexion active au réseau Navcoin</numerusform><numerusform>%n connexions actives au réseau Navcoin</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -604,8 +604,8 @@
         <translation>Expert</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Ouvrir le port du client NavCoin automatiquement sur le routeur. Cela ne fonctionne que si votre routeur supporte l'UPnP et si la fonctionnalité est activée.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Ouvrir le port du client Navcoin automatiquement sur le routeur. Cela ne fonctionne que si votre routeur supporte l'UPnP et si la fonctionnalité est activée.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -740,8 +740,8 @@
         <translation>Montant</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Entrer une adresse NavCoin (e.g. %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Entrer une adresse Navcoin (e.g. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1362,8 +1362,8 @@
         <translation>Impossible de démarrer le serveur HTTP. Voir le journal de débogage pour plus de détails.</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>&lt;category&gt; can be:</source>

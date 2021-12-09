@@ -99,7 +99,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Sincronizando con la red...</translation>
@@ -161,8 +161,8 @@
         <translation>Abrir &amp;URL...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Enviando monedas a una dirección de NavCoin</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Enviando monedas a una dirección de Navcoin</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
@@ -181,8 +181,8 @@
         <translation>&amp;Verificar Mensaje...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -312,8 +312,8 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>Insufficient funds</source>

@@ -127,7 +127,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>&amp;Transactions</source>
         <translation>&amp;Транзакциялар</translation>
@@ -149,7 +149,7 @@
         <translation>Құпия сөзді өзгерту</translation>
     </message>
     <message>
-        <source>NavCoin</source>
+        <source>Navcoin</source>
         <translation>Биткоин</translation>
     </message>
     <message>

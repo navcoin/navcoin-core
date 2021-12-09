@@ -127,7 +127,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Signa &amp;nuntium...</translation>
@@ -189,8 +189,8 @@
         <translation>Recreans indicem frustorum in disco...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Mitte nummos ad inscriptionem NavCoin</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Mitte nummos ad inscriptionem Navcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -213,8 +213,8 @@
         <translation>&amp;Verifica nuntium...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -241,12 +241,12 @@
         <translation>Cifra claves privatas quae cassidili tui sunt</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Signa nuntios cum tuis inscriptionibus NavCoin ut demonstres te eas possidere</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Signa nuntios cum tuis inscriptionibus Navcoin ut demonstres te eas possidere</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Verifica nuntios ut certus sis eos signatos esse cum specificatis inscriptionibus NavCoin</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Verifica nuntios ut certus sis eos signatos esse cum specificatis inscriptionibus Navcoin</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -350,8 +350,8 @@
         <translation>Cassidile</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Aperi per se portam clientis NavCoin in itineratore.  Hoc tantum effectivum est si itineratrum tuum supportat UPnP et id activum est.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Aperi per se portam clientis Navcoin in itineratore.  Hoc tantum effectivum est si itineratrum tuum supportat UPnP et id activum est.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -644,8 +644,8 @@
         <translation>Copia signationem in latibulum systematis</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Signa nuntium ut demonstres hanc inscriptionem NavCoin a te possessa esse</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Signa nuntium ut demonstres hanc inscriptionem Navcoin a te possessa esse</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -664,8 +664,8 @@
         <translation>&amp;Verifica Nuntium</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Verifica nuntium ut cures signatum esse cum specifica inscriptione NavCoin</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Verifica nuntium ut cures signatum esse cum specifica inscriptione Navcoin</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -784,8 +784,8 @@
         <translation>Accipe conexiones externas (praedefinitum: 1 nisi -proxy neque -connect)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Nucleus</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Nucleus</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>

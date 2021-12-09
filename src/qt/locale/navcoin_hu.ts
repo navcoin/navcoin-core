@@ -66,12 +66,12 @@
         <translation>Fogadási címek</translation>
     </message>
     <message>
-        <source>These are your NavCoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Ezek az Ön NavCoin-címei a fizetések küldéséhez. Mindig ellenőrizze az összeget és a fogadási címet, mielőtt érméket küld.</translation>
+        <source>These are your Navcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ezek az Ön Navcoin-címei a fizetések küldéséhez. Mindig ellenőrizze az összeget és a fogadási címet, mielőtt érméket küld.</translation>
     </message>
     <message>
-        <source>These are your NavCoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>Ezek az Ön NavCoin-címei a fizetések fogadásához. Ajánlott új fogadási címet használni minden egyes tranzakciónál.</translation>
+        <source>These are your Navcoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Ezek az Ön Navcoin-címei a fizetések fogadásához. Ajánlott új fogadási címet használni minden egyes tranzakciónál.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -201,7 +201,7 @@
     </message>
     <message>
         <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your navcoins from being stolen by malware infecting your computer.</source>
-        <translation>A %1 most be fog záródni a titkosítási folyamat befejezéséhez. Ne feledje, hogy a tárcája titkosítása nem tudja teljes mértékben megvédeni a NavCoinjait attól, hogy a számítógépét megfertőző kártékony programok ellopják azt.</translation>
+        <translation>A %1 most be fog záródni a titkosítási folyamat befejezéséhez. Ne feledje, hogy a tárcája titkosítása nem tudja teljes mértékben megvédeni a Navcoinjait attól, hogy a számítógépét megfertőző kártékony programok ellopják azt.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -535,8 +535,8 @@
         <translation>Küldési cím szerkesztése</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid NavCoin address.</source>
-        <translation>A megadott „%1” cím nem érvényes NavCoin-cím.</translation>
+        <source>The entered address "%1" is not a valid Navcoin address.</source>
+        <translation>A megadott „%1” cím nem érvényes Navcoin-cím.</translation>
     </message>
     <message>
         <source>The entered address "%1" is already in the address book.</source>
@@ -554,8 +554,8 @@
 <context>
     <name>FreespaceChecker</name>
     <message>
-        <source>NavCoin will try to import an old wallet.dat file.</source>
-        <translation>A NavCoin megpróbál importálni egy régi wallet.dat fájlt.</translation>
+        <source>Navcoin will try to import an old wallet.dat file.</source>
+        <translation>A Navcoin megpróbál importálni egy régi wallet.dat fájlt.</translation>
     </message>
     <message>
         <source>You must choose a wallet.dat file.</source>
@@ -651,8 +651,8 @@
         <translation>Mivel ez a(z) %1 első indítása, még van néhány beállítási lépés, amelyet el kell végezni.</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</source>
-        <translation>A(z) %1 le fogja tölteni és el fogja tárolni a NavCoin-blokklánc egy másolatát. Legalább %2 GB adat kerül eltárolásra a számítógépén, és ez növekedni fog az idő előrehaladtával. Szükség van egy tárcára az érméi tárolásához.</translation>
+        <source>%1 will download and store a copy of the Navcoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</source>
+        <translation>A(z) %1 le fogja tölteni és el fogja tárolni a Navcoin-blokklánc egy másolatát. Legalább %2 GB adat kerül eltárolásra a számítógépén, és ez növekedni fog az idő előrehaladtával. Szükség van egy tárcára az érméi tárolásához.</translation>
     </message>
     <message>
         <source>Create a new wallet.</source>
@@ -683,7 +683,7 @@
     </message>
 </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Üzenet &amp;aláírása…</translation>
@@ -917,8 +917,8 @@
         <translation>Nem bányászik, kis türelmet</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Érmék küldése egy NavCoin-címre</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Érmék küldése egy Navcoin-címre</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -941,8 +941,8 @@
         <translation>Üzenet &amp;ellenőrzése…</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -969,12 +969,12 @@
         <translation>A tárcájához tartozó személyes kulcsok titkosítása</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Üzenetek aláírása a NavCoin-címeivel, hogy bizonyítsa a tulajdonjogát</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Üzenetek aláírása a Navcoin-címeivel, hogy bizonyítsa a tulajdonjogát</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Üzenetek ellenőrzése annak biztosításához, hogy a megadott NavCoin-címekkel lettek aláírva</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Üzenetek ellenőrzése annak biztosításához, hogy a megadott Navcoin-címekkel lettek aláírva</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -1009,8 +1009,8 @@
         <translation>&amp;Parancssori kapcsolók</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n aktív kapcsolat a NavCoin hálózatához</numerusform><numerusform>%n aktív kapcsolat a NavCoin hálózatához</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n aktív kapcsolat a Navcoin hálózatához</numerusform><numerusform>%n aktív kapcsolat a Navcoin hálózatához</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -1033,12 +1033,12 @@
         <translation><numerusform>Utolsó blokk: %n</numerusform><numerusform>Utolsó blokk: %n</numerusform></translation>
     </message>
     <message>
-        <source>Connected to NavCoin network.</source>
-        <translation>Kapcsolódva a NavCoin hálózatához.</translation>
+        <source>Connected to Navcoin network.</source>
+        <translation>Kapcsolódva a Navcoin hálózatához.</translation>
     </message>
     <message>
-        <source>Connecting to NavCoin network...</source>
-        <translation>Kapcsolódás a NavCoin hálózatához…</translation>
+        <source>Connecting to Navcoin network...</source>
+        <translation>Kapcsolódás a Navcoin hálózatához…</translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
@@ -1078,7 +1078,7 @@
     </message>
     <message>
         <source>The Nav Coin Network is currently voting on introducing changes on the consensus protocol. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. &lt;br&gt;&lt;br&gt;For more information on the proposal, please visit &lt;a href="https://navcoin.org/community-fund"&gt;this link&lt;/a&gt;&lt;br&gt;&lt;br&gt;Would you like the Nav Coin Network to update the staking rewards to setup a decentralised community fund that will help grow the network?</source>
-        <translation>A NavCoin hálózata jelenleg az egyetértési protokoll változtatásainak bevezetéséről szavaz. A hálózatunk résztvevőjeként értékeljük a hozzájárulását, és a döntést végső soron Ön hozza meg. Adja le a szavazatát. &lt;br&gt;&lt;br&gt;A javaslattal kapcsolatos további információkért nézze meg &lt;a href="https://navcoin.org/community-fund"&gt;ezt a hivatkozást&lt;/a&gt;&lt;br&gt;&lt;br&gt;Szeretné, hogy a NavCoin hálózata frissítse a bányászási jutalmakat egy decentralizált közösségi alapra, amely segít növelni a hálózatot?</translation>
+        <translation>A Navcoin hálózata jelenleg az egyetértési protokoll változtatásainak bevezetéséről szavaz. A hálózatunk résztvevőjeként értékeljük a hozzájárulását, és a döntést végső soron Ön hozza meg. Adja le a szavazatát. &lt;br&gt;&lt;br&gt;A javaslattal kapcsolatos további információkért nézze meg &lt;a href="https://navcoin.org/community-fund"&gt;ezt a hivatkozást&lt;/a&gt;&lt;br&gt;&lt;br&gt;Szeretné, hogy a Navcoin hálózata frissítse a bányászási jutalmakat egy decentralizált közösségi alapra, amely segít növelni a hálózatot?</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -1105,8 +1105,8 @@
         <translation>Naprakész</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
-        <translation>A(z) %1 súgóüzenetének megjelenítése a NavCoin lehetséges parancssori kapcsolóit tartalmazó lista lekéréséhez</translation>
+        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
+        <translation>A(z) %1 súgóüzenetének megjelenítése a Navcoin lehetséges parancssori kapcsolóit tartalmazó lista lekéréséhez</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -1174,12 +1174,12 @@
         <translation>NavTech beállítása</translation>
     </message>
     <message>
-        <source>NavCoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
-        <translation>A NavCoin egy NavTech elnevezésű, egyedi, párhuzamos csomópontfürtöt használ a tranzakciói adatvédelmének biztosításához.</translation>
+        <source>Navcoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
+        <translation>A Navcoin egy NavTech elnevezésű, egyedi, párhuzamos csomópontfürtöt használ a tranzakciói adatvédelmének biztosításához.</translation>
     </message>
     <message>
-        <source>You will find below the list of the NavCoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
-        <translation>Lent megtalálhatja a NavCoin alapítvány kiszolgálóinak listáját. Nyugodtan módosítsa ezt a listát, hogy felvegye az előnyben részesített kiszolgálókat:</translation>
+        <source>You will find below the list of the Navcoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
+        <translation>Lent megtalálhatja a Navcoin alapítvány kiszolgálóinak listáját. Nyugodtan módosítsa ezt a listát, hogy felvegye az előnyben részesített kiszolgálókat:</translation>
     </message>
     <message>
         <source>95.183.52.55:3000
@@ -1324,16 +1324,16 @@
         <translation>&amp;Nem megerősített visszajáró elköltése</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>A NavCoin-kliens portjának automatikus megnyitása az útválasztón. Ez csak akkor működik, ha az útválasztója támogatja az UPnP-t, és az engedélyezve is van rajta.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>A Navcoin-kliens portjának automatikus megnyitása az útválasztón. Ez csak akkor működik, ha az útválasztója támogatja az UPnP-t, és az engedélyezve is van rajta.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Port feltérképezése &amp;UPnP használatával</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Kapcsolódás a NavCoin hálózatához SOCKS5 proxyn keresztül.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Kapcsolódás a Navcoin hálózatához SOCKS5 proxyn keresztül.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1372,8 +1372,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Kapcsolódás a NavCoin hálózatához egy különálló SOCKS5 proxyn keresztül a Tor rejtett szolgáltatásaihoz.</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Kapcsolódás a Navcoin hálózatához egy különálló SOCKS5 proxyn keresztül a Tor rejtett szolgáltatásaihoz.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -1535,8 +1535,8 @@
         <translation>Tranzakciók</translation>
     </message>
     <message>
-        <source>Connecting to NavCoin network...</source>
-        <translation>Kapcsolódás a NavCoin hálózatához…</translation>
+        <source>Connecting to Navcoin network...</source>
+        <translation>Kapcsolódás a Navcoin hálózatához…</translation>
     </message>
     <message>
         <source>32 active connections.</source>
@@ -1606,8 +1606,8 @@
         <translation>Érvénytelen fizetési cím: %1</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid NavCoin address or malformed URI parameters.</source>
-        <translation>Az URI-t nem lehet feldolgozni! Ezt egy érvénytelen NavCoin-cím vagy helytelenül formázott URI paraméterek okozhatják.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Navcoin address or malformed URI parameters.</source>
+        <translation>Az URI-t nem lehet feldolgozni! Ezt egy érvénytelen Navcoin-cím vagy helytelenül formázott URI paraméterek okozhatják.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1708,8 +1708,8 @@
         <translation>Összeg</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Adjon meg egy NavCoin-címet (például: %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Adjon meg egy Navcoin-címet (például: %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -2073,8 +2073,8 @@
         <translation>Egy meglévő fogadási cím újra&amp;használata</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>A fizetési kérelemhez csatolandó elhagyható üzenet, amely akkor lesz megjelenítve, ha a kérelmet megnyitják. Megjegyzés: az üzenet nem lesz elküldve a fizetéssel a NavCoin hálózatán.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>A fizetési kérelemhez csatolandó elhagyható üzenet, amely akkor lesz megjelenítve, ha a kérelmet megnyitják. Megjegyzés: az üzenet nem lesz elküldve a fizetéssel a Navcoin hálózatán.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2287,7 +2287,7 @@
     </message>
     <message>
         <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for navcoin transactions than the network can process.</source>
-        <translation>Csak a legkisebb díj fizetése egészen addig jó, amíg kevesebb tranzakciómennyiség van a blokkokban lévő helynél. De vigyázzon, mert ez egy soha meg nem erősített tranzakcióval végződhet, ha a NavCoin tranzakciók iránt nagyobb az igény, mint amennyit a hálózat fel tud dolgozni.</translation>
+        <translation>Csak a legkisebb díj fizetése egészen addig jó, amíg kevesebb tranzakciómennyiség van a blokkokban lévő helynél. De vigyázzon, mert ez egy soha meg nem erősített tranzakcióval végződhet, ha a Navcoin tranzakciók iránt nagyobb az igény, mint amennyit a hálózat fel tud dolgozni.</translation>
     </message>
     <message>
         <source>(read the tooltip)</source>
@@ -2494,8 +2494,8 @@
         <translation><numerusform>A megerősítés várhatóan %n blokkon belül kezdődik.</numerusform><numerusform>A megerősítés várhatóan %n blokkon belül kezdődik.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid NavCoin address</source>
-        <translation>Figyelmeztetés: érvénytelen NavCoin-cím</translation>
+        <source>Warning: Invalid Navcoin address</source>
+        <translation>Figyelmeztetés: érvénytelen Navcoin-cím</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2525,8 +2525,8 @@
         <translation>Ez egy normál fizetés.</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>A NavCoin-cím, amelyre a fizetést küldeni kell</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>A Navcoin-cím, amelyre a fizetést küldeni kell</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2538,7 +2538,7 @@
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less navcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>A díj levonásra kerül az elküldendő összegből. A címzett kevesebb NavCoint fog kapni az összeg mezőbe beírtnál. Ha több címzett van kiválasztva, akkor a díj egyenlően lesz felosztva.</translation>
+        <translation>A díj levonásra kerül az elküldendő összegből. A címzett kevesebb Navcoint fog kapni az összeg mezőbe beírtnál. Ha több címzett van kiválasztva, akkor a díj egyenlően lesz felosztva.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2561,8 +2561,8 @@
         <translation>Adjon egy címkét ehhez a címhez a használt címek listájához való hozzáadáshoz</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>Az üzenet, amely hozzá lett csatolva ahhoz a „navcoin:” URI-hoz, amely a tranzakcióval együtt lesz eltárolva a hivatkozásához. Megjegyzés: ez az üzenet nem lesz elküldve a NavCoin hálózatán keresztül.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>Az üzenet, amely hozzá lett csatolva ahhoz a „navcoin:” URI-hoz, amely a tranzakcióval együtt lesz eltárolva a hivatkozásához. Megjegyzés: ez az üzenet nem lesz elküldve a Navcoin hálózatán keresztül.</translation>
     </message>
     <message>
         <source>Save in Address Book</source>
@@ -2615,11 +2615,11 @@
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive navcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Aláírhatja az üzeneteket vagy a megállapodásokat a címeivel annak bizonyításához, hogy megkaphatja az azokra küldött NavCoinokat. Legyen óvatos, és ne írjon alá semmilyen bizonytalant vagy véletlenszerűt, mert az adathalász-támadások megpróbálhatják rávenni Önt arra, hogy aláírja a személyazonosságával azokat. Csak azokat a teljes körűen részletezett nyilatkozatokat írja alá, amelyekkel egyetért.</translation>
+        <translation>Aláírhatja az üzeneteket vagy a megállapodásokat a címeivel annak bizonyításához, hogy megkaphatja az azokra küldött Navcoinokat. Legyen óvatos, és ne írjon alá semmilyen bizonytalant vagy véletlenszerűt, mert az adathalász-támadások megpróbálhatják rávenni Önt arra, hogy aláírja a személyazonosságával azokat. Csak azokat a teljes körűen részletezett nyilatkozatokat írja alá, amelyekkel egyetért.</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>A NavCoin-cím, amellyel az üzenet alá lesz írva</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>A Navcoin-cím, amellyel az üzenet alá lesz írva</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2650,8 +2650,8 @@
         <translation>A jelenlegi aláírás másolása a rendszer vágólapjára</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Írja alá az üzenetet annak bizonyításához, hogy ez az Ön NavCoin-címe</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Írja alá az üzenetet annak bizonyításához, hogy ez az Ön Navcoin-címe</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2674,12 +2674,12 @@
         <translation>Adja meg lent a fogadó címét, az üzenetet (győződjön meg arról, hogy a sortöréseket, szóközöket, tabulátorokat stb. pontosan másolta-e) és az aláírást az üzenet ellenőrzéséhez. Legyen óvatos, és ne olvasson be többet az aláírásba annál, mint ami magában az aláírt üzenetben van, hogy elkerülje a közbeékelődéses támadások általi átverést. Ne feledje, hogy ez csak azt bizonyítja, hogy az aláíró fél megkapja a címmel, és nem bizonyítja semmilyen tranzakció küldöttségét!</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>A NavCoin-cím, amellyel az üzenet alá lett írva</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>A Navcoin-cím, amellyel az üzenet alá lett írva</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Az üzenet ellenőrzése annak biztosításához, hogy az a megadott NavCoin-címmel lett aláírva</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Az üzenet ellenőrzése annak biztosításához, hogy az a megadott Navcoin-címmel lett aláírva</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3320,8 +3320,8 @@
         <translation>Hiba a kulcsnak a tárcához való hozzáadásakor.</translation>
     </message>
     <message>
-        <source>NavCoin needs to scan the chain... Please, wait.</source>
-        <translation>A NavCoinnak be kell olvasnia a láncot… Kis türelmet.</translation>
+        <source>Navcoin needs to scan the chain... Please, wait.</source>
+        <translation>A Navcoinnak be kell olvasnia a láncot… Kis türelmet.</translation>
     </message>
     <message>
         <source>Private key correctly added!</source>
@@ -3335,8 +3335,8 @@
         <translation>Űrlap</translation>
     </message>
     <message>
-        <source>Use the following address to receive NavCoins:</source>
-        <translation>Használja a következő címet a NavCoinok fogadásához:</translation>
+        <source>Use the following address to receive Navcoins:</source>
+        <translation>Használja a következő címet a Navcoinok fogadásához:</translation>
     </message>
     <message>
         <source>QR Code</source>
@@ -3442,8 +3442,8 @@
         <translation>Kívülről érkező kapcsolatok elfogadása (alapértelmezett: 1, ha nincs -proxy vagy -connect)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

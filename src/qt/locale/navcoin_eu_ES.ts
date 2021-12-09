@@ -119,7 +119,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Sarearekin sinkronizatzen...</translation>
@@ -154,7 +154,7 @@
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Erakutsi NavCoin-i buruzko informazioa</translation>
+        <translation>Erakutsi Navcoin-i buruzko informazioa</translation>
     </message>
     <message>
         <source>&amp;Options...</source>

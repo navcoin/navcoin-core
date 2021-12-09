@@ -80,7 +80,7 @@ Alihkan fail data ke dalam tab semasa</translation>
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>&amp;Options...</source>
         <translation>Pilihan</translation>

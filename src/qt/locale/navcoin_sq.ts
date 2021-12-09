@@ -123,7 +123,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Duke u sinkronizuar me rrjetin...</translation>
@@ -161,8 +161,8 @@
         <translation>Ndrysho frazkalimin e përdorur per enkriptimin e portofolit</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -472,8 +472,8 @@
         <translation>Opsionet:</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>Berthama NavCoin</translation>
+        <source>Navcoin Core</source>
+        <translation>Berthama Navcoin</translation>
     </message>
     <message>
         <source>Information</source>

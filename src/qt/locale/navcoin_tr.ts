@@ -79,7 +79,7 @@
     <name>CoinControlDialog</name>
     <message>
         <source>Coin Selection</source>
-        <translation>NavCoin Seçimi</translation>
+        <translation>Navcoin Seçimi</translation>
     </message>
     <message>
         <source>Quantity:</source>
@@ -267,7 +267,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>&amp;Mesaj imzala...</translation>
@@ -361,8 +361,8 @@
         <translation>Diskteki bloklar yeniden endeksleniyor...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Bir NavCoin adresine NavCoin yolla</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Bir Navcoin adresine Navcoin yolla</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -385,8 +385,8 @@
         <translation>Mesaj &amp;kontrol et...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -413,12 +413,12 @@
         <translation>Cüzdanınızın özel anahtarlarını şifrele</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Mesajları adreslerin size ait olduğunu ispatlamak için NavCoin adresleri ile imzala</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Mesajları adreslerin size ait olduğunu ispatlamak için Navcoin adresleri ile imzala</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Belirtilen NavCoin adresleri ile imzalandıklarından emin olmak için mesajları kontrol et</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Belirtilen Navcoin adresleri ile imzalandıklarından emin olmak için mesajları kontrol et</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -453,8 +453,8 @@
         <translation>&amp;Komut satırı seçenekleri</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>NavCoin şebekesine %n faal bağlantı</numerusform><numerusform>NavCoin şebekesine %n faal bağlantı</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>Navcoin şebekesine %n faal bağlantı</numerusform><numerusform>Navcoin şebekesine %n faal bağlantı</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -529,8 +529,8 @@
         <translation>Güncel</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
-        <translation>Olası NavCoin komut satırı seçeneklerinin listesini görmek için %1 yardım mesajını göster</translation>
+        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
+        <translation>Olası Navcoin komut satırı seçeneklerinin listesini görmek için %1 yardım mesajını göster</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -704,16 +704,16 @@
         <translation>Teyit edilmemiş para üstünü &amp;harca</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Yönlendiricide NavCoin istemci portlarını otomatik olarak açar. Bu, sadece yönlendiricinizin UPnP desteği bulunuyorsa ve etkinse çalışabilir.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Yönlendiricide Navcoin istemci portlarını otomatik olarak açar. Bu, sadece yönlendiricinizin UPnP desteği bulunuyorsa ve etkinse çalışabilir.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Portları &amp;UPnP kullanarak haritala</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>NavCoin şebekesine SOCKS5 vekil sunucusu vasıtasıyla bağlan.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Navcoin şebekesine SOCKS5 vekil sunucusu vasıtasıyla bağlan.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -752,8 +752,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>NavCoin şebekesine gizli Tor servisleri için ayrı bir SOCKS5 vekil sunucusu vasıtasıyla bağlan.</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Navcoin şebekesine gizli Tor servisleri için ayrı bir SOCKS5 vekil sunucusu vasıtasıyla bağlan.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -801,7 +801,7 @@
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>NavCoin gönderildiğinde arayüzde gösterilecek varsayılan alt birimi seçiniz.</translation>
+        <translation>Navcoin gönderildiğinde arayüzde gösterilecek varsayılan alt birimi seçiniz.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -884,8 +884,8 @@
         <translation>Meblağ</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Bir NavCoin adresi giriniz (mesela %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Bir Navcoin adresi giriniz (mesela %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1237,8 +1237,8 @@
         <translation>&amp;Hâlihazırda bulunan bir alım adresini kullan (önerilmez)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>Talep açıldığında gösterilecek, isteğinize dayalı, ödeme talebi ile ilişkilendirilecek bir mesaj. Not: Bu mesaj ödeme ile birlikte NavCoin şebekesi üzerinden gönderilmeyecektir.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>Talep açıldığında gösterilecek, isteğinize dayalı, ödeme talebi ile ilişkilendirilecek bir mesaj. Not: Bu mesaj ödeme ile birlikte Navcoin şebekesi üzerinden gönderilmeyecektir.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1319,7 +1319,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>NavCoin yolla</translation>
+        <translation>Navcoin yolla</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1449,8 +1449,8 @@
         <translation>Bu, normal bir ödemedir.</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>Ödemenin yollanacağı NavCoin adresi</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>Ödemenin yollanacağı Navcoin adresi</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1485,8 +1485,8 @@
         <translation>Kullanılmış adres listesine eklemek için bu adrese bir etiket girin</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>NavCoin: URI'siyle ilişkili ve bilginiz için muameleyle saklanacak bir mesaj. Not: Bu mesaj NavCoin şebekesi üzerinden gönderilmeyecektir.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>Navcoin: URI'siyle ilişkili ve bilginiz için muameleyle saklanacak bir mesaj. Not: Bu mesaj Navcoin şebekesi üzerinden gönderilmeyecektir.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1530,8 +1530,8 @@
         <translation>Adreslerinize yollanan navcoinleri alabileceğiniz ispatlamak için adreslerinizle mesaj/anlaşma imzalayabilirsiniz. Oltalama saldırılarının kimliğinizi imzanızla elde etmeyi deneyebilecekleri için belirsiz ya da rastgele hiçbir şey imzalamamaya dikkat ediniz. Sadece ayrıntılı açıklaması olan ve tümüne katıldığınız ifadeleri imzalayınız.</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>Mesajın imzalanmasında kullanılacak NavCoin adresi</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>Mesajın imzalanmasında kullanılacak Navcoin adresi</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1562,8 +1562,8 @@
         <translation>Güncel imzayı sistem panosuna kopyala</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Bu NavCoin adresinin sizin olduğunu ispatlamak için mesajı imzalayın</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Bu Navcoin adresinin sizin olduğunu ispatlamak için mesajı imzalayın</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1586,12 +1586,12 @@
         <translation>Alıcının adresini, mesajı (satır sonları, boşluklar, sekmeler vs. karakterleri tam olarak kopyaladığınızdan emin olunuz) ve imzayı aşağıda giriniz. Bir ortadaki adam saldırısı tarafından kandırılmaya mâni olmak için imzadan, imzalı mesajın içeriğini aşan bir anlam çıkarmamaya dikkat ediniz. Bunun sadece imzalayan tarafın adres ile alım yapabildiğini ispatladığını ve herhangi bir muamelenin gönderi tarafını kanıtlayamayacağını unutmayınız!</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>Mesajın imzalanmasında kullanılan NavCoin adresi</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>Mesajın imzalanmasında kullanılan Navcoin adresi</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Belirtilen NavCoin adresi ile imzalandığını doğrulamak için mesajı kontrol et</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Belirtilen Navcoin adresi ile imzalandığını doğrulamak için mesajı kontrol et</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1666,7 +1666,7 @@
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation>NavCoin yolla</translation>
+        <translation>Navcoin yolla</translation>
     </message>
 </context>
 <context>
@@ -1758,8 +1758,8 @@
         <translation>Dışarıdan gelen bağlantıları kabul et (varsayılan: -proxy veya -connect yoksa 1)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Çekirdeği</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Çekirdeği</translation>
     </message>
     <message>
         <source>The %s developers</source>

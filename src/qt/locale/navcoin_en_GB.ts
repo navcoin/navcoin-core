@@ -267,7 +267,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Sign &amp;message...</translation>
@@ -361,8 +361,8 @@
         <translation>Reindexing blocks on disk...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Send coins to a NavCoin address</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Send coins to a Navcoin address</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -385,8 +385,8 @@
         <translation>&amp;Verify message...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -413,12 +413,12 @@
         <translation>Encrypt the private keys that belong to your wallet</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Sign messages with your NavCoin addresses to prove you own them</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Sign messages with your Navcoin addresses to prove you own them</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Verify messages to ensure they were signed with specified NavCoin addresses</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Verify messages to ensure they were signed with specified Navcoin addresses</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -453,8 +453,8 @@
         <translation>&amp;Command-line options</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n active connection to NavCoin network</numerusform><numerusform>%n active connections to NavCoin network</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n active connection to Navcoin network</numerusform><numerusform>%n active connections to Navcoin network</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -529,8 +529,8 @@
         <translation>Up to date</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
-        <translation>Show the %1 help message to get a list with possible NavCoin command-line options</translation>
+        <source>Show the %1 help message to get a list with possible Navcoin command-line options</source>
+        <translation>Show the %1 help message to get a list with possible Navcoin command-line options</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -704,16 +704,16 @@
         <translation>&amp;Spend unconfirmed change</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Map port using &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Connect to the NavCoin network through a SOCKS5 proxy.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Connect to the Navcoin network through a SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -752,8 +752,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -884,8 +884,8 @@
         <translation>Amount</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Enter a NavCoin address (e.g. %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Enter a Navcoin address (e.g. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1237,8 +1237,8 @@
         <translation>R&amp;euse an existing receiving address (not recommended)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1449,8 +1449,8 @@
         <translation>This is a normal payment.</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>The NavCoin address to send the payment to</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>The Navcoin address to send the payment to</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1485,8 +1485,8 @@
         <translation>Enter a label for this address to add it to the list of used addresses</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1530,8 +1530,8 @@
         <translation>You can sign messages/agreements with your addresses to prove you can receive navcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>The NavCoin address to sign the message with</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>The Navcoin address to sign the message with</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1562,8 +1562,8 @@
         <translation>Copy the current signature to the system clipboard</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Sign the message to prove you own this NavCoin address</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Sign the message to prove you own this Navcoin address</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1586,12 +1586,12 @@
         <translation>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>The NavCoin address the message was signed with</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>The Navcoin address the message was signed with</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Verify the message to ensure it was signed with the specified NavCoin address</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Verify the message to ensure it was signed with the specified Navcoin address</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1758,8 +1758,8 @@
         <translation>Accept connections from outside (default: 1 if no -proxy or -connect)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

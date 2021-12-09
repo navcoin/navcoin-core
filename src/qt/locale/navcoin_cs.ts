@@ -247,7 +247,7 @@
     <name>IntroPage</name>
     </context>
 <context>
-    <name>NavCoinGUI</name>
+    <name>NavcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Po&amp;depiš zprávu...</translation>
@@ -329,8 +329,8 @@
         <translation>Vytvářím nový index bloků na disku...</translation>
     </message>
     <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Pošli mince na NavCoinovou adresu</translation>
+        <source>Send coins to a Navcoin address</source>
+        <translation>Pošli mince na Navcoinovou adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -353,8 +353,8 @@
         <translation>&amp;Ověř zprávu...</translation>
     </message>
     <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
+        <source>Navcoin</source>
+        <translation>Navcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -381,12 +381,12 @@
         <translation>Zašifruj soukromé klíče ve své peněžence</translation>
     </message>
     <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Podepiš zprávy svými NavCoinovými adresami, čímž prokážeš, že jsi jejich vlastníkem</translation>
+        <source>Sign messages with your Navcoin addresses to prove you own them</source>
+        <translation>Podepiš zprávy svými Navcoinovými adresami, čímž prokážeš, že jsi jejich vlastníkem</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Ověř zprávy, aby ses ujistil, že byly podepsány danými NavCoinovými adresami</translation>
+        <source>Verify messages to ensure they were signed with specified Navcoin addresses</source>
+        <translation>Ověř zprávy, aby ses ujistil, že byly podepsány danými Navcoinovými adresami</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -421,8 +421,8 @@
         <translation>Ar&amp;gumenty příkazové řádky</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n aktivní spojení do NavCoinové sítě</numerusform><numerusform>%n aktivní spojení do NavCoinové sítě</numerusform><numerusform>%n aktivních spojení do NavCoinové sítě</numerusform><numerusform>%n aktivních spojení do NavCoinové sítě</numerusform></translation>
+        <source>%n active connection(s) to Navcoin network</source>
+        <translation><numerusform>%n aktivní spojení do Navcoinové sítě</numerusform><numerusform>%n aktivní spojení do Navcoinové sítě</numerusform><numerusform>%n aktivních spojení do Navcoinové sítě</numerusform><numerusform>%n aktivních spojení do Navcoinové sítě</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -648,7 +648,7 @@
         <translation>&amp;Utrácet i ještě nepotvrzené drobné</translation>
     </message>
     <message>
-        <source>Automatically open the NavCoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Navcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>Automaticky otevře potřebný port na routeru. Tohle funguje jen za předpokladu, že tvůj router podporuje UPnP a že je UPnP povolené.</translation>
     </message>
     <message>
@@ -656,8 +656,8 @@
         <translation>Namapovat port přes &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Připojí se do NavCoinové sítě přes SOCKS5 proxy.</translation>
+        <source>Connect to the Navcoin network through a SOCKS5 proxy.</source>
+        <translation>Připojí se do Navcoinové sítě přes SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -696,8 +696,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the NavCoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Připojí se do NavCoinové sítě přes SOCKS5 proxy vyhrazenou pro skryté služby v Tor síti.</translation>
+        <source>Connect to the Navcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Připojí se do Navcoinové sítě přes SOCKS5 proxy vyhrazenou pro skryté služby v Tor síti.</translation>
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
@@ -816,8 +816,8 @@
         <translation>Částka</translation>
     </message>
     <message>
-        <source>Enter a NavCoin address (e.g. %1)</source>
-        <translation>Zadej NavCoinovou adresu (např. %1)</translation>
+        <source>Enter a Navcoin address (e.g. %1)</source>
+        <translation>Zadej Navcoinovou adresu (např. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1113,8 +1113,8 @@
         <translation>&amp;Recyklovat již existující adresy (nedoporučeno)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</source>
-        <translation>Volitelná zpráva, která se připojí k platebnímu požadavku a která se zobrazí, když se požadavek otevře. Poznámka: tahle zpráva se neposílá s platbou po NavCoinové síti.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Navcoin network.</source>
+        <translation>Volitelná zpráva, která se připojí k platebnímu požadavku a která se zobrazí, když se požadavek otevře. Poznámka: tahle zpráva se neposílá s platbou po Navcoinové síti.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1325,8 +1325,8 @@
         <translation>Tohle je normální platba.</translation>
     </message>
     <message>
-        <source>The NavCoin address to send the payment to</source>
-        <translation>NavCoinová adresa příjemce</translation>
+        <source>The Navcoin address to send the payment to</source>
+        <translation>Navcoinová adresa příjemce</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1361,8 +1361,8 @@
         <translation>Zadej označení této adresy; obojí se ti pak uloží do adresáře</translation>
     </message>
     <message>
-        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</source>
-        <translation>Zpráva, která byla připojena k navcoin: URI a která se ti pro přehled uloží k transakci. Poznámka: Tahle zpráva se neposílá s platbou po NavCoinové síti.</translation>
+        <source>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Navcoin network.</source>
+        <translation>Zpráva, která byla připojena k navcoin: URI a která se ti pro přehled uloží k transakci. Poznámka: Tahle zpráva se neposílá s platbou po Navcoinové síti.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -1402,8 +1402,8 @@
         <translation>Podepsáním zprávy/smlouvy svými adresami můžeš prokázat, že jsi na ně schopen přijmout navcoiny. Buď opatrný a nepodepisuj nic vágního nebo náhodného; například při phishingových útocích můžeš být lákán, abys něco takového podepsal. Podepisuj pouze naprosto úplná a detailní prohlášení, se kterými souhlasíš.</translation>
     </message>
     <message>
-        <source>The NavCoin address to sign the message with</source>
-        <translation>NavCoinová adresa, kterou se zpráva podepíše</translation>
+        <source>The Navcoin address to sign the message with</source>
+        <translation>Navcoinová adresa, kterou se zpráva podepíše</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1434,8 +1434,8 @@
         <translation>Zkopíruj tento podpis do schránky</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this NavCoin address</source>
-        <translation>Podepiš zprávu, čímž prokážeš, že jsi vlastníkem této NavCoinové adresy</translation>
+        <source>Sign the message to prove you own this Navcoin address</source>
+        <translation>Podepiš zprávu, čímž prokážeš, že jsi vlastníkem této Navcoinové adresy</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1458,12 +1458,12 @@
         <translation>K ověření podpisu zprávy zadej adresu příjemce, zprávu (ověř si, že správně kopíruješ zalomení řádků, mezery, tabulátory apod.) a podpis. Dávej pozor na to, abys nezkopíroval do podpisu víc, než co je v samotné podepsané zprávě, abys nebyl napálen man-in-the-middle útokem. Poznamenejme však, že takto lze pouze prokázat, že podepisující je schopný na dané adrese přijmout platbu, ale není možnéprokázat, že odeslal jakoukoli transakci!</translation>
     </message>
     <message>
-        <source>The NavCoin address the message was signed with</source>
-        <translation>NavCoinová adresa, kterou je zpráva podepsána</translation>
+        <source>The Navcoin address the message was signed with</source>
+        <translation>Navcoinová adresa, kterou je zpráva podepsána</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified NavCoin address</source>
-        <translation>Ověř zprávu, aby ses ujistil, že byla podepsána danou NavCoinovou adresou</translation>
+        <source>Verify the message to ensure it was signed with the specified Navcoin address</source>
+        <translation>Ověř zprávu, aby ses ujistil, že byla podepsána danou Navcoinovou adresou</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1630,8 +1630,8 @@
         <translation>Přijímat spojení zvenčí (výchozí: 1, pokud není zadáno -proxy nebo -connect)</translation>
     </message>
     <message>
-        <source>NavCoin Core</source>
-        <translation>NavCoin Core</translation>
+        <source>Navcoin Core</source>
+        <translation>Navcoin Core</translation>
     </message>
     <message>
         <source>-fallbackfee is set very high! This is the transaction fee you may pay when fee estimates are not available.</source>
