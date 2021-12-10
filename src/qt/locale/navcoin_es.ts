@@ -1168,6 +1168,33 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    <message>
+        <source>NavTech Setup</source>
+        <translation>Preparador NavTech</translation>
+    </message>
+    <message>
+        <source>Navcoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
+        <translation>Navcoin usa un clúster paralelo único de nodos llamado NavTech para proteger la privacidad de sus transacciones.</translation>
+    </message>
+    <message>
+        <source>You will find below the list of the Navcoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
+        <translation>A continuación, encontrará la lista de los servidores de la Fundación Navcoin. Siéntase libre de modificar esta lista para incluir sus servidores preferidos:</translation>
+    </message>
+    <message>
+        <source>95.183.52.55:3000
+95.183.52.28:3000
+95.183.52.29:3000
+95.183.53.184:3000
+</source>
+        <translation>95.183.52.55:3000
+95.183.52.28:3000
+95.183.52.29:3000
+95.183.53.184:3000
+</translation>
+    </message>
+</context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -1526,6 +1553,137 @@
     <message>
         <source>Pending:</source>
         <translation>Pendiente:</translation>
+    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
+    <message>
+        <source>Verify address</source>
+        <translation>Verifique dirección</translation>
+    </message>
+    <message>
+        <source>The provided address is invalid.</source>
+        <translation>La dirección ingresada es invalida.</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>Por favor, verifique la dirección e intente nuevamente.</translation>
+    </message>
+    <message>
+        <source>The provided address does not refer to a key.</source>
+        <translation>La dirección ingresada no refiere a una llave</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>Desbloqueo de monedero fue cancelado.</translation>
+    </message>
+    <message>
+        <source>Private key for the provided address is not available.</source>
+        <translation>La llave privada para la dirección ingresada no esta disponible.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>Firma de mensaje fallida.</translation>
+    </message>
+    <message>
+        <source>URI handling</source>
+        <translation>Manejo URI</translation>
+    </message>
+    <message>
+        <source>Payment request fetch URL is invalid: %1</source>
+        <translation>La URL de búsqueda de solicitud de pago es invalida: %1</translation>
+    </message>
+    <message>
+        <source>Invalid OpenAlias address %1</source>
+        <translation>Dirección de OpenAlias Invalida%1</translation>
+    </message>
+    <message>
+        <source>OpenAlias address %1 does not support DNS Sec</source>
+        <translation>Dirección de OpenAlias %1 no soporta DNS Sec</translation>
+    </message>
+    <message>
+        <source>Invalid payment address %1</source>
+        <translation>Dirección de pago invalida %1</translation>
+    </message>
+    <message>
+        <source>URI cannot be parsed! This can be caused by an invalid Navcoin address or malformed URI parameters.</source>
+        <translation>¡URI no puede ser analizado! Esto puede ser causado por una dirección NAvTech invalida o un parámetro URI mal formado.</translation>
+    </message>
+    <message>
+        <source>Payment request file handling</source>
+        <translation>Manejo de archivo de solicitud de pago</translation>
+    </message>
+    <message>
+        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
+        <translation>¡Archivo de solicitud de pago no puede ser leído! Esto puede ser causado por un archivo de solicitud de pago invalido.</translation>
+    </message>
+    <message>
+        <source>Payment request rejected</source>
+        <translation>Solicitud de pago rechazada</translation>
+    </message>
+    <message>
+        <source>Payment request network doesn't match client network.</source>
+        <translation>Red de solicitud de pago no coincide con la red del cliente.</translation>
+    </message>
+    <message>
+        <source>Payment request expired.</source>
+        <translation>Solicitud de pago expirada.</translation>
+    </message>
+    <message>
+        <source>Payment request error</source>
+        <translation>Error en la solicitud de pago</translation>
+    </message>
+    <message>
+        <source>Payment request is not initialized.</source>
+        <translation>Solicitud de pago no esta iniciada</translation>
+    </message>
+    <message>
+        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
+        <translation>Las solicitudes de pago no verificadas para los scripts de pago personalizados no son compatibles.</translation>
+    </message>
+    <message>
+        <source>Invalid payment request.</source>
+        <translation>Solicitud de pagos inválidos.</translation>
+    </message>
+    <message>
+        <source>Requested payment amount of %1 is too small (considered dust).</source>
+        <translation>Cantidad de pago solicitada de %1 es muy pequeña (considerada dust)</translation>
+    </message>
+    <message>
+        <source>Refund from %1</source>
+        <translation>Reembolso de %1</translation>
+    </message>
+    <message>
+        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
+        <translation>Solicitud de pago %1 es muy larga (%2 bytes, permitido %3 bytes)</translation>
+    </message>
+    <message>
+        <source>Error communicating with %1: %2</source>
+        <translation>Error de comunicación con%1: %2</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>Mensaje firmado.</translation>
+    </message>
+    <message>
+        <source>Something went wrong.</source>
+        <translation>Algo salió mal</translation>
+    </message>
+    <message>
+        <source>Payment request cannot be parsed!</source>
+        <translation>Solicitud de pago no puede ser analizado!</translation>
+    </message>
+    <message>
+        <source>Bad response from server %1</source>
+        <translation>Mala respuesta del servidor %1</translation>
+    </message>
+    <message>
+        <source>Network request error</source>
+        <translation>Error de solicitud de red</translation>
+    </message>
+    <message>
+        <source>Payment acknowledged</source>
+        <translation>Pago reconocido</translation>
     </message>
 </context>
 <context>
@@ -2148,8 +2306,16 @@
         <translation>(Tarifa inteligente no inicializado aún. Esto generalmente lleva a pocos bloques...)</translation>
     </message>
     <message>
+        <source>You don't have any NAVTech server added. </source>
+        <translation>No tiene ningún servidor NAVTech agregado.</translation>
+    </message>
+    <message>
         <source>Private payment</source>
         <translation>Pago privado</translation>
+    </message>
+    <message>
+        <source>Manage NAVTech servers</source>
+        <translation>Administre servidores NAVTech</translation>
     </message>
     <message>
         <source>Use full amount</source>
@@ -2216,6 +2382,10 @@
         <translation>Copiar cambio</translation>
     </message>
     <message>
+        <source>NAVTech server returned a different number of addresses.</source>
+        <translation>Servidor NAVtech devolvió un numero diferente de direcciones.</translation>
+    </message>
+    <message>
         <source>Something went wrong:</source>
         <translation>Algo salio mal:</translation>
     </message>
@@ -2258,6 +2428,14 @@
     <message>
         <source>The following fee will be deducted</source>
         <translation>La siguiente cuota sera deducida</translation>
+    </message>
+    <message>
+        <source>Navtech server fee:</source>
+        <translation>Cuota del servidor NavTech:</translation>
+    </message>
+    <message>
+        <source>will be deducted as Navtech fee.</source>
+        <translation>sera deducido como cuota NavTech.</translation>
     </message>
     <message>
         <source>Total Amount %1</source>
@@ -3415,6 +3593,10 @@
         <translation>&lt;category&gt; puede ser:</translation>
     </message>
     <message>
+        <source>Add a NavTech node to use for private transactions</source>
+        <translation>Agregue un nodo Navtech para usar en transacciones privadas</translation>
+    </message>
+    <message>
         <source>Adds a ntp server to use for clock syncronization</source>
         <translation>Agregue un servidor ntp para sincronización del reloj</translation>
     </message>
@@ -4147,6 +4329,100 @@
     <message>
         <source>Error</source>
         <translation>Error</translation>
+    </message>
+</context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulario</translation>
+    </message>
+    <message>
+        <source>Server Name</source>
+        <translation>Nombre del servidor</translation>
+    </message>
+    <message>
+        <source>127.0.0.1:3000</source>
+        <translation>127.0.0.1:3000</translation>
+    </message>
+    <message>
+        <source>Get Info</source>
+        <translation>Obtener información</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+</context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialogo</translation>
+    </message>
+    <message>
+        <source>List of Navtech servers currently configured in your wallet to process private payments:</source>
+        <translation>Lista de servidores Navtech actualmente configurados en su monedero para procesar pagos privados:</translation>
+    </message>
+    <message>
+        <source>When performing a private payment, a random server from this list will be used.</source>
+        <translation>Cuando hace un pago privado , un servidor aleatorio de esta lista sera utilizado.</translation>
+    </message>
+    <message>
+        <source>Get Info</source>
+        <translation>Obtener información</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Server address</source>
+        <translation>Dirección de servidor</translation>
+    </message>
+    <message>
+        <source>Add new</source>
+        <translation>Añadir nuevo</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Remove Navtech server</source>
+        <translation>Remover servidor Navtech</translation>
+    </message>
+    <message>
+        <source>You are about to remove the following Navtech server: </source>
+        <translation>Usted esta a punto de remover el siguiente servidor Navtech:</translation>
+    </message>
+    <message>
+        <source>Are you sure?</source>
+        <translation>¿Esta seguro?</translation>
+    </message>
+    <message>
+        <source>Removed.</source>
+        <translation>Removido.</translation>
+    </message>
+    <message>
+        <source>Navtech server</source>
+        <translation>Servidor Navtech</translation>
+    </message>
+    <message>
+        <source>Address: </source>
+        <translation>Dirección:</translation>
+    </message>
+    <message>
+        <source>Min amount: </source>
+        <translation>Monto mínimo:</translation>
+    </message>
+    <message>
+        <source>Max amount: </source>
+        <translation>Monto máximo:</translation>
+    </message>
+    <message>
+        <source>Tx fee: </source>
+        <translation>Cuota de transacción:</translation>
     </message>
 </context>
 </TS>

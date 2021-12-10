@@ -18,6 +18,10 @@
         <translation>&amp;மூடு</translation>
     </message>
     <message>
+        <source>Delete the currently selected address from the list</source>
+        <translation>பட்டியலிலிருந்து தற்போது தேர்ந்தெடுக்கப்பட்ட முகவரியை நீக்கவும்</translation>
+    </message>
+    <message>
         <source>&amp;Export</source>
         <translation>&amp;ஏற்றுமதி</translation>
     </message>
@@ -254,6 +258,9 @@
     </message>
     </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -342,6 +349,9 @@
         <translation>நிலுவையில்:</translation>
     </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -762,4 +772,18 @@
         <translation>தவறு</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>படிவம்</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>நீக்கு</translation>
+    </message>
+    </context>
 </TS>

@@ -890,7 +890,7 @@
     </message>
     <message>
         <source>Not staking because you don't have mature coins</source>
-        <translation>Staking nicht aktiv da du nicht über genügend Coins verfügst</translation>
+        <translation>Staking nicht aktiv da du nicht über ausgereifte Coins verfügst</translation>
     </message>
     <message>
         <source>Not staking, please wait</source>
@@ -1145,6 +1145,32 @@
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Wallet ist &lt;b&gt;verschlüsselt&lt;/b&gt; und aktuell &lt;b&gt;gesperrt&lt;/b&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>NavTechInit</name>
+    <message>
+        <source>NavTech Setup</source>
+        <translation>NavTech Einstellungen</translation>
+    </message>
+    <message>
+        <source>Navcoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
+        <translation>Navcoin nutzt ein einzigartiges paralleles Cluster von Netzwerkknoten, NavTech genannt, um sicherzustellen, dass deine privaten Transaktionen geschützt sind.</translation>
+    </message>
+    <message>
+        <source>You will find below the list of the Navcoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
+        <translation>Nachstehend findest du eine Liste der Navcoin Foundation Server. Du kannst diese Liste nach belieben modifizieren um deine bevorzugten Server einzufügen.</translation>
+    </message>
+    <message>
+        <source>95.183.52.55:3000
+95.183.52.28:3000
+95.183.52.29:3000
+95.183.53.184:3000
+</source>
+        <translation>95.183.52.55:3000
+95.183.52.28:3000
+95.183.52.29:3000
+95.183.53.184:3000</translation>
     </message>
 </context>
 <context>
@@ -1494,6 +1520,129 @@
     <message>
         <source>Pending:</source>
         <translation>Ausstehend:</translation>
+    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
+    <message>
+        <source>Verify address</source>
+        <translation>Überprüfe Adresse</translation>
+    </message>
+    <message>
+        <source>The provided address is invalid.</source>
+        <translation>Die bereitgestellte Adresse ist ungültig.</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>Bitte überprüfe die Adresse und versuche es erneut.</translation>
+    </message>
+    <message>
+        <source>The provided address does not refer to a key.</source>
+        <translation>Die angegebene Adresse bezieht sich nicht auf einen Schlüssel.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>Freischalten der Wallet wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Private key for the provided address is not available.</source>
+        <translation>Private Key für die bereitgestellte Adresse ist nicht verfügbar.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>Signieren der Nachricht fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>URI handling</source>
+        <translation>URI Handhabung</translation>
+    </message>
+    <message>
+        <source>Invalid OpenAlias address %1</source>
+        <translation>Ungültige OpenAlias Adresse %1</translation>
+    </message>
+    <message>
+        <source>OpenAlias address %1 does not support DNS Sec</source>
+        <translation>OpenAlias Adresse %1 unterstützt DNS Sec nicht</translation>
+    </message>
+    <message>
+        <source>Invalid payment address %1</source>
+        <translation>Ungültige Zahlungsadresse %1</translation>
+    </message>
+    <message>
+        <source>URI cannot be parsed! This can be caused by an invalid Navcoin address or malformed URI parameters.</source>
+        <translation>URI kann nicht analysiert werden! Dies kann durch eine ungültige Navcoin-Adresse oder fehlerhafte URI-Parameter verursacht werden.</translation>
+    </message>
+    <message>
+        <source>Payment request file handling</source>
+        <translation>Zahlungsaufforderungsdatei Handhabung</translation>
+    </message>
+    <message>
+        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
+        <translation>Zahlungsaufforderungsdatei kann nicht gelesen werden! Dies kann durch eine ungültige Zahlungsaufforderungsdatei verursacht werden.</translation>
+    </message>
+    <message>
+        <source>Payment request rejected</source>
+        <translation>Zahlungsaufforderung abgelehnt</translation>
+    </message>
+    <message>
+        <source>Payment request network doesn't match client network.</source>
+        <translation>Netzwerk für Zahlungsanforderungen stimmt nicht mit dem Client-Netzwerk überein.</translation>
+    </message>
+    <message>
+        <source>Payment request expired.</source>
+        <translation>Zahlungsaufforderung abgelaufen.</translation>
+    </message>
+    <message>
+        <source>Payment request error</source>
+        <translation>Fehler bei Zahlungsaufforderung</translation>
+    </message>
+    <message>
+        <source>Payment request is not initialized.</source>
+        <translation>Zahlungsaufforderung ist nicht initialisiert.</translation>
+    </message>
+    <message>
+        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
+        <translation>Nicht überprüfte Zahlungsanforderungen für benutzerdefinierte Zahlungsskripts werden nicht unterstützt.</translation>
+    </message>
+    <message>
+        <source>Invalid payment request.</source>
+        <translation>Ungültige Zahlungsaufforderung.</translation>
+    </message>
+    <message>
+        <source>Requested payment amount of %1 is too small (considered dust).</source>
+        <translation>Angeforderter Zahlungsbetrag von %1 ist zu klein (wir als Staub betrachtet).</translation>
+    </message>
+    <message>
+        <source>Refund from %1</source>
+        <translation>Rückerstattung von %1</translation>
+    </message>
+    <message>
+        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
+        <translation>Zahlungsaufforderung %1 ist zu groß (%2 Bytes, erlaubt %3 Bytes).</translation>
+    </message>
+    <message>
+        <source>Error communicating with %1: %2</source>
+        <translation>Fehler bei Kommunikation mit %1: %2</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>Nachricht signiert.</translation>
+    </message>
+    <message>
+        <source>Something went wrong.</source>
+        <translation>Etwas ist schief gelaufen.</translation>
+    </message>
+    <message>
+        <source>Payment request cannot be parsed!</source>
+        <translation>Zahlungsanforderung kann nicht analysiert werden!</translation>
+    </message>
+    <message>
+        <source>Network request error</source>
+        <translation>Fehler bei Netzwerkanfrage</translation>
+    </message>
+    <message>
+        <source>Payment acknowledged</source>
+        <translation>Zahlung anerkannt</translation>
     </message>
 </context>
 <context>
@@ -4042,6 +4191,100 @@
     <message>
         <source>Error</source>
         <translation>Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <source>Server Name</source>
+        <translation>Servername</translation>
+    </message>
+    <message>
+        <source>127.0.0.1:3000</source>
+        <translation>127.0.0.1:3000</translation>
+    </message>
+    <message>
+        <source>Get Info</source>
+        <translation>Erhalte Informationen</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+</context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>List of Navtech servers currently configured in your wallet to process private payments:</source>
+        <translation>Liste der Navtech-Server, die derzeit in deiner Wallet für die Verarbeitung privater Zahlungen konfiguriert sind:</translation>
+    </message>
+    <message>
+        <source>When performing a private payment, a random server from this list will be used.</source>
+        <translation>Bei einer privaten Zahlung wird ein zufälliger Server aus dieser Liste verwendet.</translation>
+    </message>
+    <message>
+        <source>Get Info</source>
+        <translation>Erhalte Informationen</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Server address</source>
+        <translation>Serveradresse</translation>
+    </message>
+    <message>
+        <source>Add new</source>
+        <translation>Neue hinzufügen</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <source>Remove Navtech server</source>
+        <translation>Entferne Navtech Server</translation>
+    </message>
+    <message>
+        <source>You are about to remove the following Navtech server: </source>
+        <translation>Du bist dabei, den folgenden Navtech Server zu entfernen:</translation>
+    </message>
+    <message>
+        <source>Are you sure?</source>
+        <translation>Bist du sicher?</translation>
+    </message>
+    <message>
+        <source>Removed.</source>
+        <translation>Entfernt.</translation>
+    </message>
+    <message>
+        <source>Navtech server</source>
+        <translation>Navtech Server</translation>
+    </message>
+    <message>
+        <source>Address: </source>
+        <translation>Adresse:</translation>
+    </message>
+    <message>
+        <source>Min amount: </source>
+        <translation>Mindestbetrag:</translation>
+    </message>
+    <message>
+        <source>Max amount: </source>
+        <translation>Maximalbetrag:</translation>
+    </message>
+    <message>
+        <source>Tx fee: </source>
+        <translation>Tx Gebühr:</translation>
     </message>
 </context>
 </TS>

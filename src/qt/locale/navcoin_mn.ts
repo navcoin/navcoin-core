@@ -250,6 +250,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -289,6 +292,9 @@
         <source>Available:</source>
         <translation>Хэрэглэж болох хэмжээ:</translation>
     </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -618,4 +624,14 @@
         <translation>Алдаа</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Устгах</translation>
+    </message>
+    </context>
 </TS>

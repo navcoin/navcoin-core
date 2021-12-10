@@ -148,10 +148,30 @@
         <translation>Enkripsi wallet gagal disebabkan internal error. Wallet anda belum terenkripsi.</translation>
     </message>
     <message>
+        <source>The supplied passphrases do not match.</source>
+        <translation>kata sandi tidak sesuai </translation>
+    </message>
+    <message>
         <source>Wallet unlock failed</source>
         <translation>Buka kunci wallet gagal</translation>
     </message>
-    </context>
+    <message>
+        <source>The passphrase entered for the wallet decryption was incorrect.</source>
+        <translation>Kata sandi tidak sesuai untuk enkripsi wallet</translation>
+    </message>
+    <message>
+        <source>Wallet decryption failed</source>
+        <translation>Enkripsi wallet gagal</translation>
+    </message>
+    <message>
+        <source>Wallet passphrase was successfully changed.</source>
+        <translation>Frasa sandi wallet sukses diubah </translation>
+    </message>
+    <message>
+        <source>Warning: The Caps Lock key is on!</source>
+        <translation>Peringatan: Tombol Caps Lock aktif!</translation>
+    </message>
+</context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -240,6 +260,22 @@
     <message>
         <source>Priority</source>
         <translation>Prioritas</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Salin Alamat</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Salin bukti transaksi </translation>
     </message>
     <message>
         <source>none</source>
@@ -640,6 +676,9 @@
     </message>
 </context>
 <context>
+    <name>NavTechInit</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -868,6 +907,9 @@
         <translation>Ditunda</translation>
     </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -1124,7 +1166,15 @@
         <source>Remove</source>
         <translation>Menghapus</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+</context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1256,6 +1306,10 @@
     <message>
         <source>S&amp;end</source>
         <translation>K&amp;irim</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1438,6 +1492,22 @@
     <message>
         <source>Today</source>
         <translation>Hari ini</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Salin Alamat</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Salin label </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Salin jumlah </translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Salin bukti transaksi </translation>
     </message>
     <message>
         <source>Confirmed</source>
@@ -1734,4 +1804,18 @@
         <translation>Gagal</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulir</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Menghapus</translation>
+    </message>
+    </context>
 </TS>
