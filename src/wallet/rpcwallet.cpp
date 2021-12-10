@@ -5955,13 +5955,15 @@ UniValue listtokens(const UniValue& params, bool fHelp)
 {
     if (fHelp)
         throw std::runtime_error(
-                "listtokens\n"
-                "\nList the confidential tokens.\n"
+                "listtokens (mine)\n"
+                "\nList the confidential tokens. Set mine to true to show only tokens with balance.\n"
 
                 + HelpExampleCli("listtokens", "")
                 );
 
     LOCK(cs_main);
+
+    bool fMine = params[0].getBool();
 
     UniValue ret(UniValue::VARR);
     TokenMap mapTokens;
@@ -5975,6 +5977,8 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             if (!view.GetToken(it->first, token))
                 continue;
 
+            int64_t balance = 0;
+
             UniValue o(UniValue::VOBJ);
             o.pushKV("version", it->second.nVersion);
             o.pushKV("id", it->first.ToString());
@@ -5985,7 +5989,8 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             o.pushKV("max_supply", it->second.nVersion == 0 ? FormatMoney(it->second.totalSupply) : std::to_string(it->second.totalSupply));
             if (it->second.nVersion == 0)
             {
-                o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(TokenId(it->first, -1))));
+                balance += pwalletMain->GetPrivateBalance(TokenId(it->first, -1));
+                o.pushKV("balance", FormatMoney(balance));
             }
             else if (it->second.nVersion == 1)
             {
@@ -5994,16 +5999,74 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     UniValue n(UniValue::VOBJ);
                     n.pushKV("index", it_.first);
                     n.pushKV("metadata", it_.second);
-                    n.pushKV("balance", std::to_string(pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first))));
+                    int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first));
+                    n.pushKV("balance", std::to_string(tempBalance));
+                    balance += tempBalance;
                     a.push_back(n);
                 }
                 o.pushKV("nfts", a);
             }
-            ret.push_back(o);
+            if (!fMine || (fMine && balance > 0))
+                ret.push_back(o);
         }
     }
     return ret;
 }
+
+UniValue gettoken(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "gettoken hash\n"
+                "\nShows information about a token.\n"
+
+                + HelpExampleCli("gettoken", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f")
+                );
+
+    LOCK(cs_main);
+
+    bool fMine = params[0].getBool();
+
+    UniValue ret(UniValue::VOBJ);
+
+    CStateViewCache view(pcoinsTip);
+
+    TokenInfo token;
+    if (!view.GetToken(uint256S(params[0].get_str()), token))
+        return ret;
+
+    int64_t balance = 0;
+
+    ret.pushKV("version", token.nVersion);
+    ret.pushKV("id", params[0].get_str());
+    ret.pushKV("pubkey", HexStr(token.key.Serialize()));
+    ret.pushKV("name", token.sName);
+    ret.pushKV(token.nVersion == 0 ? "token_code" : "scheme", token.sDesc);
+    ret.pushKV("current_supply", token.nVersion == 0 ? FormatMoney(token.currentSupply) : std::to_string(token.mapMetadata.size()));
+    ret.pushKV("max_supply", token.nVersion == 0 ? FormatMoney(token.totalSupply) : std::to_string(token.totalSupply));
+    if (token.nVersion == 0)
+    {
+        balance += pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), -1));
+        ret.pushKV("balance", FormatMoney(balance));
+    }
+    else if (token.nVersion == 1)
+    {
+        UniValue a(UniValue::VARR);
+        for (auto& it_: token.mapMetadata) {
+            UniValue n(UniValue::VOBJ);
+            n.pushKV("index", it_.first);
+            n.pushKV("metadata", it_.second);
+            int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), it_.first));
+            n.pushKV("balance", std::to_string(tempBalance));
+            balance += tempBalance;
+            a.push_back(n);
+        }
+        ret.pushKV("nfts", a);
+    }
+
+    return ret;
+}
+
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
@@ -6048,6 +6111,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
   { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
   { "wallet",             "listtokens",               &listtokens,               true  },
+  { "wallet",             "gettoken",                 &gettoken,                 true  },
   { "wallet",             "getbalance",               &getbalance,               false },
   { "wallet",             "getnewaddress",            &getnewaddress,            true  },
   { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },

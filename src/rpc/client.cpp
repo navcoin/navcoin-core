@@ -78,6 +78,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendtoken", 2 },
     { "sendnft", 1 },
     { "sendnft", 3 },
+    { "listtokens", 0 },
     { "createproposal", 7 },
     { "createconsultation", 1 },
     { "createconsultation", 2 },
