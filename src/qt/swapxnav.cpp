@@ -253,7 +253,7 @@ void SwapXNAVDialog::Ok()
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, true, fMode};
+    CRecipient recipient = {scriptPubKey, nAmount, false, fMode};
     if (fMode)
     {
         bls::G1Element vk, sk;
