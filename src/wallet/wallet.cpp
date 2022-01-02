@@ -2029,11 +2029,13 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
             ret = ISMINE_NO;
         }
 
-        return ret;
+        if (ret != ISMINE_NO)
+            return ret;
     }
-    else
-        return ::IsMine(*this, txout.scriptPubKey);
+
+    return ::IsMine(*this, txout.scriptPubKey);
 }
+
 
 CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter, const TokenId& tokenId) const
 {
