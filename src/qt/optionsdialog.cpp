@@ -300,7 +300,7 @@ void OptionsDialog::setOkButtonState(bool fState)
 }
 
 void OptionsDialog::on_resetButton_clicked()
-{   
+{
     if(model)
     {
         // confirmation dialog

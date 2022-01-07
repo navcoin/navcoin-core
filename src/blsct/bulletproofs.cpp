@@ -117,7 +117,7 @@ Generators BulletproofsRangeproof::GetGenerators(const TokenId& tokenId)
 
 // Todo multi-exp optimization
 bls::G1Element MultiExp(std::vector<MultiexpData> multiexp_data)
-{    
+{
     G1 x[multiexp_data.size()], z;
     Fr y[multiexp_data.size()];
 

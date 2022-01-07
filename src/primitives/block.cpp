@@ -43,7 +43,7 @@ std::string CBlock::ToString() const
     for (unsigned int i = 0; i < vMerkleTree.size(); i++)
         s << " " << vMerkleTree[i].ToString();
     s << "\n";
-    
+
     return s.str();
 }
 
