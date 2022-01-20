@@ -5254,9 +5254,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
                 blsctKey v;
 
-                if (pwalletMain)
-                    pwalletMain->GetBLSCTViewKey(v);
-                else
+                if (pwalletMain) {
+                    if (!pwalletMain->GetBLSCTViewKey(v)) {
+                        v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
+                    }
+                }else
                     v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
 
                 CTransaction tx = block.vtx[1];
