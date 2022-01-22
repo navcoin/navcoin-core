@@ -129,6 +129,29 @@ std::map<std::string, std::string> Consolidate(const NameDataValues& data, const
     return ret;
 }
 
+std::map<std::string, std::map<std::string, std::string>> ConsolidateSubdomains(const NameDataValues& data, const int32_t& height)
+{
+    std::map<std::string, std::map<std::string, std::string>> ret;
+
+    uint64_t nExpiry = ~(uint64_t)0;
+
+    for (auto &it: data) {
+        if (it.second.key == "_expiry")
+        {
+            nExpiry = stoll(it.second.value);
+        }
+    }
+
+    for (auto &it: data) {
+        if (nExpiry > height && it.first <= height && (it.second.subdomain != "")) {
+            if (it.second.value != "")
+                ret[it.second.subdomain][it.second.key] = it.second.value;
+        }
+    }
+
+    return ret;
+}
+
 size_t CalculateSize(const std::map<std::string, std::string>& map) {
     size_t ret = 0;
 

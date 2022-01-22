@@ -34,6 +34,7 @@ std::vector<unsigned char> GetUpdateProgram(const std::string& name, const bls::
 std::vector<unsigned char> GetUpdateFirstProgram(const std::string& name, const bls::G1Element& pk, const std::string& key, const std::string& value, const std::string& subdomain="");
 
 std::map<std::string, std::string> Consolidate(const NameDataValues& data, const int32_t& nHeight, const std::string& subdomain="");
+std::map<std::string, std::map<std::string, std::string>> ConsolidateSubdomains(const NameDataValues& data, const int32_t& nHeight);
 
 size_t CalculateSize(const std::map<std::string, std::string>& map);
 }
