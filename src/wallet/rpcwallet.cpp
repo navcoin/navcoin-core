@@ -1374,7 +1374,7 @@ UniValue resolvename(const UniValue& params, bool fHelp)
         }
     }
 
-    if (getSubdomains) {
+    if (getSubdomains && subdomain != "") {
         auto subData = DotNav::ConsolidateSubdomains(data, chainActive.Tip()->nHeight);
         UniValue subUniMain(UniValue::VOBJ);
 
