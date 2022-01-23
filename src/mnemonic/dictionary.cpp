@@ -1,6 +1,6 @@
 #include "dictionary.h"
 
-namespace language { 
+namespace language {
     const dictionary en =
             {
                     {
@@ -20543,8 +20543,8 @@ namespace language {
 
 // Word lists from:
 // github.com/bitcoin/bips/blob/master/bip-0039/bip-0039-wordlists.md
-const dictionary_list all 
-{     
+const dictionary_list all
+{
     &en,
     &es,
     &ja,
