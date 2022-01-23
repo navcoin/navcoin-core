@@ -249,6 +249,7 @@ NavcoinGUI::NavcoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         createTrayIcon(networkStyle);
     }
+    notificator = new Notificator(QApplication::applicationName(), trayIcon, this);
 
     // Create status bar
     statusBar();
@@ -1224,14 +1225,12 @@ void NavcoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
     assert(QSystemTrayIcon::isSystemTrayAvailable());
 
 #ifndef Q_OS_MAC
-    trayIcon = new QSystemTrayIcon(this);
-    QString toolTip = tr("%1 client").arg(tr(PACKAGE_NAME)) + " " + networkStyle->getTitleAddText();
-    trayIcon->setToolTip(toolTip);
-    trayIcon->setIcon(networkStyle->getTrayAndWindowIcon());
-    trayIcon->hide();
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        trayIcon = new QSystemTrayIcon(networkStyle->getTrayAndWindowIcon(), this);
+        QString toolTip = tr("%1 client").arg(tr(PACKAGE_NAME)) + " " + networkStyle->getTitleAddText();
+        trayIcon->setToolTip(toolTip);
+    }
 #endif
-
-    notificator = new Notificator(QApplication::applicationName(), trayIcon, this);
 }
 
 void NavcoinGUI::createTrayIconMenu()
@@ -1670,9 +1669,9 @@ void NavcoinGUI::message(const QString &title, const QString &message, unsigned 
         int r = mBox.exec();
         if (ret != nullptr)
             *ret = r == QMessageBox::Ok;
+    } else {
+        notificator->notify(static_cast<Notificator::Class>(nNotifyIcon), strTitle, message);
     }
-    else
-        notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
 }
 
 void NavcoinGUI::changeEvent(QEvent *e)
