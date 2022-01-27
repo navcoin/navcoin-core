@@ -1323,12 +1323,19 @@ UniValue resolvename(const UniValue& params, bool fHelp)
             + HelpRequiringPassphrase() +
                 "\nArguments:\n"
             "1. \"name\"       (string, required) The name to resolve\n"
+            "2. \"subdomains\" (boolean, optional) Include subdomains\n"
             "\nExamples:\n"
             + HelpExampleCli("resolvename", "satoshi.nav")
+            + HelpExampleCli("resolvename", "satoshi.nav true")
                 );
 
-    if (!params[0].isStr() )
+    if (!params[0].isStr())
         throw JSONRPCError(RPC_TYPE_ERROR, "Name must be string");
+
+    if (params.size() == 2 && !params[1].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 2 must be a boolean");
+
+    bool getSubdomains = params.size() > 1 && params[1].isBool() ? params[1].getBool() : false;
 
     std::string sFullName = params[0].get_str();
 
@@ -1358,11 +1365,37 @@ UniValue resolvename(const UniValue& params, bool fHelp)
     {
         return ret;
     }
+
     auto mapData = DotNav::Consolidate(data, chainActive.Tip()->nHeight, subdomain);
 
     for (auto &it: mapData) {
-        ret.pushKV(it.first, it.second);
+        if (it.first.substr(0,1) == "_") {
+            ret.pushKV(it.first, it.second);
+        }
     }
+
+    if (getSubdomains && subdomain == "") {
+        auto subData = DotNav::ConsolidateSubdomains(data, chainActive.Tip()->nHeight);
+        UniValue subUniMain(UniValue::VOBJ);
+
+        for (auto &it: subData) {
+            UniValue subUni(UniValue::VOBJ);
+            for (auto &sit: it.second) {
+                subUni.pushKV(sit.first, sit.second);
+            }
+            subUniMain.pushKV(it.first, subUni);
+        }
+        ret.pushKV("_subdomains", subUniMain);
+    }
+
+    UniValue dotData(UniValue::VOBJ);
+    for (auto &it: mapData) {
+        if (it.first.substr(0,1) != "_") {
+            dotData.pushKV(it.first, it.second);
+        }
+    }
+
+    ret.pushKV(".", dotData);
 
     return ret;
 }
