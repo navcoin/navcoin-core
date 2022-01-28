@@ -75,8 +75,8 @@ void WalletModel::StartBalanceTimer()
 {
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
-    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
-    pollBalanceChanged();
+    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged(true)));
+    pollBalanceChanged(true);
     pollTimer->start(MODEL_UPDATE_DELAY);
 }
 
@@ -160,7 +160,7 @@ void WalletModel::updateStatus()
         Q_EMIT encryptionStatusChanged(newEncryptionStatus);
 }
 
-void WalletModel::pollBalanceChanged()
+void WalletModel::pollBalanceChanged(bool calledByPoll)
 {
     // Get required locks upfront. This avoids the GUI from getting stuck on
     // periodical polls if the core is holding the locks for a longer time -
@@ -171,7 +171,7 @@ void WalletModel::pollBalanceChanged()
     TRY_LOCK(wallet->cs_wallet, lockWallet);
     if(!lockWallet)
         return;
-    if(fForceCheckBalanceChanged)
+    if(fForceCheckBalanceChanged || calledByPoll)
     {
         fForceCheckBalanceChanged = false;
 
