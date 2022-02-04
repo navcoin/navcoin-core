@@ -2056,9 +2056,9 @@ void NavcoinGUI::updatePrice()
     info("Updating prices");
 
     std::thread pThread{[this]{
+        std::string response;
         try {
             CURL *curl;
-            std::string response;
             std::string url(
                     "https://api.coingecko.com/api/v3/simple/price?ids=nav-coin&vs_currencies="
                     "BTC,"
@@ -2164,6 +2164,7 @@ void NavcoinGUI::updatePrice()
         catch (const boost::property_tree::json_parser::json_parser_error& e)
         {
             error("Could not parse price data json 'boost::property_tree::json_parser::json_parser_error'");
+            error("RAW Response: " + response);
         }
         catch (const std::runtime_error& e)
         {
