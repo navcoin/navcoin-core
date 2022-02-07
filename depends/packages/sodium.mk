@@ -13,13 +13,13 @@ endef
 
 define $(package)_config_cmds
   patch -p1 < $($(package)_patch_dir)/disable-glibc-getrandom-getentropy.patch &&\
-  patch -p1 < $($(package)_patch_dir)/fix-whitespace.patch &&\
   ./autogen.sh &&\
+  patch -p1 < $($(package)_patch_dir)/fix-whitespace.patch &&\
   $($(package)_autoconf) $($(package)_config_opts)
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -j$(JOBS)
+  $(MAKE)
 endef
 
 define $(package)_stage_cmds
