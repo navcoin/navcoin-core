@@ -2167,18 +2167,21 @@ void NavcoinGUI::updatePrice()
         catch (const boost::property_tree::json_parser::json_parser_error& e)
         {
             error("Could not parse price data json 'boost::property_tree::json_parser::json_parser_error'");
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
         catch (const std::runtime_error& e)
         {
             error("Could not parse price data json 'std::runtime_error'");
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
         catch (...)
         {
             error("Could not parse price data json 'drunk'");
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
-
-        info("Price Data: RAW Headers: " + headers);
-        info("Price Data: RAW Response: " + response);
     }};
 
     // Make sure we don't get in anyones way :D
