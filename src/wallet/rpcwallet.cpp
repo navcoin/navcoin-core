@@ -6039,6 +6039,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                 }
                 o.pushKV("nfts", a);
             }
+            o.pushKV("is_mine", balance > 0);
             if (!fMine || (fMine && balance > 0))
                 ret.push_back(o);
         }
