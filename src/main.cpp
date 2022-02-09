@@ -78,6 +78,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fVerifyChain = false;
 bool fTxIndex = false;
+bool fNftIndex = false;
 bool fAddressIndex = false;
 bool fTimestampIndex = false;
 bool fSpentIndex = false;
