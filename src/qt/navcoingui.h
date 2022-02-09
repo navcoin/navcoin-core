@@ -312,7 +312,10 @@ private Q_SLOTS:
     void repairWallet();
 
     /** Used by curl request in updatePrice */
-    static size_t priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+    static size_t priceUdateWriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+
+    /** Used by curl request in updatePrice */
+    static size_t priceUdateWriteCallbackHeaders(void* contents, size_t size, size_t nitems, void* userdata);
 
     /** Update the alerts notification */
     void updateAlerts(const QString &warnings);

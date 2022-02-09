@@ -2057,6 +2057,7 @@ void NavcoinGUI::updatePrice()
 
     std::thread pThread{[this]{
         std::string response;
+        std::string headers;
         try {
             CURL *curl;
             std::string url(
@@ -2108,6 +2109,8 @@ void NavcoinGUI::updatePrice()
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, priceUdateWriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, priceUdateWriteCallbackHeaders);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &headers);
             curl_easy_perform(curl);
             curl_easy_cleanup(curl);
 
@@ -2164,15 +2167,20 @@ void NavcoinGUI::updatePrice()
         catch (const boost::property_tree::json_parser::json_parser_error& e)
         {
             error("Could not parse price data json 'boost::property_tree::json_parser::json_parser_error'");
-            error("RAW Response: " + response);
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
         catch (const std::runtime_error& e)
         {
             error("Could not parse price data json 'std::runtime_error'");
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
         catch (...)
         {
             error("Could not parse price data json 'drunk'");
+            error("Price Data: RAW Headers: " + headers);
+            error("Price Data: RAW Response: " + response);
         }
     }};
 
@@ -2180,10 +2188,16 @@ void NavcoinGUI::updatePrice()
     pThread.detach();
 }
 
-size_t NavcoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+size_t NavcoinGUI::priceUdateWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
     ((std::string*) userp)->append((char*) contents, size * nmemb);
     return size * nmemb;
+}
+
+size_t NavcoinGUI::priceUdateWriteCallbackHeaders(void* contents, size_t size, size_t nitems, void* userdata)
+{
+    ((std::string*) userdata)->append((char*) contents, size * nitems);
+    return size * nitems;
 }
 
 void NavcoinGUI::updateStakingStatus()
