@@ -5994,7 +5994,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                 + HelpExampleCli("listtokens", "")
                 );
 
-    LOCK(cs_main);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
 
     bool fMine = params[0].getBool();
 
