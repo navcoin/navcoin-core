@@ -6039,8 +6039,27 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                 }
                 o.pushKV("nfts", a);
             }
-            o.pushKV("is_mine", balance > 0);
-            if (!fMine || (fMine && balance > 0))
+
+            // Is this token ours?
+            bool fTokenIsMine = true;
+
+            if (!pwalletMain->HaveBLSCTTokenKey(it->second.key))
+            {
+                blsctKey sk;
+
+                if (!pwalletMain->GetBLSCTSpendKey(sk))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+                blsctKey pk = sk.PrivateChildHash(SerializeHash("nft/"+it->second.sName+it->second.sDesc));
+
+                if (pk.GetG1Element() != it->second.key)
+                    fTokenIsMine = false;
+
+                pwalletMain->AddBLSCTTokenKey(pk);
+            }
+
+            o.pushKV("is_mine", fTokenIsMine);
+            if (!fMine || (fMine && fTokenIsMine))
                 ret.push_back(o);
         }
     }
