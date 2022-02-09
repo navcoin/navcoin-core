@@ -7721,6 +7721,7 @@ bool InitBlockIndex(const CChainParams& chainparams)
 
     // Load the flag values | use DEFAULT_* values if not set
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+    fNftIndex = GetBoolArg("-nftindex", DEFAULT_NFTINDEX);
     fAddressIndex = GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX);
     fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
     fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);

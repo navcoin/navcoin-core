@@ -427,6 +427,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #endif
     strUsage += HelpMessageOpt("-allindex", strprintf(_("Maintain all indexes supported (default: %u)"), false));
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
+    strUsage += HelpMessageOpt("-nftindex", strprintf(_("Maintain an index of ntf data, used by the nft related rpc calls (default: %u)"), DEFAULT_NFTINDEX));
 
     strUsage += HelpMessageOpt("-addressindex", strprintf(_("Maintain a full address index, used to query for the balance, txids and unspent outputs for addresses (default: %u)"), DEFAULT_ADDRESSINDEX));
     strUsage += HelpMessageOpt("-timestampindex", strprintf(_("Maintain a timestamp index for block hashes, used to query blocks hashes by a range of timestamps (default: %u)"), DEFAULT_TIMESTAMPINDEX));
@@ -1626,6 +1627,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
                 // Check for changed -txindex state
                 if (fTxIndex != GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -txindex");
+                    break;
+                }
+
+                // Check for changed -nftindex state
+                if (fNftIndex != GetBoolArg("-nftindex", DEFAULT_NFTINDEX)) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -nftindex");
                     break;
                 }
 
