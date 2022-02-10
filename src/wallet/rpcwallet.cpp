@@ -5989,7 +5989,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
     if (fHelp)
         throw std::runtime_error(
                 "listtokens (mine)\n"
-                "\nList the confidential tokens. Set mine to true to show only tokens with balance.\n"
+                "\nList the confidential tokens. Set mine to true to show only tokens you own.\n"
 
                 + HelpExampleCli("listtokens", "")
                 );
