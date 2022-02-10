@@ -6041,22 +6041,23 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             }
 
             // Is this token ours?
-            bool fTokenIsMine = true;
+            bool fTokenIsMine = false;
 
-            if (!pwalletMain->HaveBLSCTTokenKey(it->second.key))
+            blsctKey pk;
+            if (!pwalletMain->GetBLSCTTokenKey(it->second.key, pk))
             {
                 blsctKey sk;
 
                 if (!pwalletMain->GetBLSCTSpendKey(sk))
                     throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
 
-                blsctKey pk = sk.PrivateChildHash(SerializeHash("nft/"+it->second.sName+it->second.sDesc));
-
-                if (pk.GetG1Element() != it->second.key)
-                    fTokenIsMine = false;
+                pk = sk.PrivateChildHash(SerializeHash("nft/"+it->second.sName+it->second.sDesc));
 
                 pwalletMain->AddBLSCTTokenKey(pk);
             }
+
+            if (pk.GetG1Element() == it->second.key)
+                fTokenIsMine = true;
 
             o.pushKV("is_mine", fTokenIsMine);
             if (!fMine || (fMine && fTokenIsMine))
