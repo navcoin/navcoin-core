@@ -459,13 +459,6 @@ case $host in
      # We need to build larger files
      AX_CHECK_COMPILE_FLAG([-Wa,-mbig-obj],[CXXFLAGS="$CXXFLAGS -Wa,-mbig-obj"],,[[$CXXFLAG_WERROR]])
 
-     case $host in
-         i?86-*) WINDOWS_BITS=32 ;;
-         x86_64-*) WINDOWS_BITS=64 ;;
-         *) AC_MSG_ERROR("Could not determine win32/win64 for installer") ;;
-     esac
-     AC_SUBST(WINDOWS_BITS)
-
      dnl libtool insists upon adding -nostdlib and a list of objects/libs to link against.
      dnl That breaks our ability to build dll's with static libgcc/libstdc++/libssp. Override
      dnl its command here, with the predeps/postdeps removed, and -static inserted. Postdeps are

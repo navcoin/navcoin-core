@@ -21,7 +21,7 @@ endif
 NAVCOIND_BIN=$(top_builddir)/src/$(NAVCOIN_DAEMON_NAME)$(EXEEXT)
 NAVCOIN_QT_BIN=$(top_builddir)/src/qt/$(NAVCOIN_GUI_NAME)$(EXEEXT)
 NAVCOIN_CLI_BIN=$(top_builddir)/src/$(NAVCOIN_CLI_NAME)$(EXEEXT)
-NAVCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
+NAVCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
 
 empty :=
 space := $(empty) $(empty)
