@@ -5989,12 +5989,12 @@ UniValue listtokens(const UniValue& params, bool fHelp)
     if (fHelp)
         throw std::runtime_error(
                 "listtokens (mine)\n"
-                "\nList the confidential tokens. Set mine to true to show only tokens with balance.\n"
+                "\nList the confidential tokens. Set mine to true to show only tokens you own.\n"
 
                 + HelpExampleCli("listtokens", "")
                 );
 
-    LOCK(cs_main);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
 
     bool fMine = params[0].getBool();
 
@@ -6039,7 +6039,28 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                 }
                 o.pushKV("nfts", a);
             }
-            if (!fMine || (fMine && balance > 0))
+
+            // Is this token ours?
+            bool fTokenIsMine = false;
+
+            blsctKey pk;
+            if (!pwalletMain->GetBLSCTTokenKey(it->second.key, pk))
+            {
+                blsctKey sk;
+
+                if (!pwalletMain->GetBLSCTSpendKey(sk))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+                pk = sk.PrivateChildHash(SerializeHash("nft/"+it->second.sName+it->second.sDesc));
+
+                pwalletMain->AddBLSCTTokenKey(pk);
+            }
+
+            if (pk.GetG1Element() == it->second.key)
+                fTokenIsMine = true;
+
+            o.pushKV("is_mine", fTokenIsMine);
+            if (!fMine || (fMine && fTokenIsMine))
                 ret.push_back(o);
         }
     }
