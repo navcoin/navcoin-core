@@ -182,7 +182,6 @@ void WalletModel::pollBalanceChanged()
         cachedNumBlocks = chainActive.Height();
 
         checkBalanceChanged();
-        checkStakesChanged();
 
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
@@ -249,6 +248,8 @@ void WalletModel::checkBalanceChanged()
             newPrivateBalanceLocked
         );
     }
+
+    checkStakesChanged();
 }
 
 void WalletModel::checkStakesChanged()
