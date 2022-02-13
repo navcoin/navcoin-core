@@ -314,7 +314,7 @@ public Q_SLOTS:
     /* Watch-only added */
     void updateWatchOnlyFlag(bool fHaveWatchonly);
     /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
-    void pollBalanceChanged(bool calledByPoll = false);
+    void pollBalanceChanged();
 };
 
 #endif // NAVCOIN_QT_WALLETMODEL_H

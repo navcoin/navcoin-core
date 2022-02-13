@@ -57,7 +57,6 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
     cachedAmountExp(-1)
 {
     fHaveWatchOnly = wallet->HaveWatchOnly();
-    fForceCheckBalanceChanged = true;
 
     addressTableModel = new AddressTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
@@ -75,8 +74,8 @@ void WalletModel::StartBalanceTimer()
 {
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
-    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged(true)));
-    pollBalanceChanged(true);
+    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
+    pollBalanceChanged();
     pollTimer->start(MODEL_UPDATE_DELAY);
 }
 
@@ -160,8 +159,12 @@ void WalletModel::updateStatus()
         Q_EMIT encryptionStatusChanged(newEncryptionStatus);
 }
 
-void WalletModel::pollBalanceChanged(bool calledByPoll)
+void WalletModel::pollBalanceChanged()
 {
+    // Avoid recomputing wallet balances unless a TransactionChanged or
+    // BlockTip notification was received.
+    if (!fForceCheckBalanceChanged && chainActive.Height() != cachedNumBlocks) return;
+
     // Get required locks upfront. This avoids the GUI from getting stuck on
     // periodical polls if the core is holding the locks for a longer time -
     // for example, during a wallet rescan.
@@ -171,8 +174,8 @@ void WalletModel::pollBalanceChanged(bool calledByPoll)
     TRY_LOCK(wallet->cs_wallet, lockWallet);
     if(!lockWallet)
         return;
-    if(fForceCheckBalanceChanged || calledByPoll)
-    {
+
+    if (fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks) {
         fForceCheckBalanceChanged = false;
 
         // Balance and number of transactions might have changed
@@ -180,10 +183,10 @@ void WalletModel::pollBalanceChanged(bool calledByPoll)
 
         checkBalanceChanged();
         checkStakesChanged();
-    }
 
-    if(transactionTableModel && chainActive.Height() != cachedNumBlocks)
-        transactionTableModel->updateConfirmations();
+        if(transactionTableModel)
+            transactionTableModel->updateConfirmations();
+    }
 }
 
 void WalletModel::checkBalanceChanged()
