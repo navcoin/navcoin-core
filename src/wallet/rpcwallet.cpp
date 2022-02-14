@@ -5984,6 +5984,44 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listnames(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "listnames (mine)\n"
+                "\nList dotNav names.\n"
+                "\nArguments:\n"
+                "1. mine (bool, optional, default=false) Set mine to true to show only names you own.\n"
+
+                + HelpExampleCli("listnames", "")
+                + HelpExampleCli("listnames", "true")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    UniValue ret(UniValue::VARR);
+
+    // Check "mine" argument is boolean
+    if (params.size() == 1 && !params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
+
+    UniValue ret(UniValue::VARR);
+    /* NameRecordMap mapNames; */
+    /* CStateViewCache view(pcoinsTip); */
+
+    /* if(view.GetAllNameRecords(mapTokens)) */
+    /* { */
+    /*     for (NameRecordMap::iterator it = mapNames.begin(); it != mapNames.end(); it++) */
+    /*     { */
+    /*         NameRecordValue nameRecord; */
+    /*         if (!view.GetNameRecord(it->first, nameRecord)) */
+    /*             continue; */
+    /*     } */
+    /* } */
+
+    return ret;
+}
+
 UniValue listtokens(const UniValue& params, bool fHelp)
 {
     if (fHelp)
@@ -6165,6 +6203,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
   { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
   { "wallet",             "listtokens",               &listtokens,               true  },
+  { "wallet",             "listnames",                &listnames,                true  },
   { "wallet",             "gettoken",                 &gettoken,                 true  },
   { "wallet",             "getbalance",               &getbalance,               false },
   { "wallet",             "getnewaddress",            &getnewaddress,            true  },
