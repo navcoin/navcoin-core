@@ -1,4 +1,4 @@
-Name "@PACKAGE_NAME@ (@WINDOWS_BITS@-bit)"
+Name "@PACKAGE_NAME@ (64-bit)"
 
 RequestExecutionLevel highest
 SetCompressor /SOLID lzma
@@ -28,9 +28,7 @@ SetCompressor /SOLID lzma
 # Included files
 !include Sections.nsh
 !include MUI2.nsh
-!if "@WINDOWS_BITS@" == "64"
 !include x64.nsh
-!endif
 
 # Variables
 Var StartMenuGroup
@@ -48,12 +46,8 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile @abs_top_srcdir@/@PACKAGE_TARNAME@-${VERSION}-win@WINDOWS_BITS@-setup.exe
-!if "@WINDOWS_BITS@" == "64"
+OutFile @abs_top_srcdir@/@PACKAGE_TARNAME@-${VERSION}-win64-setup.exe
 InstallDir $PROGRAMFILES64\Navcoin
-!else
-InstallDir $PROGRAMFILES\Navcoin
-!endif
 CRCCheck on
 XPStyle on
 BrandingText " "
@@ -156,7 +150,6 @@ SectionEnd
 # Installer functions
 Function .onInit
     InitPluginsDir
-!if "@WINDOWS_BITS@" == "64"
     ${If} ${RunningX64}
       ; disable registry redirection (enable access to 64-bit portion of registry)
       SetRegView 64
@@ -164,7 +157,6 @@ Function .onInit
       MessageBox MB_OK|MB_ICONSTOP "Cannot install 64-bit version on a 32-bit system."
       Abort
     ${EndIf}
-!endif
 FunctionEnd
 
 # Uninstaller functions
