@@ -162,7 +162,7 @@ void WalletModel::pollBalanceChanged()
 {
     // Avoid recomputing wallet balances unless a TransactionChanged or
     // BlockTip notification was received.
-    if (!fForceCheckBalanceChanged && chainActive.Height() != cachedNumBlocks) return;
+    if (!fForceCheckBalanceChanged && chainActive.Height() == cachedNumBlocks) return;
 
     // Get required locks upfront. This avoids the GUI from getting stuck on
     // periodical polls if the core is holding the locks for a longer time -
