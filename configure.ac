@@ -203,7 +203,7 @@ AC_ARG_ENABLE([suppress-external-warnings],
 AC_ARG_ENABLE([lcov],
   [AS_HELP_STRING([--enable-lcov],
   [enable lcov testing (default is no)])],
-  [use_lcov=yes],
+  [use_lcov=$enableval],
   [use_lcov=no])
 
 dnl Don't use ASM as of now since we still need more changes for it to work properly
@@ -213,7 +213,7 @@ AC_ARG_ENABLE([asm],
   [use_asm=$enableval],
   [use_asm=no])
 
-if test "x$use_asm" = xyes; then
+if test "$use_asm" = "yes"; then
   AC_DEFINE(USE_ASM, 1, [Define this symbol to build in assembly routines])
 fi
 
@@ -245,21 +245,21 @@ AC_ARG_ENABLE([debug],
 AC_LANG_PUSH([C++])
 AX_CHECK_COMPILE_FLAG([-Werror],[CXXFLAG_WERROR="-Werror"],[CXXFLAG_WERROR=""])
 
-if test "x$enable_debug" = xyes; then
+if test "$enable_debug" = "yes"; then
     CPPFLAGS="$CPPFLAGS -DDEBUG -DDEBUG_LOCKORDER"
-    if test "x$GCC" = xyes; then
+    if test "$GCC" = "yes"; then
         CFLAGS="$CFLAGS -g3 -O0"
     fi
 
-    if test "x$GXX" = xyes; then
+    if test "$GXX" = "yes"; then
         CXXFLAGS="$CXXFLAGS -g3 -O0"
     fi
 else
-    if test "x$GCC" = xyes; then
+    if test "$GCC" = "yes"; then
         CFLAGS="$CFLAGS -O1"
     fi
 
-    if test "x$GXX" = xyes; then
+    if test "$GXX" = "yes"; then
         CXXFLAGS="$CXXFLAGS -O0"
     fi
 fi
@@ -284,7 +284,7 @@ enable_sse41=no
 enable_avx2=no
 enable_shani=no
 
-if test "x$use_asm" = "xyes"; then
+if test "$use_asm" = "yes"; then
 
 dnl Check for optional instruction set support. Enabling these does _not_ imply that all code will
 dnl be compiled with them, rather that specific objects/libs may use them after checking for runtime
@@ -472,7 +472,7 @@ case $host in
      ;;
   *darwin*)
      TARGET_OS=darwin
-     if  test x$cross_compiling != xyes; then
+     if  test "$cross_compiling" != "yes"; then
        BUILD_OS=darwin
        AC_PATH_PROGS([RSVG_CONVERT], [rsvg-convert rsvg],rsvg-convert)
        AC_CHECK_PROG([BREW],brew, brew)
@@ -531,7 +531,7 @@ esac
 
 
 
-if test x$use_pkgconfig = xyes; then
+if test "$use_pkgconfig" = "yes"; then
   m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR(PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh.)])
   m4_ifdef([PKG_PROG_PKG_CONFIG], [
   PKG_PROG_PKG_CONFIG
@@ -558,28 +558,50 @@ if test x$use_extended_rpc_tests != xno; then
   AC_SUBST(EXTENDED_RPC_TESTS, -extended)
 fi
 
-if test x$use_lcov = xyes; then
-  if test x$LCOV = x; then
-    AC_MSG_ERROR("lcov testing requested but lcov not found")
+if test "$use_lcov" = "yes"; then
+  if test "$LCOV" = ""; then
+    AC_MSG_ERROR([lcov testing requested but lcov not found])
   fi
-  if test x$GCOV = x; then
-    AC_MSG_ERROR("lcov testing requested but gcov not found")
+  if test "$PYTHON" = ""; then
+    AC_MSG_ERROR([lcov testing requested but python not found])
   fi
-  if test x$JAVA = x; then
-    AC_MSG_ERROR("lcov testing requested but java not found")
+  if test "$GENHTML" = ""; then
+    AC_MSG_ERROR([lcov testing requested but genhtml not found])
   fi
-  if test x$PYTHON = x; then
-    AC_MSG_ERROR("lcov testing requested but python not found")
-  fi
-  if test x$GENHTML = x; then
-    AC_MSG_ERROR("lcov testing requested but genhtml not found")
-  fi
-  if test x$use_comparison_tool = x; then
-    AC_MSG_ERROR("lcov testing requested but comparison tool was not specified")
-  fi
-  LCOV="$LCOV --gcov-tool=$GCOV"
+
+  AC_MSG_CHECKING([whether compiler is Clang])
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+      #if defined(__clang__) && defined(__llvm__)
+      // Compiler is Clang
+      #else
+      #  error Compiler is not Clang
+      #endif
+    ]])],[
+      AC_MSG_RESULT([yes])
+      if test "$LLVM_COV" = ""; then
+        AC_MSG_ERROR([lcov testing requested but llvm-cov not found])
+      fi
+      COV_TOOL="$LLVM_COV gcov"
+    ],[
+      AC_MSG_RESULT([no])
+      if test "$GCOV" = "x"; then
+        AC_MSG_ERROR([lcov testing requested but gcov not found])
+      fi
+      COV_TOOL="$GCOV"
+  ])
+  AC_SUBST(COV_TOOL)
+  AC_SUBST(COV_TOOL_WRAPPER, "cov_tool_wrapper.sh")
+  LCOV="$LCOV --gcov-tool $(pwd)/$COV_TOOL_WRAPPER"
+
+  AX_CHECK_LINK_FLAG([--coverage], [LDFLAGS="$LDFLAGS --coverage"],
+    [AC_MSG_ERROR([lcov testing requested but --coverage linker flag does not work])])
   AX_CHECK_COMPILE_FLAG([--coverage],[CXXFLAGS="$CXXFLAGS --coverage"],
-    [AC_MSG_ERROR("lcov testing requested but --coverage flag does not work")])
+    [AC_MSG_ERROR([lcov testing requested but --coverage flag does not work])])
+  CXXFLAGS="$CXXFLAGS -Og"
+fi
+
+if test "$use_lcov_branch" != "no"; then
+  AC_SUBST(LCOV_OPTS, "$LCOV_OPTS --rc lcov_branch_coverage=1")
 fi
 
 dnl Check for endianness
@@ -588,33 +610,26 @@ AC_C_BIGENDIAN
 dnl Check for pthread compile/link requirements
 AX_PTHREAD
 
-# The following macro will add the necessary defines to navcoin-config.h, but
-# they also need to be passed down to any subprojects. Pull the results out of
-# the cache and add them to CPPFLAGS.
+dnl The following macro will add the necessary defines to bitcoin-config.h, but
+dnl they also need to be passed down to any subprojects. Pull the results out of
+dnl the cache and add them to CPPFLAGS.
 AC_SYS_LARGEFILE
-# detect POSIX or GNU variant of strerror_r
+dnl detect POSIX or GNU variant of strerror_r
 AC_FUNC_STRERROR_R
 
-if test x$ac_cv_sys_file_offset_bits != x &&
-   test x$ac_cv_sys_file_offset_bits != xno &&
-   test x$ac_cv_sys_file_offset_bits != xunknown; then
+if test "$ac_cv_sys_file_offset_bits" != "" &&
+   test "$ac_cv_sys_file_offset_bits" != "no" &&
+   test "$ac_cv_sys_file_offset_bits" != "unknown"; then
   CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
 fi
 
-if test x$ac_cv_sys_large_files != x &&
-   test x$ac_cv_sys_large_files != xno &&
-   test x$ac_cv_sys_large_files != xunknown; then
+if test "$ac_cv_sys_large_files" != "" &&
+   test "$ac_cv_sys_large_files" != "no" &&
+   test "$ac_cv_sys_large_files" != "unknown"; then
   CPPFLAGS="$CPPFLAGS -D_LARGE_FILES=$ac_cv_sys_large_files"
 fi
 
-AX_CHECK_LINK_FLAG([[-Wl,--large-address-aware]], [LDFLAGS="$LDFLAGS -Wl,--large-address-aware"])
-
-AX_GCC_FUNC_ATTRIBUTE([visibility])
-AX_GCC_FUNC_ATTRIBUTE([dllexport])
-AX_GCC_FUNC_ATTRIBUTE([dllimport])
-
-if test x$use_glibc_compat != xno; then
-
+if test "$use_glibc_compat" != "no"; then
   #glibc absorbed clock_gettime in 2.17. librt (its previous location) is safe to link
   #in anyway for back-compat.
   AC_CHECK_LIB([rt],[clock_gettime],, AC_MSG_ERROR(lib missing))
@@ -651,7 +666,7 @@ else
   AC_SEARCH_LIBS([clock_gettime],[rt])
 fi
 
-if test x$TARGET_OS != xwindows; then
+if test "$TARGET_OS" != "windows"; then
   dnl All windows code is PIC, forcing it on just adds useless compile warnings
   AX_CHECK_COMPILE_FLAG([-fPIC], [PIC_FLAGS="-fPIC"])
 fi
@@ -709,8 +724,10 @@ if test "$use_hardening" != "no"; then
   esac
 fi
 
-dnl this flag screws up non-darwin gcc even when the check fails. special-case it.
-if test x$TARGET_OS = xdarwin; then
+dnl These flags are specific to ld64, and may cause issues with other linkers.
+dnl For example: GNU ld will interpret -dead_strip as -de and then try and use
+dnl "ad_strip" as the symbol for the entry point.
+if test "$TARGET_OS" = "darwin"; then
   AX_CHECK_LINK_FLAG([-Wl,-dead_strip], [LDFLAGS="$LDFLAGS -Wl,-dead_strip"], [], [$LDFLAG_WERROR])
   AX_CHECK_LINK_FLAG([-Wl,-dead_strip_dylibs], [LDFLAGS="$LDFLAGS -Wl,-dead_strip_dylibs"], [], [$LDFLAG_WERROR])
   AX_CHECK_LINK_FLAG([-Wl,-bind_at_load], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-bind_at_load"], [], [$LDFLAG_WERROR])
@@ -742,69 +759,73 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/socket.h>]],
  [ AC_MSG_RESULT(no)]
 )
 
-AC_MSG_CHECKING([for visibility attribute])
-AC_LINK_IFELSE([AC_LANG_SOURCE([
-  int foo_def( void ) __attribute__((visibility("default")));
+AC_MSG_CHECKING([for default visibility attribute])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+  int foo(void) __attribute__((visibility("default")));
   int main(){}
   ])],
   [
-    AC_DEFINE(HAVE_VISIBILITY_ATTRIBUTE,1,[Define if the visibility attribute is supported.])
-    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_DEFAULT_VISIBILITY_ATTRIBUTE], [1], [Define if the visibility attribute is supported.])
+    AC_MSG_RESULT([yes])
   ],
   [
-    AC_MSG_RESULT(no)
-    if test x$use_reduce_exports = xyes; then
+    AC_MSG_RESULT([no])
+    if test "$use_reduce_exports" = "yes"; then
       AC_MSG_ERROR([Cannot find a working visibility attribute. Use --disable-reduce-exports.])
     fi
   ]
 )
 
-if test x$use_reduce_exports = xyes; then
-  AX_CHECK_COMPILE_FLAG([-fvisibility=hidden],[RE_CXXFLAGS="-fvisibility=hidden"],
-  [AC_MSG_ERROR([Cannot set default symbol visibility. Use --disable-reduce-exports.])])
+dnl Check for reduced exports
+if test "$use_reduce_exports" = "yes"; then
+  AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CXXFLAGS="$CXXFLAGS -fvisibility=hidden"],
+  [AC_MSG_ERROR([Cannot set hidden symbol visibility. Use --disable-reduce-exports.])], [$CXXFLAG_WERROR])
+  AX_CHECK_LINK_FLAG([-Wl,--exclude-libs,ALL], [RELDFLAGS="-Wl,--exclude-libs,ALL"], [], [$LDFLAG_WERROR])
 fi
 
 dnl LevelDB platform checks
-AC_MSG_CHECKING(for fdatasync)
+AC_MSG_CHECKING([for fdatasync])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
  [[ fdatasync(0); ]])],
- [ AC_MSG_RESULT(yes); HAVE_FDATASYNC=1 ],
- [ AC_MSG_RESULT(no); HAVE_FDATASYNC=0 ]
+ [ AC_MSG_RESULT([yes]); HAVE_FDATASYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FDATASYNC=0 ]
 )
+AC_DEFINE_UNQUOTED([HAVE_FDATASYNC], [$HAVE_FDATASYNC], [Define to 1 if fdatasync is available.])
 
-AC_MSG_CHECKING(for F_FULLFSYNC)
+AC_MSG_CHECKING([for F_FULLFSYNC])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
  [[ fcntl(0, F_FULLFSYNC, 0); ]])],
- [ AC_MSG_RESULT(yes); HAVE_FULLFSYNC=1 ],
- [ AC_MSG_RESULT(no); HAVE_FULLFSYNC=0 ]
+ [ AC_MSG_RESULT([yes]); HAVE_FULLFSYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FULLFSYNC=0 ]
 )
 
-AC_MSG_CHECKING(for O_CLOEXEC)
+AC_MSG_CHECKING([for O_CLOEXEC])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
  [[ open("", O_CLOEXEC); ]])],
- [ AC_MSG_RESULT(yes); HAVE_O_CLOEXEC=1 ],
- [ AC_MSG_RESULT(no); HAVE_O_CLOEXEC=0 ]
+ [ AC_MSG_RESULT([yes]); HAVE_O_CLOEXEC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_O_CLOEXEC=0 ]
 )
+AC_DEFINE_UNQUOTED([HAVE_O_CLOEXEC], [$HAVE_O_CLOEXEC], [Define to 1 if O_CLOEXEC flag is available.])
 
 dnl crc32c platform checks
-AC_MSG_CHECKING(for __builtin_prefetch)
+AC_MSG_CHECKING([for __builtin_prefetch])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
   char data = 0;
   const char* address = &data;
   __builtin_prefetch(address, 0, 0);
   ]])],
- [ AC_MSG_RESULT(yes); HAVE_BUILTIN_PREFETCH=1 ],
- [ AC_MSG_RESULT(no); HAVE_BUILTIN_PREFETCH=0 ]
+ [ AC_MSG_RESULT([yes]); HAVE_BUILTIN_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_BUILTIN_PREFETCH=0 ]
 )
 
-AC_MSG_CHECKING(for _mm_prefetch)
+AC_MSG_CHECKING([for _mm_prefetch])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
   char data = 0;
   const char* address = &data;
   _mm_prefetch(address, _MM_HINT_NTA);
   ]])],
- [ AC_MSG_RESULT(yes); HAVE_MM_PREFETCH=1 ],
- [ AC_MSG_RESULT(no); HAVE_MM_PREFETCH=0 ]
+ [ AC_MSG_RESULT([yes]); HAVE_MM_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_MM_PREFETCH=0 ]
 )
 
 LEVELDB_CPPFLAGS=
@@ -866,13 +887,13 @@ if test x$have_miniupnpc != xno; then
 fi
 fi
 
-if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests$use_bench = xnonononono; then
+if test "$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests$use_bench" = "nonononono"; then
     use_boost=no
 else
     use_boost=yes
 fi
 
-if test x$use_boost = xyes; then
+if test "$use_boost" = "yes"; then
 
 dnl Check for boost libs
 AX_BOOST_BASE
@@ -919,7 +940,7 @@ if test x$use_tests = xyes; then
   fi
 
 
-  if test x$use_boost = xyes; then
+  if test "$use_boost" = "yes"; then
 
   AX_BOOST_UNIT_TEST_FRAMEWORK
 
@@ -944,7 +965,7 @@ if test x$use_tests = xyes; then
   fi
 fi
 
-if test x$use_boost = xyes; then
+if test "$use_boost" = "yes"; then
 
 BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB"
 
