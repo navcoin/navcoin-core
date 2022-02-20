@@ -174,9 +174,9 @@ AC_ARG_WITH([qrencode],
 
 AC_ARG_ENABLE([hardening],
   [AS_HELP_STRING([--disable-hardening],
-  [do not attempt to harden the resulting executables (default is to harden)])],
+  [do not attempt to harden the resulting executables (default is to harden when possible)])],
   [use_hardening=$enableval],
-  [use_hardening=yes])
+  [use_hardening=auto])
 
 AC_ARG_ENABLE([reduce-exports],
   [AS_HELP_STRING([--enable-reduce-exports],
@@ -660,7 +660,7 @@ dnl All versions of gcc that we commonly use for building are subject to bug
 dnl https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90348. To work around that, set
 dnl -fstack-reuse=none for all gcc builds. (Only gcc understands this flag)
 AX_CHECK_COMPILE_FLAG([-fstack-reuse=none], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-reuse=none"])
-if test x$use_hardening != xno; then
+if test "$use_hardening" != "no"; then
   use_hardening=yes
   AX_CHECK_COMPILE_FLAG([-Wstack-protector], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -Wstack-protector"])
   AX_CHECK_COMPILE_FLAG([-fstack-protector-all], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-protector-all"])
@@ -1328,28 +1328,28 @@ if test x$build_navcoin_utils$build_navcoin_libs$build_navcoind$navcoin_enable_q
   AC_MSG_ERROR([No targets! Please specify at least one of: --with-utils --with-libs --with-daemon --with-gui or --enable-tests])
 fi
 
-AM_CONDITIONAL([TARGET_DARWIN],                   [test x$TARGET_OS = xdarwin])
-AM_CONDITIONAL([BUILD_DARWIN],                    [test x$BUILD_OS = xdarwin])
-AM_CONDITIONAL([TARGET_WINDOWS],                  [test x$TARGET_OS = xwindows])
-AM_CONDITIONAL([ENABLE_WALLET],                   [test x$enable_wallet = xyes])
-AM_CONDITIONAL([ENABLE_TESTS],                    [test x$BUILD_TEST = xyes])
-AM_CONDITIONAL([ENABLE_QT],                       [test x$navcoin_enable_qt = xyes])
-AM_CONDITIONAL([ENABLE_QT_TESTS],                 [test x$BUILD_TEST_QT = xyes])
-AM_CONDITIONAL([ENABLE_BENCH],                    [test x$use_bench = xyes])
-AM_CONDITIONAL([USE_QRCODE],                      [test x$use_qr = xyes])
-AM_CONDITIONAL([HAVE_UNBOUND],                    [test x$have_unbound = xyes])
-AM_CONDITIONAL([USE_LCOV],                        [test x$use_lcov = xyes])
-AM_CONDITIONAL([USE_COMPARISON_TOOL],             [test x$use_comparison_tool != xno])
-AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS], [test x$use_comparison_tool_reorg_test != xno])
-AM_CONDITIONAL([GLIBC_BACK_COMPAT],               [test x$use_glibc_compat = xyes])
-AM_CONDITIONAL([HARDEN],                          [test x$use_hardening = xyes])
-AM_CONDITIONAL([ENABLE_SSE42],                    [test x$enable_sse42 = xyes])
-AM_CONDITIONAL([ENABLE_SSE41],                    [test x$enable_sse41 = xyes])
-AM_CONDITIONAL([ENABLE_AVX2],                     [test x$enable_avx2 = xyes])
-AM_CONDITIONAL([ENABLE_SHANI],                    [test x$enable_shani = xyes])
-AM_CONDITIONAL([ENABLE_ARM_CRC],                  [test x$enable_arm_crc = xyes])
-AM_CONDITIONAL([USE_ASM],                         [test x$use_asm = xyes])
-AM_CONDITIONAL([WORDS_BIGENDIAN],                 [test x$ac_cv_c_bigendian = xyes])
+AM_CONDITIONAL([TARGET_DARWIN],                   [test "$TARGET_OS" = "darwin"])
+AM_CONDITIONAL([BUILD_DARWIN],                    [test "$BUILD_OS" = "darwin"])
+AM_CONDITIONAL([TARGET_WINDOWS],                  [test "$TARGET_OS" = "windows"])
+AM_CONDITIONAL([ENABLE_WALLET],                   [test "$enable_wallet" = "yes"])
+AM_CONDITIONAL([ENABLE_TESTS],                    [test "$BUILD_TEST" = "yes"])
+AM_CONDITIONAL([ENABLE_QT],                       [test "$navcoin_enable_qt" = "yes"])
+AM_CONDITIONAL([ENABLE_QT_TESTS],                 [test "$BUILD_TEST_QT" = "yes"])
+AM_CONDITIONAL([ENABLE_BENCH],                    [test "$use_bench" = "yes"])
+AM_CONDITIONAL([USE_QRCODE],                      [test "$use_qr" = "yes"])
+AM_CONDITIONAL([HAVE_UNBOUND],                    [test "$have_unbound" = "yes"])
+AM_CONDITIONAL([USE_LCOV],                        [test "$use_lcov" = "yes"])
+AM_CONDITIONAL([USE_COMPARISON_TOOL],             [test "$use_comparison_tool" != "no"])
+AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS], [test "$use_comparison_tool_reorg_test" != "no"])
+AM_CONDITIONAL([GLIBC_BACK_COMPAT],               [test "$use_glibc_compat" = "yes"])
+AM_CONDITIONAL([HARDEN],                          [test "$use_hardening" = "yes"])
+AM_CONDITIONAL([ENABLE_SSE42],                    [test "$enable_sse42" = "yes"])
+AM_CONDITIONAL([ENABLE_SSE41],                    [test "$enable_sse41" = "yes"])
+AM_CONDITIONAL([ENABLE_AVX2],                     [test "$enable_avx2" = "yes"])
+AM_CONDITIONAL([ENABLE_SHANI],                    [test "$enable_shani" = "yes"])
+AM_CONDITIONAL([ENABLE_ARM_CRC],                  [test "$enable_arm_crc" = "yes"])
+AM_CONDITIONAL([USE_ASM],                         [test "$use_asm" = "yes"])
+AM_CONDITIONAL([WORDS_BIGENDIAN],                 [test "$ac_cv_c_bigendian" = "yes"])
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])
 AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])
