@@ -684,7 +684,7 @@ if test x$use_hardening != xno; then
   dnl When enable_debug is yes, all optimizations are disabled.
   dnl However, FORTIFY_SOURCE requires that there is some level of optimization, otherwise it does nothing and just creates a compiler warning.
   dnl Since FORTIFY_SOURCE is a no-op without optimizations, do not enable it when enable_debug is yes.
-  if test x$enable_debug != xyes; then
+  if test "$enable_debug" != "yes"; then
     AX_CHECK_PREPROC_FLAG([-D_FORTIFY_SOURCE=2],[
       AX_CHECK_PREPROC_FLAG([-U_FORTIFY_SOURCE],[
         HARDENED_CPPFLAGS="$HARDENED_CPPFLAGS -U_FORTIFY_SOURCE"
