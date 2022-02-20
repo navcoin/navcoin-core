@@ -108,7 +108,7 @@ script: |
   export PATH=${WRAP_DIR}:${PATH}
 
   cd navcoin-core
-  BASEPREFIX=`pwd`/depends
+  BASEPREFIX="${PWD}/depends"
   # Build dependencies for each host
   for i in $HOSTS; do
     make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
