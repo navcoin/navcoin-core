@@ -100,15 +100,10 @@ script: |
   export PATH=${WRAP_DIR}:${PATH}
 
   cd navcoin-core
-  BASEPREFIX=`pwd`/depends
+  BASEPREFIX="${PWD}/depends"
   # Build dependencies for each host
   for i in $HOSTS; do
-    EXTRA_INCLUDES="$EXTRA_INCLUDES_BASE/$i"
-    if [ -d "$EXTRA_INCLUDES" ]; then
-      export HOST_ID_SALT="$EXTRA_INCLUDES"
-    fi
     make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
-    unset HOST_ID_SALT
   done
 
   pip3 install lief==0.11.4
