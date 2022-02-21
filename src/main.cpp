@@ -2928,7 +2928,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
                     {
-                        auto tokenId;
+                        uint256 tokenId;
                         if (program.action == MINT)
                         {
                             tokenId = SerializeHash(program.kParameters[0]);
@@ -2986,7 +2986,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         }
 
                         if (fNftIndex) {
-                            if (!viewMemPool.HaveToken(tokenId))
+                            if (!view.HaveToken(tokenId))
                             {
                                 return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
                             }
@@ -2995,7 +2995,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId), CNftUnspentIndexValue()));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, txout.nHeight), CNftUnspentIndexValue()));
                             }
                         }
                     }
@@ -4789,7 +4789,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        auto tokenId;
+                        uint256 tokenId;
 
                         if (program.action == MINT) {
                             tokenId = SerializeHash(program.kParameters[0]);
@@ -4884,7 +4884,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId), CNftUnspentIndexValue(prevout.GetHash())));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, vout.nHeight), CNftUnspentIndexValue(tokenId, prevout)));
                             }
                         }
                     }

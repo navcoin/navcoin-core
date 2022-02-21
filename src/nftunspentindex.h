@@ -10,16 +10,19 @@
 
 struct CNftUnspentIndexKey {
     uint256 tokenId;
+    int blockHeight;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(tokenId);
+        READWRITE(blockHeight);
     }
 
-    CNftUnspentIndexKey(uint256 t) {
+    CNftUnspentIndexKey(uint256 t, int h) {
         tokenId = t;
+        blockHeight = h;
     }
 
     CNftUnspentIndexKey() {
@@ -28,24 +31,25 @@ struct CNftUnspentIndexKey {
 
     void SetNull() {
         tokenId.SetNull();
+        blockHeight = 0;
     }
 };
 
 struct CNftUnspentIndexValue {
     uint256 tokenId;
-    uint256 txHash;
+    CTxOut tx;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(tokenId);
-        READWRITE(txHash);
+        READWRITE(tx);
     }
 
-    CNftUnspentIndexValue(uint256 t, uint256 h) {
-        tokenId = t;
-        txHash = h;
+    CNftUnspentIndexValue(uint256 tid, CTxOut txout) {
+        tokenId = tid;
+        tx = txout;
     }
 
     CNftUnspentIndexValue() {
@@ -54,11 +58,22 @@ struct CNftUnspentIndexValue {
 
     void SetNull() {
         tokenId.SetNull();
-        txHash.SetNull();
+        tx.SetNull();
     }
 
     bool IsNull() const {
         return tokenId.IsNull();
+    }
+};
+
+struct CNftUnspentIndexKeyCompare
+{
+    bool operator()(const CNftUnspentIndexKey& a, const CNftUnspentIndexKey& b) const {
+        if (a.tokenId == b.tokenId) {
+            return a.blockHeight < b.blockHeight;
+        } else {
+            return a.tokenId < b.tokenId;
+        }
     }
 };
 

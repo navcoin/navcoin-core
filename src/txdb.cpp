@@ -758,9 +758,9 @@ bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddres
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentKey, CNftUnspentValue > >&vect) {
+bool CBlockTreeDB::UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue > >&vect) {
     CDBBatch batch(*this);
-    for (std::vector<std::pair<CNftUnspentKey, CNftUnspentValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+    for (std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
             batch.Erase(std::make_pair(DB_NFTUNSPENTINDEX, it->first));
         } else {
