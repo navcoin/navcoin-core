@@ -10,7 +10,7 @@
 
 struct CNftUnspentIndexKey {
     uint256 tokenId;
-    int blockHeight;
+    uint32_t blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
         return 32 + 4;
