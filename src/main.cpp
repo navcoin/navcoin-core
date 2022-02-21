@@ -2995,7 +2995,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, txout.nHeight), CNftUnspentIndexValue()));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue()));
                             }
                         }
                     }
@@ -4875,7 +4875,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
 
                         if (fNftIndex) {
-                            if (!viewMemPool.HaveToken(tokenId))
+                            if (!view.HaveToken(tokenId))
                             {
                                 return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
                             }
@@ -4884,7 +4884,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, vout.nHeight), CNftUnspentIndexValue(tokenId, prevout)));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue(tokenId, vout)));
                             }
                         }
                     }
