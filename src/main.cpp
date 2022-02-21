@@ -4906,7 +4906,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, strprintf("wrong-salt-name:%s", program.sParameters[0]));
 
                             if (pindex->nHeight-recordvalue.height < 6)
-                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));                            NameDataValues data;
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));
+
+                            NameDataValues data;
 
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
