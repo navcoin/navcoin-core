@@ -36,19 +36,16 @@ struct CNftUnspentIndexKey {
 };
 
 struct CNftUnspentIndexValue {
-    uint256 tokenId;
     CTxOut tx;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(tokenId);
         READWRITE(tx);
     }
 
-    CNftUnspentIndexValue(uint256 tid, CTxOut txout) {
-        tokenId = tid;
+    CNftUnspentIndexValue(CTxOut txout) {
         tx = txout;
     }
 
@@ -57,12 +54,11 @@ struct CNftUnspentIndexValue {
     }
 
     void SetNull() {
-        tokenId.SetNull();
         tx.SetNull();
     }
 
     bool IsNull() const {
-        return tokenId.IsNull();
+        return tx.IsNull();
     }
 };
 
