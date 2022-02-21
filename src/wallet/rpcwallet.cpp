@@ -6053,7 +6053,6 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                             utxo.pushKV("n", std::to_string(txout.n));
                             utxo.pushKV("hash", txout.hash.ToString());
                             utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
-                            // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
                             n.pushKV("utxo", utxo);
                         }
                     }
