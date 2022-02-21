@@ -2872,6 +2872,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
+    std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> > nftUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
@@ -2927,9 +2928,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
                     {
+                        auto tokenId;
                         if (program.action == MINT)
                         {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2951,7 +2953,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         }
                         else if (program.action == BURN)
                         {
-                            auto tokenId = txout.tokenId.token;
+                            tokenId = txout.tokenId.token;
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2967,11 +2969,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         }
                         else if (program.action == CREATE_TOKEN)
                         {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             view.RemoveToken(tokenId);
                         } else if (program.action == STOP_MINT) {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2981,6 +2983,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             TokenModifier token = view.ModifyToken(tokenId);
 
                             token->canMint = true;
+                        }
+
+                        if (fNftIndex) {
+                            if (!viewMemPool.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            // Check if we have an nft
+                            if (token->nVersion == 1) {
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId), CNftUnspentIndexValue()));
+                            }
                         }
                     }
                     if (fDotNav)
@@ -3386,6 +3402,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         *pfClean = fClean;
         return true;
     }
+
+    if (fNftIndex)
+        if (!pblocktree->UpdateNftUnspentIndex(nftUnspentIndex))
+            return AbortNode(state, "Failed to write nft unspent index");
 
     if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {
@@ -4034,6 +4054,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
+    std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> > nftUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
@@ -4768,8 +4789,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
+                        auto tokenId;
+
                         if (program.action == MINT) {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4798,7 +4821,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                             }
                         } else if (program.action == BURN) {
-                            auto tokenId = vout.tokenId.token;
+                            tokenId = vout.tokenId.token;
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4820,7 +4843,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "cant-burn");
                             }
                         } else if (program.action == CREATE_TOKEN) {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             if (view.HaveToken(tokenId))
                             {
@@ -4835,7 +4858,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             view.AddToken(std::make_pair(tokenId, token));
                         } else if (program.action == STOP_MINT) {
-                            auto tokenId = SerializeHash(program.kParameters[0]);
+                            tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4848,6 +4871,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (!token->StopMinting()) {
                                 return state.DoS(100, false, REJECT_INVALID, "cant-stop-minting");
+                            }
+                        }
+
+                        if (fNftIndex) {
+                            if (!viewMemPool.HaveToken(tokenId))
+                            {
+                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
+                            }
+
+                            TokenModifier token = view.ModifyToken(tokenId);
+
+                            // Check if we have an nft
+                            if (token->nVersion == 1) {
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId), CNftUnspentIndexValue(prevout.GetHash())));
                             }
                         }
                     }
@@ -5314,6 +5351,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
             return AbortNode(state, "Failed to write transaction index");
+
+    if (fNftIndex)
+        if (!pblocktree->UpdateNftUnspentIndex(nftUnspentIndex))
+            return AbortNode(state, "Failed to write nft unspent index");
 
     if (fAddressIndex) {
         if (!pblocktree->WriteAddressIndex(addressIndex)) {
