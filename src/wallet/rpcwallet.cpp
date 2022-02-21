@@ -6050,6 +6050,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                         auto txout = utxos[utxos.size() - 1];
                         UniValue utxo(UniValue::VOBJ);
                         utxo.pushKV("hash", txout.GetHash().ToString());
+                        utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
                         // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
                         n.pushKV("utxo", utxo);
                     }

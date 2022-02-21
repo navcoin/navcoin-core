@@ -2937,9 +2937,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     {
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
-                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
-                    {
-                        uint256 tokenId;
+                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
+                        TokenId tokenId;
+
                         if (program.action == MINT)
                         {
                             tokenId = SerializeHash(program.kParameters[0]);
@@ -4800,7 +4800,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        uint256 tokenId;
+                        TokenId tokenId;
 
                         if (program.action == MINT) {
                             tokenId = SerializeHash(program.kParameters[0]);

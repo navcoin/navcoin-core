@@ -6,14 +6,14 @@
 #ifndef NAVCOIN_NFTUNSPENTINDEX_H
 #define NAVCOIN_NFTUNSPENTINDEX_H
 
-#include <uint256.h>
+#include <ctokens/tokenid.h>
 
 struct CNftUnspentIndexKey {
-    uint256 tokenId;
+    TokenId tokenId;
     uint32_t blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 32 + 4;
+        return 32 + 8 + 4;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
@@ -26,7 +26,7 @@ struct CNftUnspentIndexKey {
         blockHeight = ser_readdata32be(s);
     }
 
-    CNftUnspentIndexKey(uint256 t, int h) {
+    CNftUnspentIndexKey(TokenId t, int h) {
         tokenId = t;
         blockHeight = h;
     }
@@ -38,6 +38,10 @@ struct CNftUnspentIndexKey {
     void SetNull() {
         tokenId.SetNull();
         blockHeight = 0;
+    }
+
+    bool IsNull() const {
+        return tokenId.IsNull();
     }
 };
 
