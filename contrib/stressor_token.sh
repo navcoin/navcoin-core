@@ -137,7 +137,7 @@ function copy_array {
 
 
 function nav_cli {
-	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet $2 $3 $4 $5 $6 2> /dev/null
+	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet -nftindex=1 $2 $3 $4 $5 $6 2> /dev/null
 }
 
 function terminate {
@@ -585,7 +585,7 @@ function dice_send_token {
 	                for t in ${tokens[@]}
 	                do
 		                shuffle_array "${array_stressing_nodes[@]}"
-		                node_receive=${shuffled_array[0]}	
+		                node_receive=${shuffled_array[0]}
 	                	amount=$(openssl rand 4 | od -DAn)
 	                        out=$(nav_cli $n sendtoken $t ${array_private_address[$node_receive]} $amount)
 				if [ ! -z $out ]
@@ -668,7 +668,7 @@ function dice_send_nft {
 	                for t in ${nfts[@]}
 	                do
 		                shuffle_array "${array_stressing_nodes[@]}"
-		                node_receive=${shuffled_array[0]}	
+		                node_receive=${shuffled_array[0]}
 				nftid=$(nav_cli $node listtokens | jq ".[] | select(.id==\"$t\") | .nfts | .[] | select(.balance==\"1\") | .index" | shuf -n 1)
 #				echo 'nftid= ' $nftid
 				out=$(nav_cli $n sendnft $t $nftid ${array_private_address[$node_receive]})
