@@ -2167,7 +2167,7 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     return true;
 }
 
-bool GetNftUnspentIndex(const TokenId &id, std::vector<CTxOut> &utxos)
+bool GetNftUnspentIndex(const TokenId &id, std::vector<CNftUnspentIndexValue> &utxos)
 {
     if (!fNftIndex)
         return false;
@@ -2938,11 +2938,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        uint256 tokenId;
-
                         if (program.action == MINT)
                         {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2964,7 +2962,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         }
                         else if (program.action == BURN)
                         {
-                            tokenId = txout.tokenId.token;
+                            auto tokenId = txout.tokenId.token;
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2980,11 +2978,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         }
                         else if (program.action == CREATE_TOKEN)
                         {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             view.RemoveToken(tokenId);
                         } else if (program.action == STOP_MINT) {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -2994,20 +2992,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             TokenModifier token = view.ModifyToken(tokenId);
 
                             token->canMint = true;
-                        }
-
-                        if (fNftIndex) {
-                            if (!view.HaveToken(tokenId))
-                            {
-                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                            }
-
-                            TokenModifier token = view.ModifyToken(tokenId);
-
-                            // Check if we have an nft
-                            if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(txout.tokenId, pindex->nHeight), CNftUnspentIndexValue()));
-                            }
                         }
                     }
 
@@ -3024,6 +3008,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                 } catch(...) {
                     return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                }
+            }
+
+            if (fNftIndex) {
+                auto tokenId = txout.tokenId.token;
+
+                if (view.HaveToken(tokenId))
+                {
+                    TokenModifier token = view.ModifyToken(tokenId);
+
+                    // Check if we have an nft
+                    if (token->nVersion == 1) {
+                        nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(txout.tokenId, pindex->nHeight), CNftUnspentIndexValue()));
+                    }
                 }
             }
         }
@@ -4781,8 +4779,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         bool fDotNav = IsDotNavEnabled(pindex->pprev, Params().GetConsensus());
 
-        for(const CTxOut& vout: tx.vout)
+
+        for (unsigned int i = 0; i < tx.vout.size(); i++)
         {
+            const CTxOut& vout = tx.vout[i];
+
             if(vout.IsCommunityFundContribution())
             {
                 fContribution=true;
@@ -4801,10 +4802,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        uint256 tokenId;
-
                         if (program.action == MINT) {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4833,7 +4832,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "unknown-token-version");
                             }
                         } else if (program.action == BURN) {
-                            tokenId = vout.tokenId.token;
+                            auto tokenId = vout.tokenId.token;
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4855,7 +4854,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, "cant-burn");
                             }
                         } else if (program.action == CREATE_TOKEN) {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             if (view.HaveToken(tokenId))
                             {
@@ -4870,7 +4869,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             view.AddToken(std::make_pair(tokenId, token));
                         } else if (program.action == STOP_MINT) {
-                            tokenId = SerializeHash(program.kParameters[0]);
+                            auto tokenId = SerializeHash(program.kParameters[0]);
 
                             if (!view.HaveToken(tokenId))
                             {
@@ -4883,20 +4882,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (!token->StopMinting()) {
                                 return state.DoS(100, false, REJECT_INVALID, "cant-stop-minting");
-                            }
-                        }
-
-                        if (fNftIndex) {
-                            if (!view.HaveToken(tokenId))
-                            {
-                                return state.DoS(100, false, REJECT_INVALID, "wrong-token-id");
-                            }
-
-                            TokenModifier token = view.ModifyToken(tokenId);
-
-                            // Check if we have an nft
-                            if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(vout.tokenId, pindex->nHeight), CNftUnspentIndexValue(vout)));
                             }
                         }
                     }
@@ -5024,6 +5009,22 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     }
                 } catch(...) {
                     return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                }
+            }
+
+            if (fNftIndex) {
+                auto tokenId = vout.tokenId.token;
+
+                if (view.HaveToken(tokenId))
+                {
+                    TokenModifier token = view.ModifyToken(tokenId);
+
+                    // Check if we have an nft
+                    if (token->nVersion == 1) {
+                        auto op = COutPoint(tx.GetHash(), i);
+
+                        nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(vout.tokenId, pindex->nHeight), CNftUnspentIndexValue(op.hash, vout.spendingKey, op.n)));
+                    }
                 }
             }
         }

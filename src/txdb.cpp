@@ -771,7 +771,7 @@ bool CBlockTreeDB::UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspent
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadNftUnspentIndex(const TokenId tokenId, std::vector<CTxOut> &vect) {
+bool CBlockTreeDB::ReadNftUnspentIndex(const TokenId tokenId, std::vector<CNftUnspentIndexValue> &vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_NFTUNSPENTINDEX, uint256()));
@@ -783,7 +783,7 @@ bool CBlockTreeDB::ReadNftUnspentIndex(const TokenId tokenId, std::vector<CTxOut
             if (key.second.tokenId == tokenId) {
                 CNftUnspentIndexValue nValue;
                 if (pcursor->GetValue(nValue)) {
-                    vect.push_back(nValue.tx);
+                    vect.push_back(nValue);
                     pcursor->Next();
                 } else {
                     return error("failed to get nft unspent value");

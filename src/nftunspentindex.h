@@ -46,17 +46,23 @@ struct CNftUnspentIndexKey {
 };
 
 struct CNftUnspentIndexValue {
-    CTxOut tx;
+    uint256 hash;
+    std::vector<uint8_t> spendingKey;
+    uint32_t n;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(tx);
+        READWRITE(hash);
+        READWRITE(spendingKey);
+        READWRITE(n);
     }
 
-    CNftUnspentIndexValue(CTxOut txout) {
-        tx = txout;
+    CNftUnspentIndexValue(uint256 _hash, std::vector<uint8_t> _spendingKey, uint32_t _n) {
+        hash = _hash;
+        spendingKey = _spendingKey;
+        n = _n;
     }
 
     CNftUnspentIndexValue() {
@@ -64,11 +70,13 @@ struct CNftUnspentIndexValue {
     }
 
     void SetNull() {
-        tx.SetNull();
+        hash.SetNull();
+        spendingKey.clear();
+        n = (uint32_t) -1;
     }
 
     bool IsNull() const {
-        return tx.IsNull();
+        return hash.IsNull();
     }
 };
 

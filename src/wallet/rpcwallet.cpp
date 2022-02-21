@@ -6045,12 +6045,13 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     n.pushKV("balance", std::to_string(tempBalance));
                     balance += tempBalance;
 
-                    std::vector<CTxOut> utxos;
+                    std::vector<CNftUnspentIndexValue> utxos;
                     if (fWithUtxo && GetNftUnspentIndex(TokenId(it->first, it_.first), utxos)) {
                         if (utxos.size() > 0) {
                             auto txout = utxos[utxos.size() - 1];
                             UniValue utxo(UniValue::VOBJ);
-                            utxo.pushKV("hash", txout.GetHash().ToString());
+                            utxo.pushKV("n", std::to_string(txout.n));
+                            utxo.pushKV("hash", txout.hash.ToString());
                             utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
                             // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
                             n.pushKV("utxo", utxo);
