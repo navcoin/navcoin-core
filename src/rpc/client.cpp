@@ -93,6 +93,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getreceivedbyaddress", 1 },
     { "getspentinfo", 0},
     { "getstakerscript", 1 },
+    { "gettoken", 1 },
     { "gettransaction", 1 },
     { "gettxout", 1 },
     { "gettxout", 2 },

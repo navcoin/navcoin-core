@@ -6094,15 +6094,16 @@ UniValue gettoken(const UniValue& params, bool fHelp)
 {
     if (fHelp)
         throw std::runtime_error(
-                "gettoken hash\n"
+                "gettoken hash (with_utxo)\n"
                 "\nShows information about a token.\n"
 
                 + HelpExampleCli("gettoken", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f")
+                + HelpExampleCli("gettoken", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f true")
                 );
 
     LOCK(cs_main);
 
-    bool fMine = params[0].getBool();
+    bool fWithUtxo = params.size() > 1 ? params[1].getBool() : false;
 
     UniValue ret(UniValue::VOBJ);
 
@@ -6136,6 +6137,23 @@ UniValue gettoken(const UniValue& params, bool fHelp)
             int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), it_.first));
             n.pushKV("balance", std::to_string(tempBalance));
             balance += tempBalance;
+
+            std::vector<CNftUnspentIndexValue> utxos;
+            info("TEST1;");
+            if (fWithUtxo)
+                info("TEST2;");
+            if (fWithUtxo && GetNftUnspentIndex(TokenId(uint256S(params[0].get_str()), it_.first), utxos)) {
+                info("TEST3;");
+                if (utxos.size() > 0) {
+                    auto txout = utxos[utxos.size() - 1];
+                    UniValue utxo(UniValue::VOBJ);
+                    utxo.pushKV("n", std::to_string(txout.n));
+                    utxo.pushKV("hash", txout.hash.ToString());
+                    utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
+                    n.pushKV("utxo", utxo);
+                }
+            }
+
             a.push_back(n);
         }
         ret.pushKV("nfts", a);
