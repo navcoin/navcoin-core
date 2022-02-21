@@ -2167,7 +2167,7 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     return true;
 }
 
-bool GetNftUnspentIndex(const uint256 &id, std::vector<CTxOut> &utxos)
+bool GetNftUnspentIndex(const TokenId &id, std::vector<CTxOut> &utxos)
 {
     if (!fNftIndex)
         return false;
@@ -3010,6 +3010,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             }
                         }
                     }
+
                     if (fDotNav)
                     {
                         if (program.action == REGISTER_NAME) {

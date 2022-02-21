@@ -181,7 +181,7 @@ public:
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
     bool UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue > >&vect);
-    bool ReadNftUnspentIndex(const uint256 tokenId, std::vector<CTxOut> &utxos);
+    bool ReadNftUnspentIndex(const TokenId tokenId, std::vector<CTxOut> &utxos);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,
                                  std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);

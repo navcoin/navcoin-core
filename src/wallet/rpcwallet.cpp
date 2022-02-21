@@ -6046,7 +6046,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     balance += tempBalance;
 
                     std::vector<CTxOut> utxos;
-                    if (fWithUtxo && GetNftUnspentIndex(it->first, utxos)) {
+                    if (fWithUtxo && GetNftUnspentIndex(TokenId(it->first, it_.first), utxos)) {
                         auto txout = utxos[utxos.size() - 1];
                         UniValue utxo(UniValue::VOBJ);
                         utxo.pushKV("hash", txout.GetHash().ToString());
