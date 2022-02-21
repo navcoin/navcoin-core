@@ -2938,7 +2938,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        TokenId tokenId;
+                        uint256 tokenId;
 
                         if (program.action == MINT)
                         {
@@ -3006,7 +3006,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue()));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(TokenId(tokenId), pindex->nHeight), CNftUnspentIndexValue()));
                             }
                         }
                     }
@@ -4800,7 +4800,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
                     if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
-                        TokenId tokenId;
+                        uint256 tokenId;
 
                         if (program.action == MINT) {
                             tokenId = SerializeHash(program.kParameters[0]);
@@ -4895,7 +4895,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue(vout)));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(TokenId(tokenId), pindex->nHeight), CNftUnspentIndexValue(vout)));
                             }
                         }
                     }
