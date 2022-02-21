@@ -2167,6 +2167,17 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     return true;
 }
 
+bool GetNftUnspentIndex(const uint256 &id, std::vector<CTxOut> &utxos)
+{
+    if (!fNftIndex)
+        return false;
+
+    if (!pblocktree->ReadNftUnspentIndex(id, utxos))
+        return false;
+
+    return true;
+}
+
 bool HashOnchainActive(const uint256 &hash)
 {
     CBlockIndex* pblockindex = mapBlockIndex[hash];

@@ -116,6 +116,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "listsinceblock", 1 },
     { "listsinceblock", 2 },
     { "listtokens", 0 },
+    { "listtokens", 1 },
     { "listtransactions", 1 },
     { "listtransactions", 2 },
     { "listtransactions", 3 },

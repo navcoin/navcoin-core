@@ -5988,15 +5988,23 @@ UniValue listtokens(const UniValue& params, bool fHelp)
 {
     if (fHelp)
         throw std::runtime_error(
-                "listtokens (mine)\n"
-                "\nList the confidential tokens. Set mine to true to show only tokens you own.\n"
+                "listtokens (mine) (with_utxo)\n"
+                "\nList the confidential tokens.\n"
 
+                "\nArguments:\n"
+                "1. mine          (boolean, optional, default=false) Show only owned tokens\n"
+                "2. with_utxo     (boolean, optional, default=false) Show last utxo for nfts\n"
+
+                "\nExamples:\n"
                 + HelpExampleCli("listtokens", "")
+                + HelpExampleCli("listtokens", "true")
+                + HelpExampleCli("listtokens", "true true")
                 );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     bool fMine = params[0].getBool();
+    bool fWithUtxo = params.size() > 1 ? params[1].getBool() : false;
 
     UniValue ret(UniValue::VARR);
     TokenMap mapTokens;
@@ -6028,6 +6036,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             else if (it->second.nVersion == 1)
             {
                 UniValue a(UniValue::VARR);
+
                 for (auto& it_: it->second.mapMetadata) {
                     UniValue n(UniValue::VOBJ);
                     n.pushKV("index", it_.first);
@@ -6035,8 +6044,19 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first));
                     n.pushKV("balance", std::to_string(tempBalance));
                     balance += tempBalance;
+
+                    std::vector<CTxOut> utxos;
+                    if (fWithUtxo && GetNftUnspentIndex(it->first, utxos)) {
+                        auto txout = utxos[utxos.size() - 1];
+                        UniValue utxo(UniValue::VOBJ);
+                        utxo.pushKV("hash", txout.GetHash().ToString());
+                        // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
+                        n.pushKV("utxo", utxo);
+                    }
+
                     a.push_back(n);
                 }
+
                 o.pushKV("nfts", a);
             }
 
