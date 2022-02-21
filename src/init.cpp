@@ -425,7 +425,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #ifndef WIN32
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
 #endif
-    strUsage += HelpMessageOpt("-allindex", strprintf(_("Maintain all indexes supported (default: %u)"), false));
+    strUsage += HelpMessageOpt("-allindex", strprintf(_("Maintain all indexes supported (default: %u)"), DEFAULT_ALLINDEX));
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
     strUsage += HelpMessageOpt("-nftindex", strprintf(_("Maintain an index of ntf data, used by the nft related rpc calls (default: %u)"), DEFAULT_NFTINDEX));
 

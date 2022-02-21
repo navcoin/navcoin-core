@@ -7728,9 +7728,9 @@ bool InitBlockIndex(const CChainParams& chainparams)
     fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
 
     // Check if we want all indexes
-    if (GetBoolArg("-allindex", false))
+    if (GetBoolArg("-allindex", DEFAULT_ALLINDEX))
     {
-        fTxIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
+        fTxIndex = fNftIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
     }
 
     // Use the provided setting for -txindex in the new database
