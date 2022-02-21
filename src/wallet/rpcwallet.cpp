@@ -6047,12 +6047,14 @@ UniValue listtokens(const UniValue& params, bool fHelp)
 
                     std::vector<CTxOut> utxos;
                     if (fWithUtxo && GetNftUnspentIndex(TokenId(it->first, it_.first), utxos)) {
-                        auto txout = utxos[utxos.size() - 1];
-                        UniValue utxo(UniValue::VOBJ);
-                        utxo.pushKV("hash", txout.GetHash().ToString());
-                        utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
-                        // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
-                        n.pushKV("utxo", utxo);
+                        if (utxos.size() > 0) {
+                            auto txout = utxos[utxos.size() - 1];
+                            UniValue utxo(UniValue::VOBJ);
+                            utxo.pushKV("hash", txout.GetHash().ToString());
+                            utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
+                            // WE NEED TO ADD MORE DATA HERE, not sure what to show for the utxos
+                            n.pushKV("utxo", utxo);
+                        }
                     }
 
                     a.push_back(n);
