@@ -12,12 +12,18 @@ struct CNftUnspentIndexKey {
     uint256 tokenId;
     int blockHeight;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(tokenId);
-        READWRITE(blockHeight);
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 32 + 4;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s, int nType, int nVersion) const {
+        tokenId.Serialize(s, nType, nVersion);
+        ser_writedata32be(s, blockHeight);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s, int nType, int nVersion) {
+        tokenId.Unserialize(s, nType, nVersion);
+        blockHeight = ser_readdata32be(s);
     }
 
     CNftUnspentIndexKey(uint256 t, int h) {
