@@ -4884,7 +4884,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             // Check if we have an nft
                             if (token->nVersion == 1) {
-                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue(tokenId, vout)));
+                                nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(tokenId, pindex->nHeight), CNftUnspentIndexValue(vout)));
                             }
                         }
                     }
