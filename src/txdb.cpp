@@ -26,6 +26,7 @@ static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
 static const char DB_BLOCKHASHINDEX = 'z';
 static const char DB_SPENTINDEX = 'q';
+static const char DB_NFTUNSPENTINDEX = 'Z';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_VOTEINDEX = 'C';
