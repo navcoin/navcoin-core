@@ -91,6 +91,7 @@ endif
 # navcoin core #
 NAVCOIN_CORE_H = \
   addressindex.h \
+  nftunspentindex.h \
   spentindex.h \
   timestampindex.h \
   addrman.h \
