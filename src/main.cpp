@@ -7299,6 +7299,10 @@ bool static LoadBlockIndexDB()
     pblocktree->ReadFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
 
+    // Check whether we have an nft index
+    pblocktree->ReadFlag("nftindex", fNftIndex);
+    LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
+
     // Check whether we have an address index
     pblocktree->ReadFlag("addressindex", fAddressIndex);
     LogPrintf("%s: address index %s\n", __func__, fAddressIndex ? "enabled" : "disabled");
@@ -7736,6 +7740,10 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Use the provided setting for -txindex in the new database
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
+
+    // Use the provided setting for -nftindex in the new database
+    pblocktree->WriteFlag("nftindex", fNftIndex);
+    LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -addressindex in the new database
     pblocktree->WriteFlag("addressindex", fAddressIndex);
