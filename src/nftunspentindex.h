@@ -71,7 +71,10 @@ struct CNftUnspentIndexValue {
 struct CNftUnspentIndexKeyCompare
 {
     bool operator()(const CNftUnspentIndexKey& a, const CNftUnspentIndexKey& b) const {
-        return a.blockHeight < b.blockHeight;
+            return a.blockHeight < b.blockHeight;
+        } else {
+            return a.tokenId < b.tokenId;
+        }
     }
 };
 
