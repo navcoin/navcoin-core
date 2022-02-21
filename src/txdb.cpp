@@ -758,6 +758,18 @@ bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddres
     return WriteBatch(batch);
 }
 
+bool CBlockTreeDB::UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentKey, CNftUnspentValue > >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CNftUnspentKey, CNftUnspentValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+        if (it->second.IsNull()) {
+            batch.Erase(std::make_pair(DB_NFTUNSPENTINDEX, it->first));
+        } else {
+            batch.Write(std::make_pair(DB_NFTUNSPENTINDEX, it->first), it->second);
+        }
+    }
+    return WriteBatch(batch);
+}
+
 bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,
                                            std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs) {
 
