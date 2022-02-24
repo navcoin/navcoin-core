@@ -3021,6 +3021,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     // Check if we have an nft
                     if (token->nVersion == 1) {
                         nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(txout.tokenId, pindex->nHeight), CNftUnspentIndexValue()));
+
+                        view.UpdateTokenUtxo(txout.tokenId);
                     }
                 }
             }
@@ -5024,6 +5026,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         auto op = COutPoint(tx.GetHash(), i);
 
                         nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(vout.tokenId, pindex->nHeight), CNftUnspentIndexValue(op.hash, vout.spendingKey, op.n)));
+
+                        view.UpdateTokenUtxo(vout.tokenId);
                     }
                 }
             }

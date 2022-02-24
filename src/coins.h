@@ -12,6 +12,7 @@
 #include <memusage.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <nftunspentindex.h>
 
 #include "consensus/dao.h"
 #include "ctokens/ctokens.h"
@@ -323,6 +324,7 @@ typedef std::vector<unsigned char> CVoteMapKey;
 typedef CVoteList CVoteMapValue;
 typedef std::map<CVoteMapKey, CVoteMapValue> CVoteMap;
 typedef std::map<uint256, CProposal> CProposalMap;
+typedef std::map<TokenId, CNftUnspentIndexValue> CTokenUtxoMap;
 typedef std::map<uint256, CPaymentRequest> CPaymentRequestMap;
 typedef std::map<uint256, CConsultation> CConsultationMap;
 typedef std::map<uint256, CConsultationAnswer> CConsultationAnswerMap;
@@ -384,8 +386,10 @@ public:
     virtual bool HaveConsensusParameter(const int &pid) const;
 
     virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
+    virtual bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
     virtual bool GetAllTokens(TokenMap& map);
     virtual bool HaveToken(const uint256 &id) const;
+    virtual bool HaveTokenUtxo(const TokenId &id) const;
 
     virtual bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     virtual bool GetAllNameRecords(NameRecordMap& map);
@@ -445,8 +449,10 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo& token) const;
+    bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
     bool GetAllTokens(TokenMap& map);
     bool HaveToken(const uint256 &id) const;
+    bool HaveTokenUtxo(const TokenId &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     bool GetAllNameRecords(NameRecordMap& map);
@@ -652,6 +658,7 @@ protected:
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
     mutable CProposalMap cacheProposals;
+    mutable CTokenUtxoMap cacheTokenUtxos;
     mutable CPaymentRequestMap cachePaymentRequests;
     mutable CVoteMap cacheVotes;
     mutable CConsultationMap cacheConsultations;
@@ -679,6 +686,7 @@ public:
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool HaveConsensusParameter(const int& pid) const;
     bool HaveToken(const uint256& id) const;
+    bool HaveTokenUtxo(const TokenId& id) const;
     bool HaveNameRecord(const uint256& id) const;
     bool HaveNameData(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
@@ -688,6 +696,7 @@ public:
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
+    bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
@@ -711,6 +720,7 @@ public:
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
     bool AddToken(const Token& token) const;
+    bool UpdateTokenUtxo(const TokenId &id) const;
     bool AddNameRecord(const NameRecord& record) const;
     bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
@@ -832,6 +842,7 @@ private:
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
     CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
     TokenMap::const_iterator FetchToken(const uint256 &id) const;
+    CTokenUtxoMap::const_iterator FetchTokenUtxo(const TokenId &id) const;
     NameRecordMap::const_iterator FetchNameRecord(const uint256 &id) const;
     NameDataMap::const_iterator FetchNameData(const uint256 &id) const;
 
