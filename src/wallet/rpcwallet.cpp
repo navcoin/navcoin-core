@@ -6139,7 +6139,7 @@ UniValue gettoken(const UniValue& params, bool fHelp)
             balance += tempBalance;
 
             TokenUtxoValues utxos;
-            if (fWithUtxo && view.GetTokenUtxos(TokenId(uint256S(params[0].get_str())), utxos)) {
+            if (fWithUtxo && view.GetTokenUtxos(TokenId(uint256S(params[0].get_str()), it_.first), utxos)) {
                 if (utxos.size() > 0) {
                     auto txout = utxos[utxos.size() - 1].second;
                     UniValue utxo(UniValue::VOBJ);
