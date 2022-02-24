@@ -79,7 +79,6 @@ bool CStateViewDB::GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect) {
         boost::this_thread::interruption_point();
         std::pair<char, TokenUtxoKey> key;
         if (pcursor->GetKey(key) && key.first == DB_TOKEN_UTXO) {
-            LogPrint("token", "Checking %s vs %s", key.second.tokenId.token.ToString(), id.token.ToString());
             if (key.second.tokenId == id) {
                 TokenUtxoValue data;
                 if (pcursor->GetValue(data)) {
