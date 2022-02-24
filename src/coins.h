@@ -408,7 +408,7 @@ public:
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
+                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
                             NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                             const uint256 &hashBlock, const int &nCacheExcludeVotes);
 
@@ -468,7 +468,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                     const uint256 &hashBlock, const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
@@ -727,7 +727,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                     const uint256 &hashBlockIn, const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;

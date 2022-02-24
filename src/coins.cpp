@@ -80,7 +80,7 @@ uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
+                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
                             NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                             const uint256 &hashBlock, const int& nCacheExcludeVotes) { return false; }
 CStateViewCursor *CStateView::Cursor() const { return 0; }
@@ -123,7 +123,7 @@ void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                                   CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                                   CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                                  CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
+                                  CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
                                   NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                                   const uint256 &hashBlock, const int &nCacheExcludeVotes) {
     return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, mapTokens, mapTokenUtxos, mapNameRecords, mapNameData, hashBlock, nCacheExcludeVotes);
@@ -1099,7 +1099,7 @@ void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
 
 bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
                                  CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos, NameRecordMap& mapNameRecords,
+                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos, NameRecordMap& mapNameRecords,
                                  NameDataMap& mapNameData, const uint256 &hashBlockIn, const int &nCacheExcludeVotesIn) {
     assert(!hasModifier);
     assert(!hasModifierConsensus);
@@ -1202,6 +1202,13 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         entry.swap(it->second);
         TokenMap::iterator itOld = it++;
         mapTokens.erase(itOld);
+    }
+
+    for (TokenUtxoMap::iterator it = mapTokenUtxos.begin(); it != mapTokenUtxos.end();) {
+        TokenUtxoValues& entry = cacheTokenUtxos[it->first];
+        entry.swap(it->second);
+        TokenUtxoMap::iterator itOld = it++;
+        mapTokenUtxos.erase(itOld);
     }
 
     for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {
