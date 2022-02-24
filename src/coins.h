@@ -720,7 +720,7 @@ public:
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
     bool AddToken(const Token& token) const;
-    bool UpdateTokenUtxo(const TokenId &id) const;
+    bool UpdateTokenUtxo(const TokenId &id, const CNftUnspentIndexValue &utxo) const;
     bool AddNameRecord(const NameRecord& record) const;
     bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);

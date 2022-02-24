@@ -2167,13 +2167,20 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     return true;
 }
 
-bool GetNftUnspentIndex(const TokenId &id, std::vector<CNftUnspentIndexValue> &utxos)
+bool GetNftUnspentIndex(const TokenId &id, CNftUnspentIndexValue &utxo)
 {
+    std::vector<CNftUnspentIndexValue> utxos;
+
     if (!fNftIndex)
         return false;
 
     if (!pblocktree->ReadNftUnspentIndex(id, utxos))
         return false;
+
+    if (utxos.size() > 0)
+        utxo = utxos[utxos.size() - 1];
+    else
+        utxo = CNftUnspentIndexValue();
 
     return true;
 }
@@ -3022,7 +3029,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     if (token->nVersion == 1) {
                         nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(txout.tokenId, pindex->nHeight), CNftUnspentIndexValue()));
 
-                        view.UpdateTokenUtxo(txout.tokenId);
+                        CNftUnspentIndexValue lastUtxo;
+
+                        if (GetNftUnspentIndex(txout.tokenId, lastUtxo))
+                            view.UpdateTokenUtxo(txout.tokenId, lastUtxo);
                     }
                 }
             }
@@ -5027,7 +5037,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(vout.tokenId, pindex->nHeight), CNftUnspentIndexValue(op.hash, vout.spendingKey, op.n)));
 
-                        view.UpdateTokenUtxo(vout.tokenId);
+                        CNftUnspentIndexValue lastUtxo;
+
+                        if (GetNftUnspentIndex(vout.tokenId, lastUtxo))
+                            view.UpdateTokenUtxo(vout.tokenId, lastUtxo);
                     }
                 }
             }

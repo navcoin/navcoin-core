@@ -802,17 +802,7 @@ bool CStateViewCache::AddToken(const Token& token) const {
     return true;
 }
 
-bool CStateViewCache::UpdateTokenUtxo(const TokenId &id) const {
-    std::vector<CNftUnspentIndexValue> utxos;
-
-    if (!GetNftUnspentIndex(id, utxos))
-        return false;
-
-    auto utxo = CNftUnspentIndexValue();
-    if (utxos.size() > 0) {
-        utxo = utxos[utxos.size() - 1];
-    }
-
+bool CStateViewCache::UpdateTokenUtxo(const TokenId &id, const CNftUnspentIndexValue &utxo) const {
     if (cacheTokenUtxos.count(id))
         cacheTokenUtxos[id] = utxo;
     else
