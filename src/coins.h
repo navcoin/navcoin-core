@@ -12,12 +12,12 @@
 #include <memusage.h>
 #include <serialize.h>
 #include <uint256.h>
-#include <nftunspentindex.h>
 
-#include "consensus/dao.h"
-#include "ctokens/ctokens.h"
-#include "dotnav/namerecord.h"
-#include "dotnav/namedata.h"
+#include <consensus/dao.h>
+#include <ctokens/ctokens.h>
+#include <ctokens/tokenutxos.h>
+#include <dotnav/namerecord.h>
+#include <dotnav/namedata.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -324,7 +324,6 @@ typedef std::vector<unsigned char> CVoteMapKey;
 typedef CVoteList CVoteMapValue;
 typedef std::map<CVoteMapKey, CVoteMapValue> CVoteMap;
 typedef std::map<uint256, CProposal> CProposalMap;
-typedef std::map<TokenId, CNftUnspentIndexValue> CTokenUtxoMap;
 typedef std::map<uint256, CPaymentRequest> CPaymentRequestMap;
 typedef std::map<uint256, CConsultation> CConsultationMap;
 typedef std::map<uint256, CConsultationAnswer> CConsultationAnswerMap;
@@ -386,7 +385,7 @@ public:
     virtual bool HaveConsensusParameter(const int &pid) const;
 
     virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
-    virtual bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
+    virtual bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
     virtual bool GetAllTokens(TokenMap& map);
     virtual bool HaveToken(const uint256 &id) const;
     virtual bool HaveTokenUtxo(const TokenId &id) const;
@@ -409,7 +408,7 @@ public:
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
                             NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                             const uint256 &hashBlock, const int &nCacheExcludeVotes);
 
@@ -449,7 +448,7 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo& token) const;
-    bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
+    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
     bool GetAllTokens(TokenMap& map);
     bool HaveToken(const uint256 &id) const;
     bool HaveTokenUtxo(const TokenId &id) const;
@@ -469,7 +468,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                     const uint256 &hashBlock, const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
@@ -595,6 +594,22 @@ public:
     friend class CStateViewCache;
 };
 
+class TokenUtxosModifier
+{
+private:
+    CStateViewCache& cache;
+    TokenUtxoMap::iterator it;
+    TokenUtxosModifier(CStateViewCache& cache_, TokenUtxoMap::iterator it_, int blockHeight=0);
+    TokenUtxoValues prev;
+    int blockHeight;
+
+public:
+    TokenUtxoValues* operator->() { return &it->second; }
+    TokenUtxoValues& operator*() { return it->second; }
+    ~TokenUtxosModifier();
+    friend class CStateViewCache;
+};
+
 class NameRecordModifier
 {
 private:
@@ -658,7 +673,7 @@ protected:
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
     mutable CProposalMap cacheProposals;
-    mutable CTokenUtxoMap cacheTokenUtxos;
+    mutable TokenUtxoMap cacheTokenUtxos;
     mutable CPaymentRequestMap cachePaymentRequests;
     mutable CVoteMap cacheVotes;
     mutable CConsultationMap cacheConsultations;
@@ -696,7 +711,7 @@ public:
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
-    bool GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const;
+    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
@@ -712,7 +727,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                     const uint256 &hashBlockIn, const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;
@@ -720,7 +735,7 @@ public:
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
     bool AddToken(const Token& token) const;
-    bool UpdateTokenUtxo(const TokenId &id, const CNftUnspentIndexValue &utxo) const;
+    bool AddTokenUtxo(const TokenId& id, const TokenUtxoEntry& utxo) const;
     bool AddNameRecord(const NameRecord& record) const;
     bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
@@ -728,6 +743,7 @@ public:
     bool RemovePaymentRequest(const uint256 &prid) const;
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
     bool RemoveToken(const uint256 &pid) const;
+    bool RemoveTokenUtxo(const TokenUtxoKey &key) const;
     bool RemoveNameRecord(const uint256 &pid) const;
     bool RemoveNameData(const NameDataKey &id) const;
     bool RemoveConsultation(const uint256 &cid);
@@ -766,6 +782,7 @@ public:
     CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
     CConsensusParameterModifier ModifyConsensusParameter(const int &pid, int nHeight = 0);
     TokenModifier ModifyToken(const uint256 &id, int nHeight = 0);
+    TokenUtxosModifier ModifyTokenUtxos(const TokenId &id, int blockHeight = 0);
     NameRecordModifier ModifyNameRecord(const uint256 &id, int nHeight = 0);
     NameDataModifier ModifyNameData(const uint256& id, int nHeight = 0);
 
@@ -842,7 +859,7 @@ private:
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
     CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
     TokenMap::const_iterator FetchToken(const uint256 &id) const;
-    CTokenUtxoMap::const_iterator FetchTokenUtxo(const TokenId &id) const;
+    TokenUtxoMap::const_iterator FetchTokenUtxos(const TokenId &id) const;
     NameRecordMap::const_iterator FetchNameRecord(const uint256 &id) const;
     NameDataMap::const_iterator FetchNameData(const uint256 &id) const;
 

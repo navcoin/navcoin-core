@@ -91,7 +91,6 @@ endif
 # navcoin core #
 NAVCOIN_CORE_H = \
   addressindex.h \
-  nftunspentindex.h \
   spentindex.h \
   timestampindex.h \
   addrman.h \
@@ -334,6 +333,7 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/programs.h \
   consensus/program_actions.h \
   ctokens/ctokens.h \
+  ctokens/tokenutxos.h \
   ctokens/tokenid.h \
   dotnav/namedata.h \
   dotnav/namerecord.h \

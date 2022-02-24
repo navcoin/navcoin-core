@@ -68,8 +68,42 @@ bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
     return db.Read(std::make_pair(DB_TOKENS, id), token);
 }
 
+bool CStateViewDB::GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect) {
+    vect.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_NFTUNSPENTINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, TokenUtxoKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_NFTUNSPENTINDEX) {
+            if (key.second.tokenId == id) {
+                TokenUtxoValue data;
+                if (pcursor->GetValue(data)) {
+                    vect.push_back(std::make_pair(key.second.blockHeight, data));
+                    pcursor->Next();
+                } else {
+                    return error("GetTokenUtxos() : failed to read value");
+                }
+            } else {
+                pcursor->Next();
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CStateViewDB::HaveToken(const uint256 &id) const {
     return db.Exists(std::make_pair(DB_TOKENS, id));
+}
+
+bool CStateViewDB::HaveTokenUtxos(const TokenId &id) const {
+    return db.Exists(std::make_pair(DB_NFTUNSPENTINDEX, id));
 }
 
 bool CStateViewDB::GetNameRecord(const uint256 &id, NameRecordValue &height) const {
@@ -757,46 +791,6 @@ bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddres
         }
     }
     return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue > >&vect) {
-    CDBBatch batch(*this);
-    for (std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
-        if (it->second.IsNull()) {
-            batch.Erase(std::make_pair(DB_NFTUNSPENTINDEX, it->first));
-        } else {
-            batch.Write(std::make_pair(DB_NFTUNSPENTINDEX, it->first), it->second);
-        }
-    }
-    return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::ReadNftUnspentIndex(const TokenId tokenId, std::vector<CNftUnspentIndexValue> &vect) {
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    pcursor->Seek(std::make_pair(DB_NFTUNSPENTINDEX, uint256()));
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char, CNftUnspentIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_NFTUNSPENTINDEX) {
-            if (key.second.tokenId == tokenId) {
-                CNftUnspentIndexValue nValue;
-                if (pcursor->GetValue(nValue)) {
-                    vect.push_back(nValue);
-                    pcursor->Next();
-                } else {
-                    return error("failed to get nft unspent value");
-                }
-            }
-
-            pcursor->Next();
-        } else {
-            break;
-        }
-    }
-
-    return true;
 }
 
 bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,

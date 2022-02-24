@@ -2167,24 +2167,6 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     return true;
 }
 
-bool GetNftUnspentIndex(const TokenId &id, CNftUnspentIndexValue &utxo)
-{
-    std::vector<CNftUnspentIndexValue> utxos;
-
-    if (!fNftIndex)
-        return false;
-
-    if (!pblocktree->ReadNftUnspentIndex(id, utxos))
-        return false;
-
-    if (utxos.size() > 0)
-        utxo = utxos[utxos.size() - 1];
-    else
-        utxo = CNftUnspentIndexValue();
-
-    return true;
-}
-
 bool HashOnchainActive(const uint256 &hash)
 {
     CBlockIndex* pblockindex = mapBlockIndex[hash];
@@ -2890,7 +2872,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
-    std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> > nftUnspentIndex;
+    std::vector<std::pair<TokenUtxoKey, TokenUtxoValue> > tokenUtxoIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
@@ -3027,12 +3009,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                     // Check if we have an nft
                     if (token->nVersion == 1) {
-                        nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(txout.tokenId, pindex->nHeight), CNftUnspentIndexValue()));
-
-                        CNftUnspentIndexValue lastUtxo;
-
-                        if (GetNftUnspentIndex(txout.tokenId, lastUtxo))
-                            view.UpdateTokenUtxo(txout.tokenId, lastUtxo);
+                        if (!view.RemoveTokenUtxo(TokenUtxoKey(txout.tokenId, pindex->nHeight)))
+                            return AbortNode(state, "Failed to write token utxo index");
                     }
                 }
             }
@@ -3424,10 +3402,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         *pfClean = fClean;
         return true;
     }
-
-    if (fNftIndex)
-        if (!pblocktree->UpdateNftUnspentIndex(nftUnspentIndex))
-            return AbortNode(state, "Failed to write nft unspent index");
 
     if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {
@@ -4076,7 +4050,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
-    std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue> > nftUnspentIndex;
+    std::vector<std::pair<TokenUtxoKey, TokenUtxoValue> > tokenUtxoIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
@@ -5035,12 +5009,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (token->nVersion == 1) {
                         auto op = COutPoint(tx.GetHash(), i);
 
-                        nftUnspentIndex.push_back(std::make_pair(CNftUnspentIndexKey(vout.tokenId, pindex->nHeight), CNftUnspentIndexValue(op.hash, vout.spendingKey, op.n)));
-
-                        CNftUnspentIndexValue lastUtxo;
-
-                        if (GetNftUnspentIndex(vout.tokenId, lastUtxo))
-                            view.UpdateTokenUtxo(vout.tokenId, lastUtxo);
+                        if (!view.AddTokenUtxo(vout.tokenId, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
+                            return AbortNode(state, "Failed to write token utxo index");
                     }
                 }
             }
@@ -5383,10 +5353,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
             return AbortNode(state, "Failed to write transaction index");
-
-    if (fNftIndex)
-        if (!pblocktree->UpdateNftUnspentIndex(nftUnspentIndex))
-            return AbortNode(state, "Failed to write nft unspent index");
 
     if (fAddressIndex) {
         if (!pblocktree->WriteAddressIndex(addressIndex)) {

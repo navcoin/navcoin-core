@@ -53,7 +53,7 @@ bool CStateView::GetConsultation(const uint256 &cid, CConsultation& consultation
 bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const { return false; }
 bool CStateView::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return false; }
 bool CStateView::GetToken(const uint256 &id, TokenInfo& token) const { return false; }
-bool CStateView::GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const { return false; };
+bool CStateView::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const { return false; };
 bool CStateView::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return false; }
 bool CStateView::GetNameData(const uint256 &id, NameDataValues& data) { return false; }
 bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
@@ -80,7 +80,7 @@ uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
                             NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                             const uint256 &hashBlock, const int& nCacheExcludeVotes) { return false; }
 CStateViewCursor *CStateView::Cursor() const { return 0; }
@@ -94,7 +94,7 @@ bool CStateViewBacked::GetConsultation(const uint256 &cid, CConsultation &consul
 bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const { return base->GetConsultationAnswer(cid, answer); }
 bool CStateViewBacked::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return base->GetConsensusParameter(pid, cparameter); }
 bool CStateViewBacked::GetToken(const uint256 &id, TokenInfo& token) const { return base->GetToken(id, token); }
-bool CStateViewBacked::GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const { return base->GetTokenUtxo(id, tokenUtxo); }
+bool CStateViewBacked::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const { return base->GetTokenUtxos(id, tokenUtxos); }
 bool CStateViewBacked::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return base->GetNameRecord(id, height); }
 bool CStateViewBacked::GetNameData(const uint256 &id, NameDataValues& data) { return base->GetNameData(id, data); }
 bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
@@ -123,10 +123,10 @@ void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                                   CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                                   CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                                  CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                                  CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos,
                                   NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                                   const uint256 &hashBlock, const int &nCacheExcludeVotes) {
-    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, mapTokens, mapNameRecords, mapNameData, hashBlock, nCacheExcludeVotes);
+    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, mapTokens, mapTokenUtxos, mapNameRecords, mapNameData, hashBlock, nCacheExcludeVotes);
 }
 CStateViewCursor *CStateViewBacked::Cursor() const { return base->Cursor(); }
 
@@ -282,18 +282,19 @@ TokenMap::const_iterator CStateViewCache::FetchToken(const uint256 &id) const {
     return ret;
 }
 
-CTokenUtxoMap::const_iterator CStateViewCache::FetchTokenUtxo(const TokenId &id) const {
-    CTokenUtxoMap::iterator it = cacheTokenUtxos.find(id);
+TokenUtxoMap::const_iterator CStateViewCache::FetchTokenUtxos(const TokenId &id) const {
+    TokenUtxoMap::iterator it = cacheTokenUtxos.find(id);
 
-    if (it != cacheTokenUtxos.end())
+    if (it != cacheTokenUtxos.end() && it->second.size() > 0)
         return it;
 
-    CNftUnspentIndexValue tmp;
+    TokenUtxoValues tmp;
 
-    if (!base->GetTokenUtxo(id, tmp) || tmp.IsNull())
+    if (!base->GetTokenUtxos(id, tmp) || tmp.size() == 0)
         return cacheTokenUtxos.end();
 
-    CTokenUtxoMap::iterator ret = cacheTokenUtxos.insert(std::make_pair(id, tmp)).first;
+    TokenUtxoMap::iterator ret = cacheTokenUtxos.insert(std::make_pair(id, TokenUtxoValues())).first;
+    tmp.swap(ret->second);
 
     return ret;
 }
@@ -409,10 +410,10 @@ bool CStateViewCache::GetToken(const uint256 &id, TokenInfo &token) const {
     return false;
 }
 
-bool CStateViewCache::GetTokenUtxo(const TokenId &id, CNftUnspentIndexValue &tokenUtxo) const {
-    CTokenUtxoMap::const_iterator it = FetchTokenUtxo(id);
-    if (it != cacheTokenUtxos.end() && !it->second.IsNull()) {
-        tokenUtxo = it->second;
+bool CStateViewCache::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const {
+    TokenUtxoMap::const_iterator it = FetchTokenUtxos(id);
+    if (it != cacheTokenUtxos.end() && it->second.size() > 0) {
+        tokenUtxos = it->second;
         return true;
     }
     return false;
@@ -645,6 +646,17 @@ TokenModifier CStateViewCache::ModifyToken(const uint256 &id, int nHeight) {
     return TokenModifier(*this, ret.first, nHeight);
 }
 
+TokenUtxosModifier CStateViewCache::ModifyTokenUtxos(const TokenId &id, int blockHeight) {
+    assert(!hasModifier);
+    std::pair<TokenUtxoMap::iterator, bool> ret = cacheTokenUtxos.insert(std::make_pair(id, TokenUtxoValues()));
+    if (ret.second) {
+        if (!base->GetTokenUtxos(id, ret.first->second)) {
+            ret.first->second.clear();
+        }
+    }
+    return TokenUtxosModifier(*this, ret.first, blockHeight);
+}
+
 NameRecordModifier CStateViewCache::ModifyNameRecord(const uint256 &id, int nHeight) {
     assert(!hasModifier);
     std::pair<NameRecordMap::iterator, bool> ret = cacheNameRecords.insert(std::make_pair(id, 0));
@@ -802,11 +814,17 @@ bool CStateViewCache::AddToken(const Token& token) const {
     return true;
 }
 
-bool CStateViewCache::UpdateTokenUtxo(const TokenId &id, const CNftUnspentIndexValue &utxo) const {
-    if (cacheTokenUtxos.count(id))
-        cacheTokenUtxos[id] = utxo;
-    else
-        cacheTokenUtxos.insert(std::make_pair(id, utxo));
+bool CStateViewCache::AddTokenUtxo(const TokenId& id, const TokenUtxoEntry& utxo) const {
+    if (cacheTokenUtxos.count(id)) {
+        cacheTokenUtxos[id].erase(
+            std::remove_if(cacheTokenUtxos[id].begin(), cacheTokenUtxos[id].end(),
+                [&utxo](const TokenUtxoEntry & o) { return o.first == utxo.first && o.second.IsNull(); }),
+            cacheTokenUtxos[id].end());
+        cacheTokenUtxos[id].push_back(utxo);
+    } else {
+        cacheTokenUtxos.insert(std::make_pair(id, TokenUtxoValues()));
+        cacheTokenUtxos[id].push_back(utxo);
+    }
 
     return true;
 }
@@ -860,6 +878,28 @@ bool CStateViewCache::RemoveToken(const uint256 &id) const {
     cacheTokens[id].SetNull();
 
     assert(cacheTokens[id].IsNull());
+
+    return true;
+}
+
+bool CStateViewCache::RemoveTokenUtxo(const TokenUtxoKey &key) const {
+    if (!HaveTokenUtxo(key.tokenId))
+        return false;
+
+    if (cacheTokenUtxos.count(key.tokenId))
+    {
+        TokenUtxoValues temp;
+
+        for (auto& it: cacheTokenUtxos[key.tokenId]) {
+            if (it.first == key.blockHeight) {
+                temp.push_back(TokenUtxoEntry(key.blockHeight, TokenUtxoValue()));
+            } else {
+                temp.push_back(it);
+            }
+        }
+
+        cacheTokenUtxos[key.tokenId] = temp;
+    }
 
     return true;
 }
@@ -999,8 +1039,8 @@ bool CStateViewCache::HaveToken(const uint256 &id) const {
 }
 
 bool CStateViewCache::HaveTokenUtxo(const TokenId &id) const {
-    CTokenUtxoMap::const_iterator it = FetchTokenUtxo(id);
-    return (it != cacheTokenUtxos.end() && !it->second.IsNull());
+    TokenUtxoMap::const_iterator it = FetchTokenUtxos(id);
+    return (it != cacheTokenUtxos.end() && it->second.size());
 }
 
 bool CStateViewCache::HaveNameRecord(const uint256 &id) const {
@@ -1059,7 +1099,7 @@ void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
 
 bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
                                  CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, NameRecordMap& mapNameRecords,
+                                 CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap mapTokenUtxos, NameRecordMap& mapNameRecords,
                                  NameDataMap& mapNameData, const uint256 &hashBlockIn, const int &nCacheExcludeVotesIn) {
     assert(!hasModifier);
     assert(!hasModifierConsensus);
@@ -1184,7 +1224,7 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
 }
 
 bool CStateViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, cacheTokens, cacheNameRecords, cacheNameData, hashBlock, nCacheExcludeVotes);
+    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, cacheTokens, cacheTokenUtxos, cacheNameRecords, cacheNameData, hashBlock, nCacheExcludeVotes);
     cacheCoins.clear();
     cacheProposals.clear();
     cachePaymentRequests.clear();
@@ -1193,6 +1233,7 @@ bool CStateViewCache::Flush() {
     cacheAnswers.clear();
     cacheConsensus.clear();
     cacheTokens.clear();
+    cacheTokenUtxos.clear();
     cacheNameRecords.clear();
     cacheNameData.clear();
     cachedCoinsUsage = 0;

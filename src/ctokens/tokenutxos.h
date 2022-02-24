@@ -3,17 +3,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_NFTUNSPENTINDEX_H
-#define NAVCOIN_NFTUNSPENTINDEX_H
+#ifndef NAVCOIN_TOKENUTXOS_H
+#define NAVCOIN_TOKENUTXOS_H
 
 #include <ctokens/tokenid.h>
 
-struct CNftUnspentIndexKey {
+struct TokenUtxoKey {
     TokenId tokenId;
-    uint32_t blockHeight;
+    uint64_t blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 32 + 8 + 4;
+        return 32 + 8 + 8;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
@@ -26,12 +26,12 @@ struct CNftUnspentIndexKey {
         blockHeight = ser_readdata32be(s);
     }
 
-    CNftUnspentIndexKey(TokenId t, int h) {
+    TokenUtxoKey(TokenId t, int h) {
         tokenId = t;
         blockHeight = h;
     }
 
-    CNftUnspentIndexKey() {
+    TokenUtxoKey() {
         SetNull();
     }
 
@@ -45,7 +45,7 @@ struct CNftUnspentIndexKey {
     }
 };
 
-struct CNftUnspentIndexValue {
+struct TokenUtxoValue {
     uint256 hash;
     std::vector<uint8_t> spendingKey;
     uint32_t n;
@@ -59,13 +59,13 @@ struct CNftUnspentIndexValue {
         READWRITE(n);
     }
 
-    CNftUnspentIndexValue(uint256 _hash, std::vector<uint8_t> _spendingKey, uint32_t _n) {
+    TokenUtxoValue(uint256 _hash, std::vector<uint8_t> _spendingKey, uint32_t _n) {
         hash = _hash;
         spendingKey = _spendingKey;
         n = _n;
     }
 
-    CNftUnspentIndexValue() {
+    TokenUtxoValue() {
         SetNull();
     }
 
@@ -80,15 +80,8 @@ struct CNftUnspentIndexValue {
     }
 };
 
-struct CNftUnspentIndexKeyCompare
-{
-    bool operator()(const CNftUnspentIndexKey& a, const CNftUnspentIndexKey& b) const {
-        if (a.tokenId == b.tokenId) {
-            return a.blockHeight < b.blockHeight;
-        } else {
-            return a.tokenId < b.tokenId;
-        }
-    }
-};
+typedef std::pair<uint64_t, TokenUtxoValue> TokenUtxoEntry;
+typedef std::vector<TokenUtxoEntry> TokenUtxoValues;
+typedef std::map<TokenId, TokenUtxoValues> TokenUtxoMap;
 
-#endif // NAVCOIN_NFTUNSPENTINDEX_H
+#endif // NAVCOIN_TOKENUTXOS_H

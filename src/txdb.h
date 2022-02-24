@@ -113,7 +113,9 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo &token) const;
+    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect);
     bool HaveToken(const uint256 &id) const;
+    bool HaveTokenUtxos(const TokenId &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue &height) const;
     bool HaveNameRecord(const uint256 &id) const;
@@ -180,8 +182,6 @@ public:
     bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
-    bool UpdateNftUnspentIndex(const std::vector<std::pair<CNftUnspentIndexKey, CNftUnspentIndexValue > >&vect);
-    bool ReadNftUnspentIndex(const TokenId tokenId, std::vector<CNftUnspentIndexValue> &utxos);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,
                                  std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);

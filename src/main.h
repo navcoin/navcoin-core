@@ -21,7 +21,6 @@
 #include <sync.h>
 #include <versionbits.h>
 #include <spentindex.h>
-#include <nftunspentindex.h>
 #include <addressindex.h>
 #include <timestampindex.h>
 #include <wallet/walletdb.h>
@@ -492,7 +491,6 @@ public:
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
 bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
-bool GetNftUnspentIndex(const TokenId &id, CNftUnspentIndexValue &utxo);
 bool HashOnchainActive(const uint256 &hash);
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
