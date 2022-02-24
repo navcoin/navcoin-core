@@ -26,7 +26,6 @@ static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
 static const char DB_BLOCKHASHINDEX = 'z';
 static const char DB_SPENTINDEX = 'q';
-static const char DB_NFTUNSPENTINDEX = 'Z';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_VOTEINDEX = 'C';
@@ -41,6 +40,7 @@ static const char DB_LAST_BLOCK = 'l';
 static const char DB_EXCLUDE_VOTES = 'X';
 
 static const char DB_TOKENS = 'T';
+static const char DB_TOKEN_UTXO = 'Z';
 static const char DB_NAME_RECORDS = 'n';
 static const char DB_NAME_DATA = 'N';
 
@@ -73,12 +73,12 @@ bool CStateViewDB::GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect) {
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
 
-    pcursor->Seek(std::make_pair(DB_NFTUNSPENTINDEX, uint256()));
+    pcursor->Seek(std::make_pair(DB_TOKEN_UTXO, uint256()));
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char, TokenUtxoKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_NFTUNSPENTINDEX) {
+        if (pcursor->GetKey(key) && key.first == DB_TOKEN_UTXO) {
             if (key.second.tokenId == id) {
                 TokenUtxoValue data;
                 if (pcursor->GetValue(data)) {
@@ -103,7 +103,7 @@ bool CStateViewDB::HaveToken(const uint256 &id) const {
 }
 
 bool CStateViewDB::HaveTokenUtxos(const TokenId &id) const {
-    return db.Exists(std::make_pair(DB_NFTUNSPENTINDEX, id));
+    return db.Exists(std::make_pair(DB_TOKEN_UTXO, id));
 }
 
 bool CStateViewDB::GetNameRecord(const uint256 &id, NameRecordValue &height) const {
