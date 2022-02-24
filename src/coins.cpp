@@ -1481,6 +1481,27 @@ TokenModifier::~TokenModifier()
     }
 }
 
+TokenUtxosModifier::TokenUtxosModifier(CStateViewCache& cache_, TokenUtxoMap::iterator it_, int blockHeight_) : cache(cache_), it(it_), blockHeight(blockHeight_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+    prev = it->second;
+}
+
+TokenUtxosModifier::~TokenUtxosModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.size() == 0) {
+        cache.cacheTokenUtxos[it->first].clear();
+    }
+
+    if (!(prev == it->second))
+    {
+        LogPrint("token", "%s: Modified %stoken utxo %s\n", __func__, blockHeight > 0 ? strprintf("at block height %d ", blockHeight) : "", it->first.token.ToString());
+    }
+}
+
 NameRecordModifier::NameRecordModifier(CStateViewCache& cache_, NameRecordMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;

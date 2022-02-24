@@ -846,6 +846,7 @@ public:
     friend class CConsultationAnswerModifier;
     friend class CConsensusParameterModifier;
     friend class TokenModifier;
+    friend class TokenUtxosModifier;
     friend class NameRecordModifier;
     friend class NameDataModifier;
 
