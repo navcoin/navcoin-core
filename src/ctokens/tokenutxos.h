@@ -74,7 +74,7 @@ struct TokenUtxoValue {
         return (hash == other.hash && spendingKey == other.spendingKey && n == other.n);
     }
 
-    void swap(NameDataValue &to) {
+    void swap(TokenUtxoValue &to) {
         std::swap(to.hash, hash);
         std::swap(to.spendingKey, spendingKey);
         std::swap(to.n, n);
