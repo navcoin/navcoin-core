@@ -50,15 +50,6 @@ struct TokenUtxoValue {
     std::vector<uint8_t> spendingKey;
     uint32_t n;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(hash);
-        READWRITE(spendingKey);
-        READWRITE(n);
-    }
-
     TokenUtxoValue(uint256 _hash, std::vector<uint8_t> _spendingKey, uint32_t _n) {
         hash = _hash;
         spendingKey = _spendingKey;
@@ -77,6 +68,25 @@ struct TokenUtxoValue {
 
     bool IsNull() const {
         return hash.IsNull();
+    }
+
+    bool operator==(const TokenUtxoValue& other) const {
+        return (hash == other.hash && spendingKey == other.spendingKey && n == other.n);
+    }
+
+    void swap(NameDataValue &to) {
+        std::swap(to.hash, hash);
+        std::swap(to.spendingKey, spendingKey);
+        std::swap(to.n, n);
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(hash);
+        READWRITE(spendingKey);
+        READWRITE(n);
     }
 };
 
