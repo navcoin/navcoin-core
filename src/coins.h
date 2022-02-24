@@ -385,7 +385,7 @@ public:
     virtual bool HaveConsensusParameter(const int &pid) const;
 
     virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
-    virtual bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
+    virtual bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
     virtual bool GetAllTokens(TokenMap& map);
     virtual bool HaveToken(const uint256 &id) const;
     virtual bool HaveTokenUtxo(const TokenId &id) const;
@@ -448,7 +448,7 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo& token) const;
-    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
+    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
     bool GetAllTokens(TokenMap& map);
     bool HaveToken(const uint256 &id) const;
     bool HaveTokenUtxo(const TokenId &id) const;
@@ -711,7 +711,7 @@ public:
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
-    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) const;
+    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);

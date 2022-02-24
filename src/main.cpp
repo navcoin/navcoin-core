@@ -3009,8 +3009,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                     // Check if we have an nft
                     if (token->nVersion == 1) {
-                        if (!view.RemoveTokenUtxo(TokenUtxoKey(txout.tokenId, pindex->nHeight)))
-                            return AbortNode(state, "Failed to write token utxo index");
+                        if (view.HaveTokenUtxo(txout.tokenId))
+                            if (!view.RemoveTokenUtxo(TokenUtxoKey(txout.tokenId, pindex->nHeight)))
+                                return AbortNode(state, "Failed to remove token utxo from index");
                     }
                 }
             }
@@ -5010,7 +5011,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         auto op = COutPoint(tx.GetHash(), i);
 
                         if (!view.AddTokenUtxo(vout.tokenId, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
-                            return AbortNode(state, "Failed to write token utxo index");
+                            return AbortNode(state, "Failed to add token utxo to index");
                     }
                 }
             }
