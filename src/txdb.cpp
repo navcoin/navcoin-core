@@ -388,7 +388,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
-                              TokenMap &mapTokens, NameRecordMap &mapNameRecords,
+                              TokenMap &mapTokens, TokenUtxoMap &mapTokenUtxos, NameRecordMap &mapNameRecords,
                               NameDataMap& mapNameData,
                               const uint256 &hashBlock, const int &nExcludeVotes) {
 
@@ -491,6 +491,23 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         TokenMap::iterator itOld = it++;
         mapTokens.erase(itOld);
+    }
+
+    for (TokenUtxoMap::iterator it = mapTokenUtxos.begin(); it != mapTokenUtxos.end();) {
+        if (it->second.size() == 0) {
+            batch.Erase(std::make_pair(DB_TOKEN_UTXO, it->first));
+        } else {
+            for (auto &it2: it->second) {
+                if (it2.second.IsNull())
+                {
+                    batch.Erase(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)));
+                } else {
+                    batch.Write(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)), it2.second);
+                }
+            }
+        }
+        TokenUtxoMap::iterator itOld = it++;
+        mapTokenUtxos.erase(itOld);
     }
 
     for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {

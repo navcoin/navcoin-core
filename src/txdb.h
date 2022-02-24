@@ -127,7 +127,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap &mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
                     const uint256 &hashBlock, const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
