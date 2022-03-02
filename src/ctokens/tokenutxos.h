@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_TOKENUTXOS_H
 #define NAVCOIN_TOKENUTXOS_H
 
-#include <ctokens/tokenid.h>
+#include <uint256.h>
 
 struct TokenUtxoKey {
     uint256 id;
@@ -42,6 +42,23 @@ struct TokenUtxoKey {
 
     bool IsNull() const {
         return id.IsNull();
+    }
+
+    bool operator==(const TokenUtxoKey& other) const {
+        return (id == other.id && blockHeight == other.blockHeight);
+    }
+
+    bool operator<(const TokenUtxoKey& b) const {
+        if (id == b.id) {
+            return blockHeight < b.blockHeight;
+        } else {
+            return id < b.id;
+        }
+    }
+
+    void swap(TokenUtxoKey &to) {
+        std::swap(to.id, id);
+        std::swap(to.blockHeight, blockHeight);
     }
 };
 

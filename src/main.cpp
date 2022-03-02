@@ -3011,7 +3011,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                     // Check if we have an nft
                     if (token->nVersion == 1) {
-                        if (view.HaveTokenUtxo(tokenIdHash))
+                        if (view.HaveTokenUtxos(tokenIdHash))
                             if (!view.RemoveTokenUtxo(TokenUtxoKey(tokenIdHash, pindex->nHeight)))
                                 return AbortNode(state, "Failed to remove token utxo from index");
                     }

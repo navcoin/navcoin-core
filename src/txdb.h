@@ -115,7 +115,7 @@ public:
     bool GetToken(const uint256 &id, TokenInfo &token) const;
     bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect);
     bool HaveToken(const uint256 &id) const;
-    bool HaveTokenUtxos(const TokenId &id) const;
+    bool HaveTokenUtxos(const uint256 &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue &height) const;
     bool HaveNameRecord(const uint256 &id) const;

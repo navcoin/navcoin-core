@@ -69,6 +69,7 @@ bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
 }
 
 bool CStateViewDB::GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect) {
+    LogPrint("token", "%s: called!!!\n", __func__);
     vect.clear();
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
@@ -102,7 +103,7 @@ bool CStateViewDB::HaveToken(const uint256 &id) const {
     return db.Exists(std::make_pair(DB_TOKENS, id));
 }
 
-bool CStateViewDB::HaveTokenUtxos(const TokenId &id) const {
+bool CStateViewDB::HaveTokenUtxos(const uint256 &id) const {
     return db.Exists(std::make_pair(DB_TOKEN_UTXO, id));
 }
 
@@ -493,15 +494,24 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         mapTokens.erase(itOld);
     }
 
+    for (auto &it: mapTokenUtxos) {
+        for (auto &itx: it.second) {
+            LogPrint("token", "%s: mapTokenUtxos utxo %s at height %d\n", __func__, it.first.ToString(), itx.first);
+        }
+    }
+
     for (TokenUtxoMap::iterator it = mapTokenUtxos.begin(); it != mapTokenUtxos.end();) {
         if (it->second.size() == 0) {
+            LogPrint("token", "%s: removing token utxo %s \n", __func__, it->first.ToString());
             batch.Erase(std::make_pair(DB_TOKEN_UTXO, it->first));
         } else {
             for (auto &it2: it->second) {
                 if (it2.second.IsNull())
                 {
+                    LogPrint("token", "%s: removing token utxo %s at height %d \n", __func__, it->first.ToString(), it2.first);
                     batch.Erase(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)));
                 } else {
+                    LogPrint("token", "%s: adding token utxo %s at height %d \n", __func__, it->first.ToString(), it2.first);
                     batch.Write(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)), it2.second);
                 }
             }
@@ -522,13 +532,16 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
 
     for (NameDataMap::iterator it = mapNameData.begin(); it != mapNameData.end();) {
         if (it->second.size() == 0) {
+            LogPrint("token", "%s: removing namedata %s \n", __func__, it->first.ToString());
             batch.Erase(std::make_pair(DB_NAME_DATA, it->first));
         } else {
             for (auto &it2: it->second) {
                 if (it2.second.IsNull())
                 {
+                    LogPrint("token", "%s: removing namedata %s at height %d \n", __func__, it->first.ToString(), it2.first);
                     batch.Erase(std::make_pair(DB_NAME_DATA, NameDataKey(it->first, it2.first)));
                 } else {
+                    LogPrint("token", "%s: adding namedata %s at height %d \n", __func__, it->first.ToString(), it2.first);
                     batch.Write(std::make_pair(DB_NAME_DATA, NameDataKey(it->first, it2.first, it2.second.key)), it2.second);
                 }
             }

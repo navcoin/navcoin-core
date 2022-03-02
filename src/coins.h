@@ -385,10 +385,11 @@ public:
     virtual bool HaveConsensusParameter(const int &pid) const;
 
     virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
-    virtual bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     virtual bool GetAllTokens(TokenMap& map);
     virtual bool HaveToken(const uint256 &id) const;
-    virtual bool HaveTokenUtxo(const uint256 &id) const;
+
+    virtual bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
+    virtual bool HaveTokenUtxos(const uint256 &id) const;
 
     virtual bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     virtual bool GetAllNameRecords(NameRecordMap& map);
@@ -448,10 +449,11 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo& token) const;
-    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     bool GetAllTokens(TokenMap& map);
     bool HaveToken(const uint256 &id) const;
-    bool HaveTokenUtxo(const uint256 &id) const;
+
+    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
+    bool HaveTokenUtxos(const uint256 &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     bool GetAllNameRecords(NameRecordMap& map);
@@ -673,13 +675,13 @@ protected:
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
     mutable CProposalMap cacheProposals;
-    mutable TokenUtxoMap cacheTokenUtxos;
     mutable CPaymentRequestMap cachePaymentRequests;
     mutable CVoteMap cacheVotes;
     mutable CConsultationMap cacheConsultations;
     mutable CConsultationAnswerMap cacheAnswers;
     mutable CConsensusParameterMap cacheConsensus;
     mutable TokenMap cacheTokens;
+    mutable TokenUtxoMap cacheTokenUtxos;
     mutable NameRecordMap cacheNameRecords;
     mutable NameDataMap cacheNameData;
     mutable int nCacheExcludeVotes;
@@ -701,7 +703,7 @@ public:
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool HaveConsensusParameter(const int& pid) const;
     bool HaveToken(const uint256& id) const;
-    bool HaveTokenUtxo(const uint256 &id) const;
+    bool HaveTokenUtxos(const uint256 &id) const;
     bool HaveNameRecord(const uint256& id) const;
     bool HaveNameData(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
