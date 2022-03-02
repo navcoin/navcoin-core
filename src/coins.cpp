@@ -815,7 +815,6 @@ bool CStateViewCache::AddToken(const Token& token) const {
 }
 
 bool CStateViewCache::AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo) const {
-    LogPrint("token", "%s: &cacheTokenUtxos %x\n", __func__, &cacheTokenUtxos);
     LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
     if (cacheTokenUtxos.count(id)) {
         LogPrint("token", "%s: adding token utxo %s\n", __func__, id.ToString());
@@ -830,11 +829,6 @@ bool CStateViewCache::AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo
         cacheTokenUtxos[id].push_back(utxo);
     }
 
-    for (auto &it: cacheTokenUtxos) {
-        for (auto &itx: it.second) {
-            LogPrint("token", "%s: token utxo %s at height %d\n", __func__, it.first.ToString(), itx.first);
-        }
-    }
     LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
 
     return true;
@@ -853,9 +847,7 @@ bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
 }
 
 bool CStateViewCache::AddNameData(const uint256& id, const NameDataEntry& namerecord) const {
-    LogPrint("token", "%s: &cacheNameData %x\n", __func__, &cacheNameData);
     if (cacheNameData.count(id)) {
-        LogPrint("token", "%s: adding namedata map %s\n", __func__, id.ToString());
         cacheNameData[id].erase(
             std::remove_if(cacheNameData[id].begin(), cacheNameData[id].end(),
                 [&namerecord](const NameDataEntry & o) { return o.first == namerecord.first && o.second.IsNull(); }),
@@ -864,15 +856,8 @@ bool CStateViewCache::AddNameData(const uint256& id, const NameDataEntry& namere
     }
     else
     {
-        LogPrint("token", "%s: creating namedata map %s\n", __func__, id.ToString());
         cacheNameData.insert(std::make_pair(id, NameDataValues()));
         cacheNameData[id].push_back(namerecord);
-    }
-
-    for (auto &it: cacheNameData) {
-        for (auto &itx: it.second) {
-            LogPrint("token", "%s: namedata %s at height %d\n", __func__, it.first.ToString(), itx.first);
-        }
     }
 
     return true;
@@ -1224,18 +1209,12 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         mapTokens.erase(itOld);
     }
 
-    LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
-    LogPrint("token", "%s: mapTokenUtxos.size() %d\n", __func__, mapTokenUtxos.size());
-
     for (TokenUtxoMap::iterator it = mapTokenUtxos.begin(); it != mapTokenUtxos.end();) {
         TokenUtxoValues& entry = cacheTokenUtxos[it->first];
         entry.swap(it->second);
         TokenUtxoMap::iterator itOld = it++;
         mapTokenUtxos.erase(itOld);
     }
-
-    LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
-    LogPrint("token", "%s: mapTokenUtxos.size() %d\n", __func__, mapTokenUtxos.size());
 
     for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {
         NameRecordValue& entry = cacheNameRecords[it->first];
@@ -1244,18 +1223,12 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         mapNameRecords.erase(itOld);
     }
 
-    LogPrint("token", "%s: cacheNameData.size() %d\n", __func__, cacheNameData.size());
-    LogPrint("token", "%s: mapNameData.size() %d\n", __func__, mapNameData.size());
-
     for (NameDataMap::iterator it = mapNameData.begin(); it != mapNameData.end();) {
         NameDataValues& entry = cacheNameData[it->first];
         entry.swap(it->second);
         NameDataMap::iterator itOld = it++;
         mapNameData.erase(itOld);
     }
-
-    LogPrint("token", "%s: cacheNameData.size() %d\n", __func__, cacheNameData.size());
-    LogPrint("token", "%s: mapNameData.size() %d\n", __func__, mapNameData.size());
 
     hashBlock = hashBlockIn;
     nCacheExcludeVotes = nCacheExcludeVotesIn;
@@ -1521,7 +1494,6 @@ TokenModifier::~TokenModifier()
 }
 
 TokenUtxosModifier::TokenUtxosModifier(CStateViewCache& cache_, TokenUtxoMap::iterator it_, int blockHeight_) : cache(cache_), it(it_), blockHeight(blockHeight_) {
-    LogPrint("token", "%s: CALLED!!!!!!!\n");
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -1529,7 +1501,6 @@ TokenUtxosModifier::TokenUtxosModifier(CStateViewCache& cache_, TokenUtxoMap::it
 
 TokenUtxosModifier::~TokenUtxosModifier()
 {
-    LogPrint("token", "%s: CALLED!!!!!!!\n");
     assert(cache.hasModifier);
     cache.hasModifier = false;
 
@@ -1565,7 +1536,6 @@ NameRecordModifier::~NameRecordModifier()
 }
 
 NameDataModifier::NameDataModifier(CStateViewCache& cache_, NameDataMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
-    LogPrint("token", "%s: CALLED!!!!!!!\n");
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -1573,7 +1543,6 @@ NameDataModifier::NameDataModifier(CStateViewCache& cache_, NameDataMap::iterato
 
 NameDataModifier::~NameDataModifier()
 {
-    LogPrint("token", "%s: CALLED!!!!!!!\n");
     assert(cache.hasModifier);
     cache.hasModifier = false;
 

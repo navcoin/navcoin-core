@@ -6048,9 +6048,6 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     TokenUtxoValues utxos;
                     if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(it->first, it_.first)), utxos)) {
                         if (utxos.size() > 0) {
-                            for (auto &x: utxos) {
-                                LogPrint("token", "%s: token utxo %s at height %d\n", __func__, x.second.hash.ToString(), x.first);
-                            }
                             auto txout = utxos[utxos.size() - 1].second;
                             if (!txout.IsNull()) {
                                 UniValue utxo(UniValue::VOBJ);
