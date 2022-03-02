@@ -113,7 +113,7 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo &token) const;
-    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect);
+    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect);
     bool HaveToken(const uint256 &id) const;
     bool HaveTokenUtxos(const TokenId &id) const;
 

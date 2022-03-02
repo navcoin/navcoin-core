@@ -3007,10 +3007,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 {
                     TokenModifier token = view.ModifyToken(tokenId);
 
+                    auto tokenIdHash = SerializeHash(txout.tokenId);
+
                     // Check if we have an nft
                     if (token->nVersion == 1) {
-                        if (view.HaveTokenUtxo(txout.tokenId))
-                            if (!view.RemoveTokenUtxo(TokenUtxoKey(txout.tokenId, pindex->nHeight)))
+                        if (view.HaveTokenUtxo(tokenIdHash))
+                            if (!view.RemoveTokenUtxo(TokenUtxoKey(tokenIdHash, pindex->nHeight)))
                                 return AbortNode(state, "Failed to remove token utxo from index");
                     }
                 }
@@ -5006,11 +5008,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 {
                     TokenModifier token = view.ModifyToken(tokenId);
 
+                    auto tokenIdHash = SerializeHash(vout.tokenId);
+
                     // Check if we have an nft
                     if (token->nVersion == 1) {
                         auto op = COutPoint(tx.GetHash(), i);
 
-                        if (!view.AddTokenUtxo(vout.tokenId, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
+                        if (!view.AddTokenUtxo(tokenIdHash, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
                             return AbortNode(state, "Failed to add token utxo to index");
                     }
                 }

@@ -9,25 +9,25 @@
 #include <ctokens/tokenid.h>
 
 struct TokenUtxoKey {
-    TokenId tokenId;
+    uint256 id;
     uint64_t blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 32 + 8 + 8;
+        return 32 + 8;
     }
     template<typename Stream>
     void Serialize(Stream& s, int nType, int nVersion) const {
-        tokenId.Serialize(s, nType, nVersion);
+        id.Serialize(s, nType, nVersion);
         ser_writedata32be(s, blockHeight);
     }
     template<typename Stream>
     void Unserialize(Stream& s, int nType, int nVersion) {
-        tokenId.Unserialize(s, nType, nVersion);
+        id.Unserialize(s, nType, nVersion);
         blockHeight = ser_readdata32be(s);
     }
 
-    TokenUtxoKey(TokenId t, int h) {
-        tokenId = t;
+    TokenUtxoKey(uint256 t, int h) {
+        id = t;
         blockHeight = h;
     }
 
@@ -36,12 +36,12 @@ struct TokenUtxoKey {
     }
 
     void SetNull() {
-        tokenId.SetNull();
+        id.SetNull();
         blockHeight = 0;
     }
 
     bool IsNull() const {
-        return tokenId.IsNull();
+        return id.IsNull();
     }
 };
 
@@ -92,6 +92,6 @@ struct TokenUtxoValue {
 
 typedef std::pair<uint64_t, TokenUtxoValue> TokenUtxoEntry;
 typedef std::vector<TokenUtxoEntry> TokenUtxoValues;
-typedef std::map<TokenId, TokenUtxoValues> TokenUtxoMap;
+typedef std::map<uint256, TokenUtxoValues> TokenUtxoMap;
 
 #endif // NAVCOIN_TOKENUTXOS_H

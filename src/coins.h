@@ -385,10 +385,10 @@ public:
     virtual bool HaveConsensusParameter(const int &pid) const;
 
     virtual bool GetToken(const uint256 &id, TokenInfo& token) const;
-    virtual bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
+    virtual bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     virtual bool GetAllTokens(TokenMap& map);
     virtual bool HaveToken(const uint256 &id) const;
-    virtual bool HaveTokenUtxo(const TokenId &id) const;
+    virtual bool HaveTokenUtxo(const uint256 &id) const;
 
     virtual bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     virtual bool GetAllNameRecords(NameRecordMap& map);
@@ -448,10 +448,10 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo& token) const;
-    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
+    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     bool GetAllTokens(TokenMap& map);
     bool HaveToken(const uint256 &id) const;
-    bool HaveTokenUtxo(const TokenId &id) const;
+    bool HaveTokenUtxo(const uint256 &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue& height) const;
     bool GetAllNameRecords(NameRecordMap& map);
@@ -701,7 +701,7 @@ public:
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool HaveConsensusParameter(const int& pid) const;
     bool HaveToken(const uint256& id) const;
-    bool HaveTokenUtxo(const TokenId& id) const;
+    bool HaveTokenUtxo(const uint256 &id) const;
     bool HaveNameRecord(const uint256& id) const;
     bool HaveNameData(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
@@ -711,7 +711,7 @@ public:
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
-    bool GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos);
+    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
@@ -735,7 +735,7 @@ public:
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
     bool AddToken(const Token& token) const;
-    bool AddTokenUtxo(const TokenId& id, const TokenUtxoEntry& utxo) const;
+    bool AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo) const;
     bool AddNameRecord(const NameRecord& record) const;
     bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
@@ -782,7 +782,7 @@ public:
     CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
     CConsensusParameterModifier ModifyConsensusParameter(const int &pid, int nHeight = 0);
     TokenModifier ModifyToken(const uint256 &id, int nHeight = 0);
-    TokenUtxosModifier ModifyTokenUtxos(const TokenId &id, int blockHeight = 0);
+    TokenUtxosModifier ModifyTokenUtxos(const uint256 &id, int blockHeight = 0);
     NameRecordModifier ModifyNameRecord(const uint256 &id, int nHeight = 0);
     NameDataModifier ModifyNameData(const uint256& id, int nHeight = 0);
 
@@ -860,7 +860,7 @@ private:
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
     CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
     TokenMap::const_iterator FetchToken(const uint256 &id) const;
-    TokenUtxoMap::const_iterator FetchTokenUtxos(const TokenId &id) const;
+    TokenUtxoMap::const_iterator FetchTokenUtxos(const uint256 &id) const;
     NameRecordMap::const_iterator FetchNameRecord(const uint256 &id) const;
     NameDataMap::const_iterator FetchNameData(const uint256 &id) const;
 

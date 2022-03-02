@@ -68,7 +68,7 @@ bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
     return db.Read(std::make_pair(DB_TOKENS, id), token);
 }
 
-bool CStateViewDB::GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect) {
+bool CStateViewDB::GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect) {
     vect.clear();
 
     boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
@@ -79,7 +79,7 @@ bool CStateViewDB::GetTokenUtxos(const TokenId &id, TokenUtxoValues &vect) {
         boost::this_thread::interruption_point();
         std::pair<char, TokenUtxoKey> key;
         if (pcursor->GetKey(key) && key.first == DB_TOKEN_UTXO) {
-            if (key.second.tokenId == id) {
+            if (key.second.id == id) {
                 TokenUtxoValue data;
                 if (pcursor->GetValue(data)) {
                     vect.push_back(std::make_pair(key.second.blockHeight, data));
@@ -500,10 +500,8 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
             for (auto &it2: it->second) {
                 if (it2.second.IsNull())
                 {
-                    LogPrint("token", "Removing token utxo %s %d \n", it->first.token.ToString(), it->first.subid);
                     batch.Erase(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)));
                 } else {
-                    LogPrint("token", "Adding token utxo %s %d \n", it->first.token.ToString(), it->first.subid);
                     batch.Write(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)), it2.second);
                 }
             }

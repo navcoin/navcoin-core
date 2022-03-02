@@ -53,7 +53,7 @@ bool CStateView::GetConsultation(const uint256 &cid, CConsultation& consultation
 bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const { return false; }
 bool CStateView::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return false; }
 bool CStateView::GetToken(const uint256 &id, TokenInfo& token) const { return false; }
-bool CStateView::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) { return false; };
+bool CStateView::GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos) { return false; };
 bool CStateView::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return false; }
 bool CStateView::GetNameData(const uint256 &id, NameDataValues& data) { return false; }
 bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
@@ -64,7 +64,7 @@ bool CStateView::HaveConsultation(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsultationAnswer(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsensusParameter(const int &pid) const { return false; }
 bool CStateView::HaveToken(const uint256 &id) const { return false; }
-bool CStateView::HaveTokenUtxo(const TokenId &id) const { return false; }
+bool CStateView::HaveTokenUtxo(const uint256 &id) const { return false; }
 bool CStateView::HaveNameRecord(const uint256 &id) const { return false; }
 bool CStateView::HaveNameData(const uint256 &id) const { return false; }
 bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
@@ -94,7 +94,7 @@ bool CStateViewBacked::GetConsultation(const uint256 &cid, CConsultation &consul
 bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const { return base->GetConsultationAnswer(cid, answer); }
 bool CStateViewBacked::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return base->GetConsensusParameter(pid, cparameter); }
 bool CStateViewBacked::GetToken(const uint256 &id, TokenInfo& token) const { return base->GetToken(id, token); }
-bool CStateViewBacked::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) { return base->GetTokenUtxos(id, tokenUtxos); }
+bool CStateViewBacked::GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos) { return base->GetTokenUtxos(id, tokenUtxos); }
 bool CStateViewBacked::GetNameRecord(const uint256 &id, NameRecordValue& height) const { return base->GetNameRecord(id, height); }
 bool CStateViewBacked::GetNameData(const uint256 &id, NameDataValues& data) { return base->GetNameData(id, data); }
 bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
@@ -105,7 +105,7 @@ bool CStateViewBacked::HaveConsultation(const uint256 &cid) const { return base-
 bool CStateViewBacked::HaveConsultationAnswer(const uint256 &cid) const { return base->HaveConsultationAnswer(cid); }
 bool CStateViewBacked::HaveConsensusParameter(const int &pid) const { return base->HaveConsensusParameter(pid); }
 bool CStateViewBacked::HaveToken(const uint256 &id) const { return base->HaveToken(id); }
-bool CStateViewBacked::HaveTokenUtxo(const TokenId &id) const { return base->HaveTokenUtxo(id); }
+bool CStateViewBacked::HaveTokenUtxo(const uint256 &id) const { return base->HaveTokenUtxo(id); }
 bool CStateViewBacked::HaveNameRecord(const uint256 &id) const { return base->HaveNameRecord(id); }
 bool CStateViewBacked::HaveNameData(const uint256 &id) const { return base->HaveNameData(id); }
 int CStateViewBacked::GetExcludeVotes() const { return base->GetExcludeVotes(); }
@@ -282,7 +282,7 @@ TokenMap::const_iterator CStateViewCache::FetchToken(const uint256 &id) const {
     return ret;
 }
 
-TokenUtxoMap::const_iterator CStateViewCache::FetchTokenUtxos(const TokenId &id) const {
+TokenUtxoMap::const_iterator CStateViewCache::FetchTokenUtxos(const uint256 &id) const {
     TokenUtxoMap::iterator it = cacheTokenUtxos.find(id);
 
     if (it != cacheTokenUtxos.end() && it->second.size() > 0)
@@ -410,7 +410,7 @@ bool CStateViewCache::GetToken(const uint256 &id, TokenInfo &token) const {
     return false;
 }
 
-bool CStateViewCache::GetTokenUtxos(const TokenId &id, TokenUtxoValues &tokenUtxos) {
+bool CStateViewCache::GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos) {
     TokenUtxoMap::const_iterator it = FetchTokenUtxos(id);
     if (it != cacheTokenUtxos.end() && it->second.size() > 0) {
         tokenUtxos = it->second;
@@ -646,7 +646,7 @@ TokenModifier CStateViewCache::ModifyToken(const uint256 &id, int nHeight) {
     return TokenModifier(*this, ret.first, nHeight);
 }
 
-TokenUtxosModifier CStateViewCache::ModifyTokenUtxos(const TokenId &id, int blockHeight) {
+TokenUtxosModifier CStateViewCache::ModifyTokenUtxos(const uint256 &id, int blockHeight) {
     assert(!hasModifier);
     std::pair<TokenUtxoMap::iterator, bool> ret = cacheTokenUtxos.insert(std::make_pair(id, TokenUtxoValues()));
     if (ret.second) {
@@ -814,7 +814,7 @@ bool CStateViewCache::AddToken(const Token& token) const {
     return true;
 }
 
-bool CStateViewCache::AddTokenUtxo(const TokenId& id, const TokenUtxoEntry& utxo) const {
+bool CStateViewCache::AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo) const {
     if (cacheTokenUtxos.count(id)) {
         cacheTokenUtxos[id].erase(
             std::remove_if(cacheTokenUtxos[id].begin(), cacheTokenUtxos[id].end(),
@@ -883,14 +883,14 @@ bool CStateViewCache::RemoveToken(const uint256 &id) const {
 }
 
 bool CStateViewCache::RemoveTokenUtxo(const TokenUtxoKey &key) const {
-    if (!HaveTokenUtxo(key.tokenId))
+    if (!HaveTokenUtxo(key.id))
         return false;
 
-    if (cacheTokenUtxos.count(key.tokenId))
+    if (cacheTokenUtxos.count(key.id))
     {
         TokenUtxoValues temp;
 
-        for (auto& it: cacheTokenUtxos[key.tokenId]) {
+        for (auto& it: cacheTokenUtxos[key.id]) {
             if (it.first == key.blockHeight) {
                 temp.push_back(TokenUtxoEntry(key.blockHeight, TokenUtxoValue()));
             } else {
@@ -898,7 +898,7 @@ bool CStateViewCache::RemoveTokenUtxo(const TokenUtxoKey &key) const {
             }
         }
 
-        cacheTokenUtxos[key.tokenId] = temp;
+        cacheTokenUtxos[key.id] = temp;
     }
 
     return true;
@@ -1038,7 +1038,7 @@ bool CStateViewCache::HaveToken(const uint256 &id) const {
     return (it != cacheTokens.end() && !it->second.IsNull());
 }
 
-bool CStateViewCache::HaveTokenUtxo(const TokenId &id) const {
+bool CStateViewCache::HaveTokenUtxo(const uint256 &id) const {
     TokenUtxoMap::const_iterator it = FetchTokenUtxos(id);
     return (it != cacheTokenUtxos.end() && it->second.size());
 }
@@ -1505,7 +1505,7 @@ TokenUtxosModifier::~TokenUtxosModifier()
 
     if (!(prev == it->second))
     {
-        LogPrint("token", "%s: Modified %stoken utxo %s\n", __func__, blockHeight > 0 ? strprintf("at block height %d ", blockHeight) : "", it->first.token.ToString());
+        LogPrint("token", "%s: Modified %stoken utxo %s\n", __func__, blockHeight > 0 ? strprintf("at block height %d ", blockHeight) : "", it->first.ToString());
     }
 }
 
