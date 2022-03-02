@@ -815,16 +815,21 @@ bool CStateViewCache::AddToken(const Token& token) const {
 }
 
 bool CStateViewCache::AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo) const {
+    LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
     if (cacheTokenUtxos.count(id)) {
+        LogPrint("token", "%s: adding token utxo %s\n", __func__, id.ToString());
         cacheTokenUtxos[id].erase(
             std::remove_if(cacheTokenUtxos[id].begin(), cacheTokenUtxos[id].end(),
                 [&utxo](const TokenUtxoEntry & o) { return o.first == utxo.first && o.second.IsNull(); }),
             cacheTokenUtxos[id].end());
         cacheTokenUtxos[id].push_back(utxo);
     } else {
+        LogPrint("token", "%s: creating token utxo %s\n", __func__, id.ToString());
         cacheTokenUtxos.insert(std::make_pair(id, TokenUtxoValues()));
         cacheTokenUtxos[id].push_back(utxo);
     }
+
+    LogPrint("token", "%s: cacheTokenUtxos.size() %d\n", __func__, cacheTokenUtxos.size());
 
     for (auto &it: cacheTokenUtxos) {
         for (auto &itx: it.second) {
