@@ -6048,7 +6048,16 @@ UniValue listtokens(const UniValue& params, bool fHelp)
                     TokenUtxoValues utxos;
                     if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(it->first, it_.first)), utxos)) {
                         if (utxos.size() > 0) {
-                            auto txout = utxos[utxos.size() - 1].second;
+                            TokenUtxoValue txout;
+                            auto i = utxos.end();
+                            while (i != utxos.begin())
+                            {
+                                --i;
+                                if (!i->second.IsNull()) {
+                                    txout = i->second;
+                                    break;
+                                }
+                            }
                             if (!txout.IsNull()) {
                                 UniValue utxo(UniValue::VOBJ);
                                 utxo.pushKV("n", std::to_string(txout.n));
@@ -6143,7 +6152,16 @@ UniValue gettoken(const UniValue& params, bool fHelp)
             TokenUtxoValues utxos;
             if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(uint256S(params[0].get_str()), it_.first)), utxos)) {
                 if (utxos.size() > 0) {
-                    auto txout = utxos[utxos.size() - 1].second;
+                    TokenUtxoValue txout;
+                    auto i = utxos.end();
+                    while (i != utxos.begin())
+                    {
+                        --i;
+                        if (!i->second.IsNull()) {
+                            txout = i->second;
+                            break;
+                        }
+                    }
                     if (!txout.IsNull()) {
                         UniValue utxo(UniValue::VOBJ);
                         utxo.pushKV("n", std::to_string(txout.n));
