@@ -5014,6 +5014,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (token->nVersion == 1) {
                         auto op = COutPoint(tx.GetHash(), i);
 
+                        if (view.HaveTokenUtxos(tokenIdHash))
+                            LogPrint("token", "%s: We have an old utxo set for token");
+                        else
+                            LogPrint("token", "%s: Fresh utxo set for token");
+
                         if (!view.AddTokenUtxo(tokenIdHash, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
                             return AbortNode(state, "Failed to add token utxo to index");
                     }
