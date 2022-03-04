@@ -41,6 +41,7 @@ static const char DB_EXCLUDE_VOTES = 'X';
 
 static const char DB_TOKENS = 'T';
 static const char DB_NAME_RECORDS = 'n';
+static const char DB_NAME_RECORD_NAMES = 'm';
 static const char DB_NAME_DATA = 'N';
 
 CStateViewDB::CStateViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
@@ -219,6 +220,7 @@ bool CStateViewDB::GetNameData(const uint256& id, NameDataValues& map) {
     return true;
 }
 
+
 bool CStateViewDB::GetAllNameRecords(NameRecordMap &map) {
     map.clear();
 
@@ -236,6 +238,32 @@ bool CStateViewDB::GetAllNameRecords(NameRecordMap &map) {
                 pcursor->Next();
             } else {
                 return error("GetAllNameRecords() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CStateViewDB::GetAllNameRecordNames(NameRecordNameMap &map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_NAME_RECORD_NAMES, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_NAME_RECORD_NAMES) {
+            NameRecordNameValue name;
+            if (pcursor->GetValue(name)) {
+                map.insert(std::make_pair(key.second, name));
+                pcursor->Next();
+            } else {
+                return error("GetAllNameRecordNames() : failed to read value");
             }
         } else {
             break;

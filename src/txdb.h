@@ -135,6 +135,7 @@ public:
     bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
     bool GetAllTokens(TokenMap &map);
     bool GetAllNameRecords(NameRecordMap &map);
+    bool GetAllNameRecordNames(NameRecordNameMap &map);
     int GetExcludeVotes() const;
     CStateViewCursor *Cursor() const;
 };

@@ -5995,19 +5995,25 @@ UniValue listnames(const UniValue& params, bool fHelp)
     if (params.size() == 1 && !params[0].isBool())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
 
-    UniValue ret(UniValue::VARR);
-    /* NameRecordMap mapNames; */
-    /* CStateViewCache view(pcoinsTip); */
+    NameRecordNameMap mapNames;
+    CStateViewCache view(pcoinsTip);
 
-    /* if(view.GetAllNameRecords(mapTokens)) */
-    /* { */
-    /*     for (NameRecordMap::iterator it = mapNames.begin(); it != mapNames.end(); it++) */
-    /*     { */
-    /*         NameRecordValue nameRecord; */
-    /*         if (!view.GetNameRecord(it->first, nameRecord)) */
-    /*             continue; */
-    /*     } */
-    /* } */
+    if(view.GetAllNameRecordNames(mapNames))
+    {
+        for (NameRecordNameMap::iterator it = mapNames.begin(); it != mapNames.end(); it++)
+        {
+            NameRecordNameValue name;
+            if (!view.GetNameRecordName(it->first, name))
+                continue;
+
+            std::string finalName = name.domain + ".nav";
+
+            if (name.subdomain != "")
+                finalName = name.subdomain + "." + finalName;
+
+            LogPrint("token", "%s: finalName %s\n", __func__, finalName);
+        }
+    }
 
     return ret;
 }

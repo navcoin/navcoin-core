@@ -425,7 +425,7 @@ bool CStateViewCache::GetNameRecord(const uint256 &id, NameRecordValue &height) 
 bool CStateViewCache::GetNameRecordName(const uint256 &id, NameRecordNameValue &name) const {
     NameRecordNameMap::const_iterator it = FetchNameRecordName(id);
     if (it != cacheNameRecordNames.end() && !it->second.IsNull()) {
-        height = it->second;
+        name = it->second;
         return true;
     }
 
@@ -541,7 +541,7 @@ bool CStateViewCache::GetAllNameRecordNames(NameRecordNameMap& mapNameRecordName
             mapNameRecordNames.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapNameRecordNames.begin(); it != mapNameRecordNames.end();)
-        it->second == 0 ? mapNameRecordNames.erase(it++) : ++it;
+        it->second.IsNull() ? mapNameRecordNames.erase(it++) : ++it;
 
     return true;
 }
@@ -681,10 +681,10 @@ NameRecordModifier CStateViewCache::ModifyNameRecord(const uint256 &id, int nHei
 
 NameRecordNameModifier CStateViewCache::ModifyNameRecordName(const uint256 &id, int nHeight) {
     assert(!hasModifier);
-    std::pair<NameRecordNameMap::iterator, bool> ret = cacheNameRecordNames.insert(std::make_pair(id, 0));
+    std::pair<NameRecordNameMap::iterator, bool> ret = cacheNameRecordNames.insert(std::make_pair(id, NameRecordNameValue()));
     if (ret.second) {
         if (!base->GetNameRecordName(id, ret.first->second)) {
-            ret.first->second = 0;
+            ret.first->second.SetNull();
         }
     }
     return NameRecordNameModifier(*this, ret.first, nHeight);

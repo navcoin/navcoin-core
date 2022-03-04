@@ -13,10 +13,11 @@
 #include <serialize.h>
 #include <uint256.h>
 
-#include "consensus/dao.h"
-#include "ctokens/ctokens.h"
-#include "dotnav/namerecord.h"
-#include "dotnav/namedata.h"
+#include <consensus/dao.h>
+#include <ctokens/ctokens.h>
+#include <dotnav/namerecord.h>
+#include <dotnav/namerecordname.h>
+#include <dotnav/namedata.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -457,7 +458,7 @@ public:
     bool HaveNameRecord(const uint256 &id) const;
 
     bool GetNameRecordName(const uint256 &id, NameRecordNameValue& name) const;
-    bool GetAllNameRecords(NameRecordNameMap& map);
+    bool GetAllNameRecordNames(NameRecordNameMap& map);
     bool HaveNameRecordName(const uint256 &id) const;
 
     bool GetNameData(const uint256 &id, NameDataValues& data);
@@ -714,6 +715,7 @@ public:
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
     bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetToken(const uint256& pid, TokenInfo& token) const;
+    bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
     bool GetNameRecordName(const uint256& pid, NameRecordNameValue& name) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
