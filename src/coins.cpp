@@ -531,17 +531,32 @@ bool CStateViewCache::GetAllNameRecordNames(NameRecordNameMap& mapNameRecordName
     mapNameRecordNames.clear();
     mapNameRecordNames.insert(cacheNameRecordNames.begin(), cacheNameRecordNames.end());
 
+    LogPrint("dotnav", "%s: first\n", __func__);
+    for (auto& i: mapNameRecordNames) {
+        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, i.second.domain, i.second.subdomain);
+    }
+
     NameRecordNameMap baseMap;
 
     if (!base->GetAllNameRecordNames(baseMap))
         return false;
 
-    for (NameRecordNameMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+    LogPrint("dotnav", "%s: second\n", __func__);
+    for (auto& i: baseMap) {
+        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, i.second.domain, i.second.subdomain);
+    }
+
+    for (auto it = baseMap.begin(); it != baseMap.end(); it++)
         if (!it->second.IsNull())
             mapNameRecordNames.insert(std::make_pair(it->first, it->second));
 
     for (auto it = mapNameRecordNames.begin(); it != mapNameRecordNames.end();)
         it->second.IsNull() ? mapNameRecordNames.erase(it++) : ++it;
+
+    LogPrint("dotnav", "%s: third\n", __func__);
+    for (auto& i: mapNameRecordNames) {
+        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, i.second.domain, i.second.subdomain);
+    }
 
     return true;
 }
@@ -849,10 +864,15 @@ bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
 }
 
 bool CStateViewCache::AddNameRecordName(const NameRecordName& name) const {
+    LogPrint("dotnav", "%s: CALLED!!!\n", __func__);
     if (cacheNameRecordNames.count(name.first))
         cacheNameRecordNames[name.first]=name.second;
     else
         cacheNameRecordNames.insert(std::make_pair(name.first, name.second));
+
+    for (auto& i: cacheNameRecordNames) {
+        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, i.second.domain, i.second.subdomain);
+    }
 
     return true;
 }

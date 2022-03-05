@@ -6002,16 +6002,12 @@ UniValue listnames(const UniValue& params, bool fHelp)
     {
         for (NameRecordNameMap::iterator it = mapNames.begin(); it != mapNames.end(); it++)
         {
-            NameRecordNameValue name;
-            if (!view.GetNameRecordName(it->first, name))
-                continue;
+            std::string finalName = it->second.domain;
 
-            std::string finalName = name.domain + ".nav";
+            if (it->second.subdomain != "")
+                finalName = it->second.subdomain + "." + finalName;
 
-            if (name.subdomain != "")
-                finalName = name.subdomain + "." + finalName;
-
-            LogPrint("dotnav", "%s: finalName %s\n", __func__, finalName);
+            ret.push_back(finalName);
         }
     }
 

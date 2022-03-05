@@ -497,6 +497,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
     }
 
     for (NameRecordNameMap::iterator it = mapNameRecordNames.begin(); it != mapNameRecordNames.end();) {
+        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, it->second.domain, it->second.subdomain);
         if (it->second.IsNull()) {
             batch.Erase(std::make_pair(DB_NAME_RECORD_NAMES, it->first));
         } else {
