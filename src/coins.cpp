@@ -849,9 +849,6 @@ bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
 }
 
 bool CStateViewCache::AddNameRecordName(const NameRecordName& name) const {
-    if (HaveNameRecordName(name.first))
-        return false;
-
     if (cacheNameRecordNames.count(name.first))
         cacheNameRecordNames[name.first]=name.second;
     else

@@ -4907,6 +4907,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
                             }
 
+                            view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
+
                             LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         } else if (program.action == RENEW_NAME) {
                             if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))

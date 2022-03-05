@@ -6011,7 +6011,7 @@ UniValue listnames(const UniValue& params, bool fHelp)
             if (name.subdomain != "")
                 finalName = name.subdomain + "." + finalName;
 
-            LogPrint("token", "%s: finalName %s\n", __func__, finalName);
+            LogPrint("dotnav", "%s: finalName %s\n", __func__, finalName);
         }
     }
 

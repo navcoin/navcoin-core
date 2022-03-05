@@ -381,7 +381,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
-                              TokenMap &mapTokens, NameRecordMap &mapNameRecords,
+                              TokenMap &mapTokens, NameRecordMap &mapNameRecords, NameRecordNameMap &mapNameRecordNames,
                               NameDataMap& mapNameData,
                               const uint256 &hashBlock, const int &nExcludeVotes) {
 
@@ -494,6 +494,16 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         NameRecordMap::iterator itOld = it++;
         mapNameRecords.erase(itOld);
+    }
+
+    for (NameRecordNameMap::iterator it = mapNameRecordNames.begin(); it != mapNameRecordNames.end();) {
+        if (it->second.IsNull()) {
+            batch.Erase(std::make_pair(DB_NAME_RECORD_NAMES, it->first));
+        } else {
+            batch.Write(std::make_pair(DB_NAME_RECORD_NAMES, it->first), it->second);
+        }
+        NameRecordNameMap::iterator itOld = it++;
+        mapNameRecordNames.erase(itOld);
     }
 
     for (NameDataMap::iterator it = mapNameData.begin(); it != mapNameData.end();) {

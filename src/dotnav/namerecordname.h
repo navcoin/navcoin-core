@@ -18,7 +18,7 @@ public:
         SetNull();
     }
 
-    NameRecordNameValue(const std::string domain_, const std::string subdomain_) {
+    NameRecordNameValue(const std::string& domain_, const std::string& subdomain_) {
         domain = domain_;
         subdomain = subdomain_;
     };

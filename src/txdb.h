@@ -126,7 +126,7 @@ public:
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                     CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
-                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
+                    NameRecordMap& mapNameRecords, NameRecordNameMap& mapNameRecordNames, NameDataMap& mapNameData,
                     const uint256 &hashBlock, const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
