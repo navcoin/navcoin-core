@@ -137,7 +137,7 @@ function copy_array {
 
 
 function nav_cli {
-	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet -nftindex=1 $2 $3 $4 $5 $6 2> /dev/null
+	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet $2 $3 $4 $5 $6 2> /dev/null
 }
 
 function terminate {
@@ -819,7 +819,7 @@ function random_verifychain_check {
 }
 
 function start_node {
-        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -daemon -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 2> /dev/null
+        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -daemon -nftindex=1 -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 2> /dev/null
 #       gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 > out.gdb &
 }
 
