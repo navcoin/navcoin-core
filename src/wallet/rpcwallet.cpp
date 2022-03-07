@@ -5988,23 +5988,20 @@ UniValue listtokens(const UniValue& params, bool fHelp)
 {
     if (fHelp)
         throw std::runtime_error(
-                "listtokens (mine) (with_utxo)\n"
+                "listtokens (mine)\n"
                 "\nList the confidential tokens.\n"
 
                 "\nArguments:\n"
                 "1. mine          (boolean, optional, default=false) Show only owned tokens\n"
-                "2. with_utxo     (boolean, optional, default=false) Show last utxo for nfts\n"
 
                 "\nExamples:\n"
                 + HelpExampleCli("listtokens", "")
                 + HelpExampleCli("listtokens", "true")
-                + HelpExampleCli("listtokens", "true true")
                 );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     bool fMine = params[0].getBool();
-    bool fWithUtxo = params.size() > 1 ? params[1].getBool() : false;
 
     UniValue ret(UniValue::VARR);
     TokenMap mapTokens;
@@ -6018,7 +6015,9 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             if (!view.GetToken(it->first, token))
                 continue;
 
-            int64_t balance = 0;
+            // Check for regular tokens
+            if (it->second.nVersion != 0)
+                continue;
 
             UniValue o(UniValue::VOBJ);
             o.pushKV("version", it->second.nVersion);
@@ -6028,51 +6027,7 @@ UniValue listtokens(const UniValue& params, bool fHelp)
             o.pushKV(it->second.nVersion == 0 ? "token_code" : "scheme", it->second.sDesc);
             o.pushKV("current_supply", it->second.nVersion == 0 ? FormatMoney(it->second.currentSupply) : std::to_string(it->second.mapMetadata.size()));
             o.pushKV("max_supply", it->second.nVersion == 0 ? FormatMoney(it->second.totalSupply) : std::to_string(it->second.totalSupply));
-            if (it->second.nVersion == 0)
-            {
-                balance += pwalletMain->GetPrivateBalance(TokenId(it->first, -1));
-                o.pushKV("balance", FormatMoney(balance));
-            }
-            else if (it->second.nVersion == 1)
-            {
-                UniValue a(UniValue::VARR);
-
-                for (auto& it_: it->second.mapMetadata) {
-                    UniValue n(UniValue::VOBJ);
-                    n.pushKV("index", it_.first);
-                    n.pushKV("metadata", it_.second);
-                    int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first));
-                    n.pushKV("balance", std::to_string(tempBalance));
-                    balance += tempBalance;
-
-                    TokenUtxoValues utxos;
-                    if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(it->first, it_.first)), utxos)) {
-                        if (utxos.size() > 0) {
-                            TokenUtxoValue txout;
-                            auto i = utxos.end();
-                            while (i != utxos.begin())
-                            {
-                                --i;
-                                if (!i->second.IsNull()) {
-                                    txout = i->second;
-                                    break;
-                                }
-                            }
-                            if (!txout.IsNull()) {
-                                UniValue utxo(UniValue::VOBJ);
-                                utxo.pushKV("n", std::to_string(txout.n));
-                                utxo.pushKV("hash", txout.hash.ToString());
-                                utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
-                                n.pushKV("utxo", utxo);
-                            }
-                        }
-                    }
-
-                    a.push_back(n);
-                }
-
-                o.pushKV("nfts", a);
-            }
+            o.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(TokenId(it->first, -1))));
 
             // Is this token ours?
             bool fTokenIsMine = false;
@@ -6101,6 +6056,117 @@ UniValue listtokens(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listnfts(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "listnfts (mine) (with_utxo)\n"
+                "\nList the confidential tokens.\n"
+
+                "\nArguments:\n"
+                "1. mine          (boolean, optional, default=false) Show only owned tokens\n"
+                "2. with_utxo     (boolean, optional, default=false) Show last utxo for nfts\n"
+
+                "\nExamples:\n"
+                + HelpExampleCli("listnfts", "")
+                + HelpExampleCli("listnfts", "true")
+                + HelpExampleCli("listnfts", "true true")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    bool fMine = params[0].getBool();
+    bool fWithUtxo = params.size() > 1 ? params[1].getBool() : false;
+
+    UniValue ret(UniValue::VARR);
+    TokenMap mapTokens;
+    CStateViewCache view(pcoinsTip);
+
+    if(view.GetAllTokens(mapTokens))
+    {
+        for (TokenMap::iterator it = mapTokens.begin(); it != mapTokens.end(); it++)
+        {
+            TokenInfo token;
+            if (!view.GetToken(it->first, token))
+                continue;
+
+            // Check for nft
+            if (it->second.nVersion != 1)
+                continue;
+
+            UniValue o(UniValue::VOBJ);
+            o.pushKV("version", it->second.nVersion);
+            o.pushKV("id", it->first.ToString());
+            o.pushKV("pubkey", HexStr(it->second.key.Serialize()));
+            o.pushKV("name", it->second.sName);
+            o.pushKV(it->second.nVersion == 0 ? "token_code" : "scheme", it->second.sDesc);
+            o.pushKV("current_supply", it->second.nVersion == 0 ? FormatMoney(it->second.currentSupply) : std::to_string(it->second.mapMetadata.size()));
+            o.pushKV("max_supply", it->second.nVersion == 0 ? FormatMoney(it->second.totalSupply) : std::to_string(it->second.totalSupply));
+
+            UniValue a(UniValue::VARR);
+
+            for (auto& it_: it->second.mapMetadata) {
+                UniValue n(UniValue::VOBJ);
+                n.pushKV("index", it_.first);
+                n.pushKV("metadata", it_.second);
+                n.pushKV("balance", pwalletMain->GetPrivateBalance(TokenId(it->first, it_.first)));
+
+                TokenUtxoValues utxos;
+                if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(it->first, it_.first)), utxos)) {
+                    if (utxos.size() > 0) {
+                        TokenUtxoValue txout;
+                        auto i = utxos.end();
+                        while (i != utxos.begin())
+                        {
+                            --i;
+                            if (!i->second.IsNull()) {
+                                txout = i->second;
+                                break;
+                            }
+                        }
+                        if (!txout.IsNull()) {
+                            UniValue utxo(UniValue::VOBJ);
+                            utxo.pushKV("n", std::to_string(txout.n));
+                            utxo.pushKV("hash", txout.hash.ToString());
+                            utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
+                            n.pushKV("utxo", utxo);
+                        }
+                    }
+                }
+
+                a.push_back(n);
+            }
+
+            o.pushKV("nfts", a);
+
+            // Is this token ours?
+            bool fTokenIsMine = false;
+
+            blsctKey pk;
+            if (!pwalletMain->GetBLSCTTokenKey(it->second.key, pk))
+            {
+                blsctKey sk;
+
+                if (!pwalletMain->GetBLSCTSpendKey(sk))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+                pk = sk.PrivateChildHash(SerializeHash("nft/"+it->second.sName+it->second.sDesc));
+
+                pwalletMain->AddBLSCTTokenKey(pk);
+            }
+
+            if (pk.GetG1Element() == it->second.key)
+                fTokenIsMine = true;
+
+            o.pushKV("is_mine", fTokenIsMine);
+            if (!fMine || (fMine && fTokenIsMine))
+                ret.push_back(o);
+        }
+    }
+
+    return ret;
+}
+
 UniValue gettoken(const UniValue& params, bool fHelp)
 {
     if (fHelp)
@@ -6124,7 +6190,8 @@ UniValue gettoken(const UniValue& params, bool fHelp)
     if (!view.GetToken(uint256S(params[0].get_str()), token))
         return ret;
 
-    int64_t balance = 0;
+    if (token.nVersion != 0)
+        return ret;
 
     ret.pushKV("version", token.nVersion);
     ret.pushKV("id", params[0].get_str());
@@ -6133,49 +6200,84 @@ UniValue gettoken(const UniValue& params, bool fHelp)
     ret.pushKV(token.nVersion == 0 ? "token_code" : "scheme", token.sDesc);
     ret.pushKV("current_supply", token.nVersion == 0 ? FormatMoney(token.currentSupply) : std::to_string(token.mapMetadata.size()));
     ret.pushKV("max_supply", token.nVersion == 0 ? FormatMoney(token.totalSupply) : std::to_string(token.totalSupply));
-    if (token.nVersion == 0)
-    {
-        balance += pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), -1));
-        ret.pushKV("balance", FormatMoney(balance));
-    }
-    else if (token.nVersion == 1)
-    {
-        UniValue a(UniValue::VARR);
-        for (auto& it_: token.mapMetadata) {
-            UniValue n(UniValue::VOBJ);
-            n.pushKV("index", it_.first);
-            n.pushKV("metadata", it_.second);
-            int64_t tempBalance = pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), it_.first));
-            n.pushKV("balance", std::to_string(tempBalance));
-            balance += tempBalance;
+    ret.pushKV("balance", FormatMoney(pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), -1))));
 
-            TokenUtxoValues utxos;
-            if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(uint256S(params[0].get_str()), it_.first)), utxos)) {
-                if (utxos.size() > 0) {
-                    TokenUtxoValue txout;
-                    auto i = utxos.end();
-                    while (i != utxos.begin())
-                    {
-                        --i;
-                        if (!i->second.IsNull()) {
-                            txout = i->second;
-                            break;
-                        }
-                    }
-                    if (!txout.IsNull()) {
-                        UniValue utxo(UniValue::VOBJ);
-                        utxo.pushKV("n", std::to_string(txout.n));
-                        utxo.pushKV("hash", txout.hash.ToString());
-                        utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
-                        n.pushKV("utxo", utxo);
+    return ret;
+}
+
+UniValue getnft(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "getnft hash (subid) (with_utxo)\n"
+                "\nShows information about a token.\n"
+
+                + HelpExampleCli("getnft", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f")
+                + HelpExampleCli("getnft", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f 1")
+                + HelpExampleCli("getnft", "90fc7410164a466b78096967ec948fcc13142b0f5fb4397462304c517840d74f 1 true")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VOBJ);
+
+    CStateViewCache view(pcoinsTip);
+
+    TokenInfo token;
+    if (!view.GetToken(uint256S(params[0].get_str()), token))
+        return ret;
+
+    if (token.nVersion != 1)
+        return ret;
+
+    int64_t nSubid = params.size() > 1 ? params[1].get_int() : -1;
+
+    bool fWithUtxo = params.size() > 2 ? params[2].getBool() : false;
+
+    ret.pushKV("version", token.nVersion);
+    ret.pushKV("id", params[0].get_str());
+    ret.pushKV("pubkey", HexStr(token.key.Serialize()));
+    ret.pushKV("name", token.sName);
+    ret.pushKV(token.nVersion == 0 ? "token_code" : "scheme", token.sDesc);
+    ret.pushKV("current_supply", token.nVersion == 0 ? FormatMoney(token.currentSupply) : std::to_string(token.mapMetadata.size()));
+    ret.pushKV("max_supply", token.nVersion == 0 ? FormatMoney(token.totalSupply) : std::to_string(token.totalSupply));
+    UniValue a(UniValue::VARR);
+    for (auto& it_: token.mapMetadata) {
+        if (nSubid > -1 && it_.first != nSubid)
+            continue;
+
+        UniValue n(UniValue::VOBJ);
+        n.pushKV("index", it_.first);
+        n.pushKV("metadata", it_.second);
+        n.pushKV("balance", pwalletMain->GetPrivateBalance(TokenId(uint256S(params[0].get_str()), it_.first)));
+
+        TokenUtxoValues utxos;
+        if (fWithUtxo && view.GetTokenUtxos(SerializeHash(TokenId(uint256S(params[0].get_str()), it_.first)), utxos)) {
+            if (utxos.size() > 0) {
+                TokenUtxoValue txout;
+                auto i = utxos.end();
+                while (i != utxos.begin())
+                {
+                    --i;
+                    if (!i->second.IsNull()) {
+                        txout = i->second;
+                        break;
                     }
                 }
+                if (!txout.IsNull()) {
+                    UniValue utxo(UniValue::VOBJ);
+                    utxo.pushKV("n", std::to_string(txout.n));
+                    utxo.pushKV("hash", txout.hash.ToString());
+                    utxo.pushKV("spendingKey", HexStr(txout.spendingKey));
+                    n.pushKV("utxo", utxo);
+                }
             }
-
-            a.push_back(n);
         }
-        ret.pushKV("nfts", a);
+
+        a.push_back(n);
     }
+
+    ret.pushKV("nfts", a);
 
     return ret;
 }
@@ -6224,7 +6326,9 @@ static const CRPCCommand commands[] =
   { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
   { "wallet",             "listprivateaddresses",     &listprivateaddresses,     true  },
   { "wallet",             "listtokens",               &listtokens,               true  },
+  { "wallet",             "listnfts",                 &listnfts,                 true  },
   { "wallet",             "gettoken",                 &gettoken,                 true  },
+  { "wallet",             "getnft",                   &getnft,                   true  },
   { "wallet",             "getbalance",               &getbalance,               false },
   { "wallet",             "getnewaddress",            &getnewaddress,            true  },
   { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
