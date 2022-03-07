@@ -643,11 +643,11 @@ function dice_mint_nft {
                 shuffle_array "${array_stressing_nodes[@]}"
                 node=${shuffled_array[0]}
 		node_receive=${shuffled_array[1]}
-		nfts=($(nav_cli $node listtokens | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
+		nfts=($(nav_cli $node listnfts | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
 		random_scheme=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 100)
 		for n in ${nfts[@]}
 		do
-			nft_id=$(nav_cli $node listtokens | jq ".[] | select(.id==\"$n\") | .current_supply" | tr -d '"')
+			nft_id=$(nav_cli $node listnfts | jq ".[] | select(.id==\"$n\") | .current_supply" | tr -d '"')
 #			echo 'nft_id = ' $nft_id
 			out=$(nav_cli $node mintnft $n $nft_id ${array_private_address[$node_receive]} $random_scheme)
 			if [ ! -z $out ]
@@ -662,14 +662,14 @@ function dice_send_nft {
 	dice=$(bc <<< "$RANDOM % 100")
         if [ $dice -lt 90 ];
         then
-		nfts=($(nav_cli $node listtokens | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
+		nfts=($(nav_cli $node listnfts | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
 		for n in ${array_stressing_nodes[@]}
 		do
 	                for t in ${nfts[@]}
 	                do
 		                shuffle_array "${array_stressing_nodes[@]}"
 		                node_receive=${shuffled_array[0]}
-				nftid=$(nav_cli $node listtokens | jq ".[] | select(.id==\"$t\") | .nfts | .[] | select(.balance==\"1\") | .index" | shuf -n 1)
+				nftid=$(nav_cli $node listnfts | jq ".[] | select(.id==\"$t\") | .nfts | .[] | select(.balance==\"1\") | .index" | shuf -n 1)
 #				echo 'nftid= ' $nftid
 				out=$(nav_cli $n sendnft $t $nftid ${array_private_address[$node_receive]})
 				if [ ! -z $out ]
@@ -1105,7 +1105,8 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 	shuffle_array "${array_stressing_nodes[@]}"
 	node=${shuffled_array[0]}
 	echo Current block: $current_block Current cycle: $this_cycle - $cycles_left cycle\(s\) left to finish.
-	echo Tokens and NFTs created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+	echo Tokens created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+	echo NFTs created: $(nav_cli $node listnfts  | jq ".[].name" |  wc -l)
 	echo Active nodes: ${array_active_nodes[@]} Inactive nodes: ${array_stopped_nodes[@]}
 #	for j in $(seq 0 1 $( bc <<< "$node_count-1"));
 #	do
@@ -1189,7 +1190,8 @@ then
 			node=${shuffled_array[0]}
 			check_consensus_parameters $node
 			blocks=$(nav_cli $node getinfo|jq .blocks)
-			echo Tokens and NFTs created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+			echo Tokens created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+			echo NFTs created: $(nav_cli $node listnfts  | jq ".[].name" |  wc -l)
 		done
 		cycles_left=$(bc <<< "$wait_until_cycle - $this_cycle")
 		previous_block=$current_block
@@ -1236,7 +1238,8 @@ echo ''
 echo Waiting until all nodes are synced
 wait_until_sync "${array_active_nodes[@]}"
 echo Ok! Block: $(nav_cli $node getinfo|jq .blocks) Cycle: $(bc <<< $(nav_cli $node getinfo|jq .blocks)/$voting_cycle_length).
-echo Tokens and NFTs created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+echo Tokens created: $(nav_cli $node listtokens  | jq ".[].name" |  wc -l)
+echo NFTs created: $(nav_cli $node listnfts  | jq ".[].name" |  wc -l)
 
 echo ''
 echo Running verifychain test with node ${verifychain_nodes[@]}...
