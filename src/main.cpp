@@ -2991,6 +2991,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
                             view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
                             LogPrint("dotnav", "%s: removing name data for %s %d\n", __func__, program.sParameters[0], pindex->nHeight);
+
+                            if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
+                                view.RemoveNameRecordName(DotNav::GetHashName(program.sParameters[0]));
                         }
                     }
                 } catch(...) {
@@ -4907,9 +4910,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, strprintf("could-not-verify-written-data:%s", program.sParameters[0]));
                             }
 
-                            LogPrint("dotnav", "%s: AddNameRecordName() called!!!\n", __func__);
-                            view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
-
                             LogPrint("dotnav", "%s: updated name first %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         } else if (program.action == RENEW_NAME) {
                             if (!(vout.scriptPubKey.IsCommunityFundContribution() && vout.nValue >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_NAVNS_FEE, view)))
@@ -4971,6 +4971,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             }
 
                             LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
+                        }
+
+                        if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
+                            if (!view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[0])))
+                                view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
                         }
                     }
                 } catch(...) {
