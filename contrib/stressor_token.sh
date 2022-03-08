@@ -485,8 +485,8 @@ function wait_until_sync {
     for i in ${local_array[@]};
     do
         local_array_best_hash[$i]=$(nav_cli $i getbestblockhash)
-        echo best block hash of node $i:
-        echo "$(nav_cli $i getbestblockhash)"
+        echo best block hash of node $i: $(nav_cli $i getbestblockhash)
+        echo best block height of node $i: $(nav_cli $i getblockcount)
     done
     if [ $(printf "%s\n" "${local_array_best_hash[@]}" | LC_CTYPE=C sort -z -u | uniq | grep -n -c .) -gt 1 ];
     then
@@ -563,7 +563,6 @@ function dice_mint_token {
         node=${shuffled_array[0]}
         node_receive=${shuffled_array[1]}
         tokens=($(nav_cli $node listtokens | jq '.[] | select(.version==0) | .id' | tr "\n" " " | tr -d '"'))
-        echo $tokens
         for t in ${tokens[@]}
         do
             amount=$(openssl rand 4 | od -DAn)
@@ -581,7 +580,6 @@ function dice_send_token {
     if [ $dice -lt 80 ];
     then
         tokens=($(nav_cli $node listtokens | jq '.[] | select(.version==0) | .id' | tr "\n" " " | tr -d '"'))
-        echo $tokens
         for n in ${array_stressing_nodes[@]}
         do
             for t in ${tokens[@]}
@@ -605,7 +603,6 @@ function dice_burn_token {
     if [ $dice -lt 50 ];
     then
         tokens=($(nav_cli $node listtokens | jq '.[] | select(.version==0) | .id' | tr "\n" " " | tr -d '"'))
-        echo $tokens
         for n in ${array_stressing_nodes[@]}
         do
             for t in ${tokens[@]}
@@ -647,7 +644,6 @@ function dice_mint_nft {
         node=${shuffled_array[0]}
         node_receive=${shuffled_array[1]}
         nfts=($(nav_cli $node listnfts | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
-        echo $nfts
         random_scheme=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 100)
         for n in ${nfts[@]}
         do
@@ -667,7 +663,6 @@ function dice_send_nft {
     if [ $dice -lt 90 ];
     then
         nfts=($(nav_cli $node listnfts | jq '.[] | select(.version==1) | .id' | tr "\n" " " | tr -d '"'))
-        echo $nfts
         for n in ${array_stressing_nodes[@]}
         do
             for t in ${nfts[@]}
