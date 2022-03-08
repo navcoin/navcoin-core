@@ -485,8 +485,7 @@ function wait_until_sync {
     for i in ${local_array[@]};
     do
         local_array_best_hash[$i]=$(nav_cli $i getbestblockhash)
-        echo best block hash of node $i: $(nav_cli $i getbestblockhash)
-        echo best block height of node $i: $(nav_cli $i getblockcount)
+        echo best block hash/height of node $i: $(nav_cli $i getblockcount) $(nav_cli $i getbestblockhash)
     done
     if [ $(printf "%s\n" "${local_array_best_hash[@]}" | LC_CTYPE=C sort -z -u | uniq | grep -n -c .) -gt 1 ];
     then
@@ -852,7 +851,7 @@ function random_verifychain_check {
 }
 
 function start_node {
-    $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -daemon -nftindex=1 -debug=dao -debug=statehash -ntpminmeasures=-1 -dandelion=0 -disablesafemode -staking=0 2> /dev/null
+    $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -daemon -nftindex -debug=dao -debug=statehash -ntpminmeasures=-1 -dandelion=0 -disablesafemode -staking=0 2> /dev/null
     #       gdb -batch -ex "run" -ex "bt" --args $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -debug=dao -debug=statehash -ntpminmeasures=-1 -dandelion=0 -disablesafemode -staking=0 > out.gdb &
 }
 
