@@ -78,6 +78,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fVerifyChain = false;
 bool fTxIndex = false;
+bool fNftIndex = false;
 bool fAddressIndex = false;
 bool fTimestampIndex = false;
 bool fSpentIndex = false;
@@ -2871,6 +2872,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
+    std::vector<std::pair<TokenUtxoKey, TokenUtxoValue> > tokenUtxoIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
@@ -2924,8 +2926,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     {
                         return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
                     }
-                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view))
-                    {
+                    if (GetConsensusParameter(Consensus::CONSENSUS_PARAMS_CONFIDENTIAL_TOKENS_ENABLED, view)) {
                         if (program.action == MINT)
                         {
                             auto tokenId = SerializeHash(program.kParameters[0]);
@@ -2982,6 +2983,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             token->canMint = true;
                         }
                     }
+
                     if (fDotNav)
                     {
                         if (program.action == REGISTER_NAME) {
@@ -2998,6 +3000,24 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     }
                 } catch(...) {
                     return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                }
+            }
+
+            if (fNftIndex) {
+                auto tokenId = txout.tokenId.token;
+
+                if (view.HaveToken(tokenId))
+                {
+                    TokenModifier token = view.ModifyToken(tokenId);
+
+                    auto tokenIdHash = SerializeHash(txout.tokenId);
+
+                    // Check if we have an nft
+                    if (token->nVersion == 1) {
+                        if (view.HaveTokenUtxos(tokenIdHash))
+                            if (!view.RemoveTokenUtxo(TokenUtxoKey(tokenIdHash, pindex->nHeight)))
+                                return AbortNode(state, "Failed to remove token utxo from index");
+                    }
                 }
             }
         }
@@ -4036,6 +4056,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressHistoryKey, CAddressHistoryValue> > addressHistory;
     std::map<CAddressHistoryKey, CAddressHistoryValue> addressHistoryMap;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
+    std::vector<std::pair<TokenUtxoKey, TokenUtxoValue> > tokenUtxoIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
@@ -4750,8 +4771,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         bool fDotNav = IsDotNavEnabled(pindex->pprev, Params().GetConsensus());
 
-        for(const CTxOut& vout: tx.vout)
+
+        for (unsigned int i = 0; i < tx.vout.size(); i++)
         {
+            const CTxOut& vout = tx.vout[i];
+
             if(vout.IsCommunityFundContribution())
             {
                 fContribution=true;
@@ -4871,7 +4895,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 return state.DoS(100, false, REJECT_INVALID, strprintf("wrong-salt-name:%s", program.sParameters[0]));
 
                             if (pindex->nHeight-recordvalue.height < 6)
-                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));                            NameDataValues data;
+                                return state.DoS(100, false, REJECT_INVALID, strprintf("6-block-maturity-not-reached:%s", program.sParameters[0]));
+
+                            NameDataValues data;
 
                             if (view.GetNameData(DotNav::GetHashName(program.sParameters[0]), data))
                             {
@@ -4980,6 +5006,30 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     }
                 } catch(...) {
                     return state.DoS(100, false, REJECT_INVALID, "error-program-vdata");
+                }
+            }
+
+            if (fNftIndex) {
+                auto tokenId = vout.tokenId.token;
+
+                if (view.HaveToken(tokenId))
+                {
+                    TokenModifier token = view.ModifyToken(tokenId);
+
+                    auto tokenIdHash = SerializeHash(vout.tokenId);
+
+                    // Check if we have an nft
+                    if (token->nVersion == 1) {
+                        auto op = COutPoint(tx.GetHash(), i);
+
+                        if (view.HaveTokenUtxos(tokenIdHash))
+                            LogPrint("token", "%s: We have an old utxo set for token");
+                        else
+                            LogPrint("token", "%s: Fresh utxo set for token");
+
+                        if (!view.AddTokenUtxo(tokenIdHash, std::make_pair(pindex->nHeight, TokenUtxoValue(op.hash, vout.spendingKey, op.n))))
+                            return AbortNode(state, "Failed to add token utxo to index");
+                    }
                 }
             }
         }
@@ -7306,6 +7356,10 @@ bool static LoadBlockIndexDB()
     pblocktree->ReadFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
 
+    // Check whether we have an nft index
+    pblocktree->ReadFlag("nftindex", fNftIndex);
+    LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
+
     // Check whether we have an address index
     pblocktree->ReadFlag("addressindex", fAddressIndex);
     LogPrintf("%s: address index %s\n", __func__, fAddressIndex ? "enabled" : "disabled");
@@ -7729,19 +7783,24 @@ bool InitBlockIndex(const CChainParams& chainparams)
 
     // Load the flag values | use DEFAULT_* values if not set
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+    fNftIndex = GetBoolArg("-nftindex", DEFAULT_NFTINDEX);
     fAddressIndex = GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX);
     fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
     fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
 
     // Check if we want all indexes
-    if (GetBoolArg("-allindex", false))
+    if (GetBoolArg("-allindex", DEFAULT_ALLINDEX))
     {
-        fTxIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
+        fTxIndex = fNftIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
     }
 
     // Use the provided setting for -txindex in the new database
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
+
+    // Use the provided setting for -nftindex in the new database
+    pblocktree->WriteFlag("nftindex", fNftIndex);
+    LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -addressindex in the new database
     pblocktree->WriteFlag("addressindex", fAddressIndex);

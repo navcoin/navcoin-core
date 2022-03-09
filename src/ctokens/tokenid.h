@@ -17,6 +17,10 @@ public:
 
     TokenId(const uint256& t = uint256(), const uint64_t& i = -1) : token(t), subid(i){}
 
+    void SetNull() { token = uint256(); subid = -1; }
+
+    bool IsNull() const { return token == uint256() && subid == -1; }
+
     friend bool operator==(const TokenId& a, const TokenId& b) { return a.token == b.token && a.subid == b.subid; }
 
     friend bool operator<(const TokenId& a, const TokenId& b) {

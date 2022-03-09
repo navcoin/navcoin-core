@@ -113,7 +113,9 @@ public:
     bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
     bool HaveConsensusParameter(const int &pid) const;
     bool GetToken(const uint256 &id, TokenInfo &token) const;
+    bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect);
     bool HaveToken(const uint256 &id) const;
+    bool HaveTokenUtxos(const uint256 &id) const;
 
     bool GetNameRecord(const uint256 &id, NameRecordValue &height) const;
     bool HaveNameRecord(const uint256 &id) const;
@@ -125,7 +127,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens,
+                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap &mapTokenUtxos,
                     NameRecordMap& mapNameRecords, NameRecordNameMap& mapNameRecordNames, NameDataMap& mapNameData,
                     const uint256 &hashBlock, const int &nExcludeVotes);
     bool GetAllProposals(CProposalMap& map);
