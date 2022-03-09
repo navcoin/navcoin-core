@@ -40,6 +40,7 @@ static const char DB_LAST_BLOCK = 'l';
 static const char DB_EXCLUDE_VOTES = 'X';
 
 static const char DB_TOKENS = 'T';
+static const char DB_TOKEN_UTXO = 'Z';
 static const char DB_NAME_RECORDS = 'n';
 static const char DB_NAME_DATA = 'N';
 
@@ -67,8 +68,42 @@ bool CStateViewDB::GetToken(const uint256 &id, TokenInfo &token) const {
     return db.Read(std::make_pair(DB_TOKENS, id), token);
 }
 
+bool CStateViewDB::GetTokenUtxos(const uint256 &id, TokenUtxoValues &vect) {
+    vect.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_TOKEN_UTXO, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, TokenUtxoKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_TOKEN_UTXO) {
+            if (key.second.id == id) {
+                TokenUtxoValue data;
+                if (pcursor->GetValue(data)) {
+                    vect.push_back(std::make_pair(key.second.blockHeight, data));
+                    pcursor->Next();
+                } else {
+                    return error("GetTokenUtxos() : failed to read value");
+                }
+            } else {
+                pcursor->Next();
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CStateViewDB::HaveToken(const uint256 &id) const {
     return db.Exists(std::make_pair(DB_TOKENS, id));
+}
+
+bool CStateViewDB::HaveTokenUtxos(const uint256 &id) const {
+    return db.Exists(std::make_pair(DB_TOKEN_UTXO, id));
 }
 
 bool CStateViewDB::GetNameRecord(const uint256 &id, NameRecordValue &height) const {
@@ -353,7 +388,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               CConsensusParameterMap &mapConsensus,
-                              TokenMap &mapTokens, NameRecordMap &mapNameRecords,
+                              TokenMap &mapTokens, TokenUtxoMap &mapTokenUtxos, NameRecordMap &mapNameRecords,
                               NameDataMap& mapNameData,
                               const uint256 &hashBlock, const int &nExcludeVotes) {
 
@@ -456,6 +491,23 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         TokenMap::iterator itOld = it++;
         mapTokens.erase(itOld);
+    }
+
+    for (TokenUtxoMap::iterator it = mapTokenUtxos.begin(); it != mapTokenUtxos.end();) {
+        if (it->second.size() == 0) {
+            batch.Erase(std::make_pair(DB_TOKEN_UTXO, it->first));
+        } else {
+            for (auto &it2: it->second) {
+                if (it2.second.IsNull())
+                {
+                    batch.Erase(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)));
+                } else {
+                    batch.Write(std::make_pair(DB_TOKEN_UTXO, TokenUtxoKey(it->first, it2.first)), it2.second);
+                }
+            }
+        }
+        TokenUtxoMap::iterator itOld = it++;
+        mapTokenUtxos.erase(itOld);
     }
 
     for (NameRecordMap::iterator it = mapNameRecords.begin(); it != mapNameRecords.end();) {

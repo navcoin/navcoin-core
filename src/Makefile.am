@@ -333,6 +333,7 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/programs.h \
   consensus/program_actions.h \
   ctokens/ctokens.h \
+  ctokens/tokenutxos.h \
   ctokens/tokenid.h \
   dotnav/namedata.h \
   dotnav/namerecord.h \
