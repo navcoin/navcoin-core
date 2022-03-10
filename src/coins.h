@@ -412,12 +412,21 @@ public:
 
     //! Do a bulk modification (multiple CCoins changes + BestBlock change).
     //! The passed mapCoins can be modified.
-    virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                            CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                            CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                            NameRecordMap& mapNameRecords, NameRecordNameMap& mapNameRecordNames, NameDataMap& mapNameData,
-                            const uint256 &hashBlock, const int &nCacheExcludeVotes);
+    virtual bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlock,
+            const int &nCacheExcludeVotes);
 
     //! Get a cursor to iterate over the whole state
     virtual CStateViewCursor *Cursor() const;
@@ -477,12 +486,21 @@ public:
 
     uint256 GetBestBlock() const;
     void SetBackend(CStateView &viewIn);
-    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                    NameRecordMap& mapNameRecords, NameRecordNameMap& mapNameRecordNames, NameDataMap& mapNameData,
-                    const uint256 &hashBlock, const int &nCacheExcludeVotes);
+    bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlock,
+            const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
 };
 
@@ -756,12 +774,21 @@ public:
     bool GetAnswersForConsultation(CConsultationAnswerMap& map, const uint256& parent);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
-    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                    NameRecordMap& mapNameRecords, NameRecordNameMap& mapNameRecordNames, NameDataMap& mapNameData,
-                    const uint256 &hashBlockIn, const int &nCacheExcludeVotes);
+    bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlockIn,
+            const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;

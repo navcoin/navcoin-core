@@ -412,14 +412,22 @@ bool CStateViewDB::GetAllConsultationAnswers(CConsultationAnswerMap &map) {
     return true;
 }
 
-bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                              CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                              CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                              CConsensusParameterMap &mapConsensus,
-                              TokenMap &mapTokens, TokenUtxoMap &mapTokenUtxos,
-                              NameRecordMap &mapNameRecords, NameRecordNameMap &mapNameRecordNames,
-                              NameDataMap& mapNameData,
-                              const uint256 &hashBlock, const int &nExcludeVotes) {
+bool CStateViewDB::BatchWrite(
+        CCoinsMap &mapCoins,
+        CProposalMap &mapProposals,
+        CPaymentRequestMap &mapPaymentRequests,
+        CVoteMap &mapVotes,
+        CConsultationMap &mapConsultations,
+        CConsultationAnswerMap &mapAnswers,
+        CConsensusParameterMap &mapConsensus,
+        TokenMap &mapTokens,
+        TokenUtxoMap &mapTokenUtxos,
+        NameRecordMap &mapNameRecords,
+        NameRecordNameMap &mapNameRecordNames,
+        NameDataMap& mapNameData,
+        const uint256 &hashBlock,
+        const int &nExcludeVotes)
+{
 
     CDBBatch batch(db);
     size_t count = 0;
