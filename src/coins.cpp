@@ -595,8 +595,6 @@ bool CStateViewCache::GetAllNameRecordNames(NameRecordNameMap& map) {
     map.clear();
     map.insert(cacheNameRecordNames.begin(), cacheNameRecordNames.end());
 
-    LogPrint("dotnav", "%s: first\n", __func__);
-
     NameRecordNameMap baseMap;
 
     if (!base->GetAllNameRecordNames(baseMap))
