@@ -13,19 +13,22 @@ class NameRecordNameValue {
 public:
     std::string domain;
     std::string subdomain;
+    int64_t height;
 
     NameRecordNameValue() {
         SetNull();
     }
 
-    NameRecordNameValue(const std::string& domain_, const std::string& subdomain_) {
+    NameRecordNameValue(const std::string& domain_, const std::string& subdomain_, const int64_t& height_) {
         domain = domain_;
         subdomain = subdomain_;
+        height = height_;
     };
 
     void SetNull() {
         domain = "";
         subdomain = "";
+        height = 0;
     }
 
     bool IsNull() const {
@@ -33,12 +36,13 @@ public:
     }
 
     bool operator==(const NameRecordNameValue& other) {
-        return (domain == other.domain && subdomain == other.subdomain);
+        return (domain == other.domain && subdomain == other.subdomain && height == other.height);
     }
 
     void swap(NameRecordNameValue &to) {
         std::swap(to.domain, domain);
         std::swap(to.subdomain, subdomain);
+        std::swap(to.height, height);
     }
 
     ADD_SERIALIZE_METHODS;
@@ -47,6 +51,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(domain);
         READWRITE(subdomain);
+        READWRITE(height);
     }
 };
 

@@ -805,7 +805,7 @@ public:
     bool RemoveToken(const uint256 &pid) const;
     bool RemoveTokenUtxo(const TokenUtxoKey &key) const;
     bool RemoveNameRecord(const uint256 &pid) const;
-    bool RemoveNameRecordName(const uint256 &id) const;
+    bool RemoveNameRecordName(const uint256 &id, const int64_t& height) const;
     bool RemoveNameData(const NameDataKey &id) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);

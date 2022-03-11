@@ -2994,10 +2994,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         } else if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
                             view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
                             LogPrint("dotnav", "%s: removing name data for %s %d\n", __func__, program.sParameters[0], pindex->nHeight);
+                        }
 
-                            if (fNameIndex) {
-                                if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
-                                    view.RemoveNameRecordName(DotNav::GetHashName(program.sParameters[0]));
+                        if (fNameIndex) {
+                            if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
+                                if (view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[1] + "." + program.sParameters[0])))
+                                    view.RemoveNameRecordName(DotNav::GetHashName(program.sParameters[1] + "." + program.sParameters[0]), pindex->nHeight);
                             }
                         }
                     }
@@ -5004,8 +5006,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         if (fNameIndex) {
                             if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
-                                if (!view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[0])))
-                                    view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
+                                if (!view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[1] + "." + program.sParameters[0])))
+                                    view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[1] + "." + program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1], pindex->nHeight)));
                             }
                         }
                     }

@@ -941,15 +941,10 @@ bool CStateViewCache::AddNameRecord(const NameRecord& namerecord) const {
 }
 
 bool CStateViewCache::AddNameRecordName(const NameRecordName& name) const {
-    LogPrint("dotnav", "%s: CALLED!!!\n", __func__);
     if (cacheNameRecordNames.count(name.first))
         cacheNameRecordNames[name.first]=name.second;
     else
         cacheNameRecordNames.insert(std::make_pair(name.first, name.second));
-
-    for (auto& i: cacheNameRecordNames) {
-        LogPrint("dotnav", "%s: domain %s subdomain %s\n", __func__, i.second.domain, i.second.subdomain);
-    }
 
     return true;
 }
@@ -1028,13 +1023,18 @@ bool CStateViewCache::RemoveNameRecord(const uint256 &id) const {
     return true;
 }
 
-bool CStateViewCache::RemoveNameRecordName(const uint256 &id) const {
+bool CStateViewCache::RemoveNameRecordName(const uint256 &id, const int64_t& height) const {
     if (!HaveNameRecordName(id))
         return false;
 
-    cacheNameRecordNames[id] = NameRecordNameValue();
+    if (cacheNameRecordNames.count(id))
+    {
+        if (cacheNameRecordNames[id].height == height) {
+            cacheNameRecordNames[id] = NameRecordNameValue();
 
-    assert(cacheNameRecordNames[id].IsNull());
+            assert(cacheNameRecordNames[id].IsNull());
+        }
+    }
 
     return true;
 }
