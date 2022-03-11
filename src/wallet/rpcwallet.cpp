@@ -5998,10 +5998,39 @@ UniValue listnames(const UniValue& params, bool fHelp)
     NameRecordNameMap mapNames;
     CStateViewCache view(pcoinsTip);
 
+    std::map<uint256, int64_t> expiryHeights;
+
     if(view.GetAllNameRecordNames(mapNames))
     {
+        auto activeHeight = chainActive.Tip()->nHeight;
+
         for (NameRecordNameMap::iterator it = mapNames.begin(); it != mapNames.end(); it++)
         {
+            auto id = DotNav::GetHashName(it->second.domain);
+
+            if (expiryHeights.count(id) == 0) {
+                if (!view.HaveNameData(id)) {
+                    expiryHeights.insert(std::make_pair(id, 0));
+                    continue;
+                }
+
+                NameDataValues data;
+
+                if (!view.GetNameData(DotNav::GetHashName(it->second.domain), data)) {
+                    expiryHeights.insert(std::make_pair(id, 0));
+                    continue;
+                }
+
+                for (auto &i: data) {
+                    if (i.second.key == "_expiry") {
+                        expiryHeights.insert(std::make_pair(id, stoll(i.second.value)));
+                    }
+                }
+            }
+
+            if (activeHeight >= expiryHeights[id])
+                continue;
+
             std::string finalName = it->second.domain;
 
             if (it->second.subdomain != "")
