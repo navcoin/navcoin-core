@@ -1636,6 +1636,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
                     break;
                 }
 
+                // Check for changed -nameindex state
+                if (fNftIndex != GetBoolArg("-nameindex", DEFAULT_NAMEINDEX)) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -nameindex");
+                    break;
+                }
+
                 // Check for changed -addressindex state
                 if (fAddressIndex != GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX)) {
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -addressindex");

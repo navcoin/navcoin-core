@@ -79,6 +79,7 @@ bool fReindex = false;
 bool fVerifyChain = false;
 bool fTxIndex = false;
 bool fNftIndex = false;
+bool fNameIndex = false;
 bool fAddressIndex = false;
 bool fTimestampIndex = false;
 bool fSpentIndex = false;
@@ -2994,8 +2995,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             view.RemoveNameData(NameDataKey(program.sParameters[0], pindex->nHeight));
                             LogPrint("dotnav", "%s: removing name data for %s %d\n", __func__, program.sParameters[0], pindex->nHeight);
 
-                            if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
-                                view.RemoveNameRecordName(DotNav::GetHashName(program.sParameters[0]));
+                            if (fNameIndex) {
+                                if (!view.HaveNameData(DotNav::GetHashName(program.sParameters[0])))
+                                    view.RemoveNameRecordName(DotNav::GetHashName(program.sParameters[0]));
+                            }
                         }
                     }
                 } catch(...) {
@@ -4999,9 +5002,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             LogPrint("dotnav", "%s: updated name %s %s %s %s\n", __func__, program.sParameters[1], program.sParameters[0], program.sParameters[2], program.sParameters[3]);
                         }
 
-                        if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
-                            if (!view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[0])))
-                                view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
+                        if (fNameIndex) {
+                            if (program.action == UPDATE_NAME_FIRST || program.action == UPDATE_NAME || program.action == RENEW_NAME) {
+                                if (!view.HaveNameRecordName(DotNav::GetHashName(program.sParameters[0])))
+                                    view.AddNameRecordName(std::make_pair(DotNav::GetHashName(program.sParameters[0]), NameRecordNameValue(program.sParameters[0], program.sParameters[1])));
+                            }
                         }
                     }
                 } catch(...) {
@@ -7360,6 +7365,10 @@ bool static LoadBlockIndexDB()
     pblocktree->ReadFlag("nftindex", fNftIndex);
     LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
 
+    // Check whether we have a name index
+    pblocktree->ReadFlag("nameindex", fNameIndex);
+    LogPrintf("%s: name index %s\n", __func__, fNameIndex ? "enabled" : "disabled");
+
     // Check whether we have an address index
     pblocktree->ReadFlag("addressindex", fAddressIndex);
     LogPrintf("%s: address index %s\n", __func__, fAddressIndex ? "enabled" : "disabled");
@@ -7784,6 +7793,7 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Load the flag values | use DEFAULT_* values if not set
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
     fNftIndex = GetBoolArg("-nftindex", DEFAULT_NFTINDEX);
+    fNameIndex = GetBoolArg("-nameindex", DEFAULT_NAMEINDEX);
     fAddressIndex = GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX);
     fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
     fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
@@ -7791,7 +7801,7 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Check if we want all indexes
     if (GetBoolArg("-allindex", DEFAULT_ALLINDEX))
     {
-        fTxIndex = fNftIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
+        fTxIndex = fNftIndex = fNameIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
     }
 
     // Use the provided setting for -txindex in the new database
@@ -7801,6 +7811,10 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Use the provided setting for -nftindex in the new database
     pblocktree->WriteFlag("nftindex", fNftIndex);
     LogPrintf("%s: nft index %s\n", __func__, fNftIndex ? "enabled" : "disabled");
+
+    // Use the provided setting for -nameindex in the new database
+    pblocktree->WriteFlag("nameindex", fNameIndex);
+    LogPrintf("%s: name index %s\n", __func__, fNameIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -addressindex in the new database
     pblocktree->WriteFlag("addressindex", fAddressIndex);

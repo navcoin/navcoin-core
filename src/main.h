@@ -206,6 +206,7 @@ extern bool fVerifyChain;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
 extern bool fNftIndex;
+extern bool fNameIndex;
 extern bool fAddressIndex;
 extern bool fSpentIndex;
 extern bool fTimestampIndex;
