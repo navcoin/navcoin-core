@@ -148,6 +148,7 @@ static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
 static const bool DEFAULT_ALLINDEX = false;
 static const bool DEFAULT_TXINDEX = false;
 static const bool DEFAULT_NFTINDEX = false;
+static const bool DEFAULT_NAMEINDEX = false;
 static const bool DEFAULT_ADDRESSINDEX = false;
 static const bool DEFAULT_TIMESTAMPINDEX = false;
 static const bool DEFAULT_SPENTINDEX = false;
