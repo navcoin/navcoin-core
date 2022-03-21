@@ -5995,6 +5995,8 @@ UniValue listnames(const UniValue& params, bool fHelp)
     if (params.size() == 1 && !params[0].isBool())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
 
+    bool fIsMine = params.size() == 1 ? params[0].get_bool() : false;
+
     NameRecordNameMap mapNames;
     CStateViewCache view(pcoinsTip);
 
@@ -6035,6 +6037,19 @@ UniValue listnames(const UniValue& params, bool fHelp)
 
             if (it->second.subdomain != "")
                 finalName = it->second.subdomain + "." + finalName;
+
+            if (fIsMine) {
+                blsctKey sk;
+
+                if (!pwalletMain->GetBLSCTSpendKey(sk))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+
+                blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(it->second.domain).ToString()));
+                bls::G1Element pkg1 = pk.GetG1Element();
+
+                if (!view.HaveNameRecord(DotNav::GetHashIdName(it->second.domain, pkg1)))
+                    continue;
+            }
 
             ret.push_back(finalName);
         }
