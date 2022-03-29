@@ -5982,6 +5982,7 @@ UniValue listnames(const UniValue& params, bool fHelp)
                 "\nList dotNav names.\n"
                 "\nArguments:\n"
                 "1. mine (bool, optional, default=false) Set mine to true to show only names you own.\n"
+                "\n NOTE: Requires -nameindex=1 to work\n"
 
                 + HelpExampleCli("listnames", "")
                 + HelpExampleCli("listnames", "true")
