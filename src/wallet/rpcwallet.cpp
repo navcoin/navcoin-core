@@ -5978,10 +5978,9 @@ UniValue listnames(const UniValue& params, bool fHelp)
 {
     if (fHelp)
         throw std::runtime_error(
-                "listnames (mine)\n"
-                "\nList dotNav names.\n"
+                "listnames\n"
+                "\nList your dotNav names.\n"
                 "\nArguments:\n"
-                "1. mine (bool, optional, default=false) Set mine to true to show only names you own.\n"
                 "\n NOTE: Requires -nameindex to be enabled\n"
 
                 + HelpExampleCli("listnames", "")
@@ -5995,8 +5994,6 @@ UniValue listnames(const UniValue& params, bool fHelp)
     // Check "mine" argument is boolean
     if (params.size() == 1 && !params[0].isBool())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
-
-    bool fIsMine = params.size() == 1 ? params[0].get_bool() : false;
 
     NameRecordNameMap mapNames;
     CStateViewCache view(pcoinsTip);
@@ -6039,18 +6036,16 @@ UniValue listnames(const UniValue& params, bool fHelp)
             if (it->second.subdomain != "")
                 finalName = it->second.subdomain + "." + finalName;
 
-            if (fIsMine) {
-                blsctKey sk;
+            blsctKey sk;
 
-                if (!pwalletMain->GetBLSCTSpendKey(sk))
-                    throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
+            if (!pwalletMain->GetBLSCTSpendKey(sk))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Wallet not available");
 
-                blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(it->second.domain).ToString()));
-                bls::G1Element pkg1 = pk.GetG1Element();
+            blsctKey pk = sk.PrivateChildHash(SerializeHash("name/"+DotNav::GetHashName(it->second.domain).ToString()));
+            bls::G1Element pkg1 = pk.GetG1Element();
 
-                if (!view.HaveNameRecord(DotNav::GetHashIdName(it->second.domain, pkg1)))
-                    continue;
-            }
+            if (!view.HaveNameRecord(DotNav::GetHashIdName(it->second.domain, pkg1)))
+                continue;
 
             ret.push_back(finalName);
         }
