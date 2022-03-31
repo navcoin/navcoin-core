@@ -6190,9 +6190,6 @@ UniValue gettoken(const UniValue& params, bool fHelp)
     if (!view.GetToken(uint256S(params[0].get_str()), token))
         return ret;
 
-    if (token.nVersion != 0)
-        return ret;
-
     ret.pushKV("version", token.nVersion);
     ret.pushKV("id", params[0].get_str());
     ret.pushKV("pubkey", HexStr(token.key.Serialize()));
