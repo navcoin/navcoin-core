@@ -3000,7 +3000,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 }
             }
 
-            if (fNftIndex) {
+            if (fNftIndex && txout.nValue > 0) {
                 auto tokenId = txout.tokenId.token;
 
                 if (view.HaveToken(tokenId))
@@ -5001,7 +5001,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
             }
 
-            if (fNftIndex) {
+            if (fNftIndex && vout.nValue > 0) {
                 auto tokenId = vout.tokenId.token;
 
                 if (view.HaveToken(tokenId))
