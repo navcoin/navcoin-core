@@ -2003,7 +2003,7 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter, const T
                     if (prev.vout[txin.prevout.n].HasRangeProof())
                         return prev.vout[txin.prevout.n].tokenId == tokenId ? prev.vAmounts[txin.prevout.n] : 0;
                     else
-                        return prev.vout[txin.prevout.n].nValue;
+                        return prev.vout[txin.prevout.n].tokenId == tokenId ? prev.vout[txin.prevout.n].nValue : 0;
                 }
         }
     }
@@ -2041,7 +2041,7 @@ CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter, cons
 {
     if (!MoneyRange(txout.nValue))
         throw std::runtime_error("CWallet::GetCredit(): value out of range");
-    return ((IsMine(txout) & filter) ? txout.nValue : 0);
+    return ((IsMine(txout) & filter) && txout.tokenId == tokenId ? txout.nValue : 0);
 }
 
 bool CWallet::IsChange(const CTxOut& txout) const
