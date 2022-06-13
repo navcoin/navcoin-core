@@ -244,6 +244,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         out.pushKV("spendingKey", HexStr(txout.spendingKey));
         out.pushKV("ephemeralKey", HexStr(txout.ephemeralKey));
         out.pushKV("outputKey", HexStr(txout.outputKey));
+        out.pushKV("vData", HexStr(txout.vData));
         out.pushKV("tokenId", txout.tokenId.token.ToString());
         if (txout.tokenId.subid != -1)
             out.pushKV("tokenNftId", txout.tokenId.subid);
