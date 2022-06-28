@@ -3,7 +3,7 @@ name: "navcoin-linux-7.0.3"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "amd64"
 packages:
