@@ -312,8 +312,11 @@ bool CScript::IsPayToPublicKey() const
 {
     // Extra-fast test for pay-to-pubkey-hash CScripts:
     return (this->size() == 35 &&
-      (*this)[0] == 0x21 &&
-      (*this)[34] == OP_CHECKSIG);
+        (*this)[0] == 0x21 &&
+        (*this)[34] == OP_CHECKSIG) ||
+        (this->size() == 67 &&
+        (*this)[0] == 0x41 &&
+        (*this)[66] == OP_CHECKSIG);
 }
 
 bool CScript::IsCommunityFundContribution() const
