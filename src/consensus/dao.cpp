@@ -2585,6 +2585,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("excludedVotes", view.GetExcludeVotes());
+    ret.pushKV("votesExcluded", view.GetExcludeVotes());
     ret.pushKV("mapState", mapState);
     ret.pushKV("answers", answers);
     ret.pushKV("min", nMin);
@@ -2902,6 +2903,7 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
         mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("excludedVotes", view.GetExcludeVotes());
+    ret.pushKV("votesExcluded", view.GetExcludeVotes());
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)fState);
@@ -3499,6 +3501,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votesExcluded", coins.GetExcludeVotes());
     ret.pushKV("excludedVotes", coins.GetExcludeVotes());
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)+1));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
@@ -3561,6 +3564,7 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votesExcluded", view.GetExcludeVotes());
     ret.pushKV("excludedVotes", view.GetExcludeVotes());
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)+1));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
