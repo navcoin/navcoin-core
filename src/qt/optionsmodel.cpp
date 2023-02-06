@@ -71,8 +71,8 @@ void OptionsModel::Init(bool resetSettings)
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     if (!settings.contains("strThirdPartyTxUrls"))
-        settings.setValue("strThirdPartyTxUrls", "https://www.navexplorer.com/tx/%s");
-    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "https://www.navexplorer.com/tx/%s").toString();
+        settings.setValue("strThirdPartyTxUrls", "https://explorer.navcoin.org/tx/%s");
+    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "https://explorer.navcoin.org/tx/%s").toString();
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
