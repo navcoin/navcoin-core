@@ -798,6 +798,7 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
         CHashWriter hasher(0,0);
 
+try_again:
         hasher << pd.V[0];
 
         for (unsigned int j = 1; j < pd.V.size(); j++)
@@ -808,9 +809,15 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
         pd.y = hasher.GetHash();
 
+        if (pd.y == 0)
+            goto try_again;
+
         hasher << pd.y;
 
         pd.z = hasher.GetHash();
+
+        if (pd.z == 0)
+            goto try_again;
 
         hasher << pd.z;
         hasher << proof.T1;
@@ -818,12 +825,18 @@ bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>
 
         pd.x = hasher.GetHash();
 
+        if (pd.x == 0)
+            goto try_again;
+
         hasher << pd.x;
         hasher << proof.taux;
         hasher << proof.mu;
         hasher << proof.t;
 
         pd.x_ip = hasher.GetHash();
+
+        if (pd.x_ip == 0)
+            goto try_again;
 
         size_t M;
         for (pd.logM = 0; (M = 1<<pd.logM) <= maxM && M < pd.V.size(); ++pd.logM);
