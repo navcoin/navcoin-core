@@ -8,7 +8,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/asio.hpp>
-
+#include <set>
 #include <torcontrol.h>
 #include <util.h>
 
