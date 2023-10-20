@@ -6167,6 +6167,37 @@ UniValue listnfts(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue getindexflags(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw std::runtime_error(
+                "getindexflags\n"
+                "\nShows the values for index flags.\n"
+
+                + HelpExampleCli("getindexflags", "")
+                );
+
+    UniValue ret(UniValue::VOBJ);
+
+    // List of flags
+    std::string indexNames[6] = {
+        "addressindex",
+        "nameindex",
+        "nftindex",
+        "spentindex",
+        "timestampindex",
+        "txindex",
+    };
+
+    for (auto i = 0; i < 6; ++i) {
+        bool indexValue;
+        pblocktree->ReadFlag(indexNames[i], indexValue);
+        ret.pushKV(indexNames[i], indexValue);
+    }
+
+    return ret;
+}
+
 UniValue gettoken(const UniValue& params, bool fHelp)
 {
     if (fHelp)
@@ -6325,6 +6356,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "listtokens",               &listtokens,               true  },
   { "wallet",             "listnfts",                 &listnfts,                 true  },
   { "wallet",             "gettoken",                 &gettoken,                 true  },
+  { "wallet",             "getindexflags",            &getindexflags,            false },
   { "wallet",             "getnft",                   &getnft,                   true  },
   { "wallet",             "getbalance",               &getbalance,               false },
   { "wallet",             "getnewaddress",            &getnewaddress,            true  },
