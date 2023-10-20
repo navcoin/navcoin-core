@@ -131,7 +131,7 @@ OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent
         }
     }
 
-    ui->thirdPartyTxUrls->setPlaceholderText("https://www.navexplorer.com/tx/%s");
+    ui->thirdPartyTxUrls->setPlaceholderText("https://explorer.navcoin.org/tx/%s");
 
     ui->unit->setModel(new NavcoinUnits(this));
 

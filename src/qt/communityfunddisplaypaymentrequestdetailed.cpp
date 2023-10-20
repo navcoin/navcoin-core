@@ -129,7 +129,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestProposalHash->setText(QString::fromStdString(prequest.proposalhash.ToString()));
 
     // Link
-    ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/dao/payment-request/" + prequest.hash.ToString()));
+    ui->labelPrequestLink->setText(QString::fromStdString("https://explorer.navcoin.org/dao/payment-request/" + prequest.hash.ToString()));
 
     // Hide ability to vote is the status is expired
     std::string status = ui->labelPrequestStatus->text().toStdString();
