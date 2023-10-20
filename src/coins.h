@@ -16,8 +16,10 @@
 #include <consensus/dao.h>
 #include <ctokens/ctokens.h>
 #include <ctokens/tokenutxos.h>
-#include <dotnav/namerecord.h>
 #include <dotnav/namedata.h>
+#include <dotnav/namerecord.h>
+#include <dotnav/namerecord.h>
+#include <dotnav/namerecordname.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -395,6 +397,10 @@ public:
     virtual bool GetAllNameRecords(NameRecordMap& map);
     virtual bool HaveNameRecord(const uint256 &id) const;
 
+    virtual bool GetNameRecordName(const uint256 &id, NameRecordNameValue& name) const;
+    virtual bool GetAllNameRecordNames(NameRecordNameMap& map);
+    virtual bool HaveNameRecordName(const uint256 &id) const;
+
     virtual bool GetNameData(const uint256& id, NameDataValues& data);
     virtual bool HaveNameData(const uint256& id) const;
 
@@ -406,12 +412,21 @@ public:
 
     //! Do a bulk modification (multiple CCoins changes + BestBlock change).
     //! The passed mapCoins can be modified.
-    virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                            CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                            CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                            NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
-                            const uint256 &hashBlock, const int &nCacheExcludeVotes);
+    virtual bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlock,
+            const int &nCacheExcludeVotes);
 
     //! Get a cursor to iterate over the whole state
     virtual CStateViewCursor *Cursor() const;
@@ -459,6 +474,10 @@ public:
     bool GetAllNameRecords(NameRecordMap& map);
     bool HaveNameRecord(const uint256 &id) const;
 
+    bool GetNameRecordName(const uint256 &id, NameRecordNameValue& name) const;
+    bool GetAllNameRecordNames(NameRecordNameMap& map);
+    bool HaveNameRecordName(const uint256 &id) const;
+
     bool GetNameData(const uint256 &id, NameDataValues& data);
     bool HaveNameData(const uint256 &id) const;
 
@@ -467,12 +486,21 @@ public:
 
     uint256 GetBestBlock() const;
     void SetBackend(CStateView &viewIn);
-    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
-                    const uint256 &hashBlock, const int &nCacheExcludeVotes);
+    bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlock,
+            const int &nCacheExcludeVotes);
     CStateViewCursor *Cursor() const;
 };
 
@@ -628,6 +656,22 @@ public:
     friend class CStateViewCache;
 };
 
+class NameRecordNameModifier
+{
+private:
+    CStateViewCache& cache;
+    NameRecordNameMap::iterator it;
+    NameRecordNameModifier(CStateViewCache& cache_, NameRecordNameMap::iterator it_, int height=0);
+    NameRecordNameValue prev;
+    int height;
+
+public:
+    NameRecordNameValue* operator->() { return &it->second; }
+    NameRecordNameValue& operator*() { return it->second; }
+    ~NameRecordNameModifier();
+    friend class CStateViewCache;
+};
+
 class NameDataModifier
 {
 private:
@@ -683,6 +727,7 @@ protected:
     mutable TokenMap cacheTokens;
     mutable TokenUtxoMap cacheTokenUtxos;
     mutable NameRecordMap cacheNameRecords;
+    mutable NameRecordNameMap cacheNameRecordNames;
     mutable NameDataMap cacheNameData;
     mutable int nCacheExcludeVotes;
 
@@ -705,6 +750,7 @@ public:
     bool HaveToken(const uint256& id) const;
     bool HaveTokenUtxos(const uint256 &id) const;
     bool HaveNameRecord(const uint256& id) const;
+    bool HaveNameRecordName(const uint256& id) const;
     bool HaveNameData(const uint256& id) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
@@ -715,6 +761,7 @@ public:
     bool GetToken(const uint256& pid, TokenInfo& token) const;
     bool GetTokenUtxos(const uint256 &id, TokenUtxoValues &tokenUtxos);
     bool GetNameRecord(const uint256& pid, NameRecordValue& height) const;
+    bool GetNameRecordName(const uint256& pid, NameRecordNameValue& name) const;
     bool GetNameData(const uint256& pid, NameDataValues& data);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
@@ -723,15 +770,25 @@ public:
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     bool GetAllTokens(TokenMap& map);
     bool GetAllNameRecords(NameRecordMap& map);
+    bool GetAllNameRecordNames(NameRecordNameMap& map);
     bool GetAnswersForConsultation(CConsultationAnswerMap& map, const uint256& parent);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
-    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
-                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    CConsensusParameterMap& mapConsensus, TokenMap& mapTokens, TokenUtxoMap& mapTokenUtxos,
-                    NameRecordMap& mapNameRecords, NameDataMap& mapNameData,
-                    const uint256 &hashBlockIn, const int &nCacheExcludeVotes);
+    bool BatchWrite(
+            CCoinsMap &mapCoins,
+            CProposalMap &mapProposals,
+            CPaymentRequestMap &mapPaymentRequests,
+            CVoteMap &mapVotes,
+            CConsultationMap &mapConsultations,
+            CConsultationAnswerMap &mapAnswers,
+            CConsensusParameterMap& mapConsensus,
+            TokenMap& mapTokens,
+            TokenUtxoMap& mapTokenUtxos,
+            NameRecordMap& mapNameRecords,
+            NameRecordNameMap& mapNameRecordNames,
+            NameDataMap& mapNameData,
+            const uint256 &hashBlockIn,
+            const int &nCacheExcludeVotes);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
@@ -739,6 +796,7 @@ public:
     bool AddToken(const Token& token) const;
     bool AddTokenUtxo(const uint256 &id, const TokenUtxoEntry& utxo) const;
     bool AddNameRecord(const NameRecord& record) const;
+    bool AddNameRecordName(const NameRecordName& name) const;
     bool AddNameData(const uint256& id, const NameDataEntry& record) const;
     bool AddConsultationAnswer(const CConsultationAnswer& answer);
     bool RemoveProposal(const uint256 &pid) const;
@@ -747,6 +805,7 @@ public:
     bool RemoveToken(const uint256 &pid) const;
     bool RemoveTokenUtxo(const TokenUtxoKey &key) const;
     bool RemoveNameRecord(const uint256 &pid) const;
+    bool RemoveNameRecordName(const uint256 &id, const int64_t& height) const;
     bool RemoveNameData(const NameDataKey &id) const;
     bool RemoveConsultation(const uint256 &cid);
     bool RemoveConsultationAnswer(const uint256 &cid);
@@ -786,6 +845,7 @@ public:
     TokenModifier ModifyToken(const uint256 &id, int nHeight = 0);
     TokenUtxosModifier ModifyTokenUtxos(const uint256 &id, int blockHeight = 0);
     NameRecordModifier ModifyNameRecord(const uint256 &id, int nHeight = 0);
+    NameRecordNameModifier ModifyNameRecordName(const uint256 &id, int nHeight = 0);
     NameDataModifier ModifyNameData(const uint256& id, int nHeight = 0);
 
     /**
@@ -850,6 +910,7 @@ public:
     friend class TokenModifier;
     friend class TokenUtxosModifier;
     friend class NameRecordModifier;
+    friend class NameRecordNameModifier;
     friend class NameDataModifier;
 
 private:
@@ -864,6 +925,7 @@ private:
     TokenMap::const_iterator FetchToken(const uint256 &id) const;
     TokenUtxoMap::const_iterator FetchTokenUtxos(const uint256 &id) const;
     NameRecordMap::const_iterator FetchNameRecord(const uint256 &id) const;
+    NameRecordNameMap::const_iterator FetchNameRecordName(const uint256 &id) const;
     NameDataMap::const_iterator FetchNameData(const uint256 &id) const;
 
     /**

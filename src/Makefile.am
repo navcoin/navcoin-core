@@ -337,6 +337,7 @@ libnavcoin_consensus_a_SOURCES = \
   ctokens/tokenid.h \
   dotnav/namedata.h \
   dotnav/namerecord.h \
+  dotnav/namerecordname.h \
   dotnav/names.h \
   dotnav/names.cpp \
   aes_helper.c \
